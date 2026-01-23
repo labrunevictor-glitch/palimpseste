@@ -113,15 +113,29 @@ async function sendPasswordReset() {
     const redirectUrl = 'https://palimpseste.vercel.app/web/index.html';
     
     try {
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: redirectUrl
         });
+        
+        console.log('Reset password response:', { data, error });
         
         document.getElementById('forgotBtn').disabled = false;
         document.getElementById('forgotBtn').textContent = 'Envoyer le lien';
         
         if (error) {
-            showAuthError('forgot', error.message);
+            console.error('Reset password error:', error);
+            // Message plus détaillé
+            let errorMsg = 'Erreur lors de l\'envoi';
+            if (error.message.includes('rate limit')) {
+                errorMsg = 'Trop de tentatives. Attendez quelques minutes.';
+            } else if (error.message.includes('SMTP') || error.message.includes('smtp')) {
+                errorMsg = 'Erreur configuration email serveur. Contactez l\'admin.';
+            } else if (error.message.includes('not found') || error.message.includes('User not found')) {
+                errorMsg = 'Aucun compte trouvé avec cet email.';
+            } else {
+                errorMsg = error.message;
+            }
+            showAuthError('forgot', errorMsg);
         } else {
             // Afficher le message de succès
             document.getElementById('forgotError').classList.remove('show');
