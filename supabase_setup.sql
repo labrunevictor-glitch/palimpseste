@@ -124,7 +124,74 @@ CREATE POLICY "Les utilisateurs peuvent retirer leurs likes"
     USING (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 🔧 Trigger pour créer automatiquement un profil à l'inscription
+-- � Table des follows (système d'amis)
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE follows (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    follower_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    following_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(follower_id, following_id)
+);
+
+-- Index pour les performances
+CREATE INDEX idx_follows_follower ON follows(follower_id);
+CREATE INDEX idx_follows_following ON follows(following_id);
+
+-- RLS pour follows
+ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Les follows sont visibles par tous"
+    ON follows FOR SELECT
+    USING (true);
+
+CREATE POLICY "Les utilisateurs peuvent suivre"
+    ON follows FOR INSERT
+    WITH CHECK (auth.uid() = follower_id);
+
+CREATE POLICY "Les utilisateurs peuvent unfollow"
+    ON follows FOR DELETE
+    USING (auth.uid() = follower_id);
+
+-- Ajouter compteurs followers/following dans profiles
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS followers_count INTEGER DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS following_count INTEGER DEFAULT 0;
+
+-- Fonction pour incrémenter followers
+CREATE OR REPLACE FUNCTION increment_followers(user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE profiles SET followers_count = followers_count + 1 WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Fonction pour décrémenter followers
+CREATE OR REPLACE FUNCTION decrement_followers(user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE profiles SET followers_count = GREATEST(0, followers_count - 1) WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Fonction pour incrémenter following
+CREATE OR REPLACE FUNCTION increment_following(user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE profiles SET following_count = following_count + 1 WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Fonction pour décrémenter following
+CREATE OR REPLACE FUNCTION decrement_following(user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE profiles SET following_count = GREATEST(0, following_count - 1) WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- �🔧 Trigger pour créer automatiquement un profil à l'inscription
 -- ═══════════════════════════════════════════════════════════════════════════
 
 CREATE OR REPLACE FUNCTION handle_new_user()

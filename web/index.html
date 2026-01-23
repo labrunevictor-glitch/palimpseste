@@ -1590,6 +1590,177 @@
             font-size: 0.9rem;
             color: var(--text);
         }
+        .extrait-username-link {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .extrait-username-link:hover {
+            color: var(--accent);
+        }
+        .follow-btn {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+        .follow-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .follow-btn.following {
+            background: var(--accent-tertiary);
+            border-color: var(--accent-tertiary);
+            color: white;
+        }
+        .follow-btn.following:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        .user-profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .user-profile-modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .user-profile-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid var(--border);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .profile-avatar-large {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+        }
+        .profile-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .profile-stat strong {
+            color: var(--text);
+        }
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .profile-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-follow-large {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-follow-large.following {
+            background: var(--accent-tertiary);
+        }
+        .btn-follow-small {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+        .btn-follow-small:hover {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-follow-small.following {
+            border-color: var(--accent-tertiary);
+            color: var(--accent-tertiary);
+        }
+        .btn-follow-small.following:hover {
+            background: rgba(42, 157, 143, 0.2);
+        }
+        .btn-close-profile {
+            background: var(--bg-elevated);
+            color: var(--text);
+            border: 1px solid var(--border) !important;
+        }
+        .friends-list {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+        .friends-list h4 {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+        }
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+        }
+        .friend-item:hover {
+            background: var(--bg-elevated);
+            margin: 0 -1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        .friend-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+        }
         .extrait-time {
             font-size: 0.75rem;
             color: var(--muted);
@@ -1961,10 +2132,36 @@
             </div>
             <div class="feed-tabs">
                 <button class="feed-tab active" onclick="switchSocialTab('recent')" id="tabRecent">🔥 Récents</button>
+                <button class="feed-tab" onclick="switchSocialTab('friends')" id="tabFriends">👥 Amis</button>
                 <button class="feed-tab" onclick="switchSocialTab('popular')" id="tabPopular">⭐ Populaires</button>
                 <button class="feed-tab" onclick="switchSocialTab('mine')" id="tabMine">👤 Mes extraits</button>
             </div>
             <div id="socialFeed"></div>
+        </div>
+    </div>
+
+    <!-- Modal Profil Utilisateur -->
+    <div class="user-profile-modal" id="userProfileModal" onclick="if(event.target === this) closeUserProfile()">
+        <div class="user-profile-content">
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profileAvatar">?</div>
+                <div class="profile-info">
+                    <h3 id="profileUsername">Utilisateur</h3>
+                    <div class="profile-stats">
+                        <span class="profile-stat"><strong id="profileFollowers">0</strong> abonnés</span>
+                        <span class="profile-stat"><strong id="profileFollowing">0</strong> abonnements</span>
+                        <span class="profile-stat"><strong id="profileExtraits">0</strong> extraits</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn-follow-large" id="profileFollowBtn" onclick="toggleFollowFromProfile()">Suivre</button>
+                <button class="btn-close-profile" onclick="closeUserProfile()">Fermer</button>
+            </div>
+            <div class="friends-list" id="profileFriendsList" style="display:none;">
+                <h4>Personnes suivies</h4>
+                <div id="friendsListContent"></div>
+            </div>
         </div>
     </div>
 
@@ -2406,6 +2603,30 @@
                     .select('*, profiles(username)')
                     .eq('user_id', currentUser.id)
                     .order('created_at', { ascending: false });
+            } else if (currentSocialTab === 'friends' && currentUser) {
+                // Charger les extraits des amis
+                await loadUserFollowing();
+                
+                if (userFollowing.size === 0) {
+                    container.innerHTML = `
+                        <div class="social-empty">
+                            <div class="social-empty-icon">👥</div>
+                            <div class="social-empty-title">Aucun ami suivi</div>
+                            <div class="social-empty-text">
+                                Vous ne suivez personne pour l'instant.<br>
+                                Parcourez les extraits et cliquez sur un profil pour suivre quelqu'un !
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                query = supabaseClient
+                    .from('extraits')
+                    .select('*, profiles(username)')
+                    .in('user_id', Array.from(userFollowing))
+                    .order('created_at', { ascending: false })
+                    .limit(50);
             }
             
             const { data, error } = await query;
@@ -2437,7 +2658,7 @@
         async function renderSocialFeed() {
             const container = document.getElementById('socialFeed');
             
-            // Charger les likes de l'utilisateur
+            // Charger les likes et follows de l'utilisateur
             let userLikes = new Set();
             if (currentUser && supabaseClient) {
                 const { data } = await supabaseClient
@@ -2445,6 +2666,9 @@
                     .select('extrait_id')
                     .eq('user_id', currentUser.id);
                 userLikes = new Set(data?.map(l => l.extrait_id) || []);
+                
+                // Charger les follows si pas déjà fait
+                await loadUserFollowing();
             }
             
             container.innerHTML = socialExtraits.map(extrait => {
@@ -2456,11 +2680,16 @@
                 return `
                     <div class="extrait-card" data-id="${extrait.id}">
                         <div class="extrait-header">
-                            <div class="extrait-avatar">${initial}</div>
-                            <div class="extrait-user-info">
+                            <div class="extrait-avatar" onclick="openUserProfile('${extrait.user_id}', '${username}')" style="cursor:pointer">${initial}</div>
+                            <div class="extrait-user-info" onclick="openUserProfile('${extrait.user_id}', '${username}')" style="cursor:pointer">
                                 <div class="extrait-username">${username}</div>
                                 <div class="extrait-time">${timeAgo}</div>
                             </div>
+                            ${currentUser && extrait.user_id !== currentUser.id ? `
+                                <button class="btn-follow-small ${userFollowing.has(extrait.user_id) ? 'following' : ''}" onclick="toggleFollow('${extrait.user_id}', event)">
+                                    ${userFollowing.has(extrait.user_id) ? '✓ Suivi' : '+ Suivre'}
+                                </button>
+                            ` : ''}
                         </div>
                         <div class="extrait-text">${escapeHtml(extrait.texte)}</div>
                         <div class="extrait-source">
@@ -2568,6 +2797,178 @@
             closeUserDropdown();
             switchSocialTab('mine');
             openSocialFeed();
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // 👥 SYSTÈME D'AMIS (FOLLOWERS)
+        // ═══════════════════════════════════════════════════════════
+        
+        let currentProfileUserId = null;
+        let userFollowing = new Set(); // IDs des personnes qu'on suit
+        
+        // Charger la liste des personnes qu'on suit
+        async function loadUserFollowing() {
+            if (!currentUser || !supabaseClient) return;
+            
+            const { data } = await supabaseClient
+                .from('follows')
+                .select('following_id')
+                .eq('follower_id', currentUser.id);
+            
+            userFollowing = new Set(data?.map(f => f.following_id) || []);
+        }
+        
+        // Ouvrir le profil d'un utilisateur
+        async function openUserProfile(userId, username) {
+            if (!supabaseClient) return;
+            
+            currentProfileUserId = userId;
+            
+            // Charger les infos du profil
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+            
+            // Compter les extraits
+            const { count: extraitCount } = await supabaseClient
+                .from('extraits')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+            
+            // Compter followers/following
+            const { count: followersCount } = await supabaseClient
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', userId);
+            
+            const { count: followingCount } = await supabaseClient
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('follower_id', userId);
+            
+            // Mettre à jour l'UI
+            const displayName = profile?.username || username || 'Anonyme';
+            document.getElementById('profileAvatar').textContent = displayName.charAt(0).toUpperCase();
+            document.getElementById('profileUsername').textContent = displayName;
+            document.getElementById('profileFollowers').textContent = followersCount || 0;
+            document.getElementById('profileFollowing').textContent = followingCount || 0;
+            document.getElementById('profileExtraits').textContent = extraitCount || 0;
+            
+            // Bouton suivre
+            const followBtn = document.getElementById('profileFollowBtn');
+            if (currentUser && userId !== currentUser.id) {
+                followBtn.style.display = 'block';
+                const isFollowing = userFollowing.has(userId);
+                followBtn.textContent = isFollowing ? 'Ne plus suivre' : 'Suivre';
+                followBtn.classList.toggle('following', isFollowing);
+            } else {
+                followBtn.style.display = 'none';
+            }
+            
+            // Charger la liste des personnes suivies par cet utilisateur
+            await loadProfileFollowing(userId);
+            
+            // Ouvrir la modal
+            document.getElementById('userProfileModal').classList.add('open');
+        }
+        
+        // Charger les personnes suivies par un utilisateur
+        async function loadProfileFollowing(userId) {
+            if (!supabaseClient) return;
+            
+            const { data } = await supabaseClient
+                .from('follows')
+                .select('following_id, profiles!follows_following_id_fkey(username)')
+                .eq('follower_id', userId)
+                .limit(10);
+            
+            const container = document.getElementById('friendsListContent');
+            const section = document.getElementById('profileFriendsList');
+            
+            if (!data || data.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            container.innerHTML = data.map(f => {
+                const name = f.profiles?.username || 'Anonyme';
+                return `
+                    <div class="friend-item" onclick="openUserProfile('${f.following_id}', '${name}')">
+                        <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
+                        <span>${name}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Fermer la modal profil
+        function closeUserProfile() {
+            document.getElementById('userProfileModal').classList.remove('open');
+            currentProfileUserId = null;
+        }
+        
+        // Suivre/Ne plus suivre depuis la modal profil
+        async function toggleFollowFromProfile() {
+            if (!currentProfileUserId) return;
+            await toggleFollow(currentProfileUserId);
+            
+            // Rafraîchir l'affichage
+            const followBtn = document.getElementById('profileFollowBtn');
+            const isNowFollowing = userFollowing.has(currentProfileUserId);
+            followBtn.textContent = isNowFollowing ? 'Ne plus suivre' : 'Suivre';
+            followBtn.classList.toggle('following', isNowFollowing);
+            
+            // Mettre à jour le compteur followers
+            const { count } = await supabaseClient
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', currentProfileUserId);
+            document.getElementById('profileFollowers').textContent = count || 0;
+        }
+        
+        // Suivre/Ne plus suivre un utilisateur
+        async function toggleFollow(userId, event) {
+            if (event) event.stopPropagation();
+            
+            if (!currentUser) {
+                openAuthModal('login');
+                toast('📝 Connectez-vous pour suivre');
+                return;
+            }
+            
+            if (!supabaseClient || userId === currentUser.id) return;
+            
+            const isFollowing = userFollowing.has(userId);
+            
+            if (isFollowing) {
+                // Unfollow
+                await supabaseClient
+                    .from('follows')
+                    .delete()
+                    .eq('follower_id', currentUser.id)
+                    .eq('following_id', userId);
+                userFollowing.delete(userId);
+                toast('👋 Vous ne suivez plus cet utilisateur');
+            } else {
+                // Follow
+                await supabaseClient
+                    .from('follows')
+                    .insert({
+                        follower_id: currentUser.id,
+                        following_id: userId,
+                        created_at: new Date().toISOString()
+                    });
+                userFollowing.add(userId);
+                toast('✅ Vous suivez maintenant cet utilisateur !');
+            }
+            
+            // Rafraîchir le feed si on est sur l'onglet amis
+            if (currentSocialTab === 'friends') {
+                loadSocialFeed();
+            }
         }
         
         // Fonction pour partager depuis une carte

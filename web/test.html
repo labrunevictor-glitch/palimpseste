@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Wikisource API</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        .log { margin: 5px 0; padding: 5px; background: #2a2a2a; border-radius: 4px; }
+        .error { background: #4a2020; color: #ff6b6b; }
+        .success { background: #204a20; color: #6bff6b; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Wikisource API</h1>
+    
+    <div>
+        <button onclick="testSearch('fr')">Test FR</button>
+        <button onclick="testSearch('en')">Test EN</button>
+        <button onclick="testFetch()">Test Fetch Page</button>
+        <button onclick="testFullFlow()">🔴 TEST COMPLET</button>
+        <button onclick="clearLogs()">Clear</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(msg, type = '') {
+            const div = document.createElement('div');
+            div.className = 'log ' + type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+            document.getElementById('logs').prepend(div);
+            console.log(msg);
+        }
+
+        async function testSearch(lang) {
+            const urls = {
+                fr: 'https://fr.wikisource.org',
+                en: 'https://en.wikisource.org'
+            };
+            const queries = {
+                fr: 'Baudelaire',
+                en: 'Shakespeare'
+            };
+            
+            const url = `${urls[lang]}/w/api.php?action=query&list=search&srsearch=${queries[lang]}&srlimit=5&srnamespace=0&format=json&origin=*`;
+            
+            log(`Requête: ${url}`);
+            
+            try {
+                const res = await fetch(url);
+                log(`Status: ${res.status} ${res.statusText}`);
+                
+                const data = await res.json();
+                log(`Réponse reçue: ${JSON.stringify(data).substring(0, 200)}...`);
+                
+                if (data.query?.search) {
+                    log(`✅ ${data.query.search.length} résultats trouvés`, 'success');
+                    data.query.search.forEach((r, i) => {
+                        log(`  ${i+1}. ${r.title}`);
+                    });
+                } else {
+                    log('❌ Pas de résultats dans la réponse', 'error');
+                }
+            } catch (e) {
+                log(`❌ ERREUR: ${e.message}`, 'error');
+                log(`Stack: ${e.stack}`, 'error');
+            }
+        }
+
+        async function testFetch() {
+            // Titre exact qui existe sur Wikisource FR
+            const page = 'Le Corbeau et le Renard';
+            const url = `https://fr.wikisource.org/w/api.php?action=parse&page=${encodeURIComponent(page)}&prop=text&format=json&origin=*`;
+            
+            log(`Fetch page: ${page}`);
+            log(`URL: ${url}`);
+            
+            try {
+                const res = await fetch(url);
+                log(`Status: ${res.status}`);
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    log(`❌ Erreur API: ${data.error.info}`, 'error');
+                } else if (data.parse?.text) {
+                    const html = data.parse.text['*'];
+                    log(`✅ Page récupérée: ${html.length} caractères`, 'success');
+                    
+                    // Extraire le texte
+                    const div = document.createElement('div');
+                    div.innerHTML = html;
+                    const text = div.textContent.substring(0, 300);
+                    log(`Aperçu: ${text}...`);
+                } else {
+                    log('❌ Format de réponse inattendu', 'error');
+                }
+            } catch (e) {
+                log(`❌ ERREUR: ${e.message}`, 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        // Test complet comme l'application
+        async function testFullFlow() {
+            log('=== TEST COMPLET DU FLUX ===', 'success');
+            
+            // 1. Recherche
+            const searchUrl = 'https://fr.wikisource.org/w/api.php?action=query&list=search&srsearch=Baudelaire&srlimit=5&srnamespace=0&format=json&origin=*';
+            log('1. Recherche: Baudelaire');
+            
+            try {
+                const searchRes = await fetch(searchUrl);
+                const searchData = await searchRes.json();
+                
+                if (!searchData.query?.search?.length) {
+                    log('❌ Aucun résultat de recherche', 'error');
+                    return;
+                }
+                
+                log(`✅ ${searchData.query.search.length} résultats`, 'success');
+                
+                // 2. Essayer de récupérer chaque page
+                for (const result of searchData.query.search) {
+                    log(`\n--- Tentative: ${result.title} ---`);
+                    
+                    const pageUrl = `https://fr.wikisource.org/w/api.php?action=parse&page=${encodeURIComponent(result.title)}&prop=text&format=json&origin=*&redirects=true`;
+                    
+                    try {
+                        const pageRes = await fetch(pageUrl);
+                        const pageData = await pageRes.json();
+                        
+                        if (pageData.error) {
+                            log(`❌ ${result.title}: ${pageData.error.info}`, 'error');
+                            continue;
+                        }
+                        
+                        if (pageData.parse?.text) {
+                            const html = pageData.parse.text['*'];
+                            const div = document.createElement('div');
+                            div.innerHTML = html;
+                            
+                            // Nettoyer comme l'app
+                            div.querySelectorAll('.ws-noexport, .noprint, .mw-editsection, script, style, .reference, .toc, .navbox').forEach(el => el.remove());
+                            
+                            const text = div.textContent.trim();
+                            
+                            if (text.length > 150) {
+                                log(`✅ ${result.title}: ${text.length} caractères - OK!`, 'success');
+                                log(`Aperçu: ${text.substring(0, 100)}...`);
+                            } else {
+                                log(`⚠️ ${result.title}: ${text.length} caractères - trop court`, 'error');
+                            }
+                        }
+                    } catch (e) {
+                        log(`❌ ${result.title}: ${e.message}`, 'error');
+                    }
+                }
+                
+            } catch (e) {
+                log(`❌ Erreur recherche: ${e.message}`, 'error');
+            }
+        }
+
+        log('Page de test prête. Cliquez sur un bouton pour tester.');
+    </script>
+</body>
+</html>
