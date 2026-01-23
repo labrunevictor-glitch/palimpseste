@@ -2425,8 +2425,12 @@
                 <button class="btn-follow-large" id="profileFollowBtn" onclick="toggleFollowFromProfile()">Suivre</button>
                 <button class="btn-close-profile" onclick="closeUserProfile()">Fermer</button>
             </div>
+            <div class="friends-list" id="profileFollowersList" style="display:none;">
+                <h4>👥 Abonnés (te suivent)</h4>
+                <div id="followersListContent"></div>
+            </div>
             <div class="friends-list" id="profileFriendsList" style="display:none;">
-                <h4>Personnes suivies</h4>
+                <h4>📤 Abonnements (que tu suis)</h4>
                 <div id="friendsListContent"></div>
             </div>
         </div>
@@ -2874,11 +2878,43 @@
                 .limit(50);
             
             if (currentSocialTab === 'popular') {
-                query = supabaseClient
+                // Pour les populaires, on charge tous les extraits puis on trie par vrais likes
+                const { data: allExtraits } = await supabaseClient
                     .from('extraits')
                     .select('*, profiles(username)')
-                    .order('likes_count', { ascending: false })
-                    .limit(50);
+                    .limit(100);
+                
+                if (allExtraits && allExtraits.length > 0) {
+                    // Compter les vrais likes pour chaque extrait
+                    const { data: allLikes } = await supabaseClient
+                        .from('likes')
+                        .select('extrait_id');
+                    
+                    const likeCounts = {};
+                    if (allLikes) {
+                        allLikes.forEach(like => {
+                            likeCounts[like.extrait_id] = (likeCounts[like.extrait_id] || 0) + 1;
+                        });
+                    }
+                    
+                    // Trier par nombre de likes réels
+                    socialExtraits = allExtraits
+                        .map(e => ({ ...e, realLikes: likeCounts[e.id] || 0 }))
+                        .sort((a, b) => b.realLikes - a.realLikes)
+                        .slice(0, 50);
+                    
+                    renderSocialFeed();
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="social-empty">
+                        <div class="social-empty-icon">📭</div>
+                        <div class="social-empty-title">Aucun extrait populaire</div>
+                        <div class="social-empty-text">Soyez le premier à partager et recevoir des likes !</div>
+                    </div>
+                `;
+                return;
             } else if (currentSocialTab === 'mine' && currentUser) {
                 query = supabaseClient
                     .from('extraits')
@@ -3293,11 +3329,42 @@
                 followBtn.style.display = 'none';
             }
             
-            // Charger la liste des personnes suivies par cet utilisateur
+            // Charger les listes de followers et following
+            await loadProfileFollowers(userId);
             await loadProfileFollowing(userId);
             
             // Ouvrir la modal
             document.getElementById('userProfileModal').classList.add('open');
+        }
+        
+        // Charger les followers (personnes qui suivent cet utilisateur)
+        async function loadProfileFollowers(userId) {
+            if (!supabaseClient) return;
+            
+            const { data } = await supabaseClient
+                .from('follows')
+                .select('follower_id, profiles!follows_follower_id_fkey(username)')
+                .eq('following_id', userId)
+                .limit(20);
+            
+            const container = document.getElementById('followersListContent');
+            const section = document.getElementById('profileFollowersList');
+            
+            if (!data || data.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            container.innerHTML = data.map(f => {
+                const name = f.profiles?.username || 'Anonyme';
+                return `
+                    <div class="friend-item" onclick="openUserProfile('${f.follower_id}', '${name}')">
+                        <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
+                        <span>${name}</span>
+                    </div>
+                `;
+            }).join('');
         }
         
         // Charger les personnes suivies par un utilisateur
@@ -3308,7 +3375,7 @@
                 .from('follows')
                 .select('following_id, profiles!follows_following_id_fkey(username)')
                 .eq('follower_id', userId)
-                .limit(10);
+                .limit(20);
             
             const container = document.getElementById('friendsListContent');
             const section = document.getElementById('profileFriendsList');
