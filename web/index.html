@@ -5463,8 +5463,84 @@
         async function searchWikisource(query) {
             try {
                 const wikisources = getActiveWikisources();
-                const promises = wikisources.map(ws => 
-                    fetch(`${ws.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=15&srnamespace=0&format=json&origin=*`)
+                const allResults = [];
+                
+                // Fonction pour chercher les œuvres d'un auteur via sa catégorie
+                async function searchAuthorWorks(ws, authorName) {
+                    const results = [];
+                    // Normaliser le nom de l'auteur (première lettre majuscule pour chaque mot)
+                    const normalizedName = authorName.trim().split(/\s+/)
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                        .join(' ');
+                    
+                    // D'abord, essayer de trouver la page Auteur pour récupérer le nom complet
+                    let fullAuthorName = normalizedName;
+                    try {
+                        // Chercher la page Auteur avec le nom
+                        const authorSearchUrl = `${ws.url}/w/api.php?action=query&list=search&srsearch=intitle:${encodeURIComponent(normalizedName)}&srnamespace=102&srlimit=5&format=json&origin=*`;
+                        const authorSearchRes = await fetch(authorSearchUrl);
+                        const authorSearchData = await authorSearchRes.json();
+                        const authorPages = authorSearchData.query?.search || [];
+                        
+                        if (authorPages.length > 0) {
+                            // Extraire le nom de la page Auteur (ex: "Auteur:Arthur Schopenhauer")
+                            const authorPage = authorPages[0].title;
+                            fullAuthorName = authorPage.replace(/^Auteur:|^Author:|^Autor:/, '').trim();
+                        }
+                    } catch (e) { /* Ignorer */ }
+                    
+                    // Essayer différents formats de catégorie selon la langue
+                    const categoryFormats = {
+                        'fr': [
+                            `Catégorie:Œuvres d'${fullAuthorName}`,
+                            `Catégorie:Œuvres de ${fullAuthorName}`,
+                            `Catégorie:${fullAuthorName}`
+                        ],
+                        'en': [
+                            `Category:Works by ${fullAuthorName}`,
+                            `Category:${fullAuthorName}`
+                        ],
+                        'de': [
+                            `Kategorie:${fullAuthorName}`,
+                            `Kategorie:Werke von ${fullAuthorName}`
+                        ],
+                        'it': [
+                            `Categoria:Opere di ${fullAuthorName}`,
+                            `Categoria:${fullAuthorName}`
+                        ],
+                        'es': [
+                            `Categoría:Obras de ${fullAuthorName}`,
+                            `Categoría:${fullAuthorName}`
+                        ]
+                    };
+                    
+                    const categories = categoryFormats[ws.lang] || [`Category:${fullAuthorName}`];
+                    
+                    for (const catName of categories) {
+                        try {
+                            const catUrl = `${ws.url}/w/api.php?action=query&list=categorymembers&cmtitle=${encodeURIComponent(catName)}&cmlimit=20&cmnamespace=0&format=json&origin=*`;
+                            const res = await fetch(catUrl);
+                            const data = await res.json();
+                            const members = data.query?.categorymembers || [];
+                            if (members.length > 0) {
+                                return members.map(m => ({
+                                    title: m.title,
+                                    snippet: `📚 Œuvre de ${fullAuthorName}`,
+                                    source: 'wikisource',
+                                    lang: ws.lang,
+                                    wikisource: ws,
+                                    isAuthorWork: true
+                                }));
+                            }
+                        } catch (e) { /* Ignorer si catégorie non trouvée */ }
+                    }
+                    return results;
+                }
+                
+                // Pour chaque wikisource, faire une recherche standard ET une recherche par auteur
+                for (const ws of wikisources) {
+                    // Recherche standard
+                    const standardPromise = fetch(`${ws.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=15&srnamespace=0&format=json&origin=*`)
                         .then(res => res.json())
                         .then(data => {
                             return (data.query?.search || []).map(r => ({
@@ -5475,11 +5551,28 @@
                                 wikisource: ws
                             }));
                         })
-                        .catch(() => [])
-                );
+                        .catch(() => []);
+                    
+                    // Recherche par catégorie d'auteur (si la requête ressemble à un nom)
+                    const authorPromise = searchAuthorWorks(ws, query);
+                    
+                    const [standardResults, authorResults] = await Promise.all([standardPromise, authorPromise]);
+                    
+                    // Fusionner en mettant les œuvres de l'auteur en premier
+                    const combined = [...authorResults, ...standardResults];
+                    
+                    // Dédupliquer par titre
+                    const seen = new Set();
+                    const unique = combined.filter(r => {
+                        if (seen.has(r.title)) return false;
+                        seen.add(r.title);
+                        return true;
+                    });
+                    
+                    allResults.push(...unique);
+                }
                 
-                const results = await Promise.all(promises);
-                searchResults.wikisource = results.flat();
+                searchResults.wikisource = allResults;
             } catch (e) {
                 console.error('Wikisource search error:', e);
             }
