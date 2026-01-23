@@ -1,0 +1,1077 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#0d0d0d">
+    <meta name="msapplication-TileColor" content="#0d0d0d">
+    <title>Palimpseste</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-linecap='round'><rect x='3' y='2' width='18' height='20' rx='2' stroke-width='1.2'/><line x1='6' y1='7' x2='16' y2='7' stroke-width='1.5'/><line x1='7' y1='9' x2='14' y2='9' stroke-width='0.8' opacity='0.2'/><line x1='6' y1='12' x2='14' y2='12' stroke-width='1.5'/><line x1='8' y1='14' x2='17' y2='14' stroke-width='0.6' opacity='0.15'/><line x1='6' y1='17' x2='11' y2='17' stroke-width='1.5'/><line x1='7' y1='19' x2='13' y2='19' stroke-width='0.5' opacity='0.1'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-linecap='round'><rect width='24' height='24' fill='%230d0d0d'/><rect x='3' y='2' width='18' height='20' rx='2' stroke-width='1.2'/><line x1='6' y1='7' x2='16' y2='7' stroke-width='1.5'/><line x1='7' y1='9' x2='14' y2='9' stroke-width='0.8' opacity='0.2'/><line x1='6' y1='12' x2='14' y2='12' stroke-width='1.5'/><line x1='8' y1='14' x2='17' y2='14' stroke-width='0.6' opacity='0.15'/><line x1='6' y1='17' x2='11' y2='17' stroke-width='1.5'/><line x1='7' y1='19' x2='13' y2='19' stroke-width='0.5' opacity='0.1'/></svg>">
+    <link rel="stylesheet" href="css/variables.css?v=15">
+    <link rel="stylesheet" href="css/base.css?v=15">
+    <link rel="stylesheet" href="css/styles.css?v=17">
+    <link rel="stylesheet" href="css/mobile.css?v=17">
+    <style>
+        /* Styles pour les boutons filtres scindés */
+        .filter-split-main {
+            background: rgba(212, 165, 116, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 500;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+            padding-right: 5px;
+        }
+        .filter-split-main:hover {
+            background: rgba(212, 165, 116, 0.2);
+        }
+        .filter-split-main.active {
+            background: var(--accent) !important;
+            color: white !important;
+            border-color: var(--accent) !important;
+        }
+        .filter-split-arrow {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding-left: 5px;
+        }
+    </style>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- DOMPurify (XSS sanitization) -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Fonctions drawer mobile - chargées immédiatement -->
+    <script>
+        function openDrawer() {
+            var drawer = document.querySelector('.stats-panel');
+            var overlay = document.getElementById('mobileDrawerOverlay');
+            if (drawer) {
+                drawer.classList.add('open');
+                if (overlay) overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                console.log('Drawer ouvert');
+            }
+        }
+        function closeDrawer() {
+            var drawer = document.querySelector('.stats-panel');
+            var overlay = document.getElementById('mobileDrawerOverlay');
+            if (drawer) {
+                drawer.classList.remove('open');
+                if (overlay) overlay.classList.remove('open');
+                document.body.style.overflow = '';
+                console.log('Drawer fermé');
+            }
+        }
+        function closeAllDrawers() {
+            closeDrawer();
+            var profilePanel = document.getElementById('mobileProfilePanel');
+            if (profilePanel) profilePanel.classList.remove('open');
+            var overlay = document.getElementById('mobileDrawerOverlay');
+            if (overlay) overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        // Alias pour compatibilité
+        window.openMobileDrawer = openDrawer;
+        window.closeMobileDrawer = closeDrawer;
+    </script>
+    <style>
+        /* Force CSS pour le modal likers */
+        #likersModal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: rgba(0, 0, 0, 0.6) !important;
+            backdrop-filter: blur(4px);
+            z-index: var(--z-modal) !important;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #likersModal.open {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to content link for keyboard navigation -->
+    <a href="#feed" class="skip-link">Aller au contenu principal</a>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         PROGRESS BAR
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="progress" id="progress" role="progressbar" aria-label="Progression de lecture"></div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MOBILE: Overlay pour fermer les drawers
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeAllDrawers()"></div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MOBILE: Panneau PROFIL (Avatar) - Connexion/Déconnexion
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-profile-panel" id="mobileProfilePanel">
+        <button class="drawer-close-btn" onclick="closeProfilePanel()">✕</button>
+        
+        <!-- Non connecté -->
+        <div id="mobileProfileLoggedOut" class="mobile-profile-content">
+            <div class="mobile-profile-avatar-big">👤</div>
+            <div class="mobile-profile-title">Bienvenue</div>
+            <div class="mobile-profile-subtitle">Connectez-vous pour participer</div>
+            <button class="mobile-profile-btn-primary" onclick="openAuthModal('login'); closeProfilePanel();">
+                Se connecter
+            </button>
+            <button class="mobile-profile-btn-secondary" onclick="openAuthModal('register'); closeProfilePanel();">
+                Créer un compte
+            </button>
+        </div>
+        
+        <!-- Connecté -->
+        <div id="mobileProfileLoggedIn" class="mobile-profile-content" style="display:none;">
+            <div class="mobile-profile-avatar-big" id="mobileProfileAvatar">👤</div>
+            <div class="mobile-profile-name" id="mobileProfileName">Utilisateur</div>
+            <div class="mobile-profile-stats">
+                <div class="mobile-profile-stat" onclick="showMyExtraits(); closeProfilePanel();">
+                    <span class="mobile-profile-stat-num" id="mobileProfileExtraits">0</span>
+                    <span class="mobile-profile-stat-label">partagés</span>
+                </div>
+                <div class="mobile-profile-stat" onclick="openFavoritesView(); closeProfilePanel();">
+                    <span class="mobile-profile-stat-num" id="mobileProfileLikes">0</span>
+                    <span class="mobile-profile-stat-label">likés</span>
+                </div>
+                <div class="mobile-profile-stat" onclick="showMyFollowers(); closeProfilePanel();">
+                    <span class="mobile-profile-stat-num" id="mobileProfileFollowers">0</span>
+                    <span class="mobile-profile-stat-label">abonnés</span>
+                </div>
+                <div class="mobile-profile-stat" onclick="showMyFollowing(); closeProfilePanel();">
+                    <span class="mobile-profile-stat-num" id="mobileProfileFollowing">0</span>
+                    <span class="mobile-profile-stat-label">abonnements</span>
+                </div>
+            </div>
+            
+            <!-- Boutons en évidence -->
+            <div class="mobile-profile-actions">
+                <button class="mobile-profile-action-btn" onclick="openSocialFeed(); closeProfilePanel();">
+                    <i data-lucide="users"></i> Communauté
+                </button>
+            </div>
+            
+            <button class="mobile-profile-btn-logout" onclick="logout(); closeProfilePanel();">
+                ⎋ Déconnexion
+            </button>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MOBILE: Navigation bottom bar (style Twitter)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav">
+        <button class="mobile-nav-item active" onclick="mobileNavTo('feed')" data-nav="feed" title="Accueil">
+            <i data-lucide="home" class="mobile-nav-icon"></i>
+        </button>
+        <button class="mobile-nav-item" onclick="pureRandomJump()" data-nav="random" title="Hasard">
+            <i data-lucide="shuffle" class="mobile-nav-icon"></i>
+        </button>
+        <button class="mobile-nav-item" onclick="openTrendingFeed()" data-nav="trending" title="Tendances">
+            <i data-lucide="flame" class="mobile-nav-icon"></i>
+        </button>
+        <button class="mobile-nav-item" onclick="openMessaging()" data-nav="messages" title="Messages">
+            <i data-lucide="mail" class="mobile-nav-icon"></i>
+        </button>
+        <button class="mobile-nav-item" id="mobileMenuBtn" data-nav="menu" onclick="openMobileDrawer()" title="Menu">
+            <i data-lucide="menu" class="mobile-nav-icon"></i>
+        </button>
+    </nav>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         PANNEAU STATISTIQUES (Sidebar gauche / Drawer mobile)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="stats-panel" id="statsPanel">
+        <!-- Bouton fermer pour mobile -->
+        <button class="drawer-close-btn" onclick="closeMobileDrawer()">✕</button>
+        
+        <div class="stats-logo">PALIMPSESTE</div>
+        
+        <!-- Actions rapides (visible surtout sur mobile) -->
+        <div class="drawer-quick-actions">
+            <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawer();">
+                <i data-lucide="flame" class="drawer-icon"></i> Tendances
+            </button>
+            <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();" id="drawerFavBtn">
+                <i data-lucide="heart" class="drawer-icon"></i> Mes likés
+            </button>
+            <button class="drawer-action-btn" onclick="openCollectionsView(); closeMobileDrawer();" id="drawerCollectionsBtn">
+                <i data-lucide="folder-heart" class="drawer-icon"></i> Collections
+            </button>
+            <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
+                <i data-lucide="users" class="drawer-icon"></i> Social
+            </button>
+            <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawer();">
+                <i data-lucide="mail" class="drawer-icon"></i> Messages
+            </button>
+            <button class="drawer-action-btn theme-toggle-drawer" onclick="toggleTheme();">
+                <i data-lucide="sun" class="drawer-icon" id="drawerThemeIcon"></i> <span id="drawerThemeText">Mode clair</span>
+            </button>
+            <!-- Bouton déconnexion (visible seulement si connecté) -->
+            <button class="drawer-action-btn drawer-logout-mobile" id="drawerLogoutBtn" onclick="logout(); closeMobileDrawer();" style="display: none;">
+                <i data-lucide="log-out" class="drawer-icon"></i> Déconnexion
+            </button>
+            <div class="drawer-preferences-row">
+                 <div class="drawer-lang-selector" style="flex: 1;">
+                    <i data-lucide="globe" class="drawer-icon"></i>
+                    <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawer();">
+                        <option value="all">Langue: Toutes</option>
+                        <optgroup label="Modernes">
+                            <option value="fr">Français</option>
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="it">Italiano</option>
+                            <option value="es">Español</option>
+                            <option value="pt">Português</option>
+                            <option value="ru">Русский</option>
+                            <option value="zh">中文</option>
+                            <option value="ja">日本語</option>
+                            <option value="ar">العربية</option>
+                            <option value="el">Ελληνικά</option>
+                        </optgroup>
+                        <optgroup label="Anciennes">
+                            <option value="la">Latin</option>
+                            <option value="grc">Grec ancien</option>
+                            <option value="sa">Sanskrit</option>
+                            <option value="he">Hébreu</option>
+                            <option value="yi">Yiddish</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <button class="drawer-icon-btn" onclick="openSourceSettingsModal(); closeMobileDrawer();" title="Sources & Bibliothèques">
+                    <i data-lucide="settings"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section Profil Social -->
+        <div id="profileSection" class="profile-section">
+            <div id="profileLoggedOut" class="login-prompt">
+                <div class="login-prompt-icon">👤</div>
+                <div class="login-prompt-text">Connectez-vous pour partager</div>
+                <button class="login-prompt-btn" onclick="openAuthModal('login'); closeMobileDrawer();">Se connecter</button>
+                <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawer();">Créer un compte</button>
+            </div>
+            <div id="profileLoggedIn" style="display:none;">
+                <div class="profile-header-card" onclick="openMyProfile(); closeMobileDrawer();" style="cursor:pointer;" title="Voir mon profil">
+                    <div class="profile-avatar-large" id="sidebarAvatar">👤</div>
+                    <div class="profile-name-large" id="sidebarUsername">Utilisateur</div>
+                </div>
+                <div class="profile-stats-row">
+                    <button class="profile-stat-btn" onclick="showMyExtraits(); closeMobileDrawer();">
+                        <span class="stat-number" id="myExtraitsCount">0</span>
+                        <span class="stat-label">partagés</span>
+                    </button>
+                    <button class="profile-stat-btn" onclick="openFavoritesView(); closeMobileDrawer();">
+                        <span class="stat-number" id="myLikesCount">0</span>
+                        <span class="stat-label">likés</span>
+                    </button>
+                    <button class="profile-stat-btn" onclick="showMyFollowers(); closeMobileDrawer();">
+                        <span class="stat-number" id="myFollowersCount">0</span>
+                        <span class="stat-label">abonnés</span>
+                    </button>
+                    <button class="profile-stat-btn" onclick="showMyFollowing(); closeMobileDrawer();">
+                        <span class="stat-number" id="myFollowingCount">0</span>
+                        <span class="stat-label">abonnements</span>
+                    </button>
+                </div>
+                <button class="drawer-logout-btn" onclick="logout(); closeMobileDrawer();">⎋ Déconnexion</button>
+            </div>
+        </div>
+
+        <!-- Section de réglages (Desktop - moved below profile) -->
+        <div class="desktop-settings-section" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+             <div style="display: flex; gap: 10px; align-items: center;">
+                 <button onclick="openSourceSettingsModal();" class="sources-btn" title="Gérer les sources">
+                    <i data-lucide="settings" style="width: 16px; height: 16px; margin-right: 6px;"></i> Sources
+                 </button>
+            </div>
+        </div>
+        
+        <!-- Statistiques de dérive (caché mais gardé pour le JS) -->
+        <div class="stats-section" style="display:none;">
+            <h3>🎲 Votre dérive</h3>
+            <div class="big-number" id="totalRead">0</div>
+            <div class="big-number-label">textes traversés</div>
+            <div class="mini-stats">
+                <div class="mini-stat">
+                    <div class="mini-stat-value" id="authorCount">0</div>
+                    <div class="mini-stat-label">auteurs</div>
+                </div>
+            </div>
+            <div class="fun-stat" id="funStat"></div>
+        </div>
+        
+        <!-- Statistiques de lecture - DISCRET -->
+        <div class="stats-section reading-stats-section reading-stats-compact">
+            <div class="reading-stats-inline">
+                <span class="reading-inline-item"><span class="reading-inline-icon">⧗</span><span id="totalReadingTime">0 min</span></span>
+                <span class="reading-inline-sep">·</span>
+                <span class="reading-inline-item"><span class="reading-inline-icon">§</span><span id="totalWordsRead">0</span> mots</span>
+            </div>
+        </div>
+        
+        <!-- Connexions -->
+        <div class="stats-section connections-section" id="connectionsSection" style="display:none;">
+            <h3>🕸️ Fils à tirer</h3>
+            <p class="connections-hint">Cliquez pour vous perdre...</p>
+            <div class="connection-graph" id="connectionGraph"></div>
+        </div>
+        
+        <!-- Favoris (masqué si connecté - utilise les likes Supabase) -->
+        <div class="stats-section favorites-section" id="favoritesSection" style="display:none;">
+            <h3>💎 Mes likés</h3>
+            <div id="favoritesList"><div class="favorites-empty">Connectez-vous pour liker</div></div>
+        </div>
+        
+        <!-- Badges -->
+        <div class="stats-section badges-section" id="achievementSection">
+            <h3>🏆 Badges <span class="badges-count-inline" id="badgesCountInline">0/50</span></h3>
+            <div class="achievements-compact" id="achievementList"></div>
+        </div>
+        
+        <!-- Parcours de lecture -->
+        <div class="stats-section" id="readingPathSection" style="display:none;">
+            <h3>❧ Parcours</h3>
+            <div class="reading-path" id="readingPath"></div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <header>
+        <div class="header-inner">
+            <!-- MOBILE: Avatar profil cliquable -->
+            <div class="mobile-profile-btn" id="mobileProfileBtn" role="button" tabindex="0">
+                <span class="mobile-profile-avatar" id="mobileAvatar">👤</span>
+            </div>
+            
+            <!-- MOBILE: Logo compact -->
+            <span class="mobile-logo">❧</span>
+            
+            <!-- Barre de recherche -->
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput"
+                           placeholder="Rechercher un auteur, un mot, un thème..."
+                           aria-label="Rechercher un auteur, un mot, un thème"
+                           onkeydown="if(event.key==='Enter') performSearch()">
+                    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+                </div>
+            </div>
+            
+            <!-- MOBILE: Bouton notifications -->
+            <button class="mobile-notif-btn" onclick="toggleNotifications()" title="Notifications">
+                <i data-lucide="bell"></i>
+                <span class="mobile-notif-badge" id="mobileNotifBadge" style="display: none;">0</span>
+            </button>
+            
+            <!-- Actions header -->
+            <div class="header-actions">
+                <!-- Groupe principal -->
+                <button class="header-btn btn-with-text" onclick="pureRandomJump()" title="Découvrir un texte au hasard"><i data-lucide="shuffle" class="header-icon"></i><span>Hasard</span></button>
+                <button class="header-btn btn-with-text accent" onclick="openTrendingFeed()" title="Textes populaires"><i data-lucide="flame" class="header-icon"></i><span>Tendances</span></button>
+                
+                <span class="header-separator"></span>
+                
+                <!-- Sélecteur de langue -->
+                <div class="lang-selector">
+                    <i data-lucide="globe" class="header-icon lang-icon"></i>
+                    <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)" title="Choisir les langues">
+                        <option value="all">Toutes</option>
+                        <optgroup label="Langues modernes">
+                            <option value="fr">🇫🇷 Français</option>
+                            <option value="en">🇬🇧 English</option>
+                            <option value="de">🇩🇪 Deutsch</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="pt">🇵🇹 Português</option>
+                            <option value="ru">🇷🇺 Русский</option>
+                            <option value="zh">🇨🇳 中文</option>
+                            <option value="ja">🇯🇵 日本語</option>
+                            <option value="ar">🇸🇦 العربية</option>
+                            <option value="el">🇬🇷 Ελληνικά</option>
+                        </optgroup>
+                        <optgroup label="Langues anciennes">
+                            <option value="la">🏛️ Latin</option>
+                            <option value="grc">🏺 Grec ancien</option>
+                            <option value="sa">🕉️ Sanskrit</option>
+                            <option value="he">✡️ Hébreu</option>
+                            <option value="yi">✡️ Yiddish</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <span class="header-separator"></span>
+                
+                <!-- Groupe icônes -->
+                <button class="header-btn btn-icon favorites-btn" onclick="openFavoritesView()" title="Mes likés">
+                    <i data-lucide="heart" class="header-icon"></i>
+                    <span class="btn-badge" id="favCount">0</span>
+                </button>
+                <button class="header-btn btn-icon collections-btn" onclick="openCollectionsView()" title="Mes collections">
+                    <i data-lucide="folder-heart" class="header-icon"></i>
+                </button>
+                <button class="header-btn btn-icon" onclick="openSocialFeed()" title="Communauté"><i data-lucide="users" class="header-icon"></i></button>
+                <button class="header-btn btn-icon" onclick="openMessaging()" title="Messages">
+                    <i data-lucide="mail" class="header-icon"></i>
+                    <span id="unreadBadge" class="btn-badge messages-badge" style="display: none;">0</span>
+                </button>
+                
+                <span class="header-separator"></span>
+                
+                <!-- Utilitaires -->
+                <button class="header-btn btn-icon" onclick="toggleTheme()" title="Changer de thème" id="themeToggle">
+                    <i data-lucide="sun" class="header-icon" id="themeIcon"></i>
+                </button>
+                
+                <div class="notif-btn">
+                    <button class="header-btn btn-icon" onclick="toggleNotifications()" title="Notifications">
+                        <i data-lucide="bell" class="header-icon"></i>
+                        <span id="notifBadge" class="btn-badge notif-badge" style="display: none;">0</span>
+                    </button>
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span class="notif-title"><i data-lucide="bell" class="notif-title-icon"></i> Notifications</span>
+                            <button class="notif-mark-read" onclick="markAllNotifsRead()">Tout marquer lu</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">Aucune notification</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Menu utilisateur -->
+                <div class="user-menu" id="userMenu">
+                    <button class="user-avatar" id="headerAvatar" onclick="openMyProfile()" aria-label="Mon profil">👤</button>
+                    <div class="user-dropdown" id="userDropdown" role="menu">
+                        <button class="user-dropdown-item" onclick="openAuthModal('login')" id="loginMenuItem" role="menuitem">🔑 Se connecter</button>
+                        <button class="user-dropdown-item" onclick="openAuthModal('register')" id="registerMenuItem" role="menuitem">✍️ Créer un compte</button>
+                        <button class="user-dropdown-item" onclick="openMyProfile()" id="profileMenuItem" style="display:none;" role="menuitem">👤 Mon profil</button>
+                        <div class="user-dropdown-divider" id="logoutDivider" style="display:none;" role="separator"></div>
+                        <button class="user-dropdown-item danger" onclick="logoutUser()" id="logoutMenuItem" style="display:none;" role="menuitem">⎋ Déconnexion</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         NAVIGATION PAR CATÉGORIES
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="categoryNav" class="category-nav" style="display:none;">
+        <div class="cat-breadcrumbs" id="catBreadcrumbs"></div>
+        <div class="cat-subcategories" id="catSubcategories"></div>
+        <button class="cat-close" onclick="closeCategoryMode()">✕ Quitter</button>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         BARRE D'EXPLORATION - Kaléidoscope (filtres hiérarchiques)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="exploration-container" id="explorationContainer">
+        <!-- Ligne 1: Forme / Type de texte (hiérarchique) -->
+        <div class="filter-row" id="filterRowForme">
+            <span class="filter-label">❧ Forme</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="forme" data-value="all" onclick="toggleFilter('forme', 'all')">∞ tout</button>
+                <!-- Catégories parentes -->
+                <!-- Poesie -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-poesie" onclick="toggleFilter('forme', 'category-poesie')">Poésie</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="poesie" onclick="toggleFilterGroup('forme', 'poesie')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+                
+                <!-- Recit -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-recit" onclick="toggleFilter('forme', 'category-recit')">Récit</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="recit" onclick="toggleFilterGroup('forme', 'recit')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Theatre -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-theatre" onclick="toggleFilter('forme', 'category-theatre')">Théâtre</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="theatre" onclick="toggleFilterGroup('forme', 'theatre')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Idees -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-idees" onclick="toggleFilter('forme', 'category-idees')">Prose d'idées</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="idees" onclick="toggleFilterGroup('forme', 'idees')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+            </div>
+            <!-- Sous-catégories (cachées par défaut) -->
+            <div class="filter-subchips" id="subchips-forme-poesie" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="sonnet" onclick="toggleFilter('forme', 'sonnet')">sonnet</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="ode" onclick="toggleFilter('forme', 'ode')">ode</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="elegie" onclick="toggleFilter('forme', 'elegie')">élégie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="ballade" onclick="toggleFilter('forme', 'ballade')">ballade</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="hymne" onclick="toggleFilter('forme', 'hymne')">hymne</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="poeme-prose" onclick="toggleFilter('forme', 'poeme-prose')">poème en prose</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-recit" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="conte" onclick="toggleFilter('forme', 'conte')">conte</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="fable" onclick="toggleFilter('forme', 'fable')">fable</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="legende" onclick="toggleFilter('forme', 'legende')">légende</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="mythe" onclick="toggleFilter('forme', 'mythe')">mythe</button>
+                <span class="filter-separator">│</span>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="roman" onclick="toggleFilter('forme', 'roman')">roman</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="nouvelle" onclick="toggleFilter('forme', 'nouvelle')">nouvelle</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-theatre" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="tragedie" onclick="toggleFilter('forme', 'tragedie')">tragédie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="comedie" onclick="toggleFilter('forme', 'comedie')">comédie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="drame" onclick="toggleFilter('forme', 'drame')">drame</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-idees" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="essai" onclick="toggleFilter('forme', 'essai')">essai</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="maxime" onclick="toggleFilter('forme', 'maxime')">maxime</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="aphorisme" onclick="toggleFilter('forme', 'aphorisme')">aphorisme</button>
+                <span class="filter-separator">│</span>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="discours" onclick="toggleFilter('forme', 'discours')">discours</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="lettre" onclick="toggleFilter('forme', 'lettre')">lettre</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="journal" onclick="toggleFilter('forme', 'journal')">journal</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="memoires" onclick="toggleFilter('forme', 'memoires')">mémoires</button>
+            </div>
+        </div>
+        
+        <!-- Ligne 2: Époque (hiérarchique) -->
+        <div class="filter-row" id="filterRowEpoque">
+            <span class="filter-label">※ Époque</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="epoque" data-value="all" onclick="toggleFilter('epoque', 'all')">∞ tout</button>
+                <!-- Catégories parentes -->
+                <!-- Antiquite -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-antiquite" onclick="toggleFilter('epoque', 'category-antiquite')">Antiquité</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="antiquite" onclick="toggleFilterGroup('epoque', 'antiquite')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Medieval -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-medieval" onclick="toggleFilter('epoque', 'category-medieval')">Moyen Âge</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="medieval" onclick="toggleFilterGroup('epoque', 'medieval')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Classique -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-classique-group" onclick="toggleFilter('epoque', 'category-classique-group')">XVIIe-XVIIIe</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="classique" onclick="toggleFilterGroup('epoque', 'classique')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- XIXe -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-xixe" onclick="toggleFilter('epoque', 'category-xixe')">XIXe siècle</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="xixe" onclick="toggleFilterGroup('epoque', 'xixe')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- XXe -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-xxe" onclick="toggleFilter('epoque', 'category-xxe')">XXe siècle</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="xxe" onclick="toggleFilterGroup('epoque', 'xxe')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+            </div>
+            <!-- Sous-catégories -->
+            <div class="filter-subchips" id="subchips-epoque-antiquite" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="antiquite-grecque" onclick="toggleFilter('epoque', 'antiquite-grecque')">Grèce antique</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="antiquite-romaine" onclick="toggleFilter('epoque', 'antiquite-romaine')">Rome antique</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-medieval" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="medieval" onclick="toggleFilter('epoque', 'medieval')">Moyen Âge</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="renaissance" onclick="toggleFilter('epoque', 'renaissance')">Renaissance</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-classique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="baroque" onclick="toggleFilter('epoque', 'baroque')">Baroque</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="classique" onclick="toggleFilter('epoque', 'classique')">Classicisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="lumieres" onclick="toggleFilter('epoque', 'lumieres')">Lumières</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-xixe" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="romantisme" onclick="toggleFilter('epoque', 'romantisme')">Romantisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="realisme" onclick="toggleFilter('epoque', 'realisme')">Réalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="naturalisme" onclick="toggleFilter('epoque', 'naturalisme')">Naturalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="symbolisme" onclick="toggleFilter('epoque', 'symbolisme')">Symbolisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="decadentisme" onclick="toggleFilter('epoque', 'decadentisme')">Décadentisme</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-xxe" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="surrealisme" onclick="toggleFilter('epoque', 'surrealisme')">Surréalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="existentialisme" onclick="toggleFilter('epoque', 'existentialisme')">Existentialisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="absurde" onclick="toggleFilter('epoque', 'absurde')">Absurde</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="nouveau-roman" onclick="toggleFilter('epoque', 'nouveau-roman')">Nouveau roman</button>
+            </div>
+        </div>
+        
+        <!-- Ligne 3: Registre (hiérarchique) -->
+        <div class="filter-row" id="filterRowTon">
+            <span class="filter-label">◆ Registre</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="ton" data-value="all" onclick="toggleFilter('ton', 'all')">∞ libre</button>
+                <!-- Catégories parentes -->
+                <!-- Emotion -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-emotion" onclick="toggleFilter('ton', 'category-emotion')">Émotion</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="emotion" onclick="toggleFilterGroup('ton', 'emotion')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Heroisme -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-heroisme" onclick="toggleFilter('ton', 'category-heroisme')">Héroïsme</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="heroisme" onclick="toggleFilterGroup('ton', 'heroisme')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Imaginaire -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-imaginaire" onclick="toggleFilter('ton', 'category-imaginaire')">Imaginaire</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="imaginaire" onclick="toggleFilterGroup('ton', 'imaginaire')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Comique -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-comique" onclick="toggleFilter('ton', 'category-comique')">Comique</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="comique" onclick="toggleFilterGroup('ton', 'comique')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+
+                <!-- Nature -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-nature" onclick="toggleFilter('ton', 'category-nature')">Nature</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="nature" onclick="toggleFilterGroup('ton', 'nature')"><i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i></button>
+            </div>
+            <!-- Sous-catégories -->
+            <div class="filter-subchips" id="subchips-ton-emotion" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="lyrique" onclick="toggleFilter('ton', 'lyrique')">lyrique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="elegiaque" onclick="toggleFilter('ton', 'elegiaque')">élégiaque</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="melancolique" onclick="toggleFilter('ton', 'melancolique')">mélancolique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="tragique" onclick="toggleFilter('ton', 'tragique')">tragique</button>
+                <span class="filter-separator">│</span>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="erotique" onclick="toggleFilter('ton', 'erotique')">érotique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="libertin" onclick="toggleFilter('ton', 'libertin')">libertin</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-heroisme" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="epique" onclick="toggleFilter('ton', 'epique')">épique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="heroique" onclick="toggleFilter('ton', 'heroique')">héroïque</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="chevaleresque" onclick="toggleFilter('ton', 'chevaleresque')">chevaleresque</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-imaginaire" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="gothique" onclick="toggleFilter('ton', 'gothique')">gothique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="fantastique" onclick="toggleFilter('ton', 'fantastique')">fantastique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="onirique" onclick="toggleFilter('ton', 'onirique')">onirique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="mystique" onclick="toggleFilter('ton', 'mystique')">mystique</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-comique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="satirique" onclick="toggleFilter('ton', 'satirique')">satirique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="ironique" onclick="toggleFilter('ton', 'ironique')">ironique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="burlesque" onclick="toggleFilter('ton', 'burlesque')">burlesque</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-nature" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="pastoral" onclick="toggleFilter('ton', 'pastoral')">pastoral</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="bucolique" onclick="toggleFilter('ton', 'bucolique')">bucolique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="contemplatif" onclick="toggleFilter('ton', 'contemplatif')">contemplatif</button>
+            </div>
+        </div>
+        
+        <!-- Résumé des filtres actifs -->
+        <div class="filter-summary" id="filterSummary">
+            <div class="filter-summary-text" id="filterSummaryText"></div>
+            <input class="filter-free-input" id="explorationFreeInput" type="text" placeholder="Mot-clé libre…" aria-label="Mot-clé libre pour filtrer" onkeydown="if(event.key==='Enter'){applyFilters();}" />
+            <button class="filter-summary-clear" onclick="clearAllFilters()" title="Effacer les filtres">✕</button>
+            <button class="filter-summary-random" onclick="rollExploration()" title="Relancer">🎲</button>
+            <button class="filter-summary-go" onclick="applyFilters()">Lancer →</button>
+        </div>
+        
+        <!-- Bouton replier/déplier -->
+        <button class="exploration-toggle" id="explorationToggle" onclick="toggleExplorationCollapse()"><span id="toggleFiltersText">Replier les filtres</span></button>
+    </div>
+    
+    <!-- Intro d'ambiance (conservé pour compatibilité) -->
+    <div class="ambiance-intro" id="ambianceIntro" style="display: none;"></div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONTENU PRINCIPAL (Feed)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <main id="feed" role="main" aria-label="Fil de lecture">
+    </main>
+    
+    <!-- Bandeau de recommandations -->
+    <div id="recoBanner" class="reco-banner" style="display:none;">
+        <div class="reco-content">
+            <div class="reco-title">✨ Auteurs connexes à découvrir</div>
+            <div class="reco-text">Basé sur vos lectures favorites</div>
+            <div class="reco-authors" id="recoAuthors"></div>
+        </div>
+    </div>
+    
+    <!-- Indicateur de chargement -->
+    <div class="feed-loading" id="loading">
+        <div class="spinner"></div>
+        <span>Chargement...</span>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         OVERLAY LECTEUR COMPLET
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="reader-overlay" id="reader">
+        <div class="reader-header">
+            <div class="reader-title" id="readerTitle">Texte complet</div>
+            <button class="reader-close" onclick="closeReader()">✕</button>
+        </div>
+        <div class="reader-content" id="readerContent"></div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         OVERLAY FAVORIS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="favorites-overlay" id="favoritesOverlay">
+        <div class="favorites-view">
+            <div class="favorites-header">
+                <div class="favorites-title">♥ MES LIKÉS</div>
+                <button class="reader-close" onclick="closeFavoritesView()">✕</button>
+            </div>
+            <div class="favorites-grid" id="favoritesGrid"></div>
+        </div>
+    </div>
+    
+    <!-- OVERLAY TENDANCES - supprimé, fusionné avec Feed Social -->
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         OVERLAY FEED SOCIAL
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="favorites-overlay" id="socialOverlay">
+        <div class="favorites-view">
+            <div class="favorites-header">
+                <div class="favorites-title">🐦 FEED COMMUNAUTAIRE</div>
+                <button class="reader-close" onclick="closeSocialFeed()">✕</button>
+            </div>
+            <div class="feed-tabs">
+                <button class="feed-tab active" onclick="switchSocialTab('recent')" id="tabRecent">🔥 Tendances</button>
+                <button class="feed-tab" onclick="switchSocialTab('activity')" id="tabActivity">❤️ Activité</button>
+                <button class="feed-tab" onclick="switchSocialTab('friends')" id="tabFriends">👥 Abonnements</button>
+                <button class="feed-tab" onclick="switchSocialTab('followers')" id="tabFollowers">💌 Abonnés</button>
+                <button class="feed-tab" onclick="switchSocialTab('discover')" id="tabDiscover">🔎 Découvrir</button>
+            </div>
+            <div class="feed-live-indicator" id="liveIndicator">🟢 En direct</div>
+            <div id="socialFeed"></div>
+            <button class="floating-close-btn" onclick="closeSocialFeed()">✕ Fermer</button>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL PROFIL UTILISATEUR
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="user-profile-modal" id="userProfileModal" onclick="if(event.target === this) closeUserProfile()">
+        <div class="user-profile-content">
+            <div class="profile-header-section">
+                <button class="profile-close-x" onclick="closeUserProfile()" aria-label="Fermer le profil">✕</button>
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="profileAvatar">?</div>
+                    <div class="profile-info">
+                        <h3 id="profileUsername">Utilisateur</h3>                        <div class="profile-last-seen" id="profileLastSeen"></div>                        <div class="profile-stats">
+                            <span class="profile-stat" onclick="switchProfileTab('followers')"><strong id="profileFollowers">0</strong> abonnés</span>
+                            <span class="profile-stat" onclick="switchProfileTab('following')"><strong id="profileFollowing">0</strong> suivis</span>
+                            <span class="profile-stat" onclick="switchProfileTab('extraits')"><strong id="profileExtraits">0</strong> extraits</span>
+                            <span class="profile-stat" onclick="switchProfileTab('collections')"><strong id="profileCollections">0</strong> collections</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn-follow-large" id="profileFollowBtn" onclick="toggleFollowFromProfile()">Suivre</button>
+                    <button class="btn-message" id="profileMessageBtn" onclick="startConversation(currentProfileUserId)">💬 Message</button>
+                </div>
+            </div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" id="tabProfileExtraits" onclick="switchProfileTab('extraits')">
+                    <span class="tab-emoji">📝</span>
+                    <span class="tab-label">Extraits</span>
+                </button>
+                <button class="profile-tab" id="tabProfileLikes" onclick="switchProfileTab('likes')">
+                    <span class="tab-emoji">❤️</span>
+                    <span class="tab-label">Likés</span>
+                </button>
+                <button class="profile-tab" id="tabProfileCollections" onclick="switchProfileTab('collections')">
+                    <span class="tab-emoji">📚</span>
+                    <span class="tab-label">Collections</span>
+                </button>
+                <button class="profile-tab" id="tabProfileFollowers" onclick="switchProfileTab('followers')">
+                    <span class="tab-emoji">👥</span>
+                    <span class="tab-label">Abonnés</span>
+                </button>
+                <button class="profile-tab" id="tabProfileFollowing" onclick="switchProfileTab('following')">
+                    <span class="tab-emoji">📤</span>
+                    <span class="tab-label">Suivis</span>
+                </button>
+            </div>
+            <div class="profile-content" id="profileContentArea"></div>
+            <button class="profile-floating-close" onclick="closeUserProfile()" aria-label="Fermer le profil"></button>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL MESSAGERIE
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="messages-modal" id="messagesModal">
+        <div class="messages-sidebar">
+            <div class="messages-sidebar-header">
+                <span class="messages-sidebar-title">💬 Messages</span>
+                <button class="messages-close" onclick="closeMessaging()">✕</button>
+            </div>
+            <div class="messages-list" id="conversationsList">
+                <div class="messages-empty">Chargement...</div>
+            </div>
+        </div>
+        <div class="messages-main">
+            <div class="messages-main-empty" id="chatPlaceholder">
+                Sélectionnez une conversation
+            </div>
+            <div id="chatArea" style="display: none; flex-direction: column; height: 100%;">
+                <div class="chat-header">
+                    <button class="chat-back" onclick="backToConversations()">←</button>
+                    <div class="chat-header-avatar" id="chatAvatar">?</div>
+                    <div class="chat-header-name" id="chatUsername">Utilisateur</div>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Écrire un message..." aria-label="Écrire un message" onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button class="chat-send" id="chatSendBtn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL AUTHENTIFICATION
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-box">
+            <button class="auth-close" onclick="closeAuthModal()">✕</button>
+            
+            <!-- Formulaire de connexion -->
+            <div id="loginForm">
+                <div class="auth-title">Bon retour 📚</div>
+                <div class="auth-subtitle">Connectez-vous pour partager vos extraits</div>
+                <div class="auth-error" id="loginError"></div>
+                <input type="text" class="auth-input" id="loginEmail" placeholder="Email ou pseudo" aria-label="Email ou pseudo" autocomplete="username">
+                <input type="password" class="auth-input" id="loginPassword" placeholder="Mot de passe" aria-label="Mot de passe" autocomplete="current-password">
+                <div class="auth-forgot"><a onclick="switchAuthForm('forgot')">Mot de passe oublié ?</a></div>
+                <button class="auth-btn" onclick="loginWithEmail()" id="loginBtn">Se connecter</button>
+                <div class="auth-divider"><span>ou</span></div>
+                <button class="auth-btn secondary" onclick="loginWithGoogle()">🌐 Continuer avec Google</button>
+                <div class="auth-switch">Pas encore de compte ? <a onclick="switchAuthForm('register')">S'inscrire</a></div>
+            </div>
+            
+            <!-- Formulaire mot de passe oublié -->
+            <div id="forgotForm" style="display:none;">
+                <div class="auth-title">Mot de passe oublié 🔑</div>
+                <div class="auth-subtitle">Entrez votre email pour recevoir un lien de réinitialisation</div>
+                <div class="auth-error" id="forgotError"></div>
+                <div class="auth-success" id="forgotSuccess"></div>
+                <input type="email" class="auth-input" id="forgotEmail" placeholder="Email" aria-label="Adresse email" autocomplete="email">
+                <button class="auth-btn" onclick="sendPasswordReset()" id="forgotBtn">Envoyer le lien</button>
+                <div class="auth-switch"><a onclick="switchAuthForm('login')">← Retour à la connexion</a></div>
+            </div>
+            
+            <!-- Formulaire nouveau mot de passe (après clic sur lien email) -->
+            <div id="resetPasswordForm" style="display:none;">
+                <div class="auth-title">Nouveau mot de passe 🔐</div>
+                <div class="auth-subtitle">Choisissez votre nouveau mot de passe</div>
+                <div class="auth-error" id="resetError"></div>
+                <div class="auth-success" id="resetSuccess"></div>
+                <input type="password" class="auth-input" id="newPassword" placeholder="Nouveau mot de passe (min. 6 caractères)" aria-label="Nouveau mot de passe" autocomplete="new-password">
+                <input type="password" class="auth-input" id="confirmPassword" placeholder="Confirmer le mot de passe" aria-label="Confirmer le mot de passe" autocomplete="new-password">
+                <button class="auth-btn" onclick="updatePassword()" id="resetBtn">Changer le mot de passe</button>
+            </div>
+            
+            <!-- Formulaire d'inscription -->
+            <div id="registerForm" style="display:none;">
+                <div class="auth-title">Bienvenue 🌟</div>
+                <div class="auth-subtitle">Créez votre compte pour rejoindre la communauté</div>
+                <div class="auth-error" id="registerError"></div>
+                <input type="text" class="auth-input" id="registerUsername" placeholder="Nom d'utilisateur" aria-label="Nom d'utilisateur" autocomplete="username">
+                <input type="email" class="auth-input" id="registerEmail" placeholder="Email" aria-label="Adresse email" autocomplete="email">
+                <input type="password" class="auth-input" id="registerPassword" placeholder="Mot de passe (min. 6 caractères)" aria-label="Mot de passe" autocomplete="new-password">
+                <button class="auth-btn" onclick="registerWithEmail()" id="registerBtn">Créer mon compte</button>
+                <div class="auth-divider"><span>ou</span></div>
+                <button class="auth-btn secondary" onclick="loginWithGoogle()">🌐 Continuer avec Google</button>
+                <div class="auth-switch">Déjà un compte ? <a onclick="switchAuthForm('login')">Se connecter</a></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL PARTAGE D'EXTRAIT
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-box">
+            <div class="share-header">
+                <div class="share-title">📤 Partager cet extrait</div>
+                <button class="auth-close" onclick="closeShareModal()">✕</button>
+            </div>
+            <div class="share-preview">
+                <div class="share-preview-text" id="sharePreviewText"></div>
+                <div class="share-preview-source" id="sharePreviewSource"></div>
+            </div>
+            <textarea class="share-commentary" id="shareCommentary" placeholder="Ajoutez un commentaire... (optionnel)" aria-label="Commentaire sur l'extrait"></textarea>
+            <div class="share-actions">
+                <button class="share-btn secondary" onclick="closeShareModal()">Annuler</button>
+                <button class="share-btn primary" onclick="publishExtrait()" id="publishBtn">🚀 Publier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIKERS (Statique) -->
+    <div class="likers-modal" id="likersModal" onclick="if(event.target === this) closeLikersModal()">
+        <div class="likers-content">
+            <div class="likers-header">
+                <h3>❤️ Aimé par</h3>
+                <button class="likers-close" onclick="closeLikersModal()">✕</button>
+            </div>
+            <div class="likers-list" id="likersList">
+                <div class="likers-loading">Chargement...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         OVERLAY RÉSULTATS DE RECHERCHE
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="search-results-overlay" id="searchResultsOverlay" onclick="if(event.target === this) closeSearchResults()">
+        <div class="search-results-container">
+            <div class="search-results-header">
+                <div class="search-results-title">
+                    🔍 Résultats pour "<span class="search-results-query" id="searchQueryDisplay"></span>"
+                </div>
+                <button class="search-results-close" onclick="closeSearchResults()">✕</button>
+            </div>
+            <div class="search-results-tabs" id="searchResultsTabs"></div>
+            <div class="search-results-grid" id="searchResultsGrid"></div>
+        </div>
+    </div>
+    
+    <!-- MODAL PARAMÈTRES SOURCES -->
+    <div class="favorites-overlay" id="sourceSettingsModal" style="display: none; align-items: center; justify-content: center; z-index: var(--z-modal);">
+        <div class="favorites-view" style="max-width: 450px; height: auto; max-height: 85vh; background: var(--bg-elevated); border: 2px solid var(--border); box-shadow: 4px 4px 0 var(--pixel-shadow); padding: 0; display: flex; flex-direction: column; width: 90%; margin: 20px;">
+            <div class="favorites-header" style="padding: 15px 20px; border-bottom: 2px solid var(--border); margin-bottom: 0;">
+                <div class="favorites-title" id="sourcesModalTitle" style="font-size: 1.2rem;">📚 Bibliothèques</div>
+                <button class="reader-close" onclick="closeSourceSettingsModal()" style="position: static; font-size: 1.5rem; line-height: 1;">✕</button>
+            </div>
+            
+            <div style="padding: 20px; overflow-y: auto;">
+                <p id="sourcesModalSubtitle" style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">Sélectionnez les sources utilisées pour générer le palimpseste infini.</p>
+                
+                <!-- Sources principales -->
+                <div id="mainSourcesLabel" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">📚 Sources principales</div>
+                
+                <div class="source-option-row" onclick="toggleSourceSetting('wikisource')">
+                    <div class="source-checkbox active" id="check-wikisource">✓</div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Wikisource</strong>
+                        <div id="wikisourceDesc" style="font-size: 0.85em; opacity: 0.7;">Bibliothèque libre participative. Meilleure qualité et formatage.</div>
+                    </div>
+                </div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('archive')">
+                    <div class="source-checkbox" id="check-archive"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Archive.org + Open Library</strong>
+                        <div id="archiveDesc" style="font-size: 0.85em; opacity: 0.7;">Scanner de livres anciens. Textes bruts (OCR parfois imparfait).</div>
+                    </div>
+                </div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('gutenberg')">
+                    <div class="source-checkbox" id="check-gutenberg"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Project Gutenberg</strong>
+                        <div id="gutenbergDesc" style="font-size: 0.85em; opacity: 0.7;">Classiques du domaine public.</div>
+                    </div>
+                </div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('gallica')">
+                    <div class="source-checkbox" id="check-gallica"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Gallica (BnF) 🇫🇷</strong>
+                        <div id="gallicaDesc" style="font-size: 0.85em; opacity: 0.7;">Bibliothèque nationale de France. Textes français numérisés.</div>
+                    </div>
+                </div>
+
+                <!-- Sources spécialisées -->
+                <div id="specializedSourcesLabel" style="font-size: 0.75rem; color: var(--text-muted); margin: 15px 0 8px; text-transform: uppercase; letter-spacing: 1px;">🏛️ Sources spécialisées</div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('perseus')">
+                    <div class="source-checkbox" id="check-perseus"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Perseus Digital Library</strong>
+                        <div id="perseusDesc" style="font-size: 0.85em; opacity: 0.7;">Textes classiques grecs et latins (traductions anglaises).</div>
+                    </div>
+                </div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('sacredtexts')">
+                    <div class="source-checkbox" id="check-sacredtexts"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">Sacred Texts Archive (Anglais)</strong>
+                        <div id="sacredtextsDesc" style="font-size: 0.85em; opacity: 0.7;">Textes religieux et mystiques en anglais (traductions de sanskrit, hébreu, grec ancien, etc.).</div>
+                    </div>
+                </div>
+
+                <div class="source-option-row" onclick="toggleSourceSetting('poetrydb')">
+                    <div class="source-checkbox" id="check-poetrydb"></div>
+                    <div>
+                        <strong style="display:block; margin-bottom: 2px;">PoetryDB (Anglais)</strong>
+                        <div id="poetrydbDesc" style="font-size: 0.85em; opacity: 0.7;">Base de données dédiée à la poésie anglophone.</div>
+                    </div>
+                </div>
+
+                <button id="applySourcesBtn" class="btn btn-primary" onclick="closeSourceSettingsModal()" style="width: 100%; margin-top: 15px; padding: 12px; font-weight: bold; justify-content: center;">Appliquer les changements</button>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .source-option-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .source-option-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .source-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #666;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .source-checkbox.active {
+            border-color: var(--accent);
+            background: rgba(212, 165, 116, 0.2);
+            color: var(--accent);
+        }
+    </style>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TOAST NOTIFICATIONS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SCRIPTS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js?v=7"></script>
+    <script src="js/i18n.js?v=1"></script>
+    <script src="js/auth.js?v=8"></script>
+    <script src="js/monitoring.js?v=1"></script>
+    <script src="js/mobile.js?v=7"></script>
+    <script src="js/trending.js?v=9"></script>
+    <script src="js/notifications.js?v=7"></script>
+    <script src="js/share.js?v=9"></script>
+    <script src="js/social.js?v=15"></script>
+    <script src="js/comments.js?v=8"></script>
+    <script src="js/messaging.js?v=7"></script>
+    <script src="js/followers.js?v=11"></script>
+    <script src="js/search.js?v=8"></script>
+    <script src="js/exploration.js?v=8"></script>
+    <script src="js/gamification.js?v=8"></script>
+    <script src="js/collections.js?v=10"></script>
+    <script src="js/sources.js?v=11"></script>
+    <script src="js/app.js?v=11"></script>
+    <script>lucide.createIcons(); if(typeof initI18n === 'function') initI18n();</script>
+</body>
+</html>

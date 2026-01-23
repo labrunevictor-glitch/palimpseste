@@ -1,0 +1,1744 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   📱 MOBILE STYLES - Palimpseste
+   Fichier dédié pour une expérience mobile optimale
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ============================================
+   VARIABLES MOBILE
+   ============================================ */
+:root {
+    --mobile-header-height: 56px;
+    --mobile-nav-height: 60px;
+    --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ============================================
+   MEDIA QUERY PRINCIPALE - MAX 900px
+   ============================================ */
+@media screen and (max-width: 900px) {
+    
+    /* ══════════════════════════════════════════
+       HEADER MOBILE
+       Layout: [Avatar] [Titre] [Recherche]
+       ══════════════════════════════════════════ */
+    
+    header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: var(--mobile-header-height) !important;
+        z-index: 100 !important;
+        background: var(--bg-card) !important;
+        border-bottom: 2px solid var(--border) !important;
+        box-shadow: 0 4px 0 var(--pixel-shadow) !important;
+    }
+    
+    .header-inner {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 12px !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    
+    /* CACHER tout le desktop header */
+    .header-actions,
+    .header-title,
+    .lang-selector,
+    .user-menu,
+    .notif-btn,
+    .favorites-btn,
+    .header-btn {
+        display: none !important;
+    }
+    
+    /* AFFICHER les éléments mobile */
+    .mobile-profile-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 48px !important;
+        height: 48px !important;
+        padding: 4px !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
+        position: relative !important;
+        z-index: 10 !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        text-decoration: none !important;
+    }
+    
+    .mobile-profile-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, var(--accent), var(--accent-purple, #9b59b6)) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.2rem !important;
+        color: white !important;
+        border: 2px solid var(--border) !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+    
+    .mobile-profile-btn:active .mobile-profile-avatar,
+    .mobile-profile-avatar:active {
+        transform: scale(0.95) !important;
+        opacity: 0.8 !important;
+    }
+    
+    .mobile-logo {
+        display: none !important; /* On garde juste avatar + recherche */
+    }
+    
+    /* Pas de titre supplémentaire - juste avatar + recherche */
+    .header-inner::after {
+        display: none !important;
+    }
+    
+    /* Bouton notifications mobile */
+    .mobile-notif-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        margin: 0 4px !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        order: 4 !important;
+        color: var(--text) !important;
+    }
+    
+    .mobile-notif-btn i,
+    .mobile-notif-btn svg {
+        width: 22px !important;
+        height: 22px !important;
+        stroke-width: 1.5 !important;
+    }
+    
+    .mobile-notif-btn:active {
+        opacity: 0.7 !important;
+    }
+    
+    .mobile-notif-badge {
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        min-width: 14px !important;
+        height: 14px !important;
+        padding: 0 3px !important;
+        background: var(--accent) !important;
+        color: white !important;
+        font-size: 0.55rem !important;
+        font-weight: bold !important;
+        border-radius: 7px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .mobile-notif-badge:empty,
+    .mobile-notif-badge[style*="display: none"] {
+        display: none !important;
+    }
+    
+    /* Recherche prend l'espace restant */
+    .search-container {
+        flex: 1 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        order: 3 !important;
+    }
+    
+    .search-input {
+        width: 100% !important;
+        font-size: 16px !important; /* Évite le zoom iOS */
+        padding: 10px 12px 10px 36px !important;
+        border-radius: 20px !important;
+        border: 2px solid var(--border) !important;
+        background: var(--bg) !important;
+    }
+    
+    .search-icon {
+        left: 10px !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       NAVIGATION BOTTOM BAR
+       ══════════════════════════════════════════ */
+    
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom)) !important;
+        padding-bottom: var(--mobile-safe-bottom) !important;
+        background: var(--bg-card) !important;
+        border-top: 2px solid var(--border) !important;
+        box-shadow: 0 -4px 0 var(--pixel-shadow) !important;
+        z-index: 100 !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+    }
+    
+    .mobile-nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex: 1 !important;
+        height: 100% !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        background: none !important;
+        border: none !important;
+        color: var(--muted) !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transition: color 0.2s !important;
+    }
+    
+    .mobile-nav-item.active,
+    .mobile-nav-item:active {
+        color: var(--accent) !important;
+    }
+    
+    .mobile-nav-icon {
+        width: 24px !important;
+        height: 24px !important;
+        display: block !important;
+        flex-shrink: 0 !important;
+        stroke-width: 1.5 !important;
+    }
+    
+    .mobile-nav-label {
+        display: none !important;
+    }
+    
+    .mobile-nav-badge {
+        position: absolute !important;
+        top: 4px !important;
+        right: calc(50% - 16px) !important;
+        min-width: 16px !important;
+        height: 16px !important;
+        padding: 0 4px !important;
+        background: var(--accent) !important;
+        color: white !important;
+        font-size: 0.6rem !important;
+        font-weight: bold !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .mobile-nav-badge:empty {
+        display: none !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       PANNEAU PROFIL MOBILE (Avatar click)
+       ══════════════════════════════════════════ */
+    
+    .mobile-profile-panel {
+        display: none !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) scale(0.9) !important;
+        width: 88vw !important;
+        max-width: 360px !important;
+        max-height: 82vh !important;
+        overflow-y: auto !important;
+        z-index: 2500 !important;
+        background: var(--bg-card) !important;
+        border: 2px solid var(--border) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.35) !important;
+        padding: 14px 16px !important;
+        opacity: 0 !important;
+        transition: opacity 0.25s, transform 0.25s !important;
+        pointer-events: auto !important;
+    }
+    
+    .mobile-profile-panel.open {
+        display: block !important;
+        opacity: 1 !important;
+        transform: translate(-50%, -50%) scale(1) !important;
+        pointer-events: auto !important;
+    }
+
+    /* Messagerie: actions via menu ⋯ sur mobile */
+    .msg-react-btn,
+    .msg-edit-btn {
+        padding: 6px 10px !important;
+        font-size: 14px !important;
+    }
+    
+    .mobile-profile-panel .drawer-close-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: absolute !important;
+        top: 6px !important;
+        right: 6px !important;
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 0.85rem !important;
+        background: rgba(0,0,0,0.2) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text) !important;
+        opacity: 0.8 !important;
+        box-shadow: none !important;
+        border-radius: 50% !important;
+    }
+    
+    .mobile-profile-content {
+        text-align: center !important;
+    }
+    
+    .mobile-profile-avatar-big {
+        width: 44px !important;
+        height: 44px !important;
+        margin: 0 auto 8px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, var(--accent), var(--accent-purple)) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.3rem !important;
+        border: 2px solid var(--border) !important;
+        color: white !important;
+    }
+    
+    .mobile-profile-title {
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+        color: var(--text) !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .mobile-profile-name {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        color: var(--text) !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .mobile-profile-subtitle {
+        font-size: 0.9rem !important;
+        color: var(--text-secondary) !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .mobile-profile-stats {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        padding: 0 !important;
+    }
+    
+    .mobile-profile-stat {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 8px 6px !important;
+        min-height: 52px !important;
+        border-radius: 8px !important;
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+    }
+    
+    .mobile-profile-stat:active {
+        background: var(--bg-elevated) !important;
+    }
+    
+    .mobile-profile-stat-num {
+        font-size: 1rem !important;
+        font-weight: bold !important;
+        color: var(--accent) !important;
+    }
+    
+    .mobile-profile-stat-label {
+        font-size: 0.65rem !important;
+        color: var(--text-secondary) !important;
+        margin-top: 2px !important;
+        white-space: nowrap !important;
+    }
+    
+    .mobile-profile-btn-primary {
+        display: block !important;
+        width: 100% !important;
+        padding: 14px !important;
+        margin-bottom: 10px !important;
+        background: linear-gradient(135deg, var(--accent), #d62839) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: white !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3) !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
+        opacity: 1 !important;
+    }
+    
+    .mobile-profile-btn-primary:active {
+        transform: scale(0.98) !important;
+        opacity: 0.9 !important;
+    }
+    
+    .mobile-profile-btn-secondary {
+        display: block !important;
+        width: 100% !important;
+        padding: 12px !important;
+        background: transparent !important;
+        border: 2px solid var(--border) !important;
+        border-radius: 12px !important;
+        color: var(--text) !important;
+        font-size: 0.9rem !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
+        opacity: 1 !important;
+    }
+    
+    .mobile-profile-btn-secondary:active {
+        background: var(--bg-elevated) !important;
+    }
+    
+    /* Boutons d'action principaux (Collections, Communauté) */
+    .mobile-profile-actions {
+        display: flex !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .mobile-profile-action-btn {
+        flex: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        padding: 14px 12px !important;
+        background: linear-gradient(135deg, var(--accent), #d62839) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: white !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25) !important;
+        transition: transform 0.15s, opacity 0.15s !important;
+    }
+    
+    .mobile-profile-action-btn:active {
+        transform: scale(0.97) !important;
+        opacity: 0.9 !important;
+    }
+    
+    .mobile-profile-action-btn i,
+    .mobile-profile-action-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+    
+    .mobile-profile-btn-logout {
+        display: block !important;
+        width: 100% !important;
+        padding: 12px !important;
+        background: transparent !important;
+        border: 1px solid var(--muted) !important;
+        border-radius: 12px !important;
+        color: var(--text-secondary) !important;
+        font-size: 0.9rem !important;
+        cursor: pointer !important;
+    }
+    
+    .mobile-profile-btn-logout:active {
+        background: rgba(230, 57, 70, 0.1) !important;
+        border-color: var(--accent) !important;
+        color: var(--accent) !important;
+    }
+    
+    /* ══════════════════════════════════════════════════════════════════════════
+       DRAWER MOBILE - Menu latéral complet
+       Version définitive et propre
+       ══════════════════════════════════════════════════════════════════════════ */
+    
+    /* --- OVERLAY --- */
+    .mobile-drawer-overlay {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        z-index: 1100 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: opacity 0.3s, visibility 0.3s !important;
+    }
+    
+    .mobile-drawer-overlay.open {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* --- PANNEAU PRINCIPAL --- */
+    .stats-panel {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        bottom: 0 !important;
+        width: 85vw !important;
+        max-width: 320px !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 1200 !important;
+        background: var(--bg-card) !important;
+        border-right: 2px solid var(--border) !important;
+        border-left: none !important;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.3) !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 20px 16px 60px 16px !important;
+        padding-top: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    
+    .stats-panel.open {
+        transform: translateX(0) !important;
+    }
+    
+    .stats-panel:not(.open) {
+        transform: translateX(-100%) !important;
+    }
+    
+    /* --- BOUTON FERMER --- */
+    .stats-panel .drawer-close-btn {
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        width: 32px !important;
+        height: 32px !important;
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.9rem !important;
+        cursor: pointer !important;
+        z-index: 10 !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .stats-panel .drawer-close-btn:active {
+        background: var(--bg-elevated) !important;
+        color: var(--accent) !important;
+    }
+    
+    /* ====== DRAWER QUICK ACTIONS REWORKED FOR MOBILE ====== */
+    .drawer-quick-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        margin: 0 0 16px 0 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .drawer-action-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        gap: 6px !important;
+        padding: 12px 6px !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        color: var(--text) !important;
+        font-size: 0.8rem !important;
+        min-height: 70px !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+        white-space: normal !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .drawer-action-btn i,
+    .drawer-action-btn svg {
+        width: 20px !important;
+        height: 20px !important;
+        margin-bottom: 2px !important;
+    }
+
+    /* Style spécifique pour le bouton déconnexion mobile - pleine largeur, hauteur réduite */
+    .drawer-logout-mobile {
+        grid-column: span 2 !important;
+        flex-direction: row !important;
+        min-height: 48px !important;
+        padding: 10px 12px !important;
+        background: rgba(239, 68, 68, 0.1) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        color: #ef4444 !important;
+    }
+
+    .drawer-logout-mobile:hover,
+    .drawer-logout-mobile:active {
+        background: rgba(239, 68, 68, 0.2) !important;
+    }
+
+    /* Style spécifique pour la ligne préférences (langue / settings) */
+    .drawer-preferences-row {
+        grid-column: span 2 !important;
+        display: flex !important;
+        gap: 8px !important;
+        margin-top: 4px !important;
+    }
+
+    .drawer-lang-selector {
+        flex: 1 !important;
+        width: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 0 10px !important;
+        height: 48px !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+    }
+
+    .drawer-icon-btn {
+        width: 48px !important;
+        height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        color: var(--text) !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+    }
+
+    /* ═══════════════════════════════════════════
+       ÉLÉMENTS À CACHER COMPLÈTEMENT
+       ═══════════════════════════════════════════ */
+    .stats-panel .stats-logo,
+    .stats-panel #profileSection,
+    .stats-panel .profile-section,
+    .stats-panel .reading-stats-section,
+    .stats-panel .connections-section,
+    .stats-panel #connectionsSection,
+    .stats-panel #readingPathSection,
+    .stats-panel .territory-section,
+    .stats-panel #territorySection,
+    .stats-panel .genres-section,
+    .stats-panel #genresSection,
+    .stats-panel .favorites-section,
+    .stats-panel #favoritesSection,
+    .stats-panel .mini-stats,
+    .stats-panel .streak-section,
+    .stats-panel .weekly-chart,
+    .stats-panel .author-bars,
+    .stats-panel .genre-chart,
+    .stats-panel .fun-stat,
+    .stats-panel .stats-section:has(.author-bars),
+    .stats-panel .stats-section:has(.genre-chart),
+    .stats-panel .stats-section:has(.weekly-chart) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }
+    
+    /* ═══════════════════════════════════════════
+       HEADER - Titre "Palimpseste"
+       ═══════════════════════════════════════════ */
+    .stats-panel::before {
+        content: 'Palimpseste' !important;
+        display: block !important;
+        flex-shrink: 0 !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        color: var(--text) !important;
+        text-align: center !important;
+        padding: 8px 40px 16px 16px !important;
+        margin-bottom: 4px !important;
+        border-bottom: 1px solid var(--border) !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
+    }
+    
+    /* ═══════════════════════════════════════════
+       NAVIGATION RAPIDE - Grille 2x2 + Langue
+       ═══════════════════════════════════════════ */
+    .stats-panel .drawer-quick-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding-bottom: 16px !important;
+        margin-bottom: 0 !important;
+        border-bottom: 1px solid var(--border) !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .stats-panel .drawer-action-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 16px 8px !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        color: var(--text) !important;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        text-align: center !important;
+        min-height: 70px !important;
+    }
+    
+    .stats-panel .drawer-action-btn .drawer-icon {
+        width: 22px !important;
+        height: 22px !important;
+        stroke-width: 1.5 !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .stats-panel .drawer-action-btn:active .drawer-icon {
+        color: var(--accent) !important;
+    }
+    
+    .stats-panel .drawer-action-btn:active {
+        transform: scale(0.96) !important;
+        background: var(--bg) !important;
+        border-color: var(--accent) !important;
+    }
+    
+    /* Sélecteur de langue - toute la largeur */
+    .stats-panel .drawer-lang-selector {
+        grid-column: 1 / -1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 12px 16px !important;
+        background: var(--bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 10px !important;
+        color: var(--text) !important;
+    }
+    
+    .stats-panel .drawer-lang-selector .drawer-icon {
+        width: 20px !important;
+        height: 20px !important;
+        stroke-width: 1.5 !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .stats-panel .drawer-lang-selector select {
+        flex: 1 !important;
+        background: transparent !important;
+        border: none !important;
+        color: var(--text) !important;
+        font-size: 0.9rem !important;
+        text-align: center !important;
+        cursor: pointer !important;
+    }
+    
+    .stats-panel .drawer-lang-selector select option {
+        background: var(--bg-card) !important;
+        color: var(--text) !important;
+    }
+    
+    /* ═══════════════════════════════════════════
+       STATS - Masquer complètement sur mobile
+       ═══════════════════════════════════════════ */
+    .stats-panel .stats-section {
+        display: none !important;
+    }
+    
+    /* Section "Votre dérive" - CACHÉE sur mobile */
+    .stats-panel .stats-section:has(.big-number) {
+        display: none !important;
+    }
+    
+    /* ═══════════════════════════════════════════
+       FAVORIS - Liste scrollable
+       ═══════════════════════════════════════════ */
+    .stats-panel .favorites-section,
+    .stats-panel #favoritesSection {
+        display: block !important;
+        padding: 16px !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
+        margin-bottom: 0 !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .stats-panel .favorites-section h3 {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin: 0 0 12px 0 !important;
+        padding: 0 !important;
+        color: var(--text) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    .stats-panel #favoritesList {
+        max-height: 200px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin !important;
+        scrollbar-color: var(--border) var(--bg-card) !important;
+    }
+    
+    .stats-panel #favoritesList::-webkit-scrollbar {
+        width: 4px !important;
+    }
+    
+    .stats-panel #favoritesList::-webkit-scrollbar-track {
+        background: var(--bg-card) !important;
+        border-radius: 2px !important;
+    }
+    
+    .stats-panel #favoritesList::-webkit-scrollbar-thumb {
+        background: var(--border) !important;
+        border-radius: 2px !important;
+    }
+    
+    .stats-panel .favorites-empty {
+        text-align: center !important;
+        color: var(--muted) !important;
+        font-size: 0.85rem !important;
+        padding: 24px 10px !important;
+        font-style: italic !important;
+    }
+    
+    .stats-panel .favorite-item {
+        display: block !important;
+        padding: 10px 12px !important;
+        background: var(--bg) !important;
+        border-radius: 8px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid transparent !important;
+        cursor: pointer !important;
+    }
+    
+    .stats-panel .favorite-item:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    .stats-panel .favorite-item:active {
+        border-color: var(--accent) !important;
+        background: var(--bg-elevated) !important;
+    }
+    
+    .stats-panel .favorite-item .favorite-text,
+    .stats-panel .favorite-item .favorite-excerpt {
+        font-size: 0.85rem !important;
+        color: var(--text) !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
+    }
+    
+    .stats-panel .favorite-item .favorite-author,
+    .stats-panel .favorite-item .favorite-meta {
+        font-size: 0.75rem !important;
+        color: var(--accent) !important;
+        margin-top: 6px !important;
+        display: block !important;
+    }
+    
+    /* ═══════════════════════════════════════════
+       BADGES - Affichage mobile simplifié
+       ═══════════════════════════════════════════ */
+    .stats-panel .badges-section,
+    .stats-panel #achievementSection {
+        display: block !important;
+        padding: 16px !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .stats-panel .badges-section h3 {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin: 0 0 12px 0 !important;
+        padding: 0 !important;
+        color: var(--text) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    .stats-panel .badges-count-inline {
+        font-size: 0.75rem !important;
+        color: var(--muted) !important;
+        font-weight: 400 !important;
+    }
+    
+    /* Cacher les catégories et en-têtes - affichage plat */
+    .stats-panel #achievementList .badge-category {
+        display: contents !important;
+    }
+    
+    .stats-panel #achievementList .badge-category-header {
+        display: none !important;
+    }
+    
+    /* Liste des badges en grille 5 colonnes - ICÔNES SEULES */
+    .stats-panel .achievements-compact,
+    .stats-panel #achievementList {
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .stats-panel #achievementList .badge-category-grid {
+        display: contents !important;
+    }
+    
+    /* Chaque badge = juste l'icône */
+    .stats-panel #achievementList .achievement,
+    .stats-panel .achievements-compact .achievement {
+        width: 100% !important;
+        aspect-ratio: 1 !important;
+        height: auto !important;
+        min-height: 40px !important;
+        max-height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: var(--bg) !important;
+        border-radius: 10px !important;
+        border: 1px solid var(--border) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        cursor: pointer !important;
+    }
+    
+    /* Badge verrouillé */
+    .stats-panel #achievementList .achievement.locked {
+        opacity: 0.35 !important;
+        filter: grayscale(1) !important;
+    }
+    
+    /* Badge débloqué */
+    .stats-panel #achievementList .achievement.unlocked {
+        opacity: 1 !important;
+        filter: none !important;
+        background: var(--bg-elevated) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 8px rgba(230, 57, 70, 0.2) !important;
+    }
+    
+    /* Icône du badge - VISIBLE */
+    .stats-panel #achievementList .badge-icon {
+        font-size: 1.3rem !important;
+        line-height: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* CACHER tout le reste du badge (texte, progress, etc.) */
+    .stats-panel #achievementList .badge-info,
+    .stats-panel #achievementList .badge-name,
+    .stats-panel #achievementList .badge-desc,
+    .stats-panel #achievementList .badge-progress,
+    .stats-panel #achievementList .badge-progress-bar,
+    .stats-panel #achievementList .badge-progress-text,
+    .stats-panel #achievementList .badge-mini-progress,
+    .stats-panel #achievementList .unlocked-check {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       CONTENU PRINCIPAL
+       ══════════════════════════════════════════ */
+    
+    main {
+        margin: 0 !important;
+        padding-top: 56px !important; /* Juste sous le header, le scroll ajustera */
+        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px) !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        transition: padding-top 0.3s ease !important;
+    }
+    
+    /* Filtres dépliés sur mobile - plus d'espace en haut */
+    body:not(.filters-collapsed) main {
+        padding-top: 300px !important; /* Espace pour header + filtres dépliés */
+    }
+    
+    /* Filtres repliés sur mobile - espace réduit */
+    body.filters-collapsed main {
+        padding-top: 120px !important; /* Header + bouton afficher filtres */
+    }
+    
+    /* Cards */
+    .text-card {
+        margin-bottom: 12px !important;
+        padding: 12px !important;
+        border-radius: 8px !important;
+    }
+    
+    .card-actions {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 4px !important;
+        margin-top: 12px !important;
+    }
+    
+    .card-actions .btn,
+    .card-actions .btn-like,
+    .card-actions .btn-share,
+    .card-actions .btn-comment,
+    .card-actions .btn-bookmark {
+        padding: 8px !important;
+        font-size: 1.1rem !important;
+        justify-content: center !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       EXPLORATION - KALÉIDOSCOPE (filtres croisés)
+       ══════════════════════════════════════════ */
+    
+    .exploration-container {
+        position: fixed !important;
+        top: var(--mobile-header-height) !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 90 !important;
+        margin-top: 0 !important;
+        background: var(--bg-card) !important;
+        border-bottom: 1px solid var(--border) !important;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important;
+        padding: 0.4rem 0 0.3rem !important;
+        max-height: 42vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        transition: max-height 0.3s ease !important;
+    }
+    
+    /* Conteneur des lignes - disposition en grille propre */
+    .exploration-container > .filter-row {
+        border-bottom: 1px dotted rgba(212, 165, 116, 0.15) !important;
+    }
+    
+    .exploration-container > .filter-row:last-of-type {
+        border-bottom: none !important;
+    }
+    
+    /* État rétracté sur mobile - tout caché sauf le bouton */
+    .exploration-container.collapsed {
+        max-height: 42px !important;
+        overflow-y: hidden !important;
+        padding: 0 !important;
+    }
+    
+    .exploration-container.collapsed .filter-row {
+        display: none !important;
+    }
+    
+    .exploration-container.collapsed .filter-subchips {
+        display: none !important;
+    }
+    
+    .exploration-container.collapsed .filter-summary {
+        display: none !important;
+    }
+    
+    .filter-row {
+        padding: 0.4rem 0.6rem !important;
+        gap: 0.5rem !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        align-items: center !important;
+    }
+    
+    .filter-row::-webkit-scrollbar {
+        display: none !important;
+    }
+    
+    .filter-label {
+        font-size: 0.72rem !important;
+        min-width: auto !important;
+        font-weight: 600 !important;
+        flex-shrink: 0 !important;
+        color: var(--accent) !important;
+        opacity: 0.9 !important;
+        padding-right: 0.3rem !important;
+        border-right: 1px solid rgba(212, 165, 116, 0.2) !important;
+        margin-right: 0.2rem !important;
+    }
+    
+    .filter-chips {
+        display: flex !important;
+        gap: 0.35rem !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding: 0.1rem 0 !important;
+    }
+    
+    .filter-chip {
+        padding: 0.32rem 0.55rem !important;
+        font-size: 0.7rem !important;
+        border-radius: 12px !important;
+        min-height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+        flex-shrink: 0 !important;
+        background: rgba(40, 40, 40, 0.5) !important;
+        color: var(--text-secondary) !important;
+        border: 1px solid var(--border) !important;
+    }
+    
+    .filter-chip:active {
+        background: rgba(212, 165, 116, 0.3) !important;
+        color: var(--text) !important;
+    }
+    
+    .filter-chip.active {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    .filter-chip.filter-parent {
+        padding: 0.32rem 0.6rem !important;
+        font-weight: 500 !important;
+        border-color: rgba(212, 165, 116, 0.4) !important;
+        color: var(--text) !important;
+    }
+    
+    .filter-chip.filter-parent.expanded {
+        background: var(--accent) !important;
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    .filter-chip.filter-child {
+        padding: 0.28rem 0.5rem !important;
+        font-size: 0.68rem !important;
+        border-style: dashed !important;
+        border-color: rgba(212, 165, 116, 0.4) !important;
+        color: var(--accent) !important;
+        background: rgba(212, 165, 116, 0.08) !important;
+    }
+    
+    .filter-chip.filter-child.active {
+        background: var(--accent) !important;
+        border-style: solid !important;
+        color: #1a1a1a !important;
+    }
+    
+    /* Sous-catégories - fond légèrement différent */
+    .filter-subchips {
+        padding: 0.35rem 0.6rem !important;
+        gap: 0.35rem !important;
+        flex-wrap: wrap !important;
+        background: rgba(212, 165, 116, 0.03) !important;
+        border-top: 1px dashed rgba(212, 165, 116, 0.15) !important;
+        margin-top: 0.1rem !important;
+    }
+    
+    .filter-summary {
+        padding: 0.4rem 0.6rem !important;
+        gap: 0.5rem !important;
+        background: rgba(212, 165, 116, 0.05) !important;
+        border-top: 1px solid rgba(212, 165, 116, 0.2) !important;
+        margin-top: 0.2rem !important;
+    }
+    
+    .filter-summary-text {
+        font-size: 0.68rem !important;
+    }
+    
+    .filter-summary-go {
+        padding: 0.3rem 0.8rem !important;
+        font-size: 0.72rem !important;
+        min-height: 30px !important;
+    }
+    
+    .filter-summary-clear,
+    .filter-summary-random {
+        padding: 0.3rem !important;
+        font-size: 1rem !important;
+        min-width: 32px !important;
+        min-height: 32px !important;
+    }
+    
+    /* Bouton toggle - barre horizontale cliquable en bas */
+    .exploration-toggle {
+        position: relative !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        width: 100% !important;
+        height: 32px !important;
+        margin-top: 0.3rem !important;
+        padding: 0 !important;
+        font-size: 0.65rem !important;
+        background: linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.08)) !important;
+        border: none !important;
+        border-top: 1px dotted rgba(212, 165, 116, 0.25) !important;
+        border-radius: 0 !important;
+        color: var(--accent) !important;
+        opacity: 0.8 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.4rem !important;
+        box-shadow: none !important;
+    }
+    
+    .exploration-toggle::before {
+        content: "Replier les filtres" !important;
+        font-size: 0.65rem !important;
+        text-transform: none !important;
+        letter-spacing: 0.03em !important;
+    }
+
+    .exploration-toggle::after {
+        content: "" !important;
+        display: inline-block !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-left: 5px solid transparent !important;
+        border-right: 5px solid transparent !important;
+        border-bottom: 7px solid currentColor !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle {
+        background: var(--accent) !important;
+        color: white !important;
+        opacity: 1 !important;
+        height: 36px !important;
+        border-top: none !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle::before {
+        content: "Afficher les filtres" !important;
+    }
+
+    .exploration-container.collapsed .exploration-toggle::after {
+        border-bottom: 0 !important;
+        border-top: 7px solid currentColor !important;
+        transform: translateY(1px) !important;
+    }
+    
+    .exploration-toggle:active {
+        background: rgba(212, 165, 116, 0.2) !important;
+        opacity: 1 !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle:active {
+        background: var(--accent-secondary) !important;
+    }
+    
+    /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */
+    .ambiance-intro {
+        position: fixed !important;
+        top: 145px !important; /* Header 56px + exploration ~89px */
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 85 !important;
+        margin: 0 !important;
+        padding: 1rem !important;
+        padding-top: 2.5rem !important; /* Espace pour le bouton fermer */
+        text-align: center !important;
+        background: var(--bg-card) !important;
+        border-bottom: 2px solid var(--accent-secondary) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        max-height: 50vh !important;
+        overflow-y: auto !important;
+    }
+    
+    .ambiance-intro .close-intro {
+        position: absolute !important;
+        top: 0.5rem !important;
+        right: 0.5rem !important;
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        font-size: 1.1rem !important;
+        background: var(--bg-elevated) !important;
+        border: 2px solid var(--border) !important;
+        border-radius: 50% !important;
+        color: var(--text) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 100 !important;
+        cursor: pointer !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+    }
+
+    .ambiance-intro h2 {
+        font-size: 1.15rem !important;
+        margin-bottom: 0.4rem !important;
+        margin-top: 0 !important;
+        font-weight: 600 !important;
+        color: var(--text) !important;
+    }
+
+    .ambiance-intro p {
+        font-size: 0.8rem !important;
+        margin-bottom: 0.5rem !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .ambiance-intro .period-badge {
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.6rem !important;
+        background: var(--accent-secondary) !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .ambiance-intro .ambiance-tags {
+        gap: 0.4rem !important;
+        margin-top: 0.5rem !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .ambiance-intro .ambiance-tag {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.5rem !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+    
+    .exploration-tabs::-webkit-scrollbar {
+        display: none !important;
+    }
+    
+    .exploration-tab {
+        flex-shrink: 0 !important;
+        padding: 8px 12px !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       MODALS
+       ══════════════════════════════════════════ */
+    
+    .modal-content,
+    .auth-modal-content {
+        width: 95vw !important;
+        max-width: 400px !important;
+        max-height: 90vh !important;
+        margin: 5vh auto !important;
+        overflow-y: auto !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       FEED TABS - Overlay social mobile
+       ══════════════════════════════════════════ */
+    .feed-tabs {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 10px !important;
+        background: var(--bg-card) !important;
+    }
+    
+    .feed-tab {
+        flex: 0 0 auto !important;
+        padding: 8px 10px !important;
+        font-size: 0.7rem !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 6px !important;
+        color: var(--text-secondary) !important;
+        white-space: nowrap !important;
+    }
+    
+    .feed-tab.active {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #fff !important;
+    }
+
+    /* ══════════════════════════════════════════
+       FEED COMMUNAUTAIRE + COLLECTIONS
+       ══════════════════════════════════════════ */
+    .extrait-card {
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+    .extrait-text {
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+    }
+    .extrait-source {
+        font-size: 0.75rem !important;
+    }
+    .extrait-commentary {
+        font-size: 0.85rem !important;
+        line-height: 1.6 !important;
+    }
+    .collection-card {
+        padding: 0.6rem 0.7rem !important;
+        gap: 0.5rem !important;
+    }
+    .collection-card-emoji {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+    .collection-card-info {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+    .collection-card-name {
+        font-size: 0.9rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    .collection-card-desc {
+        margin-top: 0.3rem !important;
+        line-height: 1.35 !important;
+        font-size: 0.78rem !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+    .collection-card-actions {
+        opacity: 1 !important;
+        flex-shrink: 0 !important;
+    }
+    .collection-item-card {
+        padding: 0.85rem !important;
+        border-radius: 8px !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    .collection-item-content {
+        width: 100% !important;
+    }
+    .collection-item-title {
+        font-size: 0.95rem !important;
+    }
+    .collection-item-text-container {
+        width: 100% !important;
+    }
+    .collection-item-preview,
+    .collection-item-full {
+        font-size: 0.92rem !important;
+        line-height: 1.65 !important;
+        padding: 12px 14px !important;
+        width: 100% !important;
+    }
+    .collection-item-actions {
+        flex-direction: row !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+        gap: 6px !important;
+        padding-left: 0 !important;
+    }
+    .collection-item-content:active {
+        transform: none !important;
+    }
+
+    /* Extrait actions - proper alignment on mobile */
+    .extrait-actions {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .extrait-action {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+    .extrait-action .share-count,
+    .extrait-action .collections-count,
+    .extrait-action .like-count,
+    .extrait-action .comment-count {
+        font-size: 0.75rem !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       MOBILE - Zone cliquable élargie pour compteurs
+       Le compteur doit être facilement cliquable sur mobile
+       ══════════════════════════════════════════ */
+    
+    /* Masquer les compteurs à 0 sur mobile aussi */
+    .like-count.is-zero,
+    .share-count.is-zero,
+    .collections-count.is-zero,
+    .comment-count.is-zero {
+        display: none !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       BOUTON LIKE - Même style que desktop (rouge, pas bleu)
+       Override du .btn.active qui met un fond accent/bleu
+       ══════════════════════════════════════════ */
+    .btn.btn-like,
+    .btn-like,
+    .extrait-action.like-btn {
+        background: transparent !important;
+        border-color: transparent !important;
+    }
+    
+    .btn.btn-like.active,
+    .btn-like.active,
+    .extrait-action.like-btn.liked {
+        background: transparent !important;
+        border-color: transparent !important;
+        color: #e74c3c !important;
+    }
+    
+    .btn.btn-like.active .like-icon,
+    .btn-like.active .like-icon,
+    .extrait-action.like-btn.liked .like-icon {
+        color: #e74c3c !important;
+    }
+    
+    .btn.btn-like.active .like-count,
+    .btn-like.active .like-count,
+    .extrait-action.like-btn.liked .like-count {
+        color: #e74c3c !important;
+    }
+    
+    /* Boutons like/share/collection - position relative pour le compteur */
+    .btn-like,
+    .btn-share,
+    .btn-collection,
+    .btn-comment,
+    .extrait-action.like-btn,
+    .extrait-action.share-btn,
+    .extrait-action.collection-btn {
+        position: relative !important;
+        overflow: visible !important;
+    }
+    
+    /* Compteurs - zone cliquable invisible mais élargie */
+    .like-count:not(.is-zero),
+    .share-count:not(.is-zero),
+    .collections-count:not(.is-zero),
+    .comment-count:not(.is-zero) {
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        z-index: 20 !important;
+        -webkit-tap-highlight-color: transparent !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 0.75rem !important;
+    }
+    
+    /* Feedback visuel au tap sur les compteurs */
+    .like-count:not(.is-zero):active,
+    .share-count:not(.is-zero):active,
+    .collections-count:not(.is-zero):active,
+    .comment-count:not(.is-zero):active {
+        opacity: 0.6 !important;
+    }
+    
+    /* Card actions mobile */
+    .card-foot .actions .btn-like,
+    .card-foot .actions .btn-share,
+    .card-foot .actions .btn-comment,
+    .card-foot .actions .btn-collection {
+        position: relative !important;
+        overflow: visible !important;
+    }
+    
+    /* Override spécifique pour les boutons like du feed principal */
+    .card-foot .actions .btn.btn-like,
+    .card-foot .actions .btn.btn-like.active,
+    .card-foot .actions button.btn-like,
+    .card-foot .actions button.btn-like.active {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    .card-foot .actions .btn.btn-like.active,
+    .card-foot .actions button.btn-like.active {
+        color: #e74c3c !important;
+    }
+    
+    .card-foot .actions .btn.btn-like.active .like-icon,
+    .card-foot .actions button.btn-like.active .like-icon,
+    .card-foot .actions .btn-like.active .like-icon {
+        color: #e74c3c !important;
+    }
+    
+    .card-foot .actions .like-count:not(.is-zero),
+    .card-foot .actions .share-count:not(.is-zero),
+    .card-foot .actions .comment-count:not(.is-zero),
+    .card-foot .actions .collections-count:not(.is-zero) {
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .card-foot .actions .like-count:not(.is-zero):active,
+    .card-foot .actions .share-count:not(.is-zero):active,
+    .card-foot .actions .comment-count:not(.is-zero):active,
+    .card-foot .actions .collections-count:not(.is-zero):active {
+        opacity: 0.6 !important;
+    }
+    
+    /* Icône partage : alignée sur desktop */
+    .card-foot .actions .btn-share .share-icon {
+        font-size: 1.3rem !important;
+        line-height: 1 !important;
+    }
+    
+    .card-foot .actions .btn-comment {
+        font-size: 1rem !important;
+    }
+    
+    .card-foot .actions .btn-collection {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Bordures uniformes et visibles pour tous les boutons sur mobile */
+    .card-foot .actions .btn {
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+    
+    .card-foot .actions .btn-like {
+        border-color: rgba(231, 76, 60, 0.2) !important;
+    }
+    
+    .card-foot .actions .btn-like.active {
+        border-color: rgba(231, 76, 60, 0.4) !important;
+        background: rgba(231, 76, 60, 0.1) !important;
+    }
+    
+    .card-foot .actions .btn-share {
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--accent-tertiary) !important;
+    }
+
+    .extrait-action.share-btn {
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--accent-tertiary) !important;
+    }
+
+    .source-link {
+        color: currentColor !important;
+        opacity: 0.55 !important;
+        text-decoration: none !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       MASQUER SIDEBAR DESKTOP
+       ══════════════════════════════════════════ */
+    
+    /* La sidebar n'est visible QUE quand elle a la classe .open */
+    .stats-panel:not(.open) {
+        transform: translateX(-100%) !important;
+    }
+}
+
+/* HIDE DESKTOP SETTINGS ON MOBILE ONLY */
+@media (max-width: 768px) {
+    .desktop-settings-section { display: none !important; }
+}

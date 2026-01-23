@@ -1,0 +1,57 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 🎨 VARIABLES CSS - Palimpseste
+ * Design tokens centralisés
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+:root {
+    /* 🎨 Couleurs de base */
+    --bg: #0d0d0d;
+    --bg-card: #161618;
+    --bg-elevated: #1e1e21;
+    --text: #e8e6e3;
+    --text-secondary: #9d9a95;
+    --muted: #5c5a56;
+    
+    /* Missing variables referenced elsewhere */
+    --bg-lighter: #1a1a1d;
+    --text-muted: #6d6b67;
+
+    /* Accents */
+    --accent: #e63946;
+    --accent-secondary: #f4a261;
+    --accent-tertiary: #2a9d8f;
+    --accent-purple: #9b5de5;
+    --accent-hover: #ff4757;
+    --danger: #c0392b;
+
+    /* Bordures */
+    --border: #2a2a2d;
+    --glow: 0 0 60px rgba(230, 57, 70, 0.1);
+
+    /* Pixel Art */
+    --pixel-shadow: #0a0a0a;
+    --pixel-highlight: #3a3a3d;
+    
+    /* Z-index layers (standardized scale) */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-header: 100;
+    --z-sticky: 150;
+    --z-mobile-nav: 200;
+    --z-drawer: 250;
+    --z-modal: 1000;
+    --z-toast: 1100;
+    --z-drawer-overlay: 1199;
+    --z-drawer-panel: 1200;
+    
+    /* ⏱️ Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* 📐 Breakpoints (pour référence, utilisés en media queries) */
+    /* Mobile: < 900px */
+    /* Desktop: >= 900px */
+}
