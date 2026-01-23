@@ -3262,16 +3262,32 @@
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', currentUser.id);
             
-            // Compter les likes reçus
+            // Compter les vrais likes reçus (depuis la table likes)
             const { data: myExtraits } = await supabaseClient
                 .from('extraits')
-                .select('likes_count')
+                .select('id')
                 .eq('user_id', currentUser.id);
             
-            const totalLikes = myExtraits?.reduce((sum, e) => sum + (e.likes_count || 0), 0) || 0;
+            let totalLikes = 0;
+            if (myExtraits && myExtraits.length > 0) {
+                const extraitIds = myExtraits.map(e => e.id);
+                const { count: likesCount } = await supabaseClient
+                    .from('likes')
+                    .select('*', { count: 'exact', head: true })
+                    .in('extrait_id', extraitIds);
+                totalLikes = likesCount || 0;
+            }
             
             document.getElementById('myExtraitsCount').textContent = extraitCount || 0;
             document.getElementById('myLikesCount').textContent = totalLikes;
+            
+            // Aussi afficher le nombre d'abonnés
+            const { count: followersCount } = await supabaseClient
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', currentUser.id);
+            
+            console.log('📊 Stats:', { extraits: extraitCount, likes: totalLikes, followers: followersCount });
         }
         
         // Helpers
@@ -3403,16 +3419,83 @@
                 return;
             }
             
-            // Récupérer les followers
+            console.log('🔍 Recherche followers pour user:', currentUser.id);
+            
+            // D'abord compter combien de followers
+            const { count: followersCount } = await supabaseClient
+                .from('follows')
+                .select('*', { count: 'exact', head: true })
+                .eq('following_id', currentUser.id);
+            
+            console.log('📊 Nombre de followers:', followersCount);
+            
+            // Récupérer les followers avec leurs profils
             const { data: followers, error } = await supabaseClient
                 .from('follows')
-                .select('follower_id, created_at, profiles!follows_follower_id_fkey(id, username)')
+                .select(`
+                    follower_id,
+                    created_at,
+                    follower:profiles!follows_follower_id_fkey(id, username)
+                `)
                 .eq('following_id', currentUser.id)
                 .order('created_at', { ascending: false });
             
+            console.log('👥 Followers data:', followers, 'Error:', error);
+            
             if (error) {
-                container.innerHTML = '<div class="social-empty">❌ Erreur lors du chargement</div>';
                 console.error('Erreur followers:', error);
+                // Essayer une requête alternative
+                const { data: simpleFollowers } = await supabaseClient
+                    .from('follows')
+                    .select('follower_id, created_at')
+                    .eq('following_id', currentUser.id);
+                
+                console.log('👥 Simple followers:', simpleFollowers);
+                
+                if (simpleFollowers && simpleFollowers.length > 0) {
+                    // Récupérer les profils séparément
+                    const followerIds = simpleFollowers.map(f => f.follower_id);
+                    const { data: profiles } = await supabaseClient
+                        .from('profiles')
+                        .select('id, username')
+                        .in('id', followerIds);
+                    
+                    const profileMap = {};
+                    profiles?.forEach(p => profileMap[p.id] = p);
+                    
+                    await loadUserFollowing();
+                    
+                    container.innerHTML = `
+                        <div class="discover-header">
+                            <h3>💌 Vos abonnés (${simpleFollowers.length})</h3>
+                            <p>Ces personnes vous suivent et voient vos extraits</p>
+                        </div>
+                        <div class="discover-grid">
+                            ${simpleFollowers.map(f => {
+                                const profile = profileMap[f.follower_id];
+                                const username = profile?.username || 'Anonyme';
+                                const initial = username.charAt(0).toUpperCase();
+                                const isFollowing = userFollowing.has(f.follower_id);
+                                const followedAt = formatTimeAgo(new Date(f.created_at));
+                                return `
+                                    <div class="discover-card">
+                                        <div class="discover-avatar" onclick="openUserProfile('${f.follower_id}', '${username}')">${initial}</div>
+                                        <div class="discover-info" onclick="openUserProfile('${f.follower_id}', '${username}')">
+                                            <div class="discover-name">${escapeHtml(username)}</div>
+                                            <div class="discover-stats">Vous suit depuis ${followedAt}</div>
+                                        </div>
+                                        <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${f.follower_id}', event)">
+                                            ${isFollowing ? '✓ Suivi' : '+ Suivre'}
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '<div class="social-empty">❌ Erreur lors du chargement</div>';
                 return;
             }
             
@@ -3440,7 +3523,7 @@
                 </div>
                 <div class="discover-grid">
                     ${followers.map(f => {
-                        const username = f.profiles?.username || 'Anonyme';
+                        const username = f.follower?.username || 'Anonyme';
                         const initial = username.charAt(0).toUpperCase();
                         const isFollowing = userFollowing.has(f.follower_id);
                         const followedAt = formatTimeAgo(new Date(f.created_at));
