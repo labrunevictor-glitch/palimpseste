@@ -8358,10 +8358,15 @@
             document.getElementById('feed').appendChild(card);
             setTimeout(() => card.classList.add('show'), 50);
             
-            // Tracker les mots du teaser comme lus
+            // Tracker ce texte comme lu
+            state.readCount++;
             const teaserWords = teaser.split(/\s+/).filter(w => w.length > 0).length;
             recordReading(teaserWords);
             startReadingTimer();
+            
+            // Mettre à jour l'affichage
+            updateStats();
+            saveState();
         }
 
         function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
