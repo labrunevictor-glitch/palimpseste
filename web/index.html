@@ -515,6 +515,82 @@
         .search-clear.visible { display: block; }
         .search-clear:hover { color: var(--text); }
         
+        /* MAIN SEARCH BAR - Grande barre de recherche */
+        .main-search-bar {
+            position: fixed;
+            top: 60px;
+            left: 260px;
+            right: 0;
+            z-index: 99;
+            background: var(--bg);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .main-search-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            padding: 0.5rem 0.75rem 0.5rem 1.25rem;
+            transition: all 0.2s;
+        }
+        .main-search-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.15);
+        }
+        .main-search-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .main-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 1rem;
+            padding: 0.5rem 0;
+            outline: none;
+        }
+        .main-search-input::placeholder {
+            color: var(--muted);
+        }
+        .main-search-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .main-search-btn:hover {
+            background: #c92a36;
+            transform: scale(1.02);
+        }
+        
+        /* Ajuster le main pour faire de la place à la search bar */
+        main {
+            margin-left: 260px;
+            max-width: 720px;
+            margin-right: auto;
+            margin-left: calc(260px + (100% - 260px - 720px) / 2);
+            padding: 7.5rem 2rem 4rem; /* Plus de padding en haut */
+        }
+        @media (max-width: 1100px) {
+            main { margin-left: 260px; margin-right: 1rem; }
+            .main-search-bar { left: 260px; }
+        }
+        @media (max-width: 768px) {
+            .main-search-bar { left: 0; padding: 0.75rem 1rem; }
+        }
+        
         /* Search Results Overlay */
         .search-results-overlay {
             position: fixed;
@@ -650,17 +726,6 @@
         .search-no-results-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
-        }
-        
-        main {
-            margin-left: 260px;
-            max-width: 720px;
-            margin-right: auto;
-            margin-left: calc(260px + (100% - 260px - 720px) / 2);
-            padding: 4.5rem 2rem 4rem;
-        }
-        @media (max-width: 1100px) {
-            main { margin-left: 260px; margin-right: 1rem; }
         }
         
         .card {
@@ -2240,6 +2305,17 @@
             <button class="cat-close" onclick="closeCategoryMode()">✕ Quitter l'exploration</button>
         </div>
     </header>
+    
+    <!-- BARRE DE RECHERCHE PRINCIPALE -->
+    <div class="main-search-bar">
+        <div class="main-search-wrapper">
+            <span class="main-search-icon">🔍</span>
+            <input type="text" class="main-search-input" id="mainSearchInput" 
+                   placeholder="Rechercher un auteur, un mot, un thème..." 
+                   onkeydown="if(event.key==='Enter') performMainSearch()">
+            <button class="main-search-btn" onclick="performMainSearch()">Rechercher</button>
+        </div>
+    </div>
     
     <main id="feed"></main>
     <div id="recoBanner" class="reco-banner" style="display:none;">
@@ -4753,13 +4829,32 @@
         
         function clearSearch() {
             const searchInput = document.getElementById('searchInput');
-            searchInput.value = '';
-            document.getElementById('searchClear').classList.remove('visible');
-            searchInput.focus();
+            if (searchInput) {
+                searchInput.value = '';
+                document.getElementById('searchClear')?.classList.remove('visible');
+                searchInput.focus();
+            }
+        }
+        
+        // Fonction pour la barre de recherche principale
+        function performMainSearch() {
+            const input = document.getElementById('mainSearchInput');
+            if (!input) return;
+            const query = input.value.trim();
+            if (!query || query.length < 2) {
+                toast('⚠️ Entrez au moins 2 caractères');
+                return;
+            }
+            // Réutiliser la logique de performSearch
+            document.getElementById('searchInput').value = query;
+            performSearch();
         }
         
         async function performSearch() {
-            const query = document.getElementById('searchInput').value.trim();
+            const mainInput = document.getElementById('mainSearchInput');
+            const headerInput = document.getElementById('searchInput');
+            const query = (mainInput?.value || headerInput?.value || '').trim();
+            
             if (!query || query.length < 2) {
                 toast('⚠️ Entrez au moins 2 caractères');
                 return;
