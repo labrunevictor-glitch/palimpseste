@@ -2509,23 +2509,23 @@
         // Initialise Supabase si configuré
         function initSupabase() {
             if (!isSupabaseConfigured()) {
-                console.log('⚠️ Supabase non configuré - Mode local uniquement');
+                // Mode local uniquement
                 return false;
             }
             try {
                 // Vérifier que le SDK est chargé
                 if (typeof window.supabase === 'undefined') {
-                    console.warn('⚠️ SDK Supabase pas encore chargé - retry dans 500ms');
+                    // SDK pas encore chargé - retry
                     // Réessayer dans 500ms (le SDK est en async)
                     setTimeout(initSupabase, 500);
                     return false;
                 }
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase initialisé');
+                // Supabase prêt
                 
                 // Écouter les changements d'auth
                 supabaseClient.auth.onAuthStateChange((event, session) => {
-                    console.log('Auth event:', event);
+                    // Auth state changed
                     if (session?.user) {
                         currentUser = session.user;
                         onUserLoggedIn();
@@ -2899,7 +2899,7 @@
                 .on('postgres_changes', 
                     { event: '*', schema: 'public', table: 'extraits' },
                     (payload) => {
-                        console.log('📨 Nouveau changement extraits:', payload);
+                        // Nouveau contenu détecté
                         showNewContentIndicator();
                     }
                 )
@@ -2911,13 +2911,13 @@
                 .on('postgres_changes',
                     { event: '*', schema: 'public', table: 'likes' },
                     (payload) => {
-                        console.log('❤️ Nouveau changement likes:', payload);
+                        // Like détecté
                         showNewContentIndicator();
                     }
                 )
                 .subscribe();
             
-            console.log('🔴 Subscriptions realtime activées');
+            // Realtime activé
         }
         
         function showNewContentIndicator() {
@@ -3167,12 +3167,10 @@
                 toast('📝 Connectez-vous pour liker');
                 return;
             }
-            
             if (!supabaseClient) return;
             
             try {
-                // Vérifier si déjà liké
-                const { data: existing, error: checkError } = await supabaseClient
+                const { data: existing } = await supabaseClient
                     .from('likes')
                     .select('id')
                     .eq('user_id', currentUser.id)
@@ -3180,66 +3178,18 @@
                     .single();
                 
                 if (existing) {
-                    // Unlike
-                    const { error: deleteError } = await supabaseClient
-                        .from('likes')
-                        .delete()
-                        .eq('id', existing.id);
-                    
-                    if (deleteError) {
-                        console.error('Erreur unlike:', deleteError);
-                        toast('❌ Erreur lors du unlike');
-                        return;
-                    }
-                    
-                    // Mettre à jour le compteur
-                    const { data: extrait } = await supabaseClient
-                        .from('extraits')
-                        .select('likes_count')
-                        .eq('id', extraitId)
-                        .single();
-                    
-                    await supabaseClient
-                        .from('extraits')
-                        .update({ likes_count: Math.max(0, (extrait?.likes_count || 1) - 1) })
-                        .eq('id', extraitId);
-                    
+                    await supabaseClient.from('likes').delete().eq('id', existing.id);
                     toast('💔 Like retiré');
                 } else {
-                    // Like
-                    const { error: insertError } = await supabaseClient
-                        .from('likes')
-                        .insert({
-                            user_id: currentUser.id,
-                            extrait_id: extraitId,
-                            created_at: new Date().toISOString()
-                        });
-                    
-                    if (insertError) {
-                        console.error('Erreur like:', insertError);
-                        toast('❌ Erreur lors du like');
-                        return;
-                    }
-                    
-                    // Mettre à jour le compteur
-                    const { data: extrait } = await supabaseClient
-                        .from('extraits')
-                        .select('likes_count')
-                        .eq('id', extraitId)
-                        .single();
-                    
-                    await supabaseClient
-                        .from('extraits')
-                        .update({ likes_count: (extrait?.likes_count || 0) + 1 })
-                        .eq('id', extraitId);
-                    
+                    await supabaseClient.from('likes').insert({
+                        user_id: currentUser.id,
+                        extrait_id: extraitId,
+                        created_at: new Date().toISOString()
+                    });
                     toast('❤️ Liké !');
                 }
-                
-                // Refresh
                 loadSocialFeed();
             } catch (err) {
-                console.error('Erreur toggle like:', err);
                 toast('❌ Erreur');
             }
         }
@@ -3287,7 +3237,7 @@
                 .select('*', { count: 'exact', head: true })
                 .eq('following_id', currentUser.id);
             
-            console.log('📊 Stats:', { extraits: extraitCount, likes: totalLikes, followers: followersCount });
+
         }
         
         // Helpers
@@ -3384,22 +3334,32 @@
                     <p>Suivez des personnes pour voir leurs extraits dans l'onglet "Amis"</p>
                 </div>
                 <div class="discover-grid">
-                    ${filteredProfiles.map(p => {
-                        const isFollowing = userFollowing.has(p.id);
-                        const initial = (p.username || '?').charAt(0).toUpperCase();
-                        return `
-                            <div class="discover-card">
-                                <div class="discover-avatar" onclick="openUserProfile('${p.id}', '${p.username}')">${initial}</div>
-                                <div class="discover-info" onclick="openUserProfile('${p.id}', '${p.username}')">
-                                    <div class="discover-name">${escapeHtml(p.username || 'Anonyme')}</div>
-                                    <div class="discover-stats">${p.extraitCount} extrait${p.extraitCount > 1 ? 's' : ''}</div>
-                                </div>
-                                <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${p.id}', event)">
-                                    ${isFollowing ? '✓ Suivi' : '+ Suivre'}
-                                </button>
-                            </div>
-                        `;
-                    }).join('')}
+                    ${filteredProfiles.map(p => renderUserCard(
+                        p.id, 
+                        p.username, 
+                        `${p.extraitCount} extrait${p.extraitCount > 1 ? 's' : ''}`
+                    )).join('')}
+                </div>
+            `;
+        }
+        
+        // Helper: Générer une carte utilisateur
+        function renderUserCard(userId, username, subtitle, showFollowButton = true, toggleFn = 'toggleFollow') {
+            const initial = (username || 'A').charAt(0).toUpperCase();
+            const safeName = escapeHtml(username || 'Anonyme');
+            const isFollowing = userFollowing.has(userId);
+            return `
+                <div class="discover-card">
+                    <div class="discover-avatar" onclick="openUserProfile('${userId}', '${safeName}')">${initial}</div>
+                    <div class="discover-info" onclick="openUserProfile('${userId}', '${safeName}')">
+                        <div class="discover-name">${safeName}</div>
+                        <div class="discover-stats">${subtitle}</div>
+                    </div>
+                    ${showFollowButton ? `
+                        <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="${toggleFn}('${userId}', event)">
+                            ${isFollowing ? '✓ Suivi' : '+ Suivre'}
+                        </button>
+                    ` : ''}
                 </div>
             `;
         }
@@ -3419,87 +3379,14 @@
                 return;
             }
             
-            console.log('🔍 Recherche followers pour user:', currentUser.id);
-            
-            // D'abord compter combien de followers
-            const { count: followersCount } = await supabaseClient
+            // Récupérer les followers
+            const { data: follows } = await supabaseClient
                 .from('follows')
-                .select('*', { count: 'exact', head: true })
-                .eq('following_id', currentUser.id);
-            
-            console.log('📊 Nombre de followers:', followersCount);
-            
-            // Récupérer les followers avec leurs profils
-            const { data: followers, error } = await supabaseClient
-                .from('follows')
-                .select(`
-                    follower_id,
-                    created_at,
-                    follower:profiles!follows_follower_id_fkey(id, username)
-                `)
+                .select('follower_id, created_at')
                 .eq('following_id', currentUser.id)
                 .order('created_at', { ascending: false });
             
-            console.log('👥 Followers data:', followers, 'Error:', error);
-            
-            if (error) {
-                console.error('Erreur followers:', error);
-                // Essayer une requête alternative
-                const { data: simpleFollowers } = await supabaseClient
-                    .from('follows')
-                    .select('follower_id, created_at')
-                    .eq('following_id', currentUser.id);
-                
-                console.log('👥 Simple followers:', simpleFollowers);
-                
-                if (simpleFollowers && simpleFollowers.length > 0) {
-                    // Récupérer les profils séparément
-                    const followerIds = simpleFollowers.map(f => f.follower_id);
-                    const { data: profiles } = await supabaseClient
-                        .from('profiles')
-                        .select('id, username')
-                        .in('id', followerIds);
-                    
-                    const profileMap = {};
-                    profiles?.forEach(p => profileMap[p.id] = p);
-                    
-                    await loadUserFollowing();
-                    
-                    container.innerHTML = `
-                        <div class="discover-header">
-                            <h3>💌 Vos abonnés (${simpleFollowers.length})</h3>
-                            <p>Ces personnes vous suivent et voient vos extraits</p>
-                        </div>
-                        <div class="discover-grid">
-                            ${simpleFollowers.map(f => {
-                                const profile = profileMap[f.follower_id];
-                                const username = profile?.username || 'Anonyme';
-                                const initial = username.charAt(0).toUpperCase();
-                                const isFollowing = userFollowing.has(f.follower_id);
-                                const followedAt = formatTimeAgo(new Date(f.created_at));
-                                return `
-                                    <div class="discover-card">
-                                        <div class="discover-avatar" onclick="openUserProfile('${f.follower_id}', '${username}')">${initial}</div>
-                                        <div class="discover-info" onclick="openUserProfile('${f.follower_id}', '${username}')">
-                                            <div class="discover-name">${escapeHtml(username)}</div>
-                                            <div class="discover-stats">Vous suit depuis ${followedAt}</div>
-                                        </div>
-                                        <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${f.follower_id}', event)">
-                                            ${isFollowing ? '✓ Suivi' : '+ Suivre'}
-                                        </button>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = '<div class="social-empty">❌ Erreur lors du chargement</div>';
-                return;
-            }
-            
-            if (!followers || followers.length === 0) {
+            if (!follows || follows.length === 0) {
                 container.innerHTML = `
                     <div class="social-empty">
                         <div class="social-empty-icon">💌</div>
@@ -3513,32 +3400,29 @@
                 return;
             }
             
-            // Charger qui on suit
+            // Récupérer les profils des followers
+            const followerIds = follows.map(f => f.follower_id);
+            const { data: profiles } = await supabaseClient
+                .from('profiles')
+                .select('id, username')
+                .in('id', followerIds);
+            
+            const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+            
+            // Charger qui on suit pour les boutons
             await loadUserFollowing();
             
             container.innerHTML = `
                 <div class="discover-header">
-                    <h3>💌 Vos abonnés (${followers.length})</h3>
+                    <h3>💌 Vos abonnés (${follows.length})</h3>
                     <p>Ces personnes vous suivent et voient vos extraits</p>
                 </div>
                 <div class="discover-grid">
-                    ${followers.map(f => {
-                        const username = f.follower?.username || 'Anonyme';
-                        const initial = username.charAt(0).toUpperCase();
-                        const isFollowing = userFollowing.has(f.follower_id);
+                    ${follows.map(f => {
+                        const profile = profileMap.get(f.follower_id);
+                        const username = profile?.username || 'Anonyme';
                         const followedAt = formatTimeAgo(new Date(f.created_at));
-                        return `
-                            <div class="discover-card">
-                                <div class="discover-avatar" onclick="openUserProfile('${f.follower_id}', '${username}')">${initial}</div>
-                                <div class="discover-info" onclick="openUserProfile('${f.follower_id}', '${username}')">
-                                    <div class="discover-name">${escapeHtml(username)}</div>
-                                    <div class="discover-stats">Vous suit depuis ${followedAt}</div>
-                                </div>
-                                <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${f.follower_id}', event)">
-                                    ${isFollowing ? '✓ Suivi' : '+ Suivre'}
-                                </button>
-                            </div>
-                        `;
+                        return renderUserCard(f.follower_id, username, `Vous suit depuis ${followedAt}`);
                     }).join('')}
                 </div>
             `;
@@ -3919,12 +3803,12 @@
         // Recherche via l'API - supporte plusieurs Wikisources
         async function searchTexts(query, limit = 20, wikisource = currentWikisource) {
             const url = `${wikisource.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=${limit}&srnamespace=0&format=json&origin=*`;
-            console.log('searchTexts:', query, 'sur', wikisource.lang);
+
             try {
                 const res = await fetch(url);
                 const data = await res.json();
                 const results = (data.query?.search || []).map(r => ({ ...r, lang: wikisource.lang, wikisource }));
-                console.log('searchTexts: résultats =', results.length);
+
                 return results;
             } catch (e) { 
                 console.error('searchTexts error:', e);
@@ -3935,13 +3819,13 @@
         // Récupère le texte avec gestion intelligente (multilingue)
         async function fetchText(page, depth = 0, wikisource = currentWikisource) {
             if (depth > 4) {
-                console.log('fetchText: profondeur max atteinte pour', page);
+
                 return null;
             }
             
             // Filtrage précoce des pages indésirables
             if (!isValidTitle(page)) {
-                console.log('fetchText: titre invalide', page);
+
                 return null;
             }
             
@@ -3978,7 +3862,7 @@
                     if (isLikelySommaire && subPageLinks.length > 0) {
                         // Choisir une sous-page au hasard et la suivre
                         const randomSub = subPageLinks[Math.floor(Math.random() * subPageLinks.length)];
-                        console.log('📚 Sommaire détecté:', page, '→ suivre', randomSub['*']);
+
                         return await fetchText(randomSub['*'], depth + 1, wikisource);
                     }
                     
@@ -3993,7 +3877,7 @@
                     // Filtrage des "faux textes" (pages de garde, listes, etc.)
                     const quality = analyzeContentQuality(analysis.text, links, page);
                     if (!quality.isGood) {
-                         console.log(`⚠️ Rejet Qualité (${quality.reason}): ${page}`);
+
                          // Si c'est rejeté parce que c'est un sommaire/liste, on essaie de trouver un lien pertinent
                          if (quality.reason === 'link_density' || quality.reason === 'listy') {
                              const contentLinks = links.filter(l => l.ns === 0 && !l['*'].includes(':'));
@@ -4434,7 +4318,7 @@
                     }
                 }
                 
-                console.log('Category pages:', state.textPool.length, 'textes valides sur', pages.length);
+
                 
                 // Mélanger et charger
                 state.textPool = state.textPool.sort(() => Math.random() - 0.5);
@@ -4556,7 +4440,7 @@
                     const startIdx = Math.floor(Math.random() * Math.max(1, paragraphs.length - 10)) + 5;
                     const excerpt = paragraphs.slice(startIdx, startIdx + 5).join('\n\n');
                     
-                    console.log('📚 Gutenberg:', work.title, 'by', work.author);
+
                     
                     return [{
                         title: work.title,
@@ -4587,7 +4471,7 @@
                 if (Array.isArray(poems) && poems.length > 0) {
                     // Prendre quelques poèmes au hasard
                     const shuffled = poems.sort(() => Math.random() - 0.5).slice(0, 5);
-                    console.log('📜 PoetryDB:', randomAuthor, '=', shuffled.length, 'poèmes');
+
                     
                     return shuffled.map(poem => ({
                         title: poem.title,
@@ -4650,7 +4534,7 @@
             }
             const shuffledSources = [...activeSources].sort(() => Math.random() - 0.5).slice(0, Math.min(3, activeSources.length));
             
-            console.log('fillPool: sources =', shuffledSources.map(s => s.lang));
+
             
             for (const ws of shuffledSources) {
                 const terms = [...(SEARCH_TERMS[ws.lang] || SEARCH_TERMS.en)]; // Copier pour ne pas muter
@@ -5534,23 +5418,26 @@
                 grid.innerHTML = `
                     <div class="discover-grid" style="padding: 0.5rem;">
                         ${users.map(u => {
-                            const initial = (u.username || '?').charAt(0).toUpperCase();
-                            const isFollowing = userFollowing.has(u.id);
                             const isMe = currentUser && u.id === currentUser.id;
-                            return `
-                                <div class="discover-card">
-                                    <div class="discover-avatar" onclick="openUserProfile('${u.id}', '${u.username}')">${initial}</div>
-                                    <div class="discover-info" onclick="openUserProfile('${u.id}', '${u.username}')">
-                                        <div class="discover-name">${escapeHtml(u.username || 'Anonyme')}</div>
-                                        <div class="discover-stats">${u.extraitCount} extrait${u.extraitCount > 1 ? 's' : ''}</div>
+                            if (isMe) {
+                                return `
+                                    <div class="discover-card">
+                                        <div class="discover-avatar" onclick="openUserProfile('${u.id}', '${u.username}')">${(u.username || '?').charAt(0).toUpperCase()}</div>
+                                        <div class="discover-info" onclick="openUserProfile('${u.id}', '${u.username}')">
+                                            <div class="discover-name">${escapeHtml(u.username || 'Anonyme')}</div>
+                                            <div class="discover-stats">${u.extraitCount} extrait${u.extraitCount > 1 ? 's' : ''}</div>
+                                        </div>
+                                        <span style="color:var(--muted);font-size:0.8rem;">C'est vous</span>
                                     </div>
-                                    ${!isMe ? `
-                                        <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="toggleFollowFromSearch('${u.id}', event)">
-                                            ${isFollowing ? '✓ Suivi' : '+ Suivre'}
-                                        </button>
-                                    ` : '<span style="color:var(--muted);font-size:0.8rem;">C\'est vous</span>'}
-                                </div>
-                            `;
+                                `;
+                            }
+                            return renderUserCard(
+                                u.id, 
+                                u.username, 
+                                `${u.extraitCount} extrait${u.extraitCount > 1 ? 's' : ''}`,
+                                true,
+                                'toggleFollowFromSearch'
+                            );
                         }).join('')}
                     </div>
                 `;
