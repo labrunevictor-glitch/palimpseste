@@ -1319,31 +1319,128 @@
         .achievement-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--text); }
         .achievement-desc { font-size: 0.8rem; color: var(--text-secondary); }
         
-        /* Achievement badges grid */
+        /* Achievement badges grid - Enhanced */
         .achievements { 
             display: flex; 
-            flex-wrap: wrap; 
+            flex-direction: column;
             gap: 0.5rem; 
         }
         .achievement {
-            width: 36px;
-            height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
             background: var(--bg-elevated);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .achievement:hover {
+            background: var(--bg-card);
+            transform: translateX(4px);
+        }
+        .achievement.locked {
+            opacity: 0.6;
+        }
+        .achievement.locked .badge-icon {
+            filter: grayscale(1);
+        }
+        .achievement.unlocked {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(255,69,58,0.1), transparent);
+        }
+        .achievement.unlocked .badge-icon {
+            animation: badgeBounce 2s ease infinite;
+        }
+        @keyframes badgeBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .badge-icon {
+            font-size: 1.8rem;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            filter: grayscale(1) opacity(0.3);
-            transition: all 0.3s;
-            cursor: help;
+            background: var(--bg-card);
+            border-radius: 10px;
+            flex-shrink: 0;
         }
-        .achievement.unlocked {
-            filter: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 12px rgba(255,69,58,0.3);
-            animation: unlockPulse 2s ease infinite;
+        .badge-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .badge-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .badge-name .unlocked-check {
+            color: #30d158;
+            font-size: 0.8rem;
+        }
+        .badge-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+        .badge-progress {
+            margin-top: 0.4rem;
+        }
+        .badge-progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .badge-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #bf5af2);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .badge-progress-text {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .badges-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .badges-count {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .badges-count span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .badges-toggle {
+            font-size: 0.7rem;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .badges-toggle:hover {
+            background: rgba(255,69,58,0.1);
+        }
+        .achievements.collapsed .achievement.locked {
+            display: none;
         }
         @keyframes unlockPulse {
             0%, 100% { box-shadow: 0 0 12px rgba(255,69,58,0.3); }
@@ -2705,6 +2802,43 @@
             flex-direction: column;
             gap: 0.5rem;
         }
+        .activity-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .activity-filter {
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .activity-filter:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .activity-filter.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .activity-filter .filter-count {
+            background: rgba(255,255,255,0.2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        .activity-filter.active .filter-count {
+            background: rgba(255,255,255,0.3);
+        }
         .activity-item {
             display: flex;
             align-items: flex-start;
@@ -2720,6 +2854,15 @@
             border-color: var(--accent);
             background: var(--bg-elevated);
         }
+        .activity-item.highlight {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(255,69,58,0.1), transparent);
+            animation: activityHighlight 2s ease;
+        }
+        @keyframes activityHighlight {
+            0% { transform: translateX(-10px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
         .activity-avatar {
             width: 36px;
             height: 36px;
@@ -2734,6 +2877,9 @@
             cursor: pointer;
             flex-shrink: 0;
         }
+        .activity-avatar.comment { background: linear-gradient(135deg, #5ac8fa, #007aff); }
+        .activity-avatar.follow { background: linear-gradient(135deg, #bf5af2, #9b59b6); }
+        .activity-avatar.share { background: linear-gradient(135deg, #30d158, #27ae60); }
         .activity-content {
             flex: 1;
             min-width: 0;
@@ -2760,18 +2906,41 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .activity-comment-preview {
+            font-size: 0.8rem;
+            color: var(--text);
+            margin-top: 0.3rem;
+            padding: 0.5rem;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            border-left: 2px solid var(--accent);
+        }
         .activity-time {
             font-size: 0.75rem;
             color: var(--muted);
             margin-top: 0.25rem;
         }
-        .activity-heart {
+        .activity-icon {
             font-size: 1.2rem;
-            animation: heartPulse 1s ease infinite;
+            flex-shrink: 0;
         }
+        .activity-icon.like { animation: heartPulse 1s ease infinite; }
         @keyframes heartPulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
+        }
+        .activity-section-title {
+            font-size: 0.75rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .activity-section-title:first-child {
+            border-top: none;
+            margin-top: 0;
         }
         
         .btn-close-profile {
@@ -3039,6 +3208,10 @@
         
         <div class="stats-section" id="achievementSection">
             <h3>🏆 Badges</h3>
+            <div class="badges-summary">
+                <span class="badges-count"><span id="unlockedCount">0</span>/<span id="totalBadges">13</span> débloqués</span>
+                <span class="badges-toggle" id="badgesToggle" onclick="toggleBadgesView()">Voir tout</span>
+            </div>
             <div class="achievements" id="achievementList"></div>
             <div class="reading-path" id="readingPath"></div>
         </div>
@@ -4453,8 +4626,9 @@
             `;
         }
         
-        // Feed d'activité - voir les likes récents de tout le monde
+        // Feed d'activité - voir toute l'activité de la communauté
         let activitySubscription = null;
+        let currentActivityFilter = 'all'; // 'all', 'following', 'mine', 'likes', 'comments'
         
         async function loadActivityFeed() {
             const container = document.getElementById('socialFeed');
@@ -4464,44 +4638,147 @@
                 return;
             }
             
-            // Récupérer les 50 derniers likes avec les infos de l'utilisateur et de l'extrait
-            const { data: recentLikes, error } = await supabaseClient
+            // Récupérer les abonnements de l'utilisateur
+            let followingIds = [];
+            if (currentUser) {
+                const { data: following } = await supabaseClient
+                    .from('follows')
+                    .select('following_id')
+                    .eq('follower_id', currentUser.id);
+                followingIds = (following || []).map(f => f.following_id);
+            }
+            
+            // Récupérer mes extraits pour savoir quand quelqu'un interagit avec
+            let myExtraitIds = [];
+            if (currentUser) {
+                const { data: myExtraits } = await supabaseClient
+                    .from('extraits')
+                    .select('id')
+                    .eq('user_id', currentUser.id);
+                myExtraitIds = (myExtraits || []).map(e => e.id);
+            }
+            
+            // Récupérer les likes récents
+            const { data: recentLikes, error: likesError } = await supabaseClient
                 .from('likes')
                 .select('id, created_at, user_id, extrait_id')
                 .order('created_at', { ascending: false })
-                .limit(50);
+                .limit(30);
             
-            if (error) {
-                console.error('Erreur chargement activité:', error);
-                container.innerHTML = `<div class="social-empty">❌ Erreur: ${error.message}</div>`;
-                return;
+            // Récupérer les commentaires récents
+            const { data: recentComments, error: commentsError } = await supabaseClient
+                .from('comments')
+                .select('id, created_at, user_id, extrait_id, content')
+                .order('created_at', { ascending: false })
+                .limit(30);
+            
+            // Récupérer les follows récents
+            const { data: recentFollows, error: followsError } = await supabaseClient
+                .from('follows')
+                .select('id, created_at, follower_id, following_id')
+                .order('created_at', { ascending: false })
+                .limit(20);
+            
+            // Récupérer les nouveaux extraits partagés
+            const { data: recentExtraits, error: extraitsError } = await supabaseClient
+                .from('extraits')
+                .select('id, created_at, user_id, texte, source_title')
+                .order('created_at', { ascending: false })
+                .limit(20);
+            
+            // Combiner toutes les activités avec leur type
+            let activities = [];
+            
+            if (recentLikes) {
+                activities.push(...recentLikes.map(l => ({
+                    type: 'like',
+                    id: `like-${l.id}`,
+                    created_at: l.created_at,
+                    user_id: l.user_id,
+                    extrait_id: l.extrait_id,
+                    is_on_mine: myExtraitIds.includes(l.extrait_id)
+                })));
             }
             
-            if (!recentLikes || recentLikes.length === 0) {
-                container.innerHTML = `
-                    <div class="social-empty">
-                        <div class="social-empty-icon">❤️</div>
-                        <div class="social-empty-title">Pas encore d'activité</div>
-                        <div class="social-empty-text">Soyez le premier à liker un extrait !</div>
-                    </div>
-                `;
-                return;
+            if (recentComments) {
+                activities.push(...recentComments.map(c => ({
+                    type: 'comment',
+                    id: `comment-${c.id}`,
+                    created_at: c.created_at,
+                    user_id: c.user_id,
+                    extrait_id: c.extrait_id,
+                    content: c.content,
+                    is_on_mine: myExtraitIds.includes(c.extrait_id)
+                })));
             }
             
-            // Récupérer les profils des utilisateurs qui ont liké
-            const userIds = [...new Set(recentLikes.map(l => l.user_id))];
+            if (recentFollows) {
+                activities.push(...recentFollows.map(f => ({
+                    type: 'follow',
+                    id: `follow-${f.id}`,
+                    created_at: f.created_at,
+                    user_id: f.follower_id,
+                    target_id: f.following_id,
+                    is_on_mine: f.following_id === currentUser?.id
+                })));
+            }
+            
+            if (recentExtraits) {
+                activities.push(...recentExtraits.map(e => ({
+                    type: 'share',
+                    id: `share-${e.id}`,
+                    created_at: e.created_at,
+                    user_id: e.user_id,
+                    extrait_id: e.id,
+                    texte: e.texte,
+                    source_title: e.source_title
+                })));
+            }
+            
+            // Trier par date
+            activities.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            
+            // Compter pour les filtres
+            const counts = {
+                all: activities.length,
+                following: activities.filter(a => followingIds.includes(a.user_id)).length,
+                mine: activities.filter(a => a.is_on_mine && a.user_id !== currentUser?.id).length,
+                likes: activities.filter(a => a.type === 'like').length,
+                comments: activities.filter(a => a.type === 'comment').length
+            };
+            
+            // Appliquer le filtre
+            let filtered = activities;
+            if (currentActivityFilter === 'following') {
+                filtered = activities.filter(a => followingIds.includes(a.user_id));
+            } else if (currentActivityFilter === 'mine') {
+                filtered = activities.filter(a => a.is_on_mine && a.user_id !== currentUser?.id);
+            } else if (currentActivityFilter === 'likes') {
+                filtered = activities.filter(a => a.type === 'like');
+            } else if (currentActivityFilter === 'comments') {
+                filtered = activities.filter(a => a.type === 'comment');
+            }
+            
+            // Limiter à 50 résultats
+            filtered = filtered.slice(0, 50);
+            
+            // Récupérer tous les user IDs nécessaires
+            const allUserIds = [...new Set([
+                ...filtered.map(a => a.user_id),
+                ...filtered.filter(a => a.target_id).map(a => a.target_id)
+            ])];
             const { data: users } = await supabaseClient
                 .from('profiles')
                 .select('id, username')
-                .in('id', userIds);
+                .in('id', allUserIds);
             const userMap = new Map((users || []).map(u => [u.id, u]));
             
-            // Récupérer les extraits likés
-            const extraitIds = [...new Set(recentLikes.map(l => l.extrait_id))];
+            // Récupérer tous les extraits nécessaires
+            const allExtraitIds = [...new Set(filtered.filter(a => a.extrait_id).map(a => a.extrait_id))];
             const { data: extraits } = await supabaseClient
                 .from('extraits')
                 .select('id, texte, source_title, user_id')
-                .in('id', extraitIds);
+                .in('id', allExtraitIds);
             const extraitMap = new Map((extraits || []).map(e => [e.id, e]));
             
             // Récupérer les auteurs des extraits
@@ -4514,56 +4791,167 @@
             
             container.innerHTML = `
                 <div class="discover-header">
-                    <h3>❤️ Activité récente</h3>
-                    <p>Découvrez ce que la communauté aime en ce moment</p>
+                    <h3>📡 Fil d'activité</h3>
+                    <p>Suivez ce qui se passe dans la communauté</p>
                 </div>
-                <div class="activity-feed">
-                    ${recentLikes.map(like => {
-                        const liker = userMap.get(like.user_id);
-                        const likerName = liker?.username || 'Quelqu\'un';
-                        const likerInitial = likerName.charAt(0).toUpperCase();
-                        const extrait = extraitMap.get(like.extrait_id);
-                        const author = extrait ? authorMap.get(extrait.user_id) : null;
-                        const authorName = author?.username || 'Anonyme';
-                        const timeAgo = formatTimeAgo(new Date(like.created_at));
-                        const snippet = extrait?.texte?.substring(0, 80) || 'Extrait supprimé';
-                        
-                        return `
-                            <div class="activity-item" onclick="viewExtraitById('${like.extrait_id}')">
-                                <div class="activity-avatar" onclick="event.stopPropagation(); openUserProfile('${like.user_id}', '${escapeHtml(likerName)}')">${likerInitial}</div>
-                                <div class="activity-content">
-                                    <div class="activity-text">
-                                        <strong onclick="event.stopPropagation(); openUserProfile('${like.user_id}', '${escapeHtml(likerName)}')">${escapeHtml(likerName)}</strong> 
-                                        a aimé un extrait de 
-                                        <strong onclick="event.stopPropagation(); openUserProfile('${extrait?.user_id}', '${escapeHtml(authorName)}')">${escapeHtml(authorName)}</strong>
-                                    </div>
-                                    <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
-                                    <div class="activity-time">${timeAgo}</div>
-                                </div>
-                                <div class="activity-heart">❤️</div>
-                            </div>
-                        `;
-                    }).join('')}
+                <div class="activity-filters">
+                    <div class="activity-filter ${currentActivityFilter === 'all' ? 'active' : ''}" onclick="setActivityFilter('all')">
+                        🌐 Tout <span class="filter-count">${counts.all}</span>
+                    </div>
+                    ${currentUser ? `
+                        <div class="activity-filter ${currentActivityFilter === 'following' ? 'active' : ''}" onclick="setActivityFilter('following')">
+                            👥 Abonnements <span class="filter-count">${counts.following}</span>
+                        </div>
+                        <div class="activity-filter ${currentActivityFilter === 'mine' ? 'active' : ''}" onclick="setActivityFilter('mine')">
+                            🔔 Sur mes extraits <span class="filter-count">${counts.mine}</span>
+                        </div>
+                    ` : ''}
+                    <div class="activity-filter ${currentActivityFilter === 'likes' ? 'active' : ''}" onclick="setActivityFilter('likes')">
+                        ❤️ Likes <span class="filter-count">${counts.likes}</span>
+                    </div>
+                    <div class="activity-filter ${currentActivityFilter === 'comments' ? 'active' : ''}" onclick="setActivityFilter('comments')">
+                        💬 Commentaires <span class="filter-count">${counts.comments}</span>
+                    </div>
                 </div>
+                ${filtered.length === 0 ? `
+                    <div class="social-empty">
+                        <div class="social-empty-icon">${currentActivityFilter === 'following' ? '👥' : currentActivityFilter === 'mine' ? '🔔' : '📡'}</div>
+                        <div class="social-empty-title">Pas d'activité</div>
+                        <div class="social-empty-text">${
+                            currentActivityFilter === 'following' 
+                                ? 'Suivez des personnes pour voir leur activité ici !' 
+                                : currentActivityFilter === 'mine'
+                                    ? 'Partagez des extraits pour voir qui interagit avec !'
+                                    : 'Soyez le premier à interagir !'
+                        }</div>
+                    </div>
+                ` : `
+                    <div class="activity-feed">
+                        ${filtered.map(activity => renderActivityItem(activity, userMap, extraitMap, authorMap)).join('')}
+                    </div>
+                `}
             `;
             
-            // S'abonner aux nouveaux likes en temps réel
+            // S'abonner aux changements en temps réel
             subscribeToActivityFeed();
         }
         
-        // Abonnement temps réel à l'activité
+        // Rendu d'un item d'activité
+        function renderActivityItem(activity, userMap, extraitMap, authorMap) {
+            const actor = userMap.get(activity.user_id);
+            const actorName = actor?.username || 'Quelqu\'un';
+            const actorInitial = actorName.charAt(0).toUpperCase();
+            const timeAgo = formatTimeAgo(new Date(activity.created_at));
+            const highlight = activity.is_on_mine ? 'highlight' : '';
+            
+            if (activity.type === 'like') {
+                const extrait = extraitMap.get(activity.extrait_id);
+                const author = extrait ? authorMap.get(extrait.user_id) : null;
+                const authorName = author?.username || 'Anonyme';
+                const snippet = extrait?.texte?.substring(0, 80) || 'Extrait supprimé';
+                
+                return `
+                    <div class="activity-item ${highlight}" onclick="viewExtraitById('${activity.extrait_id}')">
+                        <div class="activity-avatar" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">
+                                <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
+                                a aimé un extrait de 
+                                <strong onclick="event.stopPropagation(); openUserProfile('${extrait?.user_id}', '${escapeHtml(authorName)}')">${escapeHtml(authorName)}</strong>
+                            </div>
+                            <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
+                            <div class="activity-time">${timeAgo}</div>
+                        </div>
+                        <div class="activity-icon like">❤️</div>
+                    </div>
+                `;
+            }
+            
+            if (activity.type === 'comment') {
+                const extrait = extraitMap.get(activity.extrait_id);
+                const author = extrait ? authorMap.get(extrait.user_id) : null;
+                const authorName = author?.username || 'Anonyme';
+                const commentPreview = activity.content?.substring(0, 100) || '';
+                
+                return `
+                    <div class="activity-item ${highlight}" onclick="viewExtraitById('${activity.extrait_id}')">
+                        <div class="activity-avatar comment" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">
+                                <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
+                                a commenté un extrait de 
+                                <strong onclick="event.stopPropagation(); openUserProfile('${extrait?.user_id}', '${escapeHtml(authorName)}')">${escapeHtml(authorName)}</strong>
+                            </div>
+                            <div class="activity-comment-preview">"${escapeHtml(commentPreview)}${commentPreview.length >= 100 ? '...' : ''}"</div>
+                            <div class="activity-time">${timeAgo}</div>
+                        </div>
+                        <div class="activity-icon">💬</div>
+                    </div>
+                `;
+            }
+            
+            if (activity.type === 'follow') {
+                const target = userMap.get(activity.target_id);
+                const targetName = target?.username || 'Quelqu\'un';
+                
+                return `
+                    <div class="activity-item ${highlight}" onclick="openUserProfile('${activity.target_id}', '${escapeHtml(targetName)}')">
+                        <div class="activity-avatar follow" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">
+                                <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
+                                s'est abonné à 
+                                <strong onclick="event.stopPropagation(); openUserProfile('${activity.target_id}', '${escapeHtml(targetName)}')">${escapeHtml(targetName)}</strong>
+                            </div>
+                            <div class="activity-time">${timeAgo}</div>
+                        </div>
+                        <div class="activity-icon">👥</div>
+                    </div>
+                `;
+            }
+            
+            if (activity.type === 'share') {
+                const snippet = activity.texte?.substring(0, 80) || '';
+                const source = activity.source_title || 'Source inconnue';
+                
+                return `
+                    <div class="activity-item" onclick="viewExtraitById('${activity.extrait_id}')">
+                        <div class="activity-avatar share" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">
+                                <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
+                                a partagé un extrait
+                            </div>
+                            <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
+                            <div class="activity-snippet" style="font-style: normal; color: var(--text-secondary);">📖 ${escapeHtml(source)}</div>
+                            <div class="activity-time">${timeAgo}</div>
+                        </div>
+                        <div class="activity-icon">📝</div>
+                    </div>
+                `;
+            }
+            
+            return '';
+        }
+        
+        // Changer le filtre d'activité
+        function setActivityFilter(filter) {
+            currentActivityFilter = filter;
+            loadActivityFeed();
+        }
+        
+        // Abonnement temps réel à l'activité (likes, commentaires, follows)
         function subscribeToActivityFeed() {
             if (activitySubscription) return; // Déjà abonné
             
             if (!supabaseClient) return;
             
             activitySubscription = supabaseClient
-                .channel('activity-likes')
+                .channel('activity-all')
                 .on('postgres_changes', 
                     { event: 'INSERT', schema: 'public', table: 'likes' },
                     (payload) => {
                         console.log('Nouveau like détecté:', payload);
-                        // Rafraîchir le feed si on est sur l'onglet activité
                         if (currentSocialTab === 'activity') {
                             loadActivityFeed();
                         }
@@ -4573,6 +4961,33 @@
                     { event: 'DELETE', schema: 'public', table: 'likes' },
                     (payload) => {
                         console.log('Like supprimé:', payload);
+                        if (currentSocialTab === 'activity') {
+                            loadActivityFeed();
+                        }
+                    }
+                )
+                .on('postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'comments' },
+                    (payload) => {
+                        console.log('Nouveau commentaire détecté:', payload);
+                        if (currentSocialTab === 'activity') {
+                            loadActivityFeed();
+                        }
+                    }
+                )
+                .on('postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'follows' },
+                    (payload) => {
+                        console.log('Nouvel abonnement détecté:', payload);
+                        if (currentSocialTab === 'activity') {
+                            loadActivityFeed();
+                        }
+                    }
+                )
+                .on('postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'extraits' },
+                    (payload) => {
+                        console.log('Nouvel extrait partagé:', payload);
                         if (currentSocialTab === 'activity') {
                             loadActivityFeed();
                         }
@@ -8405,19 +8820,127 @@
             renderAchievements();
         }
         
-        // Affichage des badges
+        // Affichage des badges avec progression
         function renderAchievements() {
             const container = document.getElementById('achievementList');
             if (!container) return;
             
+            const authorCount = Object.keys(state.authorStats).length;
+            const readCount = state.readCount || 0;
+            const likeCount = state.likes?.size || 0;
+            const mystiqueCount = state.genreStats?.mystique || 0;
+            
+            // Définir la progression pour chaque badge
+            const badgeProgress = {
+                first_read: { current: Math.min(readCount, 1), target: 1, text: readCount >= 1 ? 'Complété !' : `${readCount}/1 texte lu` },
+                explorer_5: { current: Math.min(authorCount, 5), target: 5, text: authorCount >= 5 ? 'Complété !' : `${authorCount}/5 auteurs découverts` },
+                explorer_15: { current: Math.min(authorCount, 15), target: 15, text: authorCount >= 15 ? 'Complété !' : `${authorCount}/15 auteurs découverts` },
+                explorer_30: { current: Math.min(authorCount, 30), target: 30, text: authorCount >= 30 ? 'Complété !' : `${authorCount}/30 auteurs découverts` },
+                night_owl: { current: 0, target: 1, text: 'Lisez entre minuit et 5h du matin', special: true },
+                century_jump: { current: 0, target: 1, text: 'Passez du XIXe au XVIe siècle', special: true },
+                hidden_gem: { 
+                    current: HIDDEN_GEMS.some(a => state.authorStats[a]) ? 1 : 0, 
+                    target: 1, 
+                    text: HIDDEN_GEMS.some(a => state.authorStats[a]) ? 'Complété !' : 'Trouvez un auteur secret caché' 
+                },
+                love_10: { current: Math.min(likeCount, 10), target: 10, text: likeCount >= 10 ? 'Complété !' : `${likeCount}/10 textes aimés` },
+                marathon: { current: Math.min(readCount, 25), target: 25, text: readCount >= 25 ? 'Complété !' : `${readCount}/25 textes lus d'affilée` },
+                mystique: { current: Math.min(mystiqueCount, 5), target: 5, text: mystiqueCount >= 5 ? 'Complété !' : `${mystiqueCount}/5 textes mystiques explorés` },
+                poete_maudit: { 
+                    current: state.authorStats['Comte de Lautréamont'] ? 1 : 0, 
+                    target: 1, 
+                    text: state.authorStats['Comte de Lautréamont'] ? 'Complété !' : 'Découvrez Lautréamont' 
+                },
+                renaissance: { 
+                    current: 0, target: 3, 
+                    text: 'Lisez 3 auteurs du XVIe siècle', special: true 
+                },
+                symbolist: { 
+                    current: (state.authorStats['Stéphane Mallarmé'] ? 1 : 0) + (state.authorStats['Paul Verlaine'] ? 1 : 0), 
+                    target: 2, 
+                    text: `Découvrez Mallarmé ${state.authorStats['Stéphane Mallarmé'] ? '✓' : '○'} et Verlaine ${state.authorStats['Paul Verlaine'] ? '✓' : '○'}` 
+                }
+            };
+            
+            const unlockedCount = state.achievements.length;
+            const totalBadges = Object.keys(ACHIEVEMENTS).length;
+            
+            // Mettre à jour le compteur
+            document.getElementById('unlockedCount').textContent = unlockedCount;
+            document.getElementById('totalBadges').textContent = totalBadges;
+            
             container.innerHTML = Object.entries(ACHIEVEMENTS).map(([id, ach]) => {
                 const unlocked = state.achievements.includes(id);
+                const progress = badgeProgress[id] || { current: 0, target: 1, text: ach.desc };
+                const percent = Math.min(100, Math.round((progress.current / progress.target) * 100));
+                
                 return `
-                    <div class="achievement ${unlocked ? 'unlocked' : ''}" title="${ach.desc}">
-                        ${ach.icon}
+                    <div class="achievement ${unlocked ? 'unlocked' : 'locked'}" onclick="showBadgeDetails('${id}')">
+                        <div class="badge-icon">${ach.icon}</div>
+                        <div class="badge-info">
+                            <div class="badge-name">
+                                ${ach.name}
+                                ${unlocked ? '<span class="unlocked-check">✓</span>' : ''}
+                            </div>
+                            <div class="badge-desc">${ach.desc}</div>
+                            ${!unlocked && !progress.special ? `
+                                <div class="badge-progress">
+                                    <div class="badge-progress-bar">
+                                        <div class="badge-progress-fill" style="width: ${percent}%"></div>
+                                    </div>
+                                    <div class="badge-progress-text">${progress.text}</div>
+                                </div>
+                            ` : !unlocked && progress.special ? `
+                                <div class="badge-progress">
+                                    <div class="badge-progress-text">💡 ${progress.text}</div>
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
+        }
+        
+        // Toggle entre afficher tous les badges ou seulement les débloqués
+        let badgesExpanded = true;
+        function toggleBadgesView() {
+            badgesExpanded = !badgesExpanded;
+            const container = document.getElementById('achievementList');
+            const toggle = document.getElementById('badgesToggle');
+            
+            if (badgesExpanded) {
+                container.classList.remove('collapsed');
+                toggle.textContent = 'Voir tout';
+            } else {
+                container.classList.add('collapsed');
+                toggle.textContent = 'Débloqués seulement';
+            }
+        }
+        
+        // Afficher les détails d'un badge
+        function showBadgeDetails(id) {
+            const ach = ACHIEVEMENTS[id];
+            if (!ach) return;
+            
+            const unlocked = state.achievements.includes(id);
+            
+            const hints = {
+                first_read: "Cliquez sur n'importe quel texte pour commencer votre voyage littéraire !",
+                explorer_5: "Explorez différents auteurs en utilisant le bouton 🎲 ou la recherche.",
+                explorer_15: "Continuez à découvrir de nouveaux auteurs. Chaque nom cache un univers !",
+                explorer_30: "Devenez un véritable corsaire des lettres en naviguant entre 30 auteurs différents.",
+                night_owl: "Les plus beaux textes se lisent parfois à la lueur de la lune... Revenez entre minuit et 5h !",
+                century_jump: "Voyagez dans le temps ! Lisez un auteur du XIXe puis sautez au XVIe siècle.",
+                hidden_gem: "Certains auteurs sont cachés... Cherchez les trésors oubliés de la littérature.",
+                love_10: "Cliquez sur ♥ pour sauvegarder vos textes préférés. 10 coups de cœur = 1 badge !",
+                marathon: "Lisez 25 textes sans vous arrêter. Un vrai marathon littéraire !",
+                mystique: "Explorez les textes aux thèmes mystiques, ésotériques ou spirituels.",
+                poete_maudit: "Recherchez 'Lautréamont' ou 'Maldoror' pour découvrir ce poète maudit légendaire.",
+                renaissance: "Recherchez des auteurs du XVIe siècle : Ronsard, Du Bellay, Rabelais...",
+                symbolist: "Les symbolistes Mallarmé et Verlaine vous attendent. Recherchez leurs noms !"
+            };
+            
+            toast(`${ach.icon} ${ach.name}${unlocked ? ' (Débloqué !)' : ''} - ${hints[id] || ach.desc}`, 5000);
         }
         
         // Chemin de lecture (breadcrumb visuel)
