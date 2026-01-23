@@ -109,9 +109,12 @@ async function sendPasswordReset() {
     document.getElementById('forgotBtn').disabled = true;
     document.getElementById('forgotBtn').textContent = 'Envoi...';
     
+    // URL de redirection - utiliser l'URL de production
+    const redirectUrl = 'https://palimpseste.vercel.app/web/index.html';
+    
     try {
         const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/web/index.html'
+            redirectTo: redirectUrl
         });
         
         document.getElementById('forgotBtn').disabled = false;
