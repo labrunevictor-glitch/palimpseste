@@ -406,12 +406,13 @@
             border-bottom: 1px solid var(--border);
         }
         .header-inner {
-            max-width: 720px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
         }
         .header-title {
             font-family: 'Inter', sans-serif;
@@ -420,8 +421,9 @@
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--muted);
+            white-space: nowrap;
         }
-        .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .header-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
         .header-btn {
             background: transparent;
             border: 1px solid var(--border);
