@@ -2053,7 +2053,7 @@ text-decoration: none;
 .auth-switch a:hover { text-decoration: underline; }
 .auth-forgot {
 text-align: right;
-margin-top: -0.5rem;
+margin-top: 0.25rem;
 margin-bottom: 1rem;
 font-size: 0.8rem;
 }
