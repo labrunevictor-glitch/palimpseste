@@ -856,6 +856,24 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ambiance-intro .ambiance-tag:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .ambiance-intro .ambiance-tag.more-authors {
+            cursor: default;
+            opacity: 0.7;
+        }
+        .ambiance-intro .ambiance-tag.more-authors:hover {
+            background: var(--bg-card);
+            color: var(--muted);
+            border-color: var(--border);
+            transform: none;
         }
         
         /* Language badge */
@@ -9106,8 +9124,8 @@
                     <h2>${ambiance.icon} ${ambiance.name}</h2>
                     <p>${ambiance.description}</p>
                     <div class="ambiance-tags">
-                        ${ambiance.authors.slice(0, 5).map(a => `<span class="ambiance-tag">${a}</span>`).join('')}
-                        ${ambiance.authors.length > 5 ? `<span class="ambiance-tag">+${ambiance.authors.length - 5} auteurs</span>` : ''}
+                        ${ambiance.authors.slice(0, 5).map(a => `<span class="ambiance-tag" onclick="exploreFromAmbiance('${a.replace(/'/g, "\\'")}'" title="Explorer ${a}">${a}</span>`).join('')}
+                        ${ambiance.authors.length > 5 ? `<span class="ambiance-tag more-authors" title="${ambiance.authors.slice(5).join(', ')}">+${ambiance.authors.length - 5} auteurs</span>` : ''}
                     </div>
                 `;
                 introEl.style.display = 'block';
@@ -9131,6 +9149,12 @@
         function closeAmbianceIntro() {
             const introEl = document.getElementById('ambianceIntro');
             introEl.style.display = 'none';
+        }
+        
+        // Explorer un auteur depuis l'encart d'ambiance
+        async function exploreFromAmbiance(author) {
+            toast(`🔍 Exploration de ${author}...`);
+            await exploreAuthor(author);
         }
         
         // Charger le contenu d'une ambiance
