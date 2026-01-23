@@ -284,7 +284,53 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- �🔧 Trigger pour créer automatiquement un profil à l'inscription
+-- 🔔 Table des notifications
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE notifications (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    type TEXT NOT NULL, -- 'like', 'comment', 'follow'
+    from_user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    extrait_id UUID REFERENCES extraits(id) ON DELETE CASCADE,
+    content TEXT,
+    read_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index pour les performances
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE INDEX idx_notifications_created ON notifications(created_at DESC);
+CREATE INDEX idx_notifications_unread ON notifications(user_id, read_at) WHERE read_at IS NULL;
+
+-- RLS pour notifications
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+-- Les utilisateurs ne voient que leurs propres notifications
+CREATE POLICY "Les utilisateurs voient leurs notifications"
+    ON notifications FOR SELECT
+    USING (auth.uid() = user_id);
+
+-- Les utilisateurs connectés peuvent créer des notifications pour d'autres
+CREATE POLICY "Les utilisateurs peuvent créer des notifications"
+    ON notifications FOR INSERT
+    WITH CHECK (auth.uid() = from_user_id);
+
+-- Les utilisateurs peuvent marquer leurs notifications comme lues
+CREATE POLICY "Les utilisateurs peuvent marquer leurs notifications comme lues"
+    ON notifications FOR UPDATE
+    USING (auth.uid() = user_id);
+
+-- Les utilisateurs peuvent supprimer leurs notifications
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs notifications"
+    ON notifications FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Activer Realtime sur notifications
+ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 🔧 Trigger pour créer automatiquement un profil à l'inscription
 -- ═══════════════════════════════════════════════════════════════════════════
 
 CREATE OR REPLACE FUNCTION handle_new_user()
