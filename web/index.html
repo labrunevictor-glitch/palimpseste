@@ -1877,7 +1877,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1885,6 +1885,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
+            padding: 2rem;
         }
         .user-profile-modal.open {
             opacity: 1;
@@ -1893,54 +1894,73 @@
         .user-profile-content {
             background: var(--bg-card);
             border-radius: 16px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
+            padding: 0;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
             border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .profile-header-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
         }
         .profile-header {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1.5rem;
         }
         .profile-avatar-large {
-            width: 64px;
-            height: 64px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-purple));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 600;
             color: white;
+            flex-shrink: 0;
+        }
+        .profile-info {
+            flex: 1;
         }
         .profile-info h3 {
             font-size: 1.25rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
         }
         .profile-stats {
             display: flex;
-            gap: 1.5rem;
-            font-size: 0.85rem;
+            gap: 1.25rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
+        }
+        .profile-stat {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .profile-stat:hover {
+            color: var(--text);
         }
         .profile-stat strong {
             color: var(--text);
+            font-weight: 600;
         }
         .profile-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             margin-top: 1rem;
         }
         .profile-actions button {
-            flex: 1;
-            padding: 0.75rem;
+            padding: 0.6rem 1.25rem;
             border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: 500;
+            font-size: 0.85rem;
         }
         .btn-follow-large {
             background: var(--accent);
@@ -1948,6 +1968,126 @@
         }
         .btn-follow-large.following {
             background: var(--accent-tertiary);
+        }
+        .btn-close-profile {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border) !important;
+        }
+        .btn-close-profile:hover {
+            color: var(--text);
+        }
+        /* Profile Tabs */
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-tab {
+            flex: 1;
+            padding: 0.85rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .profile-tab:hover {
+            color: var(--text);
+            background: var(--bg-elevated);
+        }
+        .profile-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        /* Profile Content */
+        .profile-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .profile-extraits-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .profile-extrait-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        .profile-extrait-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            font-style: italic;
+        }
+        .profile-extrait-source {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .profile-extrait-source strong {
+            color: var(--text);
+        }
+        .profile-extrait-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .profile-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+        }
+        .profile-empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .profile-empty-text {
+            font-size: 0.85rem;
+        }
+        /* Friends list inside profile */
+        .friends-list {
+            margin-top: 1rem;
+        }
+        .friends-list h4 {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        .friend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .friend-item:hover {
+            background: var(--bg-elevated);
+        }
+        .friend-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: 600;
         }
         .btn-follow-small {
             padding: 0.35rem 0.75rem;
@@ -2549,28 +2689,31 @@
     <!-- Modal Profil Utilisateur -->
     <div class="user-profile-modal" id="userProfileModal" onclick="if(event.target === this) closeUserProfile()">
         <div class="user-profile-content">
-            <div class="profile-header">
-                <div class="profile-avatar-large" id="profileAvatar">?</div>
-                <div class="profile-info">
-                    <h3 id="profileUsername">Utilisateur</h3>
-                    <div class="profile-stats">
-                        <span class="profile-stat"><strong id="profileFollowers">0</strong> abonnés</span>
-                        <span class="profile-stat"><strong id="profileFollowing">0</strong> abonnements</span>
-                        <span class="profile-stat"><strong id="profileExtraits">0</strong> extraits</span>
+            <div class="profile-header-section">
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="profileAvatar">?</div>
+                    <div class="profile-info">
+                        <h3 id="profileUsername">Utilisateur</h3>
+                        <div class="profile-stats">
+                            <span class="profile-stat" onclick="switchProfileTab('followers')"><strong id="profileFollowers">0</strong> abonnés</span>
+                            <span class="profile-stat" onclick="switchProfileTab('following')"><strong id="profileFollowing">0</strong> abonnements</span>
+                            <span class="profile-stat" onclick="switchProfileTab('extraits')"><strong id="profileExtraits">0</strong> extraits</span>
+                        </div>
                     </div>
                 </div>
+                <div class="profile-actions">
+                    <button class="btn-follow-large" id="profileFollowBtn" onclick="toggleFollowFromProfile()">Suivre</button>
+                    <button class="btn-close-profile" onclick="closeUserProfile()">✕ Fermer</button>
+                </div>
             </div>
-            <div class="profile-actions">
-                <button class="btn-follow-large" id="profileFollowBtn" onclick="toggleFollowFromProfile()">Suivre</button>
-                <button class="btn-close-profile" onclick="closeUserProfile()">Fermer</button>
+            <div class="profile-tabs">
+                <button class="profile-tab active" id="tabProfileExtraits" onclick="switchProfileTab('extraits')">📝 Extraits</button>
+                <button class="profile-tab" id="tabProfileLikes" onclick="switchProfileTab('likes')">❤️ Likes</button>
+                <button class="profile-tab" id="tabProfileFollowers" onclick="switchProfileTab('followers')">👥 Abonnés</button>
+                <button class="profile-tab" id="tabProfileFollowing" onclick="switchProfileTab('following')">📤 Abonnements</button>
             </div>
-            <div class="friends-list" id="profileFollowersList" style="display:none;">
-                <h4>👥 Abonnés (te suivent)</h4>
-                <div id="followersListContent"></div>
-            </div>
-            <div class="friends-list" id="profileFriendsList" style="display:none;">
-                <h4>📤 Abonnements (que tu suis)</h4>
-                <div id="friendsListContent"></div>
+            <div class="profile-content" id="profileContentArea">
+                <!-- Content loaded dynamically -->
             </div>
         </div>
     </div>
@@ -3643,10 +3786,13 @@
         }
         
         // Ouvrir le profil d'un utilisateur
+        let currentProfileTab = 'extraits';
+        
         async function openUserProfile(userId, username) {
             if (!supabaseClient) return;
             
             currentProfileUserId = userId;
+            currentProfileTab = 'extraits';
             
             // Charger les infos du profil
             const { data: profile } = await supabaseClient
@@ -3683,7 +3829,7 @@
             // Bouton suivre
             const followBtn = document.getElementById('profileFollowBtn');
             if (currentUser && userId !== currentUser.id) {
-                followBtn.style.display = 'block';
+                followBtn.style.display = 'inline-block';
                 const isFollowing = userFollowing.has(userId);
                 followBtn.textContent = isFollowing ? 'Ne plus suivre' : 'Suivre';
                 followBtn.classList.toggle('following', isFollowing);
@@ -3691,72 +3837,229 @@
                 followBtn.style.display = 'none';
             }
             
-            // Charger les listes de followers et following
-            await loadProfileFollowers(userId);
-            await loadProfileFollowing(userId);
+            // Reset tabs
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tabProfileExtraits').classList.add('active');
+            
+            // Charger le contenu initial (extraits)
+            await loadProfileExtraits(userId);
             
             // Ouvrir la modal
             document.getElementById('userProfileModal').classList.add('open');
         }
         
-        // Charger les followers (personnes qui suivent cet utilisateur)
-        async function loadProfileFollowers(userId) {
-            if (!supabaseClient) return;
+        // Changer d'onglet dans le profil
+        async function switchProfileTab(tab) {
+            if (!currentProfileUserId) return;
             
-            const { data } = await supabaseClient
-                .from('follows')
-                .select('follower_id, profiles!follows_follower_id_fkey(username)')
-                .eq('following_id', userId)
-                .limit(20);
+            currentProfileTab = tab;
             
-            const container = document.getElementById('followersListContent');
-            const section = document.getElementById('profileFollowersList');
+            // Update tabs UI
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            const tabMap = {
+                'extraits': 'tabProfileExtraits',
+                'likes': 'tabProfileLikes',
+                'followers': 'tabProfileFollowers',
+                'following': 'tabProfileFollowing'
+            };
+            document.getElementById(tabMap[tab])?.classList.add('active');
             
-            if (!data || data.length === 0) {
-                section.style.display = 'none';
+            // Load content
+            const container = document.getElementById('profileContentArea');
+            container.innerHTML = '<div class="profile-empty"><div class="spinner"></div></div>';
+            
+            switch(tab) {
+                case 'extraits':
+                    await loadProfileExtraits(currentProfileUserId);
+                    break;
+                case 'likes':
+                    await loadProfileLikes(currentProfileUserId);
+                    break;
+                case 'followers':
+                    await loadProfileFollowersList(currentProfileUserId);
+                    break;
+                case 'following':
+                    await loadProfileFollowingList(currentProfileUserId);
+                    break;
+            }
+        }
+        
+        // Charger les extraits partagés par l'utilisateur
+        async function loadProfileExtraits(userId) {
+            const container = document.getElementById('profileContentArea');
+            
+            const { data: extraits } = await supabaseClient
+                .from('extraits')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(30);
+            
+            if (!extraits || extraits.length === 0) {
+                container.innerHTML = `
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">📝</div>
+                        <div class="profile-empty-text">Aucun extrait partagé</div>
+                    </div>
+                `;
                 return;
             }
             
-            section.style.display = 'block';
-            container.innerHTML = data.map(f => {
-                const name = f.profiles?.username || 'Anonyme';
-                return `
-                    <div class="friend-item" onclick="openUserProfile('${f.follower_id}', '${name}')">
-                        <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
-                        <span>${name}</span>
+            container.innerHTML = `
+                <div class="profile-extraits-list">
+                    ${extraits.map(e => `
+                        <div class="profile-extrait-card">
+                            <div class="profile-extrait-text">"${esc(e.texte.substring(0, 300))}${e.texte.length > 300 ? '...' : ''}"</div>
+                            <div class="profile-extrait-source">
+                                <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
+                            </div>
+                            <div class="profile-extrait-meta">
+                                <span>❤️ ${e.likes_count || 0} likes</span>
+                                <span>${formatTimeAgo(new Date(e.created_at))}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Charger les extraits likés par l'utilisateur
+        async function loadProfileLikes(userId) {
+            const container = document.getElementById('profileContentArea');
+            
+            // Récupérer les likes de l'utilisateur
+            const { data: likes } = await supabaseClient
+                .from('likes')
+                .select('extrait_id, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(30);
+            
+            if (!likes || likes.length === 0) {
+                container.innerHTML = `
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">❤️</div>
+                        <div class="profile-empty-text">Aucun like pour l'instant</div>
                     </div>
                 `;
-            }).join('');
+                return;
+            }
+            
+            // Récupérer les extraits likés
+            const extraitIds = likes.map(l => l.extrait_id);
+            const { data: extraits } = await supabaseClient
+                .from('extraits')
+                .select('*, profiles:user_id(username)')
+                .in('id', extraitIds);
+            
+            if (!extraits || extraits.length === 0) {
+                container.innerHTML = `
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">❤️</div>
+                        <div class="profile-empty-text">Aucun extrait disponible</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Mapper par ID pour garder l'ordre des likes
+            const extraitMap = new Map(extraits.map(e => [e.id, e]));
+            
+            container.innerHTML = `
+                <div class="profile-extraits-list">
+                    ${likes.map(l => {
+                        const e = extraitMap.get(l.extrait_id);
+                        if (!e) return '';
+                        const authorName = e.profiles?.username || 'Anonyme';
+                        return `
+                            <div class="profile-extrait-card">
+                                <div class="profile-extrait-text">"${esc(e.texte.substring(0, 300))}${e.texte.length > 300 ? '...' : ''}"</div>
+                                <div class="profile-extrait-source">
+                                    <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
+                                </div>
+                                <div class="profile-extrait-meta">
+                                    <span>par @${esc(authorName)}</span>
+                                    <span>liké ${formatTimeAgo(new Date(l.created_at))}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        // Charger les abonnés (personnes qui suivent cet utilisateur)
+        async function loadProfileFollowersList(userId) {
+            const container = document.getElementById('profileContentArea');
+            
+            const { data } = await supabaseClient
+                .from('follows')
+                .select('follower_id, created_at, profiles!follows_follower_id_fkey(username)')
+                .eq('following_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(50);
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">👥</div>
+                        <div class="profile-empty-text">Aucun abonné pour l'instant</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="friends-list">
+                    ${data.map(f => {
+                        const name = f.profiles?.username || 'Anonyme';
+                        return `
+                            <div class="friend-item" onclick="openUserProfile('${f.follower_id}', '${esc(name)}')">
+                                <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
+                                <span>${esc(name)}</span>
+                                <span style="margin-left:auto; font-size:0.7rem; color:var(--muted)">depuis ${formatTimeAgo(new Date(f.created_at))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
         }
         
         // Charger les personnes suivies par un utilisateur
-        async function loadProfileFollowing(userId) {
-            if (!supabaseClient) return;
+        async function loadProfileFollowingList(userId) {
+            const container = document.getElementById('profileContentArea');
             
             const { data } = await supabaseClient
                 .from('follows')
-                .select('following_id, profiles!follows_following_id_fkey(username)')
+                .select('following_id, created_at, profiles!follows_following_id_fkey(username)')
                 .eq('follower_id', userId)
-                .limit(20);
-            
-            const container = document.getElementById('friendsListContent');
-            const section = document.getElementById('profileFriendsList');
+                .order('created_at', { ascending: false })
+                .limit(50);
             
             if (!data || data.length === 0) {
-                section.style.display = 'none';
+                container.innerHTML = `
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">📤</div>
+                        <div class="profile-empty-text">Ne suit personne pour l'instant</div>
+                    </div>
+                `;
                 return;
             }
             
-            section.style.display = 'block';
-            container.innerHTML = data.map(f => {
-                const name = f.profiles?.username || 'Anonyme';
-                return `
-                    <div class="friend-item" onclick="openUserProfile('${f.following_id}', '${name}')">
-                        <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
-                        <span>${name}</span>
-                    </div>
-                `;
-            }).join('');
+            container.innerHTML = `
+                <div class="friends-list">
+                    ${data.map(f => {
+                        const name = f.profiles?.username || 'Anonyme';
+                        return `
+                            <div class="friend-item" onclick="openUserProfile('${f.following_id}', '${esc(name)}')">
+                                <div class="friend-avatar">${name.charAt(0).toUpperCase()}</div>
+                                <span>${esc(name)}</span>
+                                <span style="margin-left:auto; font-size:0.7rem; color:var(--muted)">depuis ${formatTimeAgo(new Date(f.created_at))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
         }
         
         // Fermer la modal profil
