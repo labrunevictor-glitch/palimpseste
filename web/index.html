@@ -4793,22 +4793,41 @@
             
             try {
                 // Récupérer tous les messages où l'utilisateur est impliqué
-                const { data: messages, error } = await supabaseClient
+                // Utiliser deux requêtes séparées pour éviter les problèmes de syntaxe OR
+                const { data: sentMessages, error: err1 } = await supabaseClient
                     .from('messages')
                     .select('*')
-                    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-                    .order('created_at', { ascending: false });
+                    .eq('sender_id', currentUser.id);
                 
-                if (error) throw error;
+                const { data: receivedMessages, error: err2 } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .eq('receiver_id', currentUser.id);
                 
-                if (!messages || messages.length === 0) {
-                    container.innerHTML = '<div class="messages-empty">Aucune conversation.<br><br>Visitez le profil d\'un utilisateur et cliquez sur "Message" pour démarrer une conversation.</div>';
+                if (err1 || err2) {
+                    console.error('Erreur messages:', err1 || err2);
+                    // Vérifier si c'est une erreur de table non existante
+                    const errMsg = (err1 || err2)?.message || '';
+                    if (errMsg.includes('does not exist') || errMsg.includes('relation')) {
+                        container.innerHTML = '<div class="messages-empty">⚠️ La table messages n\'existe pas encore.<br><br>Exécutez le SQL dans Supabase pour activer la messagerie.</div>';
+                    } else {
+                        container.innerHTML = '<div class="messages-empty">Erreur de chargement<br><small>' + errMsg + '</small></div>';
+                    }
+                    return;
+                }
+                
+                // Combiner et trier
+                const allMessages = [...(sentMessages || []), ...(receivedMessages || [])];
+                allMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                if (allMessages.length === 0) {
+                    container.innerHTML = '<div class="messages-empty">Aucune conversation.<br><br>Visitez le profil d\'un utilisateur et cliquez sur "💬 Message" pour démarrer une conversation.</div>';
                     return;
                 }
                 
                 // Grouper par conversation (autre utilisateur)
                 const conversations = new Map();
-                for (const msg of messages) {
+                for (const msg of allMessages) {
                     const otherUserId = msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id;
                     if (!conversations.has(otherUserId)) {
                         conversations.set(otherUserId, {
@@ -4861,7 +4880,7 @@
                 }
             } catch (err) {
                 console.error('Erreur chargement conversations:', err);
-                container.innerHTML = '<div class="messages-empty">Erreur de chargement</div>';
+                container.innerHTML = '<div class="messages-empty">Erreur de chargement<br><small>' + (err.message || err) + '</small></div>';
             }
         }
         
@@ -4912,17 +4931,28 @@
             container.innerHTML = '<div class="messages-empty">Chargement...</div>';
             
             try {
-                const { data: messages, error } = await supabaseClient
+                // Récupérer les messages envoyés et reçus séparément
+                const { data: sentMessages, error: err1 } = await supabaseClient
                     .from('messages')
                     .select('*')
-                    .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${currentUser.id})`)
-                    .order('created_at', { ascending: true });
+                    .eq('sender_id', currentUser.id)
+                    .eq('receiver_id', otherUserId);
                 
-                if (error) throw error;
+                const { data: receivedMessages, error: err2 } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .eq('sender_id', otherUserId)
+                    .eq('receiver_id', currentUser.id);
+                
+                if (err1 || err2) throw (err1 || err2);
+                
+                // Combiner et trier par date
+                const messages = [...(sentMessages || []), ...(receivedMessages || [])];
+                messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 
                 container.innerHTML = '';
                 
-                if (!messages || messages.length === 0) {
+                if (messages.length === 0) {
                     container.innerHTML = '<div class="messages-empty" style="align-self: center; margin: auto;">Démarrez la conversation !</div>';
                     return;
                 }
@@ -4932,7 +4962,7 @@
                     const msgEl = document.createElement('div');
                     msgEl.className = `chat-message ${isSent ? 'sent' : 'received'}`;
                     msgEl.innerHTML = `
-                        ${msg.content}
+                        ${escapeHtml(msg.content)}
                         <div class="chat-message-time">${formatMessageTime(msg.created_at)}</div>
                     `;
                     container.appendChild(msgEl);
