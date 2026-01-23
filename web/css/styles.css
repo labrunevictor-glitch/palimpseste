@@ -736,17 +736,57 @@ border-radius: 0;
 .tag.théâtre { border-color: #3d9be9; color: #3d9be9; }
 .tag.conte { border-color: var(--accent-secondary); color: var(--accent-secondary); }
 
-/* Ambiances de lecture */
-.ambiance-bar {
+/* ═══════════════════════════════════════════════════════════
+   EXPLORATION - Container avec onglets
+   ═══════════════════════════════════════════════════════════ */
+.exploration-container {
 position: sticky;
-top: 52px; /* Hauteur du header */
+top: 52px;
 z-index: 90;
-display: flex;
-gap: 0.5rem;
-padding: 0.75rem 1rem;
 margin-left: 260px;
 background: var(--bg-card);
 border-bottom: 1px solid var(--border);
+}
+
+.exploration-tabs {
+display: flex;
+gap: 0;
+padding: 0 1rem;
+border-bottom: 1px solid var(--border);
+background: var(--bg);
+}
+
+.exploration-tab {
+padding: 0.6rem 1.2rem;
+background: none;
+border: none;
+border-bottom: 2px solid transparent;
+color: var(--text-secondary);
+font-size: 0.85rem;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+gap: 0.4rem;
+}
+
+.exploration-tab:hover {
+color: var(--text);
+background: rgba(255,255,255,0.03);
+}
+
+.exploration-tab.active {
+color: var(--accent);
+border-bottom-color: var(--accent);
+}
+
+/* Ambiances de lecture */
+.ambiance-bar {
+display: flex;
+gap: 0.5rem;
+padding: 0.75rem 1rem;
+background: var(--bg-card);
 overflow-x: auto;
 scrollbar-width: none;
 -ms-overflow-style: none;
@@ -824,6 +864,17 @@ font-family: 'Playfair Display', serif;
 font-size: 1.5rem;
 color: var(--text);
 margin-bottom: 0.5rem;
+}
+.ambiance-intro .period-badge {
+display: inline-block;
+padding: 0.2rem 0.6rem;
+background: rgba(255,255,255,0.1);
+border-radius: 12px;
+font-size: 0.75rem;
+color: var(--accent-secondary);
+font-style: normal;
+margin-bottom: 0.5rem;
+border: 1px solid rgba(255,255,255,0.1);
 }
 .ambiance-intro p {
 font-size: 0.9rem;
@@ -1634,7 +1685,9 @@ header { left: 0; }
 main { margin-left: auto; padding: 5rem 1rem 3rem; }
 .reco-banner { margin-left: 1rem; margin-right: 1rem; max-width: none; }
 .progress { left: 0; }
-.ambiance-bar { margin-left: 0; top: 48px; }
+.exploration-container { margin-left: 0; top: 48px; }
+.exploration-tabs { padding: 0 0.5rem; overflow-x: auto; }
+.exploration-tab { padding: 0.5rem 0.8rem; font-size: 0.75rem; }
 }
 
 /* Achievement popup */
