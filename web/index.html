@@ -3007,30 +3007,78 @@
             
             if (!supabaseClient) return;
             
-            // Vérifier si déjà liké
-            const { data: existing } = await supabaseClient
-                .from('likes')
-                .select('id')
-                .eq('user_id', currentUser.id)
-                .eq('extrait_id', extraitId)
-                .single();
-            
-            if (existing) {
-                // Unlike
-                await supabaseClient.from('likes').delete().eq('id', existing.id);
-                await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
-            } else {
-                // Like
-                await supabaseClient.from('likes').insert({
-                    user_id: currentUser.id,
-                    extrait_id: extraitId,
-                    created_at: new Date().toISOString()
-                });
-                await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
+            try {
+                // Vérifier si déjà liké
+                const { data: existing, error: checkError } = await supabaseClient
+                    .from('likes')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('extrait_id', extraitId)
+                    .single();
+                
+                if (existing) {
+                    // Unlike
+                    const { error: deleteError } = await supabaseClient
+                        .from('likes')
+                        .delete()
+                        .eq('id', existing.id);
+                    
+                    if (deleteError) {
+                        console.error('Erreur unlike:', deleteError);
+                        toast('❌ Erreur lors du unlike');
+                        return;
+                    }
+                    
+                    // Mettre à jour le compteur
+                    const { data: extrait } = await supabaseClient
+                        .from('extraits')
+                        .select('likes_count')
+                        .eq('id', extraitId)
+                        .single();
+                    
+                    await supabaseClient
+                        .from('extraits')
+                        .update({ likes_count: Math.max(0, (extrait?.likes_count || 1) - 1) })
+                        .eq('id', extraitId);
+                    
+                    toast('💔 Like retiré');
+                } else {
+                    // Like
+                    const { error: insertError } = await supabaseClient
+                        .from('likes')
+                        .insert({
+                            user_id: currentUser.id,
+                            extrait_id: extraitId,
+                            created_at: new Date().toISOString()
+                        });
+                    
+                    if (insertError) {
+                        console.error('Erreur like:', insertError);
+                        toast('❌ Erreur lors du like');
+                        return;
+                    }
+                    
+                    // Mettre à jour le compteur
+                    const { data: extrait } = await supabaseClient
+                        .from('extraits')
+                        .select('likes_count')
+                        .eq('id', extraitId)
+                        .single();
+                    
+                    await supabaseClient
+                        .from('extraits')
+                        .update({ likes_count: (extrait?.likes_count || 0) + 1 })
+                        .eq('id', extraitId);
+                    
+                    toast('❤️ Liké !');
+                }
+                
+                // Refresh
+                loadSocialFeed();
+            } catch (err) {
+                console.error('Erreur toggle like:', err);
+                toast('❌ Erreur');
             }
-            
-            // Refresh
-            loadSocialFeed();
         }
         
         function copyExtrait(extraitId) {
