@@ -26,8 +26,8 @@ data/*.pickle
 
 # Exports
 exports/
-*.html
-!templates/*.html
+# *.html
+!templates/# *.html
 
 # OS
 .DS_Store
