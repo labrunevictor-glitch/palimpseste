@@ -795,11 +795,39 @@
             font-weight: 500;
         }
         .ambiance-intro {
-            padding: 1.5rem;
+            position: sticky;
+            top: 92px; /* Sous header + barre ambiance */
+            z-index: 85;
+            padding: 1rem 1.5rem;
             text-align: center;
-            background: linear-gradient(135deg, rgba(255,69,58,0.05), rgba(191,90,242,0.05));
+            background: linear-gradient(135deg, rgba(255,69,58,0.08), rgba(191,90,242,0.08));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
             animation: fadeIn 0.5s ease;
+            margin-left: 260px;
+        }
+        .ambiance-intro .close-intro {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .ambiance-intro .close-intro:hover {
+            opacity: 1;
+        }
+        @media (max-width: 900px) {
+            .ambiance-intro {
+                margin-left: 0;
+                top: 88px;
+            }
         }
         .ambiance-intro h2 {
             font-family: 'Playfair Display', serif;
@@ -9074,6 +9102,7 @@
             const introEl = document.getElementById('ambianceIntro');
             if (ambianceId !== 'libre') {
                 introEl.innerHTML = `
+                    <button class="close-intro" onclick="closeAmbianceIntro()" title="Fermer">✕</button>
                     <h2>${ambiance.icon} ${ambiance.name}</h2>
                     <p>${ambiance.description}</p>
                     <div class="ambiance-tags">
@@ -9082,6 +9111,7 @@
                     </div>
                 `;
                 introEl.style.display = 'block';
+                introEl.style.position = 'relative';
             } else {
                 introEl.style.display = 'none';
             }
@@ -9095,6 +9125,12 @@
             
             // Charger les textes de cette ambiance
             await loadAmbianceContent(ambianceId);
+        }
+        
+        // Fermer l'intro d'ambiance
+        function closeAmbianceIntro() {
+            const introEl = document.getElementById('ambianceIntro');
+            introEl.style.display = 'none';
         }
         
         // Charger le contenu d'une ambiance
