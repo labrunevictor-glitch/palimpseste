@@ -3441,19 +3441,20 @@
                 return;
             }
             
-            // Récupérer les profils des followers
+            // Récupérer les profils des followers un par un (plus fiable que .in())
             const followerIds = follows.map(f => f.follower_id);
-            const { data: profiles, error: profileError } = await supabaseClient
-                .from('profiles')
-                .select('id, username')
-                .in('id', followerIds);
+            const profileMap = new Map();
             
-            // Debug si problème
-            if (profileError || !profiles || profiles.length === 0) {
-                console.warn('Profiles fetch issue:', profileError, 'IDs:', followerIds);
+            for (const fid of followerIds) {
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username')
+                    .eq('id', fid)
+                    .single();
+                if (profile) {
+                    profileMap.set(fid, profile);
+                }
             }
-            
-            const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
             
             // Charger qui on suit pour les boutons
             await loadUserFollowing();
@@ -3501,13 +3502,13 @@
                 return;
             }
             
-            // Récupérer les profils des utilisateurs qui ont liké
+            // Récupérer les profils des utilisateurs qui ont liké (un par un pour fiabilité)
             const userIds = [...new Set(recentLikes.map(l => l.user_id))];
-            const { data: users } = await supabaseClient
-                .from('profiles')
-                .select('id, username')
-                .in('id', userIds);
-            const userMap = new Map(users?.map(u => [u.id, u]) || []);
+            const userMap = new Map();
+            for (const uid of userIds) {
+                const { data: user } = await supabaseClient.from('profiles').select('id, username').eq('id', uid).single();
+                if (user) userMap.set(uid, user);
+            }
             
             // Récupérer les extraits likés
             const extraitIds = [...new Set(recentLikes.map(l => l.extrait_id))];
@@ -3517,13 +3518,13 @@
                 .in('id', extraitIds);
             const extraitMap = new Map(extraits?.map(e => [e.id, e]) || []);
             
-            // Récupérer les auteurs des extraits
+            // Récupérer les auteurs des extraits (un par un pour fiabilité)
             const extraitAuthorIds = [...new Set(extraits?.map(e => e.user_id) || [])];
-            const { data: authors } = await supabaseClient
-                .from('profiles')
-                .select('id, username')
-                .in('id', extraitAuthorIds);
-            const authorMap = new Map(authors?.map(a => [a.id, a]) || []);
+            const authorMap = new Map();
+            for (const aid of extraitAuthorIds) {
+                const { data: author } = await supabaseClient.from('profiles').select('id, username').eq('id', aid).single();
+                if (author) authorMap.set(aid, author);
+            }
             
             container.innerHTML = `
                 <div class="discover-header">
