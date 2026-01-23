@@ -744,8 +744,10 @@ position: sticky;
 top: 52px;
 z-index: 90;
 margin-left: 260px;
+margin-top: 0;
 background: var(--bg-card);
 border-bottom: 1px solid var(--border);
+box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .exploration-tabs {
