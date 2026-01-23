@@ -78,11 +78,60 @@ function closeAuthModal() {
     // Reset errors
     document.getElementById('loginError').classList.remove('show');
     document.getElementById('registerError').classList.remove('show');
+    document.getElementById('forgotError').classList.remove('show');
+    document.getElementById('forgotSuccess').classList.remove('show');
 }
 
 function switchAuthForm(mode) {
     document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
     document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
+    document.getElementById('forgotForm').style.display = mode === 'forgot' ? 'block' : 'none';
+    // Reset messages
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('registerError').classList.remove('show');
+    document.getElementById('forgotError').classList.remove('show');
+    document.getElementById('forgotSuccess').classList.remove('show');
+}
+
+async function sendPasswordReset() {
+    if (!supabaseClient) {
+        showAuthError('forgot', 'Supabase non configuré.');
+        return;
+    }
+    
+    const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+    
+    if (!email) {
+        showAuthError('forgot', 'Veuillez entrer votre adresse email');
+        return;
+    }
+    
+    document.getElementById('forgotBtn').disabled = true;
+    document.getElementById('forgotBtn').textContent = 'Envoi...';
+    
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/web/index.html'
+        });
+        
+        document.getElementById('forgotBtn').disabled = false;
+        document.getElementById('forgotBtn').textContent = 'Envoyer le lien';
+        
+        if (error) {
+            showAuthError('forgot', error.message);
+        } else {
+            // Afficher le message de succès
+            document.getElementById('forgotError').classList.remove('show');
+            const successEl = document.getElementById('forgotSuccess');
+            successEl.textContent = '✅ Email envoyé ! Vérifiez votre boîte de réception (et les spams).';
+            successEl.classList.add('show');
+        }
+    } catch (e) {
+        console.error('Erreur reset password:', e);
+        document.getElementById('forgotBtn').disabled = false;
+        document.getElementById('forgotBtn').textContent = 'Envoyer le lien';
+        showAuthError('forgot', 'Une erreur est survenue. Réessayez.');
+    }
 }
 
 async function loginWithEmail() {

@@ -540,9 +540,21 @@
                 <input type="email" class="auth-input" id="loginEmail" placeholder="Email">
                 <input type="password" class="auth-input" id="loginPassword" placeholder="Mot de passe">
                 <button class="auth-btn" onclick="loginWithEmail()" id="loginBtn">Se connecter</button>
+                <div class="auth-forgot"><a onclick="switchAuthForm('forgot')">Mot de passe oublié ?</a></div>
                 <div class="auth-divider"><span>ou</span></div>
                 <button class="auth-btn secondary" onclick="loginWithGoogle()">🌐 Continuer avec Google</button>
                 <div class="auth-switch">Pas encore de compte ? <a onclick="switchAuthForm('register')">S'inscrire</a></div>
+            </div>
+            
+            <!-- Formulaire mot de passe oublié -->
+            <div id="forgotForm" style="display:none;">
+                <div class="auth-title">Mot de passe oublié 🔑</div>
+                <div class="auth-subtitle">Entrez votre email pour recevoir un lien de réinitialisation</div>
+                <div class="auth-error" id="forgotError"></div>
+                <div class="auth-success" id="forgotSuccess"></div>
+                <input type="email" class="auth-input" id="forgotEmail" placeholder="Email">
+                <button class="auth-btn" onclick="sendPasswordReset()" id="forgotBtn">Envoyer le lien</button>
+                <div class="auth-switch"><a onclick="switchAuthForm('login')">← Retour à la connexion</a></div>
             </div>
             
             <!-- Formulaire d'inscription -->

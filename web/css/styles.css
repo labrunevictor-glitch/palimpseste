@@ -2051,6 +2051,29 @@ cursor: pointer;
 text-decoration: none;
 }
 .auth-switch a:hover { text-decoration: underline; }
+.auth-forgot {
+text-align: right;
+margin-top: -0.5rem;
+margin-bottom: 1rem;
+font-size: 0.8rem;
+}
+.auth-forgot a {
+color: var(--text-secondary);
+cursor: pointer;
+text-decoration: none;
+}
+.auth-forgot a:hover { color: var(--accent); text-decoration: underline; }
+.auth-success {
+background: rgba(42, 157, 143, 0.15);
+border: 1px solid var(--accent-tertiary);
+color: var(--accent-tertiary);
+padding: 0.75rem;
+border-radius: 8px;
+margin-bottom: 1rem;
+font-size: 0.85rem;
+display: none;
+}
+.auth-success.show { display: block; }
 .auth-close {
 position: absolute;
 top: 1rem;
