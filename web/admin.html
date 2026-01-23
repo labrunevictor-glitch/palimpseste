@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palimpseste - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <style>
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Crimson Pro', Georgia, serif;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .dashboard-header h1 {
+            color: var(--accent);
+            margin: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section h2 {
+            color: var(--accent);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+        
+        tr:hover {
+            background: rgba(212, 165, 116, 0.05);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-login { background: #2ecc7133; color: #2ecc71; }
+        .badge-logout { background: #e74c3c33; color: #e74c3c; }
+        .badge-search { background: #3498db33; color: #3498db; }
+        .badge-share { background: #9b59b633; color: #9b59b6; }
+        .badge-other { background: #95a5a633; color: #95a5a6; }
+        
+        .online-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .online { background: #2ecc71; }
+        .offline { background: #95a5a6; }
+        
+        .refresh-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        
+        .error-message {
+            background: #e74c3c22;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .back-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .time-filter button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .time-filter button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            color: var(--text-muted);
+        }
+    </style>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div>
+            <h1>📊 Dashboard Admin</h1>
+            <a href="index.html" class="back-link">← Retour à Palimpseste</a>
+        </div>
+        <button class="refresh-btn" onclick="loadDashboard()">🔄 Actualiser</button>
+    </div>
+    
+    <div id="errorContainer"></div>
+    
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalUsers">-</div>
+            <div class="stat-label">Utilisateurs inscrits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="activeToday">-</div>
+            <div class="stat-label">Actifs aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="activeWeek">-</div>
+            <div class="stat-label">Actifs cette semaine</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="loginsToday">-</div>
+            <div class="stat-label">Connexions aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="searchesToday">-</div>
+            <div class="stat-label">Recherches aujourd'hui</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="sharesToday">-</div>
+            <div class="stat-label">Partages aujourd'hui</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>👥 Utilisateurs actifs en temps réel</h2>
+        <div id="activeUsersContainer">
+            <div class="loading">Chargement...</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🆕 Nouveaux inscrits</h2>
+        <div id="newUsersContainer">
+            <div class="loading">Chargement...</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📜 Événements récents</h2>
+        <div class="time-filter">
+            <button class="active" onclick="filterEvents('all')">Tous</button>
+            <button onclick="filterEvents('login')">Connexions</button>
+            <button onclick="filterEvents('search')">Recherches</button>
+            <button onclick="filterEvents('share')">Partages</button>
+        </div>
+        <div id="eventsContainer">
+            <div class="loading">Chargement...</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>📈 Statistiques par type d'événement</h2>
+        <div id="eventTypesContainer">
+            <div class="loading">Chargement...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration Supabase (même que dans auth.js)
+        const SUPABASE_URL = 'https://cqoepdrqifilqxnvflyy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxb2VwZHJxaWZpbHF4bnZmbHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxNzQxMTksImV4cCI6MjA4NDc1MDExOX0.e7dJmzUEgzDIix12ca38HvBmF7Cgp_fTZPT6gZ6Xy5s';
+        
+        let supabaseClient = null;
+        let currentUser = null;
+        let allEvents = [];
+        
+        // Initialisation
+        async function init() {
+            try {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                // Vérifier l'authentification
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    showError('Vous devez être connecté pour accéder au dashboard admin.');
+                    return;
+                }
+                
+                currentUser = session.user;
+                await loadDashboard();
+                
+            } catch (e) {
+                console.error('Init error:', e);
+                showError('Erreur d\'initialisation: ' + e.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('errorContainer').innerHTML = `
+                <div class="error-message">${message}</div>
+            `;
+        }
+        
+        async function loadDashboard() {
+            // Charger les profils d'abord pour pouvoir afficher les noms
+            await loadAllProfiles();
+            await Promise.all([
+                loadStats(),
+                loadActiveUsers(),
+                loadNewUsers(),
+                loadRecentEvents(),
+                loadEventTypes()
+            ]);
+        }
+        
+        // Cache des profils pour afficher les noms d'utilisateurs
+        let profilesCache = new Map();
+        
+        async function loadAllProfiles() {
+            try {
+                const { data: profiles } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username, created_at');
+                
+                profilesCache = new Map((profiles || []).map(p => [p.id, p]));
+            } catch (e) {
+                console.error('Error loading profiles:', e);
+            }
+        }
+        
+        function getUserName(userId) {
+            if (!userId) return 'Anonyme';
+            const profile = profilesCache.get(userId);
+            return profile?.username || userId.substring(0, 8) + '...';
+        }
+        
+        async function loadStats() {
+            try {
+                const { data, error } = await supabaseClient.rpc('get_analytics_stats');
+                
+                if (error) {
+                    console.error('Stats error:', error);
+                    // Fallback: compter manuellement
+                    await loadStatsFallback();
+                    return;
+                }
+                
+                document.getElementById('totalUsers').textContent = data.total_users || 0;
+                document.getElementById('activeToday').textContent = data.active_users_today || 0;
+                document.getElementById('activeWeek').textContent = data.active_users_week || 0;
+                document.getElementById('loginsToday').textContent = data.total_logins_today || 0;
+                document.getElementById('searchesToday').textContent = data.total_searches_today || 0;
+                document.getElementById('sharesToday').textContent = data.total_shares_today || 0;
+                
+            } catch (e) {
+                console.error('Exception loading stats:', e);
+                await loadStatsFallback();
+            }
+        }
+        
+        async function loadStatsFallback() {
+            // Compter les utilisateurs depuis la table profiles
+            const { count: userCount } = await supabaseClient
+                .from('profiles')
+                .select('*', { count: 'exact', head: true });
+            
+            document.getElementById('totalUsers').textContent = userCount || 0;
+            document.getElementById('activeToday').textContent = '-';
+            document.getElementById('activeWeek').textContent = '-';
+            document.getElementById('loginsToday').textContent = '-';
+            document.getElementById('searchesToday').textContent = '-';
+            document.getElementById('sharesToday').textContent = '-';
+        }
+        
+        async function loadActiveUsers() {
+            const container = document.getElementById('activeUsersContainer');
+            
+            try {
+                // Récupérer les utilisateurs actifs dans la dernière heure
+                const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+                
+                const { data: events, error } = await supabaseClient
+                    .from('analytics_events')
+                    .select('user_id, created_at')
+                    .gte('created_at', oneHourAgo)
+                    .not('user_id', 'is', null)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Dédupliquer par user_id
+                const userMap = new Map();
+                (events || []).forEach(e => {
+                    if (!userMap.has(e.user_id)) {
+                        userMap.set(e.user_id, e.created_at);
+                    }
+                });
+                
+                if (userMap.size === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted)">Aucun utilisateur actif dans la dernière heure</p>';
+                    return;
+                }
+                
+                // Récupérer les profils
+                const userIds = Array.from(userMap.keys());
+                const { data: profiles } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username')
+                    .in('id', userIds);
+                
+                const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+                
+                let html = '<table><thead><tr><th>Statut</th><th>Utilisateur</th><th>Dernière activité</th></tr></thead><tbody>';
+                
+                userMap.forEach((lastSeen, userId) => {
+                    const profile = profileMap.get(userId);
+                    const username = profile?.username || 'Utilisateur inconnu';
+                    const minutesAgo = Math.round((Date.now() - new Date(lastSeen)) / 60000);
+                    const isOnline = minutesAgo < 5;
+                    
+                    html += `<tr>
+                        <td><span class="online-indicator ${isOnline ? 'online' : 'offline'}"></span>${isOnline ? 'En ligne' : 'Récemment'}</td>
+                        <td>${escapeHtml(username)}</td>
+                        <td>Il y a ${minutesAgo} min</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (e) {
+                console.error('Active users error:', e);
+                container.innerHTML = '<p style="color: var(--text-muted)">Table analytics_events non disponible. Exécutez monitoring_setup.sql dans Supabase.</p>';
+            }
+        }
+        
+        async function loadNewUsers() {
+            const container = document.getElementById('newUsersContainer');
+            
+            try {
+                // Récupérer les profils triés par date de création
+                const { data: profiles, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                
+                if (error) throw error;
+                
+                if (!profiles || profiles.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted)">Aucun utilisateur inscrit</p>';
+                    return;
+                }
+                
+                let html = '<table><thead><tr><th>Utilisateur</th><th>Date d\'inscription</th><th>Ancienneté</th></tr></thead><tbody>';
+                
+                profiles.forEach(profile => {
+                    const createdAt = new Date(profile.created_at);
+                    const dateStr = createdAt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const daysAgo = Math.floor((Date.now() - createdAt) / (1000 * 60 * 60 * 24));
+                    let anciennete = '';
+                    if (daysAgo === 0) {
+                        anciennete = '🆕 Aujourd\'hui';
+                    } else if (daysAgo === 1) {
+                        anciennete = 'Hier';
+                    } else if (daysAgo < 7) {
+                        anciennete = `Il y a ${daysAgo} jours`;
+                    } else if (daysAgo < 30) {
+                        anciennete = `Il y a ${Math.floor(daysAgo / 7)} semaine(s)`;
+                    } else {
+                        anciennete = `Il y a ${Math.floor(daysAgo / 30)} mois`;
+                    }
+                    
+                    html += `<tr>
+                        <td><strong>${escapeHtml(profile.username)}</strong></td>
+                        <td>${dateStr}</td>
+                        <td>${anciennete}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (e) {
+                console.error('New users error:', e);
+                container.innerHTML = '<p style="color: var(--text-muted)">Erreur lors du chargement des utilisateurs.</p>';
+            }
+        }
+        
+        async function loadRecentEvents() {
+            const container = document.getElementById('eventsContainer');
+            
+            try {
+                const { data: events, error } = await supabaseClient
+                    .from('analytics_events')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(100);
+                
+                if (error) throw error;
+                
+                allEvents = events || [];
+                renderEvents(allEvents);
+                
+            } catch (e) {
+                console.error('Events error:', e);
+                container.innerHTML = '<p style="color: var(--text-muted)">Table analytics_events non disponible. Exécutez monitoring_setup.sql dans Supabase.</p>';
+            }
+        }
+        
+        function renderEvents(events) {
+            const container = document.getElementById('eventsContainer');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted)">Aucun événement</p>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Date</th><th>Type</th><th>Utilisateur</th><th>Détails</th></tr></thead><tbody>';
+            
+            events.slice(0, 50).forEach(event => {
+                const date = new Date(event.created_at).toLocaleString('fr-FR');
+                const badgeClass = getBadgeClass(event.event_type);
+                const details = formatEventData(event.event_data);
+                const username = getUserName(event.user_id);
+                
+                html += `<tr>
+                    <td>${date}</td>
+                    <td><span class="badge ${badgeClass}">${event.event_type}</span></td>
+                    <td>${escapeHtml(username)}</td>
+                    <td>${details}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function filterEvents(type) {
+            // Update active button
+            document.querySelectorAll('.time-filter button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(type) || (type === 'all' && btn.textContent === 'Tous')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            const filtered = type === 'all' 
+                ? allEvents 
+                : allEvents.filter(e => e.event_type === type);
+            
+            renderEvents(filtered);
+        }
+        
+        async function loadEventTypes() {
+            const container = document.getElementById('eventTypesContainer');
+            
+            try {
+                // Agréger les événements par type
+                const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+                
+                const { data: events, error } = await supabaseClient
+                    .from('analytics_events')
+                    .select('event_type')
+                    .gte('created_at', thirtyDaysAgo);
+                
+                if (error) throw error;
+                
+                // Compter par type
+                const counts = {};
+                (events || []).forEach(e => {
+                    counts[e.event_type] = (counts[e.event_type] || 0) + 1;
+                });
+                
+                const sortedTypes = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                
+                if (sortedTypes.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted)">Aucune donnée sur les 30 derniers jours</p>';
+                    return;
+                }
+                
+                let html = '<table><thead><tr><th>Type d\'événement</th><th>Nombre (30j)</th><th>%</th></tr></thead><tbody>';
+                
+                const total = sortedTypes.reduce((sum, [, count]) => sum + count, 0);
+                
+                sortedTypes.forEach(([type, count]) => {
+                    const percent = ((count / total) * 100).toFixed(1);
+                    const badgeClass = getBadgeClass(type);
+                    
+                    html += `<tr>
+                        <td><span class="badge ${badgeClass}">${type}</span></td>
+                        <td>${count}</td>
+                        <td>${percent}%</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (e) {
+                console.error('Event types error:', e);
+                container.innerHTML = '<p style="color: var(--text-muted)">Table analytics_events non disponible</p>';
+            }
+        }
+        
+        function getBadgeClass(eventType) {
+            switch (eventType) {
+                case 'login': return 'badge-login';
+                case 'logout': return 'badge-logout';
+                case 'search': return 'badge-search';
+                case 'share': return 'badge-share';
+                default: return 'badge-other';
+            }
+        }
+        
+        function formatEventData(data) {
+            if (!data || Object.keys(data).length === 0) return '-';
+            
+            const parts = [];
+            if (data.query) parts.push(`"${data.query}"`);
+            if (data.page) parts.push(data.page);
+            if (data.source) parts.push(data.source);
+            if (data.method) parts.push(data.method);
+            
+            return parts.length > 0 ? escapeHtml(parts.join(', ')) : '-';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Auto-refresh toutes les 30 secondes
+        setInterval(loadDashboard, 30000);
+        
+        // Initialiser au chargement
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

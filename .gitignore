@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Data (peut être volumineux)
+data/*.json
+data/*.pickle
+!data/.gitkeep
+
+# Exports
+exports/
+# *.html
+!templates/# *.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
