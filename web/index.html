@@ -9548,9 +9548,12 @@
         async function loadAmbianceContent(ambianceId) {
             const ambiance = AMBIANCES[ambianceId];
             
+            // Auteurs classiques par défaut
+            const classicAuthors = ['Victor Hugo', 'Charles Baudelaire', 'Gustave Flaubert', 'Marcel Proust', 'Stendhal', 'Voltaire'];
+            
             if (ambianceId === 'libre' || !ambiance.authors.length) {
-                // Mode libre : utiliser le comportement par défaut
-                await exploreAuthor(DEFAULT_AUTHORS[Math.floor(Math.random() * DEFAULT_AUTHORS.length)]);
+                // Mode libre : utiliser un auteur classique au hasard
+                await exploreAuthor(classicAuthors[Math.floor(Math.random() * classicAuthors.length)]);
                 return;
             }
             
@@ -9630,9 +9633,20 @@
         
         // Saut aléatoire SANS thématique (ignore l'ambiance)
         async function pureRandomJump() {
+            // Liste d'auteurs classiques pour le mode libre
+            const classicAuthors = [
+                'Victor Hugo', 'Charles Baudelaire', 'Gustave Flaubert', 'Émile Zola',
+                'Marcel Proust', 'Stendhal', 'Honoré de Balzac', 'Guy de Maupassant',
+                'Alexandre Dumas', 'Jules Verne', 'Voltaire', 'Molière', 'Jean Racine',
+                'Arthur Rimbaud', 'Paul Verlaine', 'Gérard de Nerval', 'Alfred de Musset',
+                'François Rabelais', 'Michel de Montaigne', 'Jean de La Fontaine',
+                'Shakespeare', 'Oscar Wilde', 'Edgar Allan Poe', 'Mary Shelley',
+                'Johann Wolfgang von Goethe', 'Dante Alighieri', 'Cervantes'
+            ];
+            
             const discoveredAuthors = Object.keys(state.authorStats);
-            const universalTerms = ['sonnet', 'elegy', 'ode', 'ballade', 'fable', 'hymn', 'nocturne', 'poème', 'conte', 'roman'];
-            const allOptions = [...discoveredAuthors, ...HIDDEN_GEMS, ...universalTerms, ...DEFAULT_AUTHORS];
+            const universalTerms = ['sonnet', 'elegy', 'ode', 'ballade', 'fable', 'nocturne', 'poème', 'conte'];
+            const allOptions = [...discoveredAuthors, ...HIDDEN_GEMS, ...universalTerms, ...classicAuthors];
             const unvisited = allOptions.filter(a => !state.authorStats[a]);
             const pool = unvisited.length > 3 ? unvisited : allOptions;
             
@@ -9640,11 +9654,9 @@
             
             toast('🎲 Découverte libre...');
             
-            setTimeout(async () => {
-                await exploreAuthor(chosen);
-                checkAchievements();
-                updateFunStat();
-            }, 800);
+            await exploreAuthor(chosen);
+            checkAchievements();
+            updateFunStat();
         }
         
         // Saut aléatoire vers un auteur ou terme de recherche aléatoire
