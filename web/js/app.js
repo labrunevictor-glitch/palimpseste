@@ -146,10 +146,22 @@ async function registerWithEmail() {
     document.getElementById('registerBtn').disabled = false;
     
     if (error) {
-        showAuthError('register', error.message);
+        // Améliorer les messages d'erreur courants
+        let errorMsg = error.message;
+        if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
+            if (error.message.includes('username')) {
+                errorMsg = 'Ce nom d\'utilisateur est déjà pris. Choisissez-en un autre.';
+            } else if (error.message.includes('email')) {
+                errorMsg = 'Cette adresse email est déjà utilisée.';
+            } else {
+                errorMsg = 'Ce compte existe déjà.';
+            }
+        } else if (error.message.includes('Database error')) {
+            errorMsg = 'Ce nom d\'utilisateur est déjà pris ou une erreur est survenue. Essayez un autre nom.';
+        }
+        showAuthError('register', errorMsg);
     } else {
-        // Créer le profil utilisateur
-        await createUserProfile(data.user.id, username);
+        // Le profil est créé automatiquement par un trigger Supabase
         closeAuthModal();
         toast('🎉 Compte créé ! Vérifiez votre email.');
     }
