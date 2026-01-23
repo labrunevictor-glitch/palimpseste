@@ -5239,7 +5239,7 @@
 
         function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
         
-        // Afficher la suite du texte par morceaux
+        // Afficher la suite du texte - tout d'un coup au premier clic
         function showMore(cardId) {
             const card = document.getElementById(cardId);
             if (!card) return;
@@ -5249,8 +5249,6 @@
             if (!fullEl || !btnEl) return;
             
             let remaining = card.dataset.remaining || '';
-            const chunkSize = parseInt(card.dataset.chunkSize) || 600;
-            let shown = parseInt(card.dataset.shown) || 0;
             
             if (!remaining) {
                 btnEl.innerHTML = '✓ Texte complet';
@@ -5259,47 +5257,29 @@
                 return;
             }
             
-            // Extraire le prochain morceau
-            let chunk = remaining;
-            let newRemaining = '';
-            
-            if (remaining.length > chunkSize) {
-                let cutPoint = remaining.lastIndexOf('. ', chunkSize);
-                if (cutPoint < chunkSize * 0.5) cutPoint = remaining.lastIndexOf('\n', chunkSize);
-                if (cutPoint < chunkSize * 0.5) cutPoint = remaining.lastIndexOf(' ', chunkSize);
-                if (cutPoint < chunkSize * 0.5) cutPoint = chunkSize;
-                chunk = remaining.substring(0, cutPoint + 1).trim();
-                newRemaining = remaining.substring(cutPoint + 1).trim();
-            }
-            
-            // Ajouter le morceau
+            // Afficher TOUT le texte restant d'un coup
             const chunkEl = document.createElement('div');
             chunkEl.className = 'text-chunk';
             chunkEl.style.animation = 'fadeIn 0.4s ease';
-            chunkEl.innerHTML = esc(chunk);
+            chunkEl.innerHTML = esc(remaining);
             fullEl.appendChild(chunkEl);
             fullEl.classList.add('visible');
             
             // Tracker les mots lus
-            const wordCount = chunk.split(/\s+/).filter(w => w.length > 0).length;
+            const wordCount = remaining.split(/\s+/).filter(w => w.length > 0).length;
             recordReading(wordCount);
             startReadingTimer();
             
-            // Mettre à jour l'état
-            card.dataset.remaining = newRemaining;
-            card.dataset.shown = (shown + 1).toString();
+            // Marquer comme complet
+            card.dataset.remaining = '';
             
             // Mettre à jour le bouton
-            if (!newRemaining) {
-                btnEl.innerHTML = '✓ Texte complet';
-                btnEl.classList.add('exhausted');
-                btnEl.onclick = null;
-            } else {
-                btnEl.innerHTML = `Encore plus<span class="arrow">→</span>`;
-            }
+            btnEl.innerHTML = '✓ Texte complet';
+            btnEl.classList.add('exhausted');
+            btnEl.onclick = null;
             
             // Scroll doux vers le nouveau contenu
-            setTimeout(() => chunkEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+            setTimeout(() => chunkEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
         }
         
         function toggleLike(id, btn) {
