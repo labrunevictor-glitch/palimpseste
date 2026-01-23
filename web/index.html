@@ -1198,44 +1198,58 @@
             background: linear-gradient(135deg, rgba(255,69,58,0.05) 0%, transparent 100%);
             border: 1px solid var(--border);
             border-left: 3px solid var(--accent);
+            padding: 1rem !important;
+        }
+        .reading-stats-section h3 {
+            margin-bottom: 1rem;
         }
         .reading-stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
         }
         .reading-stat-item {
             text-align: center;
-            padding: 0.5rem;
+            padding: 1rem 0.5rem;
             background: var(--bg-card);
             border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .reading-stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .reading-stat-icon {
-            font-size: 1.2rem;
-            margin-bottom: 0.25rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
         .reading-stat-value {
             font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--text);
+            line-height: 1.2;
+            margin-bottom: 0.3rem;
         }
         .reading-stat-label {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            line-height: 1.3;
         }
         .streak-item .reading-stat-value {
             color: var(--accent);
         }
         .streak-bar {
-            height: 4px;
+            height: 6px;
             background: var(--border);
-            border-radius: 2px;
+            border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
         .streak-progress {
             height: 100%;
@@ -1244,19 +1258,22 @@
             transition: width 0.5s ease;
         }
         .streak-hint {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--muted);
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             font-style: italic;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 8px;
         }
         .weekly-chart {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            height: 50px;
-            gap: 3px;
-            padding-top: 0.5rem;
+            height: 60px;
+            gap: 6px;
+            padding: 1rem 0.5rem 0;
             border-top: 1px solid var(--border);
         }
         .weekly-bar {
