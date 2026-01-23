@@ -965,14 +965,23 @@
             font-weight: 300;
         }
 
-        /* Navigateur de Catégories */
+        /* Navigateur de Catégories - Barre flottante en bas */
         .category-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-            animation: slideDown 0.3s ease;
+            border-top: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            padding-right: 6rem; /* Espace pour le bouton fermer */
+            animation: slideUp 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            max-height: 40vh;
+            overflow-y: auto;
         }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .cat-breadcrumbs {
             display: flex;
@@ -1020,16 +1029,19 @@
             opacity: 0.6;
         }
         .cat-close {
-            margin-top: 1rem;
-            background: none;
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: var(--danger);
             border: none;
-            color: var(--muted);
-            font-size: 0.8rem;
+            color: white;
+            font-size: 0.85rem;
             cursor: pointer;
-            padding: 0;
-            text-decoration: underline;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
         }
-        .cat-close:hover { color: var(--accent); }
+        .cat-close:hover { background: #c0392b; }
         
         .empty-state {
             text-align: center;
