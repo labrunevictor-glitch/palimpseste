@@ -462,6 +462,194 @@
         .lang-select:focus { outline: none; border-color: var(--text); }
         .lang-icon { font-size: 0.9rem; }
         
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+            margin: 0 1rem;
+        }
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            color: var(--text);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.1);
+        }
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.85rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .search-clear {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1rem;
+            display: none;
+            padding: 0.25rem;
+        }
+        .search-clear.visible { display: block; }
+        .search-clear:hover { color: var(--text); }
+        
+        /* Search Results Overlay */
+        .search-results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 400;
+            display: none;
+            overflow-y: auto;
+        }
+        .search-results-overlay.open { display: block; }
+        .search-results-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .search-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .search-results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .search-results-query {
+            color: var(--accent);
+        }
+        .search-results-close {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .search-results-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .search-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-tab:hover { border-color: var(--text); color: var(--text); }
+        .search-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        .search-tab .count {
+            margin-left: 0.35rem;
+            opacity: 0.7;
+        }
+        .search-results-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .search-result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .search-result-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .search-result-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.35rem;
+        }
+        .search-result-author {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .search-result-snippet {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .search-result-snippet mark {
+            background: rgba(230, 57, 70, 0.3);
+            color: var(--text);
+            padding: 0 0.15rem;
+            border-radius: 2px;
+        }
+        .search-result-meta {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .search-result-source {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .search-loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+        .search-no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+        .search-no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
         main {
             margin-left: 260px;
             max-width: 720px;
@@ -1995,6 +2183,18 @@
     <header>
         <div class="header-inner">
             <div class="header-title" id="headerTitle">Laissez-vous dériver...</div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" 
+                           placeholder="Rechercher un auteur, un mot, un thème..." 
+                           onkeydown="if(event.key==='Enter') performSearch()">
+                    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+                </div>
+            </div>
+            
             <div class="header-actions">
                 <div class="lang-selector">
                     <span class="lang-icon">🌍</span>
@@ -2162,6 +2362,20 @@
                 <h4>Personnes suivies</h4>
                 <div id="friendsListContent"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Search Results Overlay -->
+    <div class="search-results-overlay" id="searchResultsOverlay" onclick="if(event.target === this) closeSearchResults()">
+        <div class="search-results-container">
+            <div class="search-results-header">
+                <div class="search-results-title">
+                    🔍 Résultats pour "<span class="search-results-query" id="searchQueryDisplay"></span>"
+                </div>
+                <button class="search-results-close" onclick="closeSearchResults()">✕</button>
+            </div>
+            <div class="search-results-tabs" id="searchResultsTabs"></div>
+            <div class="search-results-grid" id="searchResultsGrid"></div>
         </div>
     </div>
 
@@ -4509,6 +4723,323 @@
             if (authorConnections[author].length > 10) {
                 authorConnections[author] = authorConnections[author].slice(-10);
             }
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // 🔍 RECHERCHE - Fonctions de recherche avancée
+        // ═══════════════════════════════════════════════════════════
+        
+        let searchResults = {
+            wikisource: [],
+            poetrydb: [],
+            gutenberg: []
+        };
+        let currentSearchTab = 'all';
+        let currentSearchQuery = '';
+        
+        // Gérer l'affichage du bouton clear
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            
+            if (searchInput && searchClear) {
+                searchInput.addEventListener('input', () => {
+                    searchClear.classList.toggle('visible', searchInput.value.length > 0);
+                });
+            }
+        });
+        
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            document.getElementById('searchClear').classList.remove('visible');
+            searchInput.focus();
+        }
+        
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query || query.length < 2) {
+                toast('⚠️ Entrez au moins 2 caractères');
+                return;
+            }
+            
+            currentSearchQuery = query;
+            
+            // Afficher l'overlay avec loading
+            const overlay = document.getElementById('searchResultsOverlay');
+            const grid = document.getElementById('searchResultsGrid');
+            const tabs = document.getElementById('searchResultsTabs');
+            
+            document.getElementById('searchQueryDisplay').textContent = query;
+            overlay.classList.add('open');
+            
+            grid.innerHTML = '<div class="search-loading"><div class="spinner"></div><p>Recherche en cours...</p></div>';
+            tabs.innerHTML = '';
+            
+            // Réinitialiser les résultats
+            searchResults = { wikisource: [], poetrydb: [], gutenberg: [] };
+            
+            // Lancer les recherches en parallèle
+            toast('🔍 Recherche...');
+            
+            await Promise.all([
+                searchWikisource(query),
+                searchPoetryDB(query),
+                searchGutenberg(query)
+            ]);
+            
+            // Afficher les résultats
+            renderSearchTabs();
+            renderSearchResults('all');
+        }
+        
+        async function searchWikisource(query) {
+            try {
+                const wikisources = getActiveWikisources();
+                const promises = wikisources.map(ws => 
+                    fetch(`${ws.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=15&srnamespace=0&format=json&origin=*`)
+                        .then(res => res.json())
+                        .then(data => {
+                            return (data.query?.search || []).map(r => ({
+                                title: r.title,
+                                snippet: r.snippet || '',
+                                source: 'wikisource',
+                                lang: ws.lang,
+                                wikisource: ws
+                            }));
+                        })
+                        .catch(() => [])
+                );
+                
+                const results = await Promise.all(promises);
+                searchResults.wikisource = results.flat();
+            } catch (e) {
+                console.error('Wikisource search error:', e);
+            }
+        }
+        
+        async function searchPoetryDB(query) {
+            try {
+                // Recherche par auteur
+                const authorRes = await fetch(`https://poetrydb.org/author/${encodeURIComponent(query)}`);
+                let authorData = [];
+                if (authorRes.ok) {
+                    const data = await authorRes.json();
+                    if (Array.isArray(data)) {
+                        authorData = data.slice(0, 10).map(p => ({
+                            title: p.title,
+                            author: p.author,
+                            snippet: p.lines?.slice(0, 3).join(' / ') || '',
+                            lines: p.lines,
+                            source: 'poetrydb',
+                            lang: 'en'
+                        }));
+                    }
+                }
+                
+                // Recherche par titre
+                const titleRes = await fetch(`https://poetrydb.org/title/${encodeURIComponent(query)}`);
+                let titleData = [];
+                if (titleRes.ok) {
+                    const data = await titleRes.json();
+                    if (Array.isArray(data)) {
+                        titleData = data.slice(0, 10).map(p => ({
+                            title: p.title,
+                            author: p.author,
+                            snippet: p.lines?.slice(0, 3).join(' / ') || '',
+                            lines: p.lines,
+                            source: 'poetrydb',
+                            lang: 'en'
+                        }));
+                    }
+                }
+                
+                // Combiner et dédupliquer
+                const combined = [...authorData, ...titleData];
+                const seen = new Set();
+                searchResults.poetrydb = combined.filter(p => {
+                    const key = p.title + p.author;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            } catch (e) {
+                console.error('PoetryDB search error:', e);
+            }
+        }
+        
+        async function searchGutenberg(query) {
+            try {
+                const res = await fetch(`https://gutendex.com/books?search=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                searchResults.gutenberg = (data.results || []).slice(0, 15).map(book => ({
+                    title: book.title,
+                    author: book.authors?.map(a => a.name).join(', ') || 'Inconnu',
+                    snippet: book.subjects?.slice(0, 3).join(' • ') || '',
+                    id: book.id,
+                    source: 'gutenberg',
+                    lang: book.languages?.[0] || 'en',
+                    formats: book.formats
+                }));
+            } catch (e) {
+                console.error('Gutenberg search error:', e);
+            }
+        }
+        
+        function renderSearchTabs() {
+            const tabs = document.getElementById('searchResultsTabs');
+            const totalAll = searchResults.wikisource.length + searchResults.poetrydb.length + searchResults.gutenberg.length;
+            
+            tabs.innerHTML = `
+                <button class="search-tab ${currentSearchTab === 'all' ? 'active' : ''}" onclick="switchSearchTab('all')">
+                    📚 Tous <span class="count">${totalAll}</span>
+                </button>
+                <button class="search-tab ${currentSearchTab === 'wikisource' ? 'active' : ''}" onclick="switchSearchTab('wikisource')">
+                    📜 Wikisource <span class="count">${searchResults.wikisource.length}</span>
+                </button>
+                <button class="search-tab ${currentSearchTab === 'poetrydb' ? 'active' : ''}" onclick="switchSearchTab('poetrydb')">
+                    🎭 Poésie <span class="count">${searchResults.poetrydb.length}</span>
+                </button>
+                <button class="search-tab ${currentSearchTab === 'gutenberg' ? 'active' : ''}" onclick="switchSearchTab('gutenberg')">
+                    📖 Gutenberg <span class="count">${searchResults.gutenberg.length}</span>
+                </button>
+            `;
+        }
+        
+        function switchSearchTab(tab) {
+            currentSearchTab = tab;
+            renderSearchTabs();
+            renderSearchResults(tab);
+        }
+        
+        function renderSearchResults(tab) {
+            const grid = document.getElementById('searchResultsGrid');
+            
+            let results = [];
+            if (tab === 'all') {
+                results = [
+                    ...searchResults.wikisource,
+                    ...searchResults.poetrydb,
+                    ...searchResults.gutenberg
+                ];
+            } else {
+                results = searchResults[tab] || [];
+            }
+            
+            if (results.length === 0) {
+                grid.innerHTML = `
+                    <div class="search-no-results">
+                        <div class="search-no-results-icon">📭</div>
+                        <p>Aucun résultat pour "${escapeHtml(currentSearchQuery)}"</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Essayez avec d'autres mots-clés ou un nom d'auteur</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = results.map((r, idx) => {
+                const sourceIcon = r.source === 'wikisource' ? '📜' : r.source === 'poetrydb' ? '🎭' : '📖';
+                const sourceName = r.source === 'wikisource' ? 'Wikisource' : r.source === 'poetrydb' ? 'PoetryDB' : 'Gutenberg';
+                const author = r.author || extractAuthorFromTitle(r.title) || '';
+                
+                // Nettoyer le snippet HTML
+                let snippet = r.snippet || '';
+                snippet = snippet.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+                
+                // Highlight query dans le snippet
+                const queryRegex = new RegExp(`(${escapeRegex(currentSearchQuery)})`, 'gi');
+                snippet = snippet.replace(queryRegex, '<mark>$1</mark>');
+                
+                return `
+                    <div class="search-result-card" onclick="openSearchResult(${idx}, '${r.source}')">
+                        <div class="search-result-title">${escapeHtml(r.title)}</div>
+                        ${author ? `<div class="search-result-author">${escapeHtml(author)}</div>` : ''}
+                        <div class="search-result-snippet">${snippet}</div>
+                        <div class="search-result-meta">
+                            <span class="search-result-source">${sourceIcon} ${sourceName}</span>
+                            ${r.lang ? `<span>🌐 ${r.lang.toUpperCase()}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        function extractAuthorFromTitle(title) {
+            // Essayer d'extraire l'auteur depuis des patterns courants
+            const patterns = [
+                /^(.+?)\s*[-–—]\s*(.+)$/,  // "Titre - Auteur" ou "Auteur - Titre"
+                /\(([^)]+)\)$/,             // "Titre (Auteur)"
+                /by\s+(.+)$/i               // "Title by Author"
+            ];
+            
+            for (const pattern of patterns) {
+                const match = title.match(pattern);
+                if (match) {
+                    const candidate = match[1] || match[2];
+                    // Vérifier si ça ressemble à un nom d'auteur
+                    if (candidate && candidate.length < 50 && /^[A-Za-zÀ-ÿ\s.'-]+$/.test(candidate)) {
+                        return candidate.trim();
+                    }
+                }
+            }
+            return null;
+        }
+        
+        async function openSearchResult(idx, source) {
+            let result;
+            if (currentSearchTab === 'all') {
+                const allResults = [
+                    ...searchResults.wikisource,
+                    ...searchResults.poetrydb,
+                    ...searchResults.gutenberg
+                ];
+                result = allResults[idx];
+            } else {
+                result = searchResults[currentSearchTab]?.[idx];
+            }
+            
+            if (!result) return;
+            
+            closeSearchResults();
+            toast('📖 Chargement...');
+            
+            if (result.source === 'wikisource') {
+                // Charger le texte depuis Wikisource
+                const text = await fetchText(result.title, 0, result.wikisource);
+                if (text) {
+                    document.getElementById('feed').innerHTML = '';
+                    state.cardIdx = 0;
+                    renderCard(text, result.title, result.wikisource);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    toast('❌ Impossible de charger ce texte');
+                }
+            } else if (result.source === 'poetrydb') {
+                // Afficher directement le poème
+                document.getElementById('feed').innerHTML = '';
+                state.cardIdx = 0;
+                renderCard({
+                    title: result.title,
+                    text: result.lines?.join('\n') || result.snippet,
+                    author: result.author,
+                    source: 'poetrydb'
+                }, result.title, { lang: 'en', url: 'https://poetrydb.org', name: 'PoetryDB' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (result.source === 'gutenberg') {
+                // Ouvrir le livre sur Gutenberg
+                const readUrl = `https://www.gutenberg.org/ebooks/${result.id}`;
+                window.open(readUrl, '_blank');
+                toast('📖 Ouverture sur Project Gutenberg');
+            }
+        }
+        
+        function closeSearchResults() {
+            document.getElementById('searchResultsOverlay').classList.remove('open');
         }
         
         async function shuffleFeed() {
