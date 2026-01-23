@@ -7430,10 +7430,20 @@
             
             loadState();
             
-            // Restaurer le choix de langue
-            const savedLang = localStorage.getItem('palimpseste_lang') || 'all';
+            // Restaurer le choix de langue ou détecter automatiquement
+            const savedLang = localStorage.getItem('palimpseste_lang');
             const validLangs = ['all', ...WIKISOURCES.map(w => w.lang)];
-            selectedLang = validLangs.includes(savedLang) ? savedLang : 'all';
+            
+            if (savedLang && validLangs.includes(savedLang)) {
+                // Utiliser la langue sauvegardée
+                selectedLang = savedLang;
+            } else {
+                // Détecter la langue du navigateur
+                const browserLang = (navigator.language || navigator.userLanguage || 'fr').split('-')[0].toLowerCase();
+                // Si la langue du navigateur est supportée, l'utiliser, sinon français par défaut
+                selectedLang = validLangs.includes(browserLang) ? browserLang : 'fr';
+                localStorage.setItem('palimpseste_lang', selectedLang);
+            }
             
             const langSelect = document.getElementById('langSelect');
             if (langSelect) langSelect.value = selectedLang;
