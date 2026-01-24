@@ -230,10 +230,34 @@ async function init() {
     // Mise à jour périodique du fun stat
     setInterval(updateFunStat, 15000);
     
+    // Suggérer périodiquement de nouveaux textes (style Twitter)
+    // Après 2 minutes d'inactivité sur la page, afficher le bandeau
+    let inactivityTimer = null;
+    const resetInactivityTimer = () => {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            // Ne suggérer que si l'utilisateur a scrollé et n'est pas en haut
+            if (window.scrollY > 300 && !newTextsBannerVisible && !state.loading) {
+                showNewTextsBanner();
+            }
+        }, 120000); // 2 minutes
+    };
+    
+    // Démarrer le timer d'inactivité
+    resetInactivityTimer();
+    window.addEventListener('scroll', resetInactivityTimer, { passive: true });
+    window.addEventListener('click', resetInactivityTimer, { passive: true });
+    
+    // Créer le bouton scroll to top
+    createScrollTopButton();
+    
     window.onscroll = () => {
         document.getElementById('progress').style.width = 
             (scrollY / (document.body.scrollHeight - innerHeight) * 100) + '%';
         if (innerHeight + scrollY >= document.body.scrollHeight - 800 && !state.loading) loadMore();
+        
+        // Afficher/masquer le bouton scroll to top
+        updateScrollTopButton();
     };
 }
 
@@ -584,14 +608,183 @@ function buildAuthorConnections(author, tag) {
 // 🔍 RECHERCHE → search.js
 // ═══════════════════════════════════════════════════════════
 
+// Nombre de nouveaux textes en attente
+let pendingNewTexts = 0;
+let newTextsBannerVisible = false;
+
 async function shuffleFeed() {
     document.getElementById('feed').innerHTML = '';
     state.textPool = [];
     state.shownPages.clear();
     state.cardIdx = 0;
-    toast('Nouveaux textes...');
+    hideNewTextsBanner();
+    toast('🔄 Nouveaux textes...');
     await fillPool();
     await loadMore();
+    // Scroll vers le haut de façon fluide
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Charger de nouveaux textes en HAUT du feed (style Twitter "Voir les nouveaux tweets")
+async function loadNewTextsOnTop() {
+    if (state.loading) return;
+    state.loading = true;
+    
+    // Afficher un indicateur de chargement compact en haut
+    const feed = document.getElementById('feed');
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'top-loading-indicator';
+    loadingIndicator.id = 'topLoadingIndicator';
+    loadingIndicator.innerHTML = '<div class="spinner-small"></div> Chargement...';
+    feed.insertBefore(loadingIndicator, feed.firstChild);
+    
+    let loaded = 0, attempts = 0;
+    const newCards = [];
+    
+    // Charger le pool si nécessaire
+    if (state.textPool.length < 5) {
+        await fillPool();
+    }
+    
+    while (loaded < 3 && attempts < 10) {
+        attempts++;
+        if (state.textPool.length === 0) break;
+        
+        const item = state.textPool.shift();
+        const itemKey = (item.source === 'poetrydb' ? 'poetrydb:' : '') + item.title;
+        if (state.shownPages.has(itemKey)) continue;
+        
+        // Si c'est un item pré-chargé
+        if (item.isPreloaded && item.text) {
+            state.shownPages.add(itemKey);
+            const cardEl = createCardElement({
+                title: item.title,
+                text: item.text,
+                author: item.author,
+                source: item.source
+            }, item.title, { lang: item.lang, url: 'https://poetrydb.org', name: 'PoetryDB' });
+            if (cardEl) newCards.push(cardEl);
+            loaded++;
+            continue;
+        }
+        
+        // Sinon, récupérer depuis Wikisource
+        const ws = item.wikisource || getCurrentWikisource();
+        const result = await fetchText(item.title, 0, ws);
+        if (result?.text?.length > 150) {
+            state.shownPages.add(itemKey);
+            const cardEl = createCardElement(result, item.title, ws);
+            if (cardEl) newCards.push(cardEl);
+            loaded++;
+        }
+    }
+    
+    // Supprimer l'indicateur de chargement
+    loadingIndicator.remove();
+    
+    // Insérer les nouvelles cartes en haut avec animation
+    if (newCards.length > 0) {
+        // Insérer dans l'ordre inverse pour que la plus récente soit en haut
+        for (let i = newCards.length - 1; i >= 0; i--) {
+            const card = newCards[i];
+            card.classList.add('card-new');
+            feed.insertBefore(card, feed.firstChild);
+            // Décaler légèrement l'animation pour chaque carte
+            setTimeout(() => {
+                card.classList.add('show');
+                card.classList.add('card-highlight');
+            }, (newCards.length - 1 - i) * 100);
+        }
+        
+        // Retirer le highlight après quelques secondes
+        setTimeout(() => {
+            newCards.forEach(card => card.classList.remove('card-highlight', 'card-new'));
+        }, 3000);
+        
+        // Scroll vers le haut pour voir les nouvelles cartes
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast(`✨ ${newCards.length} nouveau${newCards.length > 1 ? 'x' : ''} texte${newCards.length > 1 ? 's' : ''} !`);
+    }
+    
+    hideNewTextsBanner();
+    state.loading = false;
+}
+
+// Afficher le bandeau "Nouveaux textes disponibles"
+function showNewTextsBanner() {
+    if (newTextsBannerVisible) return;
+    newTextsBannerVisible = true;
+    
+    let banner = document.getElementById('newTextsBanner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'newTextsBanner';
+        banner.className = 'new-texts-banner';
+        banner.innerHTML = '<span>✨ Nouveaux textes disponibles</span>';
+        banner.onclick = () => loadNewTextsOnTop();
+        document.body.appendChild(banner);
+    }
+    setTimeout(() => banner.classList.add('visible'), 10);
+}
+
+function hideNewTextsBanner() {
+    newTextsBannerVisible = false;
+    pendingNewTexts = 0;
+    const banner = document.getElementById('newTextsBanner');
+    if (banner) {
+        banner.classList.remove('visible');
+    }
+    // Aussi retirer l'indicateur du bouton scroll
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    if (scrollBtn) {
+        scrollBtn.classList.remove('has-new');
+    }
+}
+
+// Rafraîchir le feed en gardant les cartes actuelles et en ajoutant en haut
+async function refreshFeed() {
+    showNewTextsBanner();
+}
+
+// Créer le bouton "scroll to top"
+function createScrollTopButton() {
+    let btn = document.getElementById('scrollTopBtn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'scrollTopBtn';
+        btn.className = 'scroll-top-btn';
+        btn.innerHTML = '↑';
+        btn.title = 'Revenir en haut';
+        btn.onclick = () => {
+            if (newTextsBannerVisible) {
+                loadNewTextsOnTop();
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+        document.body.appendChild(btn);
+    }
+}
+
+// Mettre à jour la visibilité du bouton scroll to top
+function updateScrollTopButton() {
+    const btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    
+    if (window.scrollY > 500) {
+        btn.classList.add('visible');
+        if (newTextsBannerVisible) {
+            btn.classList.add('has-new');
+            btn.innerHTML = '✨';
+            btn.title = 'Voir les nouveaux textes';
+        } else {
+            btn.classList.remove('has-new');
+            btn.innerHTML = '↑';
+            btn.title = 'Revenir en haut';
+        }
+    } else {
+        btn.classList.remove('visible');
+    }
 }
 
 function toast(msg) {
@@ -644,6 +837,106 @@ async function loadMore() {
 
     document.getElementById('loading').style.display = 'none';
     state.loading = false;
+}
+
+// Crée un élément de carte sans l'ajouter au DOM (pour insertion flexible)
+function createCardElement(result, origTitle, wikisource = getCurrentWikisource()) {
+    let title = result.title || origTitle;
+    // Nettoyage agressif du titre
+    title = title
+        .replace(/<[^>]+>/g, '')
+        .replace(/mw-page-title[^\s]*/gi, '')
+        .replace(/Liste des [^\/]*/gi, '')
+        .replace(/par ordre alphabétique/gi, '')
+        .replace(/span class/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    
+    if (!isValidTitle(title)) return null;
+    
+    const text = result.text;
+    const lang = wikisource?.lang || 'fr';
+    const author = detectAuthor(title, text, result.author);
+    const tag = detectTag(title, text);
+    const url = `${wikisource?.url || 'https://fr.wikisource.org'}/wiki/${encodeURIComponent(origTitle)}`;
+    const cardId = 'card-' + (state.cardIdx++);
+    
+    let displayTitle = title.split('/').pop() || title.split('/')[0];
+    if (displayTitle.length < 3) displayTitle = title.split('/')[0];
+    displayTitle = displayTitle.replace(/\s*\([^)]*\)\s*$/, '').trim();
+    if (displayTitle.length < 3) displayTitle = title.split('/')[0] || 'Texte sans titre';
+    
+    const langBadge = lang !== 'fr' ? `<span class="lang-badge">${lang.toUpperCase()}</span>` : '';
+    
+    trackStats(author, tag);
+    buildAuthorConnections(author, tag);
+
+    const TEASER_LENGTH = 350;
+    const CHUNK_LENGTH = 600;
+    let teaser = text;
+    let remaining = '';
+    
+    if (text.length > TEASER_LENGTH) {
+        let cutPoint = text.lastIndexOf('. ', TEASER_LENGTH);
+        if (cutPoint < TEASER_LENGTH * 0.5) cutPoint = text.lastIndexOf('\n', TEASER_LENGTH);
+        if (cutPoint < TEASER_LENGTH * 0.5) cutPoint = text.lastIndexOf(' ', TEASER_LENGTH);
+        if (cutPoint < TEASER_LENGTH * 0.5) cutPoint = TEASER_LENGTH;
+        teaser = text.substring(0, cutPoint + 1).trim();
+        remaining = text.substring(cutPoint + 1).trim();
+    }
+    
+    const keywords = extractKeywords(text, title, author, tag);
+    const keywordsHtml = keywords.map(kw => 
+        `<span class="keyword-tag" onclick="exploreKeyword('${kw}')" title="Explorer #${kw}">${kw}</span>`
+    ).join('');
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = cardId;
+    card.innerHTML = `
+        <div class="card-head" onclick="showRelatedAuthors('${cardId}')" style="cursor:pointer;" title="Cliquer pour découvrir des auteurs proches">
+            <div>
+                <div class="author">${esc(author)} ${langBadge} <span class="explore-hint">🕸️</span></div>
+                <div class="work">${esc(displayTitle)}</div>
+            </div>
+            <span class="tag ${tag}" onclick="event.stopPropagation(); exploreCategory('${tag}')" title="Explorer ce genre">${tag}</span>
+        </div>
+        <div class="card-body" ondblclick="doubleTapLike('${cardId}', event)">
+            <span class="like-heart-overlay" id="heart-${cardId}">❤️</span>
+            <div class="text-teaser">${esc(teaser)}</div>
+            <div class="text-full" id="full-${cardId}"></div>
+            ${remaining ? `<button class="btn-suite" onclick="showMore('${cardId}')" id="suite-${cardId}">Lire la suite<span class="arrow">→</span></button>` : ''}
+        </div>
+        <div class="related-authors" id="related-${cardId}" style="display:none;"></div>
+        <div class="card-foot">
+            <div class="card-keywords">${keywordsHtml}</div>
+            <div class="actions">
+                <button class="btn" onclick="toggleLike('${cardId}',this)">♥</button>
+                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager cet extrait">🐦 Partager</button>
+                <button class="btn" onclick="quickShareAndComment('${cardId}')" title="Partager et commenter">💬</button>
+                <button class="btn" onclick="showRelatedAuthors('${cardId}')" title="Explorer auteurs proches">🔗</button>
+                <a class="btn" href="${url}" target="_blank">↗ Wikisource</a>
+            </div>
+        </div>
+    `;
+    card.dataset.title = title;
+    card.dataset.author = author;
+    card.dataset.text = text;
+    card.dataset.remaining = remaining;
+    card.dataset.shown = '0';
+    card.dataset.tag = tag;
+    card.dataset.lang = lang;
+    card.dataset.chunkSize = CHUNK_LENGTH;
+    
+    // Tracker ce texte comme lu
+    state.readCount++;
+    const teaserWords = teaser.split(/\s+/).filter(w => w.length > 0).length;
+    recordReading(teaserWords);
+    startReadingTimer();
+    updateStats();
+    saveState();
+    
+    return card;
 }
 
 function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {

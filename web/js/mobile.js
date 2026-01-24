@@ -38,6 +38,8 @@ document.addEventListener('click', (e) => {
 });
 
 // Navigation mobile
+let lastFeedTap = 0;
+
 function mobileNavTo(section) {
     // Mettre à jour l'état actif
     document.querySelectorAll('.mobile-nav-item').forEach(item => {
@@ -47,8 +49,18 @@ function mobileNavTo(section) {
     
     switch(section) {
         case 'feed':
-            // Scroll vers le haut du feed
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Double-tap sur Feed = rafraîchir (style Twitter/Instagram)
+            const now = Date.now();
+            if (now - lastFeedTap < 400 && window.scrollY < 100) {
+                // Double-tap et déjà en haut → charger nouveaux textes
+                if (typeof loadNewTextsOnTop === 'function') {
+                    loadNewTextsOnTop();
+                }
+            } else {
+                // Simple tap → scroll vers le haut
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            lastFeedTap = now;
             break;
         case 'search':
             // Focus sur la recherche

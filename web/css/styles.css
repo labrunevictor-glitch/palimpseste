@@ -448,16 +448,22 @@
         gap: 0.25rem !important;
     }
     
-    /* Garder uniquement le bouton Hasard visible */
+    /* Garder uniquement le bouton Hasard visible sur mobile (pas le refresh) */
     .header-actions .header-btn {
         display: none !important;
     }
     
-    .header-actions .header-btn:first-child {
+    /* Le bouton Hasard est le 2e (après refresh), on le garde */
+    .header-actions .header-btn:nth-child(2) {
         display: flex !important;
         padding: 0.35rem 0.5rem !important;
         font-size: 0.65rem !important;
         min-width: auto !important;
+    }
+    
+    /* Le bouton refresh est caché sur mobile (on utilise double-tap et bandeau) */
+    .header-actions .header-btn.refresh-btn {
+        display: none !important;
     }
     
     .lang-selector {
@@ -1212,6 +1218,22 @@ text-transform: uppercase;
 }
 .header-btn:hover { border-color: var(--text); color: var(--text); }
 
+/* Bouton refresh avec animation */
+.header-btn.refresh-btn {
+background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+border-color: var(--accent);
+color: white;
+}
+.header-btn.refresh-btn:hover {
+border-color: var(--accent);
+color: white;
+box-shadow: 0 0 12px rgba(230, 57, 70, 0.4), 3px 3px 0 var(--pixel-shadow);
+}
+.header-btn.refresh-btn:active {
+transform: translate(2px, 2px) rotate(180deg);
+transition: all 0.3s ease;
+}
+
 /* Language selector */
 .lang-selector {
 display: flex;
@@ -1901,7 +1923,162 @@ border-radius: 50%;
 margin: 0 auto 1rem;
 animation: spin 0.8s linear infinite;
 }
+.spinner-small {
+width: 16px;
+height: 16px;
+border: 2px solid var(--border);
+border-top-color: var(--accent);
+border-radius: 50%;
+display: inline-block;
+animation: spin 0.8s linear infinite;
+vertical-align: middle;
+margin-right: 0.5rem;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ✨ BANDEAU "NOUVEAUX TEXTES" (style Twitter)
+   ═══════════════════════════════════════════════════════════════════════════ */
+.new-texts-banner {
+position: fixed;
+top: 80px;
+left: 50%;
+transform: translateX(-50%) translateY(-100px);
+background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+color: white;
+padding: 0.75rem 1.5rem;
+border-radius: 20px;
+font-size: 0.85rem;
+font-weight: 600;
+cursor: pointer;
+z-index: 150;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4), 4px 4px 0 var(--pixel-shadow);
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+.new-texts-banner.visible {
+transform: translateX(-50%) translateY(0);
+}
+.new-texts-banner:hover {
+transform: translateX(-50%) translateY(-2px);
+box-shadow: 0 6px 24px rgba(230, 57, 70, 0.5), 5px 5px 0 var(--pixel-shadow);
+}
+.new-texts-banner:active {
+transform: translateX(-50%) translateY(2px);
+box-shadow: 0 2px 10px rgba(230, 57, 70, 0.3), 2px 2px 0 var(--pixel-shadow);
+}
+
+/* Indicateur de chargement en haut du feed */
+.top-loading-indicator {
+text-align: center;
+padding: 1.5rem;
+color: var(--muted);
+font-size: 0.8rem;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+background: var(--bg-card);
+border: 2px solid var(--border);
+margin-bottom: 1.5rem;
+animation: fadeIn 0.3s ease;
+}
+
+/* Animation pour les nouvelles cartes insérées en haut */
+.card.card-new {
+opacity: 0;
+transform: translateY(-30px);
+}
+.card.card-new.show {
+opacity: 1;
+transform: translateY(0);
+animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes slideInFromTop {
+from {
+    opacity: 0;
+    transform: translateY(-30px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+/* Highlight temporaire pour les nouvelles cartes */
+.card.card-highlight {
+box-shadow: 0 0 0 3px var(--accent), 4px 4px 0 var(--pixel-shadow);
+animation: pulseHighlight 1.5s ease-in-out;
+}
+@keyframes pulseHighlight {
+0%, 100% { box-shadow: 0 0 0 3px var(--accent), 4px 4px 0 var(--pixel-shadow); }
+50% { box-shadow: 0 0 0 5px var(--accent), 0 0 20px rgba(230, 57, 70, 0.3), 4px 4px 0 var(--pixel-shadow); }
+}
+
+/* Bouton scroll to top avec indicateur de nouveaux contenus */
+.scroll-top-btn {
+position: fixed;
+bottom: 2rem;
+right: 2rem;
+width: 48px;
+height: 48px;
+background: var(--bg-elevated);
+border: 2px solid var(--border);
+border-radius: 50%;
+color: var(--text);
+font-size: 1.2rem;
+cursor: pointer;
+z-index: 100;
+opacity: 0;
+transform: translateY(20px);
+transition: all 0.3s ease;
+box-shadow: 4px 4px 0 var(--pixel-shadow);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.scroll-top-btn.visible {
+opacity: 1;
+transform: translateY(0);
+}
+.scroll-top-btn:hover {
+background: var(--accent);
+border-color: var(--accent);
+transform: translateY(-2px);
+box-shadow: 5px 5px 0 var(--pixel-shadow);
+}
+.scroll-top-btn.has-new {
+background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+border-color: var(--accent);
+animation: bounceNew 2s ease-in-out infinite;
+}
+.scroll-top-btn.has-new::after {
+content: '✨';
+position: absolute;
+top: -8px;
+right: -8px;
+font-size: 0.8rem;
+}
+@keyframes bounceNew {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-5px); }
+}
+
+/* Mobile : ajuster le bandeau nouveaux textes */
+@media screen and (max-width: 900px) {
+.new-texts-banner {
+    top: auto;
+    bottom: 80px;
+    font-size: 0.8rem;
+    padding: 0.6rem 1.25rem;
+}
+.scroll-top-btn {
+    bottom: 5rem;
+    right: 1rem;
+    width: 44px;
+    height: 44px;
+}
+}
 
 .toast {
 position: fixed;
@@ -1920,6 +2097,13 @@ transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Toast mobile: au-dessus de la barre de navigation */
+@media screen and (max-width: 900px) {
+    .toast {
+        bottom: 5rem;
+    }
+}
 
 .progress {
 position: fixed;
