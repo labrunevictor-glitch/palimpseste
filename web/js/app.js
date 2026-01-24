@@ -6637,36 +6637,23 @@ function renderReadingPath() {
 // ═══════════════════════════════════════════════════════════
 
 function openMobileDrawer() {
-    console.log('📱 openMobileDrawer appelé');
-    const drawer = document.getElementById('statsPanel') || document.querySelector('.stats-panel');
+    const drawer = document.querySelector('.stats-panel');
     const overlay = document.getElementById('mobileDrawerOverlay');
-    
-    console.log('Drawer trouvé:', drawer);
-    console.log('Overlay trouvé:', overlay);
-    
     if (drawer) {
         drawer.classList.add('open');
-        console.log('Classe open ajoutée au drawer');
+        overlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
     }
-    if (overlay) {
-        overlay.classList.add('open');
-        console.log('Classe open ajoutée à l\'overlay');
-    }
-    document.body.style.overflow = 'hidden';
 }
 
 function closeMobileDrawer() {
-    console.log('📱 closeMobileDrawer appelé');
-    const drawer = document.getElementById('statsPanel') || document.querySelector('.stats-panel');
+    const drawer = document.querySelector('.stats-panel');
     const overlay = document.getElementById('mobileDrawerOverlay');
-    
     if (drawer) {
         drawer.classList.remove('open');
+        overlay?.classList.remove('open');
+        document.body.style.overflow = '';
     }
-    if (overlay) {
-        overlay.classList.remove('open');
-    }
-    document.body.style.overflow = '';
 }
 
 // Fermer le drawer en cliquant sur le bouton "Fermer" (pseudo-element)
