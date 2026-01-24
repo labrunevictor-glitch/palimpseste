@@ -57,11 +57,38 @@
     <!-- ═══════════════════════════════════════════════════════════════════════
          PANNEAU STATISTIQUES (Sidebar gauche / Drawer mobile)
          ═══════════════════════════════════════════════════════════════════════ -->
-    <div class="stats-panel">
+    <div class="stats-panel" id="statsPanel">
         <!-- Bouton fermer pour mobile -->
         <button class="drawer-close-btn" onclick="closeMobileDrawer()">✕</button>
         
         <div class="stats-logo">PALIMPSESTE</div>
+        
+        <!-- Actions rapides (visible surtout sur mobile) -->
+        <div class="drawer-quick-actions">
+            <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawer();">
+                <span>🔥</span> Tendances
+            </button>
+            <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();">
+                <span>♥</span> Favoris
+            </button>
+            <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
+                <span>🐦</span> Social
+            </button>
+            <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawer();">
+                <span>💬</span> Messages
+            </button>
+            <div class="drawer-lang-selector">
+                <span>🌍</span>
+                <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawer();">
+                    <option value="all">Toutes langues</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="es">🇪🇸 Español</option>
+                </select>
+            </div>
+        </div>
         
         <!-- Section Profil Social -->
         <div id="profileSection" class="profile-section">
@@ -179,7 +206,7 @@
     <header>
         <div class="header-inner">
             <!-- MOBILE: Avatar profil cliquable -->
-            <button class="mobile-profile-btn" id="mobileProfileBtn" onclick="openMobileDrawer()">
+            <button class="mobile-profile-btn" id="mobileProfileBtn" type="button">
                 <span class="mobile-profile-avatar" id="mobileAvatar">👤</span>
             </button>
             

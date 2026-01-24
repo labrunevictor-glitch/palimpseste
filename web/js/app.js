@@ -6744,22 +6744,51 @@ function handleSwipe() {
 
 // Initialiser les éléments mobile
 function initMobile() {
-    // Ajouter les écouteurs pour le drawer
+    // Ajouter l'écouteur pour le bouton profil mobile
+    const profileBtn = document.getElementById('mobileProfileBtn');
+    if (profileBtn) {
+        profileBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openMobileDrawer();
+        });
+        // Aussi sur touch pour mobile
+        profileBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openMobileDrawer();
+        });
+    }
+    
+    // Ajouter les écouteurs pour le drawer overlay
     const overlay = document.getElementById('mobileDrawerOverlay');
     if (overlay) {
         overlay.addEventListener('click', closeMobileDrawer);
+    }
+    
+    // Synchroniser le sélecteur de langue du drawer avec celui du header
+    const drawerLangSelect = document.getElementById('drawerLangSelect');
+    const headerLangSelect = document.getElementById('langSelect');
+    if (drawerLangSelect && headerLangSelect) {
+        drawerLangSelect.value = headerLangSelect.value;
     }
     
     // Mettre à jour l'avatar si connecté
     if (currentUser) {
         updateMobileAvatar();
     }
+    
+    console.log('📱 Mobile initialisé');
 }
 
 // Appeler l'init mobile après le chargement
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initMobile, 100);
 });
+
+// Rendre les fonctions accessibles globalement
+window.openMobileDrawer = openMobileDrawer;
+window.closeMobileDrawer = closeMobileDrawer;
 
 document.onkeydown = e => { if (e.key === 'Escape') closeReader(); };
 
