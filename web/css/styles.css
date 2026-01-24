@@ -441,7 +441,7 @@
         margin-right: 0 !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
-        padding-top: 1rem !important;
+        padding-top: 7rem !important;
         padding-bottom: 5rem !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -450,8 +450,9 @@
     /* Exploration container */
     .exploration-container {
         margin-left: 0 !important;
-        margin-top: 56px !important;
+        position: sticky !important;
         top: 56px !important;
+        z-index: 90 !important;
         /* Pixel border */
         border-bottom: 2px solid var(--border) !important;
         box-shadow: 0 4px 0 var(--pixel-shadow) !important;
@@ -1319,7 +1320,7 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 1rem 2rem 4rem;
+padding: 8rem 2rem 4rem; /* 8rem ~= header 56px + exploration ~80px */
 }
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
@@ -1552,7 +1553,6 @@ position: sticky;
 top: 56px;
 z-index: 90;
 margin-left: 260px;
-margin-top: 56px; /* Compensate for fixed header */
 background: var(--bg);
 border-bottom: 2px solid var(--border);
 box-shadow: 0 4px 0 var(--pixel-shadow);
@@ -4575,16 +4575,7 @@ transition: all 0.2s;
 
 /* Tablettes et petits écrans */
 @media screen and (max-width: 768px) {
-    /* FORCER le masquage du panneau latéral */
-    .stats-panel {
-        display: none !important;
-        visibility: hidden !important;
-        position: absolute !important;
-        left: -9999px !important;
-        width: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
-    }
+    /* Le drawer est géré par mobile.css - NE PAS LE CACHER ICI */
     
     /* Header mobile */
     header {
@@ -4696,13 +4687,7 @@ transition: all 0.2s;
 
 /* iPhone et très petits écrans */
 @media screen and (max-width: 480px) {
-    /* FORCER le masquage du panneau latéral (redondance pour Safari) */
-    .stats-panel {
-        display: none !important;
-        visibility: hidden !important;
-        position: absolute !important;
-        left: -9999px !important;
-    }
+    /* Le drawer est géré par mobile.css */
     
     /* Header ultra compact */
     header {
@@ -5177,15 +5162,7 @@ transition: all 0.2s;
 
 /* ====== SMARTPHONES (< 480px) ====== */
 @media screen and (max-width: 480px) {
-    /* Sidebar - redondance sécurité Safari */
-    .stats-panel {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        position: absolute !important;
-        left: -99999px !important;
-    }
+    /* Le drawer est géré par mobile.css */
     
     /* Header ultra compact */
     .header-inner {
