@@ -272,7 +272,13 @@ function loadState() {
     try {
         const d = JSON.parse(localStorage.getItem('palimpseste') || '{}');
         console.log('📦 loadState - favoris chargés:', d.favorites?.length || 0, d.favorites);
-        state.likes = new Set(d.likes || []);
+        
+        // Charger favoris d'abord
+        state.favorites = d.favorites || [];
+        
+        // Reconstruire likes depuis favorites (source de vérité)
+        state.likes = new Set(state.favorites.map(f => f.id));
+        
         state.readCount = d.readCount || 0;
         state.authorStats = d.authorStats || {};
         state.genreStats = d.genreStats || {};
@@ -280,7 +286,7 @@ function loadState() {
         state.discoveredConnections = new Set(d.discoveredConnections || []);
         state.achievements = d.achievements || [];
         state.readingPath = d.readingPath || [];
-        state.favorites = d.favorites || [];
+        
         // Charger les stats de lecture
         state.readingStats = d.readingStats || {
             totalWordsRead: 0,
