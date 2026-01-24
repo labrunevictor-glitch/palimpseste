@@ -85,217 +85,154 @@
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="stats-panel" id="statsPanel">
         <!-- Bouton fermer pour mobile -->
-        <button class="drawer-close-btn" onclick="closeMobileDrawer()">✕</button>
+        <button class="drawer-close-btn" onclick="closeDrawer()">✕</button>
         
-        <!-- ╔═══════════════════════════════════════════════════════════════════╗
-             ║  SECTION MOBILE UNIQUEMENT                                        ║
-             ╚═══════════════════════════════════════════════════════════════════╝ -->
-        <div class="mobile-drawer-content">
-            
-            <!-- === PROFIL === -->
-            <div id="mobileProfileSection" class="mobile-profile-section">
-                <!-- Non connecté -->
-                <div id="mobileProfileLoggedOut" class="mobile-login-card">
-                    <div class="mobile-login-avatar">👤</div>
-                    <div class="mobile-login-title">Bienvenue</div>
-                    <div class="mobile-login-subtitle">Connectez-vous pour participer</div>
-                    <button class="mobile-btn-primary" onclick="openAuthModal('login'); closeMobileDrawer();">
-                        Se connecter
-                    </button>
-                    <button class="mobile-btn-secondary" onclick="openAuthModal('register'); closeMobileDrawer();">
-                        Créer un compte
-                    </button>
-                </div>
-                
-                <!-- Connecté -->
-                <div id="mobileProfileLoggedIn" class="mobile-user-card" style="display:none;">
-                    <div class="mobile-user-avatar" id="mobileDrawerAvatar">👤</div>
-                    <div class="mobile-user-info">
-                        <div class="mobile-user-name" id="mobileDrawerUsername">Utilisateur</div>
-                        <div class="mobile-user-stats">
-                            <span class="mobile-stat-mini" onclick="showMyExtraits(); closeMobileDrawer();">
-                                <strong id="mobileExtraitsCount">0</strong> extraits
-                            </span>
-                            <span class="mobile-stat-mini" onclick="showMyLikes(); closeMobileDrawer();">
-                                <strong id="mobileLikesCount">0</strong> ❤️
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- === MENU PRINCIPAL === -->
-            <nav class="mobile-menu">
-                <button class="mobile-menu-item" onclick="loadNewTextsOnTop(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">🏠</span>
-                    <span>Accueil</span>
-                </button>
-                <button class="mobile-menu-item" onclick="openTrendingFeed(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">🔥</span>
-                    <span>Tendances</span>
-                </button>
-                <button class="mobile-menu-item" onclick="openSocialFeed(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">👥</span>
-                    <span>Communauté</span>
-                </button>
-                <button class="mobile-menu-item" onclick="openFavoritesView(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">❤️</span>
-                    <span>Mes favoris</span>
-                </button>
-                <button class="mobile-menu-item" onclick="openMessaging(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">💬</span>
-                    <span>Messages</span>
-                </button>
-                <button class="mobile-menu-item" onclick="pureRandomJump(); closeMobileDrawer();">
-                    <span class="mobile-menu-icon">🎲</span>
-                    <span>Découverte</span>
-                </button>
-            </nav>
-            
-            <!-- === LANGUE === -->
-            <div class="mobile-lang-section">
-                <label class="mobile-lang-label">🌍 Langue</label>
-                <select id="mobileLangSelect" class="mobile-lang-select" onchange="changeLanguage(this.value);">
-                    <option value="all">Toutes</option>
-                    <option value="fr">Français</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
-                    <option value="it">Italiano</option>
-                    <option value="es">Español</option>
+        <div class="stats-logo">PALIMPSESTE</div>
+        
+        <!-- Actions rapides (visible surtout sur mobile) -->
+        <div class="drawer-quick-actions">
+            <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawer();">
+                <span>🔥</span> Tendances
+            </button>
+            <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();">
+                <span>♥</span> Favoris
+            </button>
+            <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
+                <span>🐦</span> Social
+            </button>
+            <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawer();">
+                <span>💬</span> Messages
+            </button>
+            <div class="drawer-lang-selector">
+                <span>🌍</span>
+                <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawer();">
+                    <option value="all">Toutes langues</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="es">🇪🇸 Español</option>
                 </select>
             </div>
-            
-            <!-- === DÉCONNEXION === -->
-            <div id="mobileLogoutSection" class="mobile-logout-section" style="display:none;">
-                <button class="mobile-logout-btn" onclick="logout(); closeMobileDrawer();">
-                    🚪 Déconnexion
-                </button>
-            </div>
-            
-        </div><!-- fin mobile-drawer-content -->
+        </div>
         
-        <!-- ╔═══════════════════════════════════════════════════════════════════╗
-             ║  SECTION DESKTOP (masquée sur mobile)                             ║
-             ╚═══════════════════════════════════════════════════════════════════╝ -->
-        <div class="desktop-drawer-content">
-            
-            <!-- Profil desktop -->
-            <div id="desktopProfileSection" class="profile-section">
-                <div id="desktopProfileLoggedOut">
-                    <button class="login-btn-sidebar" onclick="openAuthModal('login')">Se connecter</button>
+        <!-- Section Profil Social -->
+        <div id="profileSection" class="profile-section">
+            <div id="profileLoggedOut" class="login-prompt">
+                <div class="login-prompt-icon">👤</div>
+                <div class="login-prompt-text">Connectez-vous pour partager</div>
+                <button class="login-prompt-btn" onclick="openAuthModal('login'); closeMobileDrawer();">Se connecter</button>
+                <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawer();">Créer un compte</button>
+            </div>
+            <div id="profileLoggedIn" style="display:none;">
+                <div class="profile-header-card">
+                    <div class="profile-avatar-large" id="sidebarAvatar">👤</div>
+                    <div class="profile-name-large" id="sidebarUsername">Utilisateur</div>
                 </div>
-                <div id="desktopProfileLoggedIn" style="display:none;">
-                    <div class="profile-header-card">
-                        <div class="profile-avatar-large" id="desktopSidebarAvatar">👤</div>
-                        <div class="profile-name-large" id="desktopSidebarUsername">Utilisateur</div>
-                    </div>
-                    <div class="profile-stats-row">
-                        <button class="profile-stat-btn" onclick="showMyExtraits();">
-                            <span class="stat-number" id="desktopExtraitsCount">0</span>
-                            <span class="stat-label">extraits</span>
-                        </button>
-                        <button class="profile-stat-btn" onclick="showMyLikes();">
-                            <span class="stat-number" id="desktopLikesCount">0</span>
-                            <span class="stat-label">likes</span>
-                        </button>
-                    </div>
-                    <button class="drawer-logout-btn" onclick="logout();">🚪 Déconnexion</button>
+                <div class="profile-stats-row">
+                    <button class="profile-stat-btn" onclick="showMyExtraits(); closeMobileDrawer();">
+                        <span class="stat-number" id="myExtraitsCount">0</span>
+                        <span class="stat-label">extraits</span>
+                    </button>
+                    <button class="profile-stat-btn" onclick="showMyLikes(); closeMobileDrawer();">
+                        <span class="stat-number" id="myLikesCount">0</span>
+                        <span class="stat-label">likes</span>
+                    </button>
                 </div>
+                <button class="drawer-logout-btn" onclick="logout(); closeMobileDrawer();">🚨 Déconnexion</button>
             </div>
-            
-            <!-- Statistiques de dérive -->
-            <div class="stats-section">
-                <h3>🎲 Votre dérive</h3>
-                <div class="big-number" id="totalRead">0</div>
-                <div class="big-number-label">textes traversés</div>
-                <div class="mini-stats">
-                    <div class="mini-stat">
-                        <div class="mini-stat-value" id="likeCountPanel">0</div>
-                        <div class="mini-stat-label">coups de ❤️</div>
-                    </div>
-                    <div class="mini-stat">
-                        <div class="mini-stat-value" id="authorCount">0</div>
-                        <div class="mini-stat-label">auteurs</div>
-                    </div>
-                </div>
-                <div class="fun-stat" id="funStat"></div>
-            </div>
-            
-            <!-- Statistiques de lecture -->
-            <div class="stats-section reading-stats-section">
-                <h3>📊 Lecture</h3>
-                <div class="reading-stats-grid">
-                    <div class="reading-stat-item">
-                        <div class="reading-stat-icon">⏱️</div>
-                        <div class="reading-stat-content">
-                            <div class="reading-stat-value" id="totalReadingTime">0 min</div>
-                            <div class="reading-stat-label">temps de lecture</div>
-                        </div>
-                    </div>
-                    <div class="reading-stat-item">
-                        <div class="reading-stat-icon">📖</div>
-                        <div class="reading-stat-content">
-                            <div class="reading-stat-value" id="totalWordsRead">0</div>
-                            <div class="reading-stat-label">mots lus</div>
-                        </div>
-                    </div>
-                    <div class="reading-stat-item streak-item">
-                        <div class="reading-stat-icon">🔥</div>
-                        <div class="reading-stat-content">
-                            <div class="reading-stat-value" id="currentStreak">0</div>
-                            <div class="reading-stat-label">jours d'affilée</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="streak-section">
-                    <div class="streak-bar">
-                        <div class="streak-progress" id="streakProgress"></div>
-                    </div>
-                    <div class="streak-hint" id="streakHint">Continuez demain !</div>
-                </div>
-                <div class="weekly-chart" id="weeklyChart"></div>
-            </div>
-            
-            <!-- Territoire exploré -->
-            <div class="stats-section">
-                <h3>🗺️ Territoire exploré</h3>
-                <div class="author-bars" id="authorBars"></div>
-            </div>
-            
-            <!-- Genres explorés -->
-            <div class="stats-section">
-                <h3>Genres explorés</h3>
-                <div class="genre-chart" id="genreChart"></div>
-            </div>
-            
-            <!-- Connexions -->
-            <div class="stats-section connections-section" id="connectionsSection" style="display:none;">
-                <h3>🕸️ Fils à tirer</h3>
-                <p class="connections-hint">Cliquez pour vous perdre...</p>
-                <div class="connection-graph" id="connectionGraph"></div>
-            </div>
-            
-            <!-- Favoris -->
-            <div class="stats-section favorites-section" id="favoritesSection">
-                <h3>💎 Mes favoris</h3>
-                <div id="favoritesList"><div class="favorites-empty">Cliquez ♥ pour sauvegarder</div></div>
-            </div>
-            
-            <!-- Badges -->
-            <div class="stats-section badges-section" id="achievementSection">
-                <h3>🏆 Badges <span class="badges-count-inline" id="badgesCountInline">0/13</span></h3>
-                <div class="achievements-compact" id="achievementList"></div>
-            </div>
-            
-            <!-- Parcours de lecture -->
-            <div class="stats-section" id="readingPathSection" style="display:none;">
-                <h3>📜Parcours</h3>
-                <div class="reading-path" id="readingPath"></div>
-            </div>
-            
-        </div><!-- fin desktop-drawer-content -->
+        </div>
         
-    </div><!-- fin stats-panel -->
+        <!-- Statistiques de dérive -->
+        <div class="stats-section">
+            <h3>🎲 Votre dérive</h3>
+            <div class="big-number" id="totalRead">0</div>
+            <div class="big-number-label">textes traversés</div>
+            <div class="mini-stats">
+                <div class="mini-stat">
+                    <div class="mini-stat-value" id="likeCountPanel">0</div>
+                    <div class="mini-stat-label">coups de ❤️</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="mini-stat-value" id="authorCount">0</div>
+                    <div class="mini-stat-label">auteurs</div>
+                </div>
+            </div>
+            <div class="fun-stat" id="funStat"></div>
+        </div>
+        
+        <!-- Statistiques de lecture -->
+        <div class="stats-section reading-stats-section">
+            <h3>📊 Lecture</h3>
+            <div class="reading-stats-grid">
+                <div class="reading-stat-item">
+                    <div class="reading-stat-icon">⏱️</div>
+                    <div class="reading-stat-content">
+                        <div class="reading-stat-value" id="totalReadingTime">0 min</div>
+                        <div class="reading-stat-label">temps de lecture</div>
+                    </div>
+                </div>
+                <div class="reading-stat-item">
+                    <div class="reading-stat-icon">📖</div>
+                    <div class="reading-stat-content">
+                        <div class="reading-stat-value" id="totalWordsRead">0</div>
+                        <div class="reading-stat-label">mots lus</div>
+                    </div>
+                </div>
+                <div class="reading-stat-item streak-item">
+                    <div class="reading-stat-icon">🔥</div>
+                    <div class="reading-stat-content">
+                        <div class="reading-stat-value" id="currentStreak">0</div>
+                        <div class="reading-stat-label">jours d'affilée</div>
+                    </div>
+                </div>
+            </div>
+            <div class="streak-section">
+                <div class="streak-bar">
+                    <div class="streak-progress" id="streakProgress"></div>
+                </div>
+                <div class="streak-hint" id="streakHint">Continuez demain !</div>
+            </div>
+            <div class="weekly-chart" id="weeklyChart"></div>
+        </div>
+        
+        <!-- Territoire exploré -->
+        <div class="stats-section">
+            <h3>🗺️ Territoire exploré</h3>
+            <div class="author-bars" id="authorBars"></div>
+        </div>
+        
+        <!-- Genres explorés -->
+        <div class="stats-section">
+            <h3>Genres explorés</h3>
+            <div class="genre-chart" id="genreChart"></div>
+        </div>
+        
+        <!-- Connexions -->
+        <div class="stats-section connections-section" id="connectionsSection" style="display:none;">
+            <h3>🕸️ Fils à tirer</h3>
+            <p class="connections-hint">Cliquez pour vous perdre...</p>
+            <div class="connection-graph" id="connectionGraph"></div>
+        </div>
+        
+        <!-- Favoris -->
+        <div class="stats-section favorites-section" id="favoritesSection">
+            <h3>💎 Mes favoris</h3>
+            <div id="favoritesList"><div class="favorites-empty">Cliquez ♥ pour sauvegarder</div></div>
+        </div>
+        
+        <!-- Badges -->
+        <div class="stats-section badges-section" id="achievementSection">
+            <h3>🏆 Badges <span class="badges-count-inline" id="badgesCountInline">0/13</span></h3>
+            <div class="achievements-compact" id="achievementList"></div>
+        </div>
+        
+        <!-- Parcours de lecture -->
+        <div class="stats-section" id="readingPathSection" style="display:none;">
+            <h3>📜Parcours</h3>
+            <div class="reading-path" id="readingPath"></div>
+        </div>
+    </div>
     
     <!-- ═══════════════════════════════════════════════════════════════════════
          HEADER

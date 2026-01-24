@@ -896,17 +896,6 @@ gap: 1.5rem;
 /* Pixel shadow effect */
 box-shadow: 4px 0 0 var(--pixel-shadow);
 }
-
-/* Desktop: afficher contenu desktop, masquer mobile */
-.mobile-drawer-content {
-    display: none;
-}
-.desktop-drawer-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
 .stats-logo {
 font-size: 0.75rem;
 font-weight: 700;
