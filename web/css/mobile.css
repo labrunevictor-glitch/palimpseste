@@ -480,157 +480,287 @@
     }
     
     /* ══════════════════════════════════════════
-       MASQUER LA SECTION PROFIL DANS LE DRAWER
-       (On a le popup profil séparé maintenant)
+       MASQUER - Sections non utiles mobile
        ══════════════════════════════════════════ */
     
     .stats-panel .profile-section,
     .stats-panel #profileSection,
-    .stats-panel .drawer-quick-actions,
-    .stats-panel .stats-logo {
-        display: none !important;
-    }
-    
-    /* Sections du drawer (stats, favoris, badges) */
-    .stats-section,
-    .favorites-section,
-    .badges-section {
-        display: block !important;
-        padding: 12px !important;
-        background: #1a1a1c !important;
-        border: 1px solid #2a2a2d !important;
-        border-radius: 12px !important;
-        color: #e8e6e3 !important;
-        margin-bottom: 8px !important;
-    }
-    
-    .stats-section h3 {
-        font-size: 0.85rem !important;
-        margin: 0 0 8px 0 !important;
-        color: #e8e6e3 !important;
-    }
-    
-    /* Texte dans le drawer */
-    .stats-panel * {
-        color: #e8e6e3 !important;
-    }
-    
-    /* ══════════════════════════════════════════
-       PROFIL DANS LE DRAWER - MASQUÉ SUR MOBILE
-       ══════════════════════════════════════════ */
-    
-    .profile-section {
-        display: none !important;
-    }
-    
-    .login-prompt {
-        display: none !important;
-    }
-    
-    .login-prompt-icon {
-        display: none !important;
-    }
-    
-    .login-prompt-text {
-        display: none !important;
-    }
-    
-    .login-prompt-btn,
-    .login-prompt-btn.secondary,
-    .profile-header-card,
-    .profile-avatar-large,
-    .profile-name-large,
-    .profile-stats-row,
-    .profile-stat-btn,
-    .drawer-logout-btn {
+    .stats-panel .stats-logo,
+    .stats-panel .reading-stats-section,
+    .stats-panel .connections-section,
+    .stats-panel #readingPathSection,
+    .stats-panel .mini-stats,
+    .stats-panel .streak-section,
+    .stats-panel .weekly-chart,
+    .stats-panel .author-bars,
+    .stats-panel .genre-chart,
+    .stats-panel .fun-stat {
         display: none !important;
     }
     
     /* ══════════════════════════════════════════
-       TITRE DU MENU DRAWER
+       DRAWER HEADER - Titre propre
        ══════════════════════════════════════════ */
     
     .stats-panel::before {
-        content: '📊 Statistiques' !important;
+        content: '📊 Mon Palimpseste' !important;
         display: block !important;
-        font-size: 1.2rem !important;
-        font-weight: 600 !important;
-        color: #e8e6e3 !important;
-        margin-bottom: 16px !important;
-        padding-bottom: 12px !important;
-        border-bottom: 1px solid #2a2a2d !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        color: #fff !important;
+        margin-bottom: 20px !important;
+        padding-bottom: 16px !important;
+        border-bottom: 2px solid #2a2a2d !important;
+        text-align: center !important;
+        letter-spacing: 0.5px !important;
     }
     
     /* ══════════════════════════════════════════
-       BADGES COMPACT
+       ACTIONS RAPIDES - Navigation
        ══════════════════════════════════════════ */
     
-    .badges-section h3 {
+    .drawer-quick-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        margin-bottom: 20px !important;
+        padding-bottom: 20px !important;
+        border-bottom: 1px solid #2a2a2d !important;
+    }
+    
+    .drawer-action-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 14px 10px !important;
+        background: linear-gradient(145deg, #1e1e21, #161618) !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 12px !important;
+        color: #e8e6e3 !important;
+        font-size: 0.8rem !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+    }
+    
+    .drawer-action-btn span:first-child {
+        font-size: 1.4rem !important;
+    }
+    
+    .drawer-action-btn:active {
+        transform: scale(0.96) !important;
+        background: linear-gradient(145deg, #2a2a2d, #1e1e21) !important;
+        border-color: #e63946 !important;
+    }
+    
+    .drawer-lang-selector {
+        grid-column: span 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        padding: 12px !important;
+        background: #0d0d0d !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 10px !important;
+        color: #e8e6e3 !important;
+    }
+    
+    .drawer-lang-selector select {
+        flex: 1 !important;
+        background: transparent !important;
+        border: none !important;
+        color: #e8e6e3 !important;
+        font-size: 0.9rem !important;
+        text-align: center !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       SECTIONS DU DRAWER - Style unifié
+       ══════════════════════════════════════════ */
+    
+    .stats-panel .stats-section {
+        display: block !important;
+        padding: 16px !important;
+        background: linear-gradient(145deg, #1a1a1c, #141416) !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .stats-panel .stats-section h3 {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin: 0 0 12px 0 !important;
+        color: #fff !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    /* Stats principale - Textes traversés */
+    .stats-panel .big-number {
+        font-size: 3rem !important;
+        font-weight: 800 !important;
+        color: #e63946 !important;
+        text-align: center !important;
+        line-height: 1 !important;
+        margin-bottom: 4px !important;
+        text-shadow: 0 2px 10px rgba(230, 57, 70, 0.3) !important;
+    }
+    
+    .stats-panel .big-number-label {
+        font-size: 0.8rem !important;
+        color: #9d9a95 !important;
+        text-align: center !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       FAVORIS - Liste épurée
+       ══════════════════════════════════════════ */
+    
+    .stats-panel .favorites-section {
+        display: block !important;
+        padding: 16px !important;
+        background: linear-gradient(145deg, #1a1a1c, #141416) !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .stats-panel .favorites-section h3 {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin: 0 0 12px 0 !important;
+        color: #fff !important;
+    }
+    
+    .stats-panel #favoritesList {
+        max-height: 200px !important;
+        overflow-y: auto !important;
+    }
+    
+    .stats-panel .favorites-empty {
+        text-align: center !important;
+        color: #6d6a65 !important;
+        font-size: 0.85rem !important;
+        padding: 20px 10px !important;
+        font-style: italic !important;
+    }
+    
+    .stats-panel .favorite-item {
+        padding: 10px 12px !important;
+        background: #0d0d0d !important;
+        border-radius: 8px !important;
+        margin-bottom: 8px !important;
+        border: 1px solid transparent !important;
+        cursor: pointer !important;
+    }
+    
+    .stats-panel .favorite-item:active {
+        border-color: #e63946 !important;
+        background: #1a1a1c !important;
+    }
+    
+    .stats-panel .favorite-item .favorite-text {
+        font-size: 0.85rem !important;
+        color: #c8c6c3 !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+    
+    .stats-panel .favorite-item .favorite-author {
+        font-size: 0.75rem !important;
+        color: #e63946 !important;
+        margin-top: 4px !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       BADGES - Grille compacte et jolie
+       ══════════════════════════════════════════ */
+    
+    .stats-panel .badges-section {
+        display: block !important;
+        padding: 16px !important;
+        background: linear-gradient(145deg, #1a1a1c, #141416) !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .stats-panel .badges-section h3 {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        margin: 0 0 12px 0 !important;
+        color: #fff !important;
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
     }
     
-    .badges-count-inline {
-        font-size: 0.7rem !important;
-        color: #9d9a95 !important;
-        font-weight: normal !important;
+    .stats-panel .badges-count-inline {
+        font-size: 0.75rem !important;
+        color: #6d6a65 !important;
+        font-weight: 400 !important;
     }
     
-    .achievements-compact {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
+    .stats-panel .achievements-compact,
+    .stats-panel #achievementList {
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 8px !important;
     }
     
-    .achievements-compact .badge,
-    .achievements-compact .achievement {
-        font-size: 1.2rem !important;
-        width: 32px !important;
-        height: 32px !important;
+    .stats-panel .achievements-compact .badge,
+    .stats-panel .achievements-compact .achievement,
+    .stats-panel #achievementList .badge,
+    .stats-panel #achievementList .achievement {
+        font-size: 1.4rem !important;
+        width: 100% !important;
+        aspect-ratio: 1 !important;
+        height: auto !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         background: #0d0d0d !important;
-        border-radius: 6px !important;
-        opacity: 0.3 !important;
+        border-radius: 10px !important;
+        border: 1px solid #2a2a2d !important;
+        opacity: 0.25 !important;
+        filter: grayscale(1) !important;
     }
     
-    .achievements-compact .badge.unlocked,
-    .achievements-compact .achievement.unlocked {
+    .stats-panel .achievements-compact .badge.unlocked,
+    .stats-panel .achievements-compact .achievement.unlocked,
+    .stats-panel #achievementList .badge.unlocked,
+    .stats-panel #achievementList .achievement.unlocked {
         opacity: 1 !important;
-        background: linear-gradient(135deg, #e63946, #f4a261) !important;
+        filter: none !important;
+        background: linear-gradient(145deg, #1e1e21, #161618) !important;
+        border-color: #e63946 !important;
+        box-shadow: 0 0 12px rgba(230, 57, 70, 0.2) !important;
     }
     
     /* ══════════════════════════════════════════
-       MASQUER LES SECTIONS TROP VERBEUSES
+       SECTIONS CACHÉES COMPLÈTEMENT 
        ══════════════════════════════════════════ */
     
-    .stats-panel .reading-stats-section,
-    .stats-panel .connections-section,
-    .stats-panel #readingPathSection {
+    .stats-panel .stats-section:has(.author-bars),
+    .stats-panel .stats-section:has(.genre-chart),
+    .stats-panel .stats-section:has(.weekly-chart) {
         display: none !important;
     }
     
-    .mini-stats,
-    .streak-section,
-    .weekly-chart,
-    .author-bars,
-    .genre-chart {
+    /* Fallback pour navigateurs sans :has */
+    .stats-panel h3:has(+ .author-bars),
+    .stats-panel h3:has(+ .genre-chart) {
         display: none !important;
-    }
-    
-    .big-number {
-        font-size: 2rem !important;
-        font-weight: bold !important;
-        color: #e63946 !important;
-        text-align: center !important;
-    }
-    
-    .big-number-label {
-        font-size: 0.75rem !important;
-        color: #9d9a95 !important;
-        text-align: center !important;
     }
     
     /* ══════════════════════════════════════════
