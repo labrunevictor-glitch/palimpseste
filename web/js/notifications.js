@@ -6,6 +6,13 @@ var notificationsSubscription = null;
 
 // Afficher/masquer les notifications
 function toggleNotifications() {
+    // Sur mobile, ouvrir le drawer et afficher les notifications
+    if (window.innerWidth <= 900) {
+        openMobileNotifications();
+        return;
+    }
+    
+    // Sur desktop, utiliser le dropdown
     const dropdown = document.getElementById('notifDropdown');
     const isOpen = dropdown.classList.contains('open');
     
@@ -20,6 +27,87 @@ function toggleNotifications() {
     }
 }
 
+// Notifications mobile - utilise une modal simple
+function openMobileNotifications() {
+    // Créer une modal temporaire pour les notifications
+    let modal = document.getElementById('mobileNotifModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'mobileNotifModal';
+        modal.className = 'mobile-modal';
+        modal.innerHTML = `
+            <div class="mobile-modal-content">
+                <div class="mobile-modal-header">
+                    <h3>🔔 Notifications</h3>
+                    <button class="mobile-modal-close" onclick="closeMobileNotifications()">✕</button>
+                </div>
+                <div class="mobile-modal-body" id="mobileNotifList">
+                    <div class="notif-empty">Chargement...</div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Ajouter les styles si pas déjà présents
+        if (!document.getElementById('mobileModalStyles')) {
+            const styles = document.createElement('style');
+            styles.id = 'mobileModalStyles';
+            styles.textContent = `
+                .mobile-modal {
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0,0,0,0.5);
+                    z-index: 300;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: center;
+                }
+                .mobile-modal-content {
+                    background: var(--bg-card);
+                    width: 100%;
+                    max-height: 80vh;
+                    border-radius: 16px 16px 0 0;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .mobile-modal-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 16px;
+                    border-bottom: 2px solid var(--border);
+                }
+                .mobile-modal-header h3 {
+                    margin: 0;
+                    font-size: 1.1rem;
+                }
+                .mobile-modal-close {
+                    background: none;
+                    border: none;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    padding: 8px;
+                }
+                .mobile-modal-body {
+                    padding: 16px;
+                    overflow-y: auto;
+                    flex: 1;
+                }
+            `;
+            document.head.appendChild(styles);
+        }
+    }
+    
+    modal.style.display = 'flex';
+    loadNotifications('mobileNotifList');
+}
+
+function closeMobileNotifications() {
+    const modal = document.getElementById('mobileNotifModal');
+    if (modal) modal.style.display = 'none';
+}
+
 // Fermer dropdown quand on clique ailleurs
 document.addEventListener('click', (e) => {
     const notifBtn = document.querySelector('.notif-btn');
@@ -29,10 +117,15 @@ document.addEventListener('click', (e) => {
 });
 
 // Charger les notifications
-async function loadNotifications() {
-    if (!supabaseClient || !currentUser) return;
+async function loadNotifications(containerId = 'notifList') {
+    if (!supabaseClient || !currentUser) {
+        const container = document.getElementById(containerId);
+        if (container) container.innerHTML = '<div class="notif-empty">Connectez-vous pour voir vos notifications</div>';
+        return;
+    }
     
-    const container = document.getElementById('notifList');
+    const container = document.getElementById(containerId);
+    if (!container) return;
     container.innerHTML = '<div class="notif-empty">Chargement...</div>';
     
     try {
