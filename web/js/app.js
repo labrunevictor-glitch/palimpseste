@@ -258,6 +258,49 @@ async function init() {
     // Créer le bouton scroll to top
     createScrollTopButton();
     
+    // Pull to refresh - quand on tire vers le haut en étant au sommet
+    let pullStartY = 0;
+    let isPulling = false;
+    let pullIndicator = null;
+    
+    document.addEventListener('touchstart', (e) => {
+        if (window.scrollY <= 5) {
+            pullStartY = e.touches[0].clientY;
+            isPulling = true;
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (!isPulling || window.scrollY > 5) return;
+        
+        const pullDistance = e.touches[0].clientY - pullStartY;
+        if (pullDistance > 50 && !state.loading) {
+            // Afficher indicateur de pull
+            if (!pullIndicator) {
+                pullIndicator = document.createElement('div');
+                pullIndicator.className = 'pull-indicator';
+                pullIndicator.innerHTML = '↓ Tirer pour rafraîchir';
+                document.body.appendChild(pullIndicator);
+            }
+            pullIndicator.style.opacity = Math.min(1, (pullDistance - 50) / 80);
+            pullIndicator.textContent = pullDistance > 130 ? '↻ Relâcher pour charger' : '↓ Tirer pour rafraîchir';
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchend', async () => {
+        if (pullIndicator) {
+            const shouldRefresh = pullIndicator.textContent.includes('Relâcher');
+            pullIndicator.remove();
+            pullIndicator = null;
+            
+            if (shouldRefresh && !state.loading) {
+                await loadNewTextsOnTop();
+            }
+        }
+        isPulling = false;
+        pullStartY = 0;
+    }, { passive: true });
+    
     // Headroom: cacher le header quand on scrolle vers le bas, afficher vers le haut
     let lastScrollY = 0;
     let headerHidden = false;
@@ -748,9 +791,8 @@ async function loadNewTextsOnTop() {
             newCards.forEach(card => card.classList.remove('card-highlight', 'card-new'));
         }, 3000);
         
-        // Scroll vers le haut pour voir les nouvelles cartes
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        toast(`✨ ${newCards.length} nouveau${newCards.length > 1 ? 'x' : ''} texte${newCards.length > 1 ? 's' : ''} !`);
+        // PAS de scroll automatique - l'utilisateur reste où il est
+        toast(`✨ ${newCards.length} nouveau${newCards.length > 1 ? 'x' : ''} texte${newCards.length > 1 ? 's' : ''} en haut !`);
     }
     
     hideNewTextsBanner();
@@ -1556,8 +1598,8 @@ async function exploreAuthor(author) {
             newCards.forEach(card => card.classList.remove('card-highlight', 'card-new'));
         }, 3000);
         
-        // Scroll vers le HAUT pour voir les nouveaux textes
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // PAS de scroll automatique - ne pas perturber la lecture
+        toast(`📜 ${newCards.length} texte${newCards.length > 1 ? 's' : ''} ajouté${newCards.length > 1 ? 's' : ''} en haut`);
         toast(`✨ ${newCards.length} texte${newCards.length > 1 ? 's' : ''} de ${author} !`);
     } else {
         toast(`😕 Aucun texte trouvé pour ${author}`);

@@ -2062,6 +2062,24 @@ margin-bottom: 1.5rem;
 animation: fadeIn 0.3s ease;
 }
 
+/* Pull to refresh indicator */
+.pull-indicator {
+position: fixed;
+top: 60px;
+left: 50%;
+transform: translateX(-50%);
+background: var(--bg-card);
+border: 1px solid var(--accent-secondary);
+color: var(--accent-secondary);
+padding: 0.6rem 1.2rem;
+border-radius: 20px;
+font-size: 0.8rem;
+z-index: 200;
+box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+opacity: 0;
+transition: opacity 0.2s;
+}
+
 /* Animation pour les nouvelles cartes insérées en haut */
 .card.card-new {
 opacity: 0;
