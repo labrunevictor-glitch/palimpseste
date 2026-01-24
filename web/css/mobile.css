@@ -405,7 +405,8 @@
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
-        padding: 20px 16px !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 20px 16px 60px 16px !important;
         padding-top: 16px !important;
         display: flex !important;
         flex-direction: column !important;
@@ -458,6 +459,8 @@
     .stats-panel #territorySection,
     .stats-panel .genres-section,
     .stats-panel #genresSection,
+    .stats-panel .favorites-section,
+    .stats-panel #favoritesSection,
     .stats-panel .mini-stats,
     .stats-panel .streak-section,
     .stats-panel .weekly-chart,
@@ -880,6 +883,34 @@
         max-height: 90vh !important;
         margin: 5vh auto !important;
         overflow-y: auto !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       FEED TABS - Overlay social mobile
+       ══════════════════════════════════════════ */
+    .feed-tabs {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 10px !important;
+        background: #161618 !important;
+    }
+    
+    .feed-tab {
+        flex: 0 0 auto !important;
+        padding: 8px 10px !important;
+        font-size: 0.7rem !important;
+        background: #1a1a1c !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 6px !important;
+        color: #9d9a95 !important;
+        white-space: nowrap !important;
+    }
+    
+    .feed-tab.active {
+        background: #e63946 !important;
+        border-color: #e63946 !important;
+        color: #fff !important;
     }
     
     /* ══════════════════════════════════════════
