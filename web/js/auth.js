@@ -469,13 +469,33 @@ async function onUserLoggedIn() {
     document.getElementById('logoutDivider').style.display = 'block';
     document.getElementById('logoutMenuItem').style.display = 'block';
     
-    // Update sidebar
-    document.getElementById('profileLoggedOut').style.display = 'none';
-    document.getElementById('profileLoggedIn').style.display = 'block';
-    document.getElementById('sidebarAvatar').innerHTML = initial;
-    document.getElementById('sidebarUsername').textContent = username;
+    // Update mobile drawer (nouveaux IDs)
+    const mobileLoggedOut = document.getElementById('mobileProfileLoggedOut');
+    const mobileLoggedIn = document.getElementById('mobileProfileLoggedIn');
+    const mobileLogout = document.getElementById('mobileLogoutSection');
+    if (mobileLoggedOut) mobileLoggedOut.style.display = 'none';
+    if (mobileLoggedIn) mobileLoggedIn.style.display = 'flex';
+    if (mobileLogout) mobileLogout.style.display = 'block';
     
-    // Update mobile avatar
+    // Mobile drawer avatar et username
+    const mobileDrawerAvatar = document.getElementById('mobileDrawerAvatar');
+    const mobileDrawerUsername = document.getElementById('mobileDrawerUsername');
+    if (mobileDrawerAvatar) mobileDrawerAvatar.innerHTML = initial;
+    if (mobileDrawerUsername) mobileDrawerUsername.textContent = username;
+    
+    // Update desktop drawer (nouveaux IDs)
+    const desktopLoggedOut = document.getElementById('desktopProfileLoggedOut');
+    const desktopLoggedIn = document.getElementById('desktopProfileLoggedIn');
+    if (desktopLoggedOut) desktopLoggedOut.style.display = 'none';
+    if (desktopLoggedIn) desktopLoggedIn.style.display = 'block';
+    
+    // Desktop drawer avatar et username
+    const desktopAvatar = document.getElementById('desktopSidebarAvatar');
+    const desktopUsername = document.getElementById('desktopSidebarUsername');
+    if (desktopAvatar) desktopAvatar.innerHTML = initial;
+    if (desktopUsername) desktopUsername.textContent = username;
+    
+    // Update mobile header avatar
     const mobileAvatar = document.getElementById('mobileAvatar');
     if (mobileAvatar) {
         mobileAvatar.textContent = initial;
@@ -500,10 +520,21 @@ function onUserLoggedOut() {
     document.getElementById('logoutDivider').style.display = 'none';
     document.getElementById('logoutMenuItem').style.display = 'none';
     
-    document.getElementById('profileLoggedOut').style.display = 'block';
-    document.getElementById('profileLoggedIn').style.display = 'none';
+    // Update mobile drawer
+    const mobileLoggedOut = document.getElementById('mobileProfileLoggedOut');
+    const mobileLoggedIn = document.getElementById('mobileProfileLoggedIn');
+    const mobileLogout = document.getElementById('mobileLogoutSection');
+    if (mobileLoggedOut) mobileLoggedOut.style.display = 'block';
+    if (mobileLoggedIn) mobileLoggedIn.style.display = 'none';
+    if (mobileLogout) mobileLogout.style.display = 'none';
     
-    // Reset mobile avatar
+    // Update desktop drawer
+    const desktopLoggedOut = document.getElementById('desktopProfileLoggedOut');
+    const desktopLoggedIn = document.getElementById('desktopProfileLoggedIn');
+    if (desktopLoggedOut) desktopLoggedOut.style.display = 'block';
+    if (desktopLoggedIn) desktopLoggedIn.style.display = 'none';
+    
+    // Reset mobile header avatar
     const mobileAvatar = document.getElementById('mobileAvatar');
     if (mobileAvatar) {
         mobileAvatar.textContent = '👤';

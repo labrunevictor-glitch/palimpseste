@@ -201,11 +201,11 @@ function initMobile() {
         overlay.addEventListener('touchstart', closeMobileDrawer, { passive: true });
     }
     
-    // Synchroniser langue
-    const drawerLangSelect = document.getElementById('drawerLangSelect');
+    // Synchroniser langue - nouveau sélecteur mobile
+    const mobileLangSelect = document.getElementById('mobileLangSelect');
     const headerLangSelect = document.getElementById('langSelect');
-    if (drawerLangSelect && headerLangSelect) {
-        drawerLangSelect.value = headerLangSelect.value;
+    if (mobileLangSelect && headerLangSelect) {
+        mobileLangSelect.value = headerLangSelect.value;
     }
     
     // Avatar

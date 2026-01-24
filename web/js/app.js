@@ -66,8 +66,18 @@ async function loadUserStats() {
         totalLikes = likesCount || 0;
     }
     
-    document.getElementById('myExtraitsCount').textContent = extraitCount || 0;
-    document.getElementById('myLikesCount').textContent = totalLikes;
+    // Mettre à jour TOUS les compteurs (mobile et desktop)
+    // Mobile drawer
+    const mobileExtraits = document.getElementById('mobileExtraitsCount');
+    const mobileLikes = document.getElementById('mobileLikesCount');
+    if (mobileExtraits) mobileExtraits.textContent = extraitCount || 0;
+    if (mobileLikes) mobileLikes.textContent = totalLikes;
+    
+    // Desktop drawer
+    const desktopExtraits = document.getElementById('desktopExtraitsCount');
+    const desktopLikes = document.getElementById('desktopLikesCount');
+    if (desktopExtraits) desktopExtraits.textContent = extraitCount || 0;
+    if (desktopLikes) desktopLikes.textContent = totalLikes;
     
     // Aussi afficher le nombre d'abonnés
     const { count: followersCount } = await supabaseClient
