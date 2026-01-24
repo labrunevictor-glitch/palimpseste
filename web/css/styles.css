@@ -598,21 +598,31 @@
     
     /* Ambiance intro */
     .ambiance-intro {
-        position: fixed !important;
-        top: 152px !important; /* Sous header + exploration-container mobile */
-        left: 0 !important;
-        right: 0 !important;
+        position: relative !important;
+        margin-left: 0 !important;
+        margin-top: 0 !important;
         padding: 0.75rem 1rem !important;
-        max-height: 30vh !important; /* Limite la hauteur pour ne pas masquer trop de feed */
-        overflow-y: auto !important;
+        max-height: none !important;
+        overflow-y: visible !important;
     }
     
     .ambiance-intro h2 {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
+        margin-bottom: 0.3rem !important;
     }
     
     .ambiance-intro p {
-        font-size: 0.8rem !important;
+        font-size: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .ambiance-intro .ambiance-tags {
+        gap: 0.3rem !important;
+    }
+    
+    .ambiance-intro .ambiance-tag {
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.5rem !important;
     }
     
     /* Progress bar */
@@ -1643,10 +1653,9 @@ font-size: 1rem;
 font-weight: 500;
 }
 .ambiance-intro {
-position: fixed;
-top: 145px; /* Sous header (52px) + exploration-container (~93px) */
-left: 260px;
-right: 0;
+position: relative;
+margin-left: 260px;
+margin-top: 0; /* Pas de marge car déjà dans le flux après exploration */
 z-index: 85;
 padding: 1rem 1.5rem;
 text-align: center;
@@ -1730,15 +1739,8 @@ border-color: var(--border);
 transform: none;
 }
 
-/* Ajustement du main quand l'intro d'ambiance est visible */
-body.has-ambiance-intro main {
-padding-top: 250px; /* Espace pour header + exploration + ambiance-intro */
-}
-@media screen and (max-width: 900px) {
-    body.has-ambiance-intro main {
-        padding-top: 260px !important; /* Mobile: header + exploration + intro - plus d'espace */
-    }
-}
+/* Ajustement du main quand l'intro d'ambiance est visible - plus nécessaire avec position relative */
+/* body.has-ambiance-intro main { padding ajusté automatiquement } */
 
 /* Language badge */
 .lang-badge {
