@@ -12,9 +12,9 @@
 --text: #e4dfd3;
 --text-secondary: #a09882;
 --muted: #635d4e;
-/* Accents - vert-de-gris, cuivre, bordeaux */
---accent: #7d8471;          /* Vert-de-gris - l'étrange */
---accent-secondary: #a67c52; /* Cuivre oxydé - le temps */
+/* Accents - bleu ardoise, sépia, bordeaux */
+--accent: #5a7a8a;          /* Bleu ardoise - l'encre */
+--accent-secondary: #8b7355; /* Sépia doré - le temps */
 --accent-tertiary: #6b3a3a;  /* Bordeaux profond - le mystère */
 --accent-purple: #5c5470;    /* Prune grisé - le crépusculaire */
 --border: #2a2821;
@@ -37,9 +37,9 @@
 --text: #2c2416;
 --text-secondary: #5a5045;
 --muted: #8a7f70;
-/* Accents - cuivre, bordeaux, prune (élégance sans vert) */
---accent: #9b6b4a;          /* Cuivre chaud - le temps */
---accent-secondary: #8b5a3c; /* Bronze doré */
+/* Accents - prune, rose, bordeaux (élégance littéraire) */
+--accent: #6b5a7a;          /* Prune doux - l'élégance */
+--accent-secondary: #7a5a6a; /* Rose ancien */
 --accent-tertiary: #8c3d3d;  /* Bordeaux élégant */
 --accent-purple: #5f4a6e;    /* Prune profond */
 --border: #d8d2c4;
