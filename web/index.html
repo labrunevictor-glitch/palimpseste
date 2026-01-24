@@ -36,7 +36,16 @@
                 drawer.classList.remove('open');
                 if (overlay) overlay.classList.remove('open');
                 document.body.style.overflow = '';
+                console.log('Drawer fermé');
             }
+        }
+        function closeAllDrawers() {
+            closeDrawer();
+            var profilePanel = document.getElementById('mobileProfilePanel');
+            if (profilePanel) profilePanel.classList.remove('open');
+            var overlay = document.getElementById('mobileDrawerOverlay');
+            if (overlay) overlay.classList.remove('open');
+            document.body.style.overflow = '';
         }
         // Alias pour compatibilité
         window.openMobileDrawer = openDrawer;
@@ -113,10 +122,10 @@
             <span class="mobile-nav-icon">💬</span>
             <span class="mobile-nav-label">Messages</span>
         </button>
-        <div class="mobile-nav-item" id="mobileMenuBtn" data-nav="menu" role="button" tabindex="0">
+        <button class="mobile-nav-item" id="mobileMenuBtn" data-nav="menu" onclick="openDrawer()">
             <span class="mobile-nav-icon">☰</span>
             <span class="mobile-nav-label">Menu</span>
-        </div>
+        </button>
     </nav>
     
     <!-- ═══════════════════════════════════════════════════════════════════════
