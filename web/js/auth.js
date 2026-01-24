@@ -66,9 +66,16 @@ async function checkSession() {
 // ═══════════════════════════════════════════════════════════
 
 function openAuthModal(mode = 'login') {
-    document.getElementById('authModal').classList.add('open');
-    switchAuthForm(mode);
-    closeUserDropdown();
+    // Fermer le drawer mobile d'abord (sinon l'écran reste grisé)
+    if (typeof closeMobileDrawer === 'function') {
+        closeMobileDrawer();
+    }
+    // Petit délai pour laisser le drawer se fermer
+    setTimeout(() => {
+        document.getElementById('authModal').classList.add('open');
+        switchAuthForm(mode);
+        closeUserDropdown();
+    }, 50);
 }
 
 function closeAuthModal() {

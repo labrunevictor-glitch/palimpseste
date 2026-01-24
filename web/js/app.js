@@ -1446,14 +1446,26 @@ function getAuthorsForGenre(genre, excludeAuthor) {
         .slice(0, 4);
 }
 
-// Explorer un auteur spécifique (recherche ciblée)
+// Explorer un auteur spécifique (recherche ciblée) - charge les textes EN HAUT
 async function exploreAuthor(author) {
-    toast(`Exploration de ${author}...`);
+    if (state.loading) return;
+    state.loading = true;
+    
+    toast(`🔍 Exploration de ${author}...`);
     state.discoveredConnections.add(author);
     saveState();
     
+    // Afficher indicateur de chargement en haut
+    const feed = document.getElementById('feed');
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'top-loading-indicator';
+    loadingIndicator.id = 'topLoadingIndicator';
+    loadingIndicator.innerHTML = `<div class="spinner-small"></div> Recherche de ${author}...`;
+    feed.insertBefore(loadingIndicator, feed.firstChild);
+    
     // Recherches spécifiques pour cet auteur
-    const searches = [`${author} poem`, `${author} text`, `${author} sonnet`];
+    const searches = [`${author} poem`, `${author} text`, `${author} sonnet`, author];
+    const newCards = [];
     
     // Utiliser les wikisources actives selon le filtre
     const activeSources = getActiveWikisources();
@@ -1461,21 +1473,52 @@ async function exploreAuthor(author) {
     
     for (const ws of shuffledWS) {
         for (const query of searches) {
-            const results = await searchTexts(query, 3, ws);
+            if (newCards.length >= 3) break; // Limiter à 3 textes
+            const results = await searchTexts(query, 5, ws);
             for (const r of results) {
+                if (newCards.length >= 3) break;
                 if (!state.shownPages.has(r.title) && isValidTitle(r.title)) {
-                    state.textPool.unshift({ ...r, wikisource: ws }); // Ajouter en priorité
+                    // Charger le texte complet
+                    const result = await fetchText(r.title, 0, ws);
+                    if (result?.text?.length > 150) {
+                        state.shownPages.add(r.title);
+                        const cardEl = createCardElement(result, r.title, ws);
+                        if (cardEl) newCards.push(cardEl);
+                    }
                 }
             }
         }
+        if (newCards.length >= 3) break;
     }
     
-    // Charger immédiatement
-    await loadMore();
-    updateConnections();
+    // Supprimer l'indicateur de chargement
+    loadingIndicator.remove();
     
-    // Scroll vers le nouveau contenu
-    window.scrollTo({ top: document.body.scrollHeight - window.innerHeight - 400, behavior: 'smooth' });
+    // Insérer les nouvelles cartes en haut avec animation
+    if (newCards.length > 0) {
+        for (let i = newCards.length - 1; i >= 0; i--) {
+            const card = newCards[i];
+            card.classList.add('card-new');
+            feed.insertBefore(card, feed.firstChild);
+            setTimeout(() => {
+                card.classList.add('show');
+                card.classList.add('card-highlight');
+            }, (newCards.length - 1 - i) * 100);
+        }
+        
+        setTimeout(() => {
+            newCards.forEach(card => card.classList.remove('card-highlight', 'card-new'));
+        }, 3000);
+        
+        // Scroll vers le HAUT pour voir les nouveaux textes
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast(`✨ ${newCards.length} texte${newCards.length > 1 ? 's' : ''} de ${author} !`);
+    } else {
+        toast(`😕 Aucun texte trouvé pour ${author}`);
+    }
+    
+    updateConnections();
+    state.loading = false;
 }
 
 function openReader(id) {
