@@ -270,16 +270,24 @@ function updateFunStat() {
     const authorCount = Object.keys(state.authorStats).length;
     const readCount = state.readCount || 0;
     const likeCount = state.likes?.size || 0;
+    const sessionMinutes = Math.floor((Date.now() - (state.sessionStart || Date.now())) / 60000);
+    
+    // Calculs dérivés
+    const echoRatio = authorCount > 0 ? Math.round((likeCount / Math.max(1, readCount)) * 100) : 0;
+    const wanderIndex = Math.floor(Math.sqrt(readCount * authorCount));
+    const silenceGap = Math.max(0, 7 - (readCount % 7));
     
     const funStats = [
-        `🌡️ Température littéraire : ${Math.min(100, readCount * 3)}°`,
-        `🧬 ${authorCount} ADN d'auteurs dans votre sang`,
-        `💫 ${likeCount} étincelles dans votre bibliothèque intérieure`,
-        `🌀 Profondeur de dérive : niveau ${Math.floor(readCount / 5)}`,
-        `🔥 Combo actuel : ${readCount} textes sans pause`,
-        `🎲 Prochain saut aléatoire dans ${Math.max(1, 5 - (readCount % 5))} textes`,
-        `📡 Signal littéraire : ${Math.min(100, authorCount * 5)}% de couverture`,
-        `🧪 Dose de poésie : ${Math.floor(readCount * 2.7)}mg`,
+        `☽ Encre consommée : ${(readCount * 0.3).toFixed(1)} ml`,
+        `◎ Orbite littéraire : ${authorCount} astres visités`,
+        `❧ Résonances : ${likeCount} textes vous ont reconnu`,
+        `⧖ Indice d'errance : ${wanderIndex}`,
+        `☾ Prochaine éclipse : dans ${silenceGap} textes`,
+        `✧ Ratio d'écho : ${echoRatio}% des textes résonnent`,
+        `⚗ Distillation : ${Math.floor(readCount / 3)} essences extraites`,
+        `༄ Temps de dérive : ${sessionMinutes || '∞'} minutes`,
+        `◬ Fragments collectés : ${readCount} sur ∞`,
+        `⛧ Connexions secrètes : ${Math.floor(authorCount * 1.7)}`,
     ];
     
     el.textContent = funStats[Math.floor(Math.random() * funStats.length)];
