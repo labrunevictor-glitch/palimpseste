@@ -911,22 +911,7 @@ async function loadUserStats() {
 
 }
 
-// Helpers
-function formatTimeAgo(date) {
-    const seconds = Math.floor((new Date() - date) / 1000);
-    
-    if (seconds < 60) return 'À l\'instant';
-    if (seconds < 3600) return Math.floor(seconds / 60) + ' min';
-    if (seconds < 86400) return Math.floor(seconds / 3600) + ' h';
-    if (seconds < 604800) return Math.floor(seconds / 86400) + ' j';
-    return date.toLocaleDateString('fr-FR');
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+// Helpers formatTimeAgo et escapeHtml sont dans utils.js
 
 function openMyProfile() {
     closeUserDropdown();
@@ -3817,19 +3802,7 @@ function stopReadingTimer() {
     }
 }
 
-function formatReadingTime(seconds) {
-    if (seconds < 60) return seconds + ' sec';
-    if (seconds < 3600) return Math.floor(seconds / 60) + ' min';
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    return hours + 'h ' + mins + 'min';
-}
-
-function formatWordsCount(words) {
-    if (words < 1000) return words.toString();
-    if (words < 10000) return (words / 1000).toFixed(1) + 'k';
-    return Math.floor(words / 1000) + 'k';
-}
+// formatReadingTime et formatWordsCount sont dans utils.js
 
 function updateReadingStatsUI() {
     const stats = state.readingStats;
@@ -4478,11 +4451,9 @@ async function toggleFollowFromSearch(userId, event) {
     renderSearchResults(currentSearchTab);
 }
 
-function escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+// escapeRegex et extractAuthorFromTitle sont dans utils.js
 
-function extractAuthorFromTitle(title) {
+function extractAuthorFromTitleLocal(title) {
     // Essayer d'extraire l'auteur depuis des patterns courants
     const patterns = [
         /^(.+?)\s*[-–—]\s*(.+)$/,  // "Titre - Auteur" ou "Auteur - Titre"
