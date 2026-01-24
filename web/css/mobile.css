@@ -403,13 +403,12 @@
         box-shadow: 8px 0 0 rgba(0,0,0,0.8), 20px 0 40px rgba(0,0,0,0.5) !important;
         transform: translateX(-100%) !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        overflow-y: auto !important;
+        overflow-y: scroll !important;
         overflow-x: hidden !important;
-        padding: 20px 16px !important;
-        padding-top: 16px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 16px !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
+        padding: 16px !important;
+        padding-bottom: 40px !important;
     }
     
     .stats-panel.open {
@@ -418,6 +417,11 @@
     
     .stats-panel:not(.open) {
         transform: translateX(-100%) !important;
+    }
+    
+    /* Forcer le contenu à être scrollable */
+    .stats-panel > * {
+        flex-shrink: 0 !important;
     }
     
     /* --- BOUTON FERMER --- */
@@ -458,12 +462,16 @@
     .stats-panel #territorySection,
     .stats-panel .genres-section,
     .stats-panel #genresSection,
+    .stats-panel .favorites-section,
+    .stats-panel #favoritesSection,
     .stats-panel .mini-stats,
     .stats-panel .streak-section,
     .stats-panel .weekly-chart,
     .stats-panel .author-bars,
     .stats-panel .genre-chart,
     .stats-panel .fun-stat,
+    .stats-panel .feed-tabs,
+    .stats-panel .feed-tab,
     .stats-panel .stats-section:has(.author-bars),
     .stats-panel .stats-section:has(.genre-chart),
     .stats-panel .stats-section:has(.weekly-chart) {
@@ -502,9 +510,8 @@
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
         padding-bottom: 16px !important;
-        margin-bottom: 0 !important;
+        margin: 16px 0 !important;
         border-bottom: 1px solid #2a2a2d !important;
-        flex-shrink: 0 !important;
     }
     
     .stats-panel .drawer-action-btn {
@@ -583,9 +590,8 @@
         background: linear-gradient(145deg, #1a1a1c, #141416) !important;
         border: 1px solid #2a2a2d !important;
         border-radius: 14px !important;
-        margin-bottom: 0 !important;
+        margin: 16px 0 !important;
         text-align: center !important;
-        flex-shrink: 0 !important;
     }
     
     .stats-panel .stats-section:has(.big-number) h3 {
@@ -612,101 +618,6 @@
     }
     
     /* ═══════════════════════════════════════════
-       FAVORIS - Liste scrollable
-       ═══════════════════════════════════════════ */
-    .stats-panel .favorites-section,
-    .stats-panel #favoritesSection {
-        display: block !important;
-        padding: 16px !important;
-        background: linear-gradient(145deg, #1a1a1c, #141416) !important;
-        border: 1px solid #2a2a2d !important;
-        border-radius: 14px !important;
-        margin-bottom: 0 !important;
-        flex-shrink: 0 !important;
-    }
-    
-    .stats-panel .favorites-section h3 {
-        font-size: 0.9rem !important;
-        font-weight: 600 !important;
-        margin: 0 0 12px 0 !important;
-        padding: 0 !important;
-        color: #fff !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-    }
-    
-    .stats-panel #favoritesList {
-        max-height: 200px !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        scrollbar-width: thin !important;
-        scrollbar-color: #3a3a3d #1a1a1c !important;
-    }
-    
-    .stats-panel #favoritesList::-webkit-scrollbar {
-        width: 4px !important;
-    }
-    
-    .stats-panel #favoritesList::-webkit-scrollbar-track {
-        background: #1a1a1c !important;
-        border-radius: 2px !important;
-    }
-    
-    .stats-panel #favoritesList::-webkit-scrollbar-thumb {
-        background: #3a3a3d !important;
-        border-radius: 2px !important;
-    }
-    
-    .stats-panel .favorites-empty {
-        text-align: center !important;
-        color: #6d6a65 !important;
-        font-size: 0.85rem !important;
-        padding: 24px 10px !important;
-        font-style: italic !important;
-    }
-    
-    .stats-panel .favorite-item {
-        display: block !important;
-        padding: 10px 12px !important;
-        background: #0d0d0d !important;
-        border-radius: 8px !important;
-        margin-bottom: 8px !important;
-        border: 1px solid transparent !important;
-        cursor: pointer !important;
-    }
-    
-    .stats-panel .favorite-item:last-child {
-        margin-bottom: 0 !important;
-    }
-    
-    .stats-panel .favorite-item:active {
-        border-color: #e63946 !important;
-        background: #1a1a1c !important;
-    }
-    
-    .stats-panel .favorite-item .favorite-text,
-    .stats-panel .favorite-item .favorite-excerpt {
-        font-size: 0.85rem !important;
-        color: #c8c6c3 !important;
-        line-height: 1.4 !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 2 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        margin: 0 !important;
-    }
-    
-    .stats-panel .favorite-item .favorite-author,
-    .stats-panel .favorite-item .favorite-meta {
-        font-size: 0.75rem !important;
-        color: #e63946 !important;
-        margin-top: 6px !important;
-        display: block !important;
-    }
-    
-    /* ═══════════════════════════════════════════
        BADGES - Grille 5 colonnes
        ═══════════════════════════════════════════ */
     .stats-panel .badges-section,
@@ -716,8 +627,7 @@
         background: linear-gradient(145deg, #1a1a1c, #141416) !important;
         border: 1px solid #2a2a2d !important;
         border-radius: 14px !important;
-        margin-bottom: 0 !important;
-        flex-shrink: 0 !important;
+        margin: 16px 0 20px 0 !important;
     }
     
     .stats-panel .badges-section h3 {
@@ -880,6 +790,34 @@
         max-height: 90vh !important;
         margin: 5vh auto !important;
         overflow-y: auto !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       FEED TABS - Social overlay mobile
+       ══════════════════════════════════════════ */
+    .feed-tabs {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 10px !important;
+        background: #161618 !important;
+    }
+    
+    .feed-tab {
+        flex: 0 0 auto !important;
+        padding: 8px 12px !important;
+        font-size: 0.75rem !important;
+        background: #1a1a1c !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 8px !important;
+        color: #9d9a95 !important;
+        white-space: nowrap !important;
+    }
+    
+    .feed-tab.active {
+        background: #e63946 !important;
+        border-color: #e63946 !important;
+        color: #fff !important;
     }
     
     /* ══════════════════════════════════════════
