@@ -450,10 +450,11 @@
     /* Exploration container */
     .exploration-container {
         position: fixed !important;
-        top: 56px !important;
+        top: 58px !important; /* Petit espace sous le header mobile */
         left: 0 !important;
         right: 0 !important;
         z-index: 90 !important;
+        padding-top: 2px !important;
         /* Pixel border */
         border-bottom: 2px solid var(--border) !important;
         box-shadow: 0 4px 0 var(--pixel-shadow) !important;
@@ -598,10 +599,12 @@
     /* Ambiance intro */
     .ambiance-intro {
         position: fixed !important;
-        top: 145px !important;
+        top: 152px !important; /* Sous header + exploration-container mobile */
         left: 0 !important;
         right: 0 !important;
         padding: 0.75rem 1rem !important;
+        max-height: 30vh !important; /* Limite la hauteur pour ne pas masquer trop de feed */
+        overflow-y: auto !important;
     }
     
     .ambiance-intro h2 {
@@ -1553,14 +1556,14 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
    ═══════════════════════════════════════════════════════════ */
 .exploration-container {
 position: fixed;
-top: 52px; /* Colle juste sous le header fixe */
+top: 54px; /* Colle juste sous le header fixe avec un petit espace */
 left: 260px;
 right: 0;
 z-index: 90;
 background: var(--bg);
 border-bottom: 2px solid var(--border);
 box-shadow: 0 4px 0 var(--pixel-shadow);
-padding-top: 0;
+padding-top: 4px; /* Petit espace en haut */
 }
 
 .exploration-tabs {
@@ -1729,11 +1732,11 @@ transform: none;
 
 /* Ajustement du main quand l'intro d'ambiance est visible */
 body.has-ambiance-intro main {
-padding-top: 240px; /* Espace pour header + exploration + ambiance-intro */
+padding-top: 250px; /* Espace pour header + exploration + ambiance-intro */
 }
 @media screen and (max-width: 900px) {
     body.has-ambiance-intro main {
-        padding-top: 230px !important; /* Mobile: header + exploration + intro */
+        padding-top: 260px !important; /* Mobile: header + exploration + intro - plus d'espace */
     }
 }
 
