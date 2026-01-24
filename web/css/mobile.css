@@ -710,7 +710,7 @@
     }
     
     /* ═══════════════════════════════════════════
-       BADGES - Grille 5 colonnes
+       BADGES - Affichage mobile simplifié
        ═══════════════════════════════════════════ */
     .stats-panel .badges-section,
     .stats-panel #achievementSection {
@@ -719,8 +719,7 @@
         background: linear-gradient(145deg, #1a1a1c, #141416) !important;
         border: 1px solid #2a2a2d !important;
         border-radius: 14px !important;
-        margin-bottom: 0 !important;
-        flex-shrink: 0 !important;
+        margin-bottom: 20px !important;
     }
     
     .stats-panel .badges-section h3 {
@@ -740,6 +739,7 @@
         font-weight: 400 !important;
     }
     
+    /* Liste des badges en grille 5 colonnes - ICÔNES SEULES */
     .stats-panel .achievements-compact,
     .stats-panel #achievementList {
         display: grid !important;
@@ -747,48 +747,66 @@
         gap: 8px !important;
     }
     
-    /* Badge par défaut (verrouillé) */
-    .stats-panel .achievements-compact > *,
-    .stats-panel #achievementList > * {
+    /* Chaque badge = juste l'icône */
+    .stats-panel #achievementList .achievement,
+    .stats-panel .achievements-compact .achievement {
         width: 100% !important;
         aspect-ratio: 1 !important;
         height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
+        min-height: 44px !important;
+        max-height: 60px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 1.3rem !important;
         background: #0d0d0d !important;
         border-radius: 10px !important;
         border: 1px solid #2a2a2d !important;
-        opacity: 0.25 !important;
-        filter: grayscale(1) !important;
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box !important;
+        overflow: hidden !important;
+        cursor: pointer !important;
+    }
+    
+    /* Badge verrouillé */
+    .stats-panel #achievementList .achievement.locked {
+        opacity: 0.3 !important;
+        filter: grayscale(1) !important;
     }
     
     /* Badge débloqué */
-    .stats-panel .achievements-compact > *.unlocked,
-    .stats-panel .achievements-compact > *[data-unlocked="true"],
-    .stats-panel #achievementList > *.unlocked,
-    .stats-panel #achievementList > *[data-unlocked="true"] {
+    .stats-panel #achievementList .achievement.unlocked {
         opacity: 1 !important;
         filter: none !important;
         background: linear-gradient(145deg, #1e1e21, #161618) !important;
         border-color: #e63946 !important;
-        box-shadow: 0 0 12px rgba(230, 57, 70, 0.25), inset 0 0 8px rgba(230, 57, 70, 0.1) !important;
+        box-shadow: 0 0 10px rgba(230, 57, 70, 0.25) !important;
     }
     
-    /* Cacher textes et labels dans les badges */
-    .stats-panel #achievementList > * span:not(:first-child),
-    .stats-panel #achievementList > * .badge-label,
-    .stats-panel #achievementList > * .badge-name,
-    .stats-panel .achievements-compact > * span:not(:first-child),
-    .stats-panel .achievements-compact > * .badge-label,
-    .stats-panel .achievements-compact > * .badge-name {
+    /* Icône du badge - VISIBLE */
+    .stats-panel #achievementList .badge-icon {
+        font-size: 1.4rem !important;
+        line-height: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* CACHER tout le reste du badge (texte, progress, etc.) */
+    .stats-panel #achievementList .badge-info,
+    .stats-panel #achievementList .badge-name,
+    .stats-panel #achievementList .badge-desc,
+    .stats-panel #achievementList .badge-progress,
+    .stats-panel #achievementList .badge-progress-bar,
+    .stats-panel #achievementList .badge-progress-text,
+    .stats-panel #achievementList .unlocked-check {
         display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
     }
     
     /* ══════════════════════════════════════════
