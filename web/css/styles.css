@@ -602,12 +602,12 @@
     /* Ambiance intro - FIXED sous les headers */
     .ambiance-intro {
         position: fixed !important;
-        top: 150px !important; /* Juste sous header (58px) + exploration (~92px) */
+        top: 140px !important; /* Juste sous header (58px) + exploration (~80px) */
         left: 0 !important;
         right: 0 !important;
         margin: 0 !important;
-        padding: 0.5rem 0.75rem !important;
-        max-height: 35vh !important; /* Limite pour ne pas prendre tout l'écran */
+        padding: 2.5rem 0.75rem 0.75rem 0.75rem !important; /* Plus de padding en haut pour le bouton fermer */
+        max-height: 40vh !important; /* Un peu plus de place */
         overflow-y: auto !important;
         z-index: 85 !important;
         background: linear-gradient(135deg, rgba(14,13,11,0.98), rgba(28,26,23,0.98)) !important;
@@ -617,42 +617,53 @@
     
     /* Quand l'intro est visible, le main doit être décalé sous elle */
     body.has-ambiance-intro main {
-        padding-top: 280px !important; /* header + exploration + intro (~130px) */
+        padding-top: 320px !important; /* header + exploration + intro */
     }
     
     .ambiance-intro h2 {
-        font-size: 0.9rem !important;
-        margin-bottom: 0.2rem !important;
+        font-size: 1rem !important;
+        margin-bottom: 0.3rem !important;
+        margin-top: 0 !important;
     }
     
     .ambiance-intro p {
-        font-size: 0.65rem !important;
-        margin-bottom: 0.3rem !important;
+        font-size: 0.75rem !important;
+        margin-bottom: 0.4rem !important;
     }
     
     .ambiance-intro .period-badge {
-        font-size: 0.55rem !important;
-        padding: 0.1rem 0.35rem !important;
-        margin-bottom: 0.2rem !important;
+        font-size: 0.6rem !important;
+        padding: 0.15rem 0.4rem !important;
+        margin-bottom: 0.3rem !important;
     }
     
     .ambiance-intro .ambiance-tags {
-        gap: 0.2rem !important;
-        margin-top: 0.3rem !important;
+        gap: 0.3rem !important;
+        margin-top: 0.4rem !important;
         flex-wrap: wrap !important;
     }
     
     .ambiance-intro .ambiance-tag {
-        font-size: 0.55rem !important;
-        padding: 0.12rem 0.4rem !important;
+        font-size: 0.6rem !important;
+        padding: 0.2rem 0.5rem !important;
     }
     
     .ambiance-intro .close-intro {
         position: absolute !important;
-        top: 0.3rem !important;
+        top: 0.5rem !important;
         right: 0.5rem !important;
-        font-size: 0.9rem !important;
+        font-size: 1.5rem !important;
+        width: 2rem !important;
+        height: 2rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--accent-secondary) !important;
+        border-radius: 50% !important;
+        color: var(--text) !important;
         transform: none !important;
+        z-index: 10 !important;
     }
     
     /* Progress bar */
