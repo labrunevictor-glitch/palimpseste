@@ -865,6 +865,7 @@
         left: 0 !important;
         right: 0 !important;
         z-index: 90 !important;
+        margin-top: 0 !important; /* Pas de margin car fixed */
         background: var(--bg-card) !important;
         border-bottom: 2px solid var(--border) !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
@@ -888,6 +889,42 @@
         padding: 8px 12px !important;
         font-size: 0.75rem !important;
         white-space: nowrap !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       AMBIANCE INTRO (bandeau quand on clique Mélancolie, Romantique, etc.)
+       ══════════════════════════════════════════ */
+    .ambiance-intro {
+        position: fixed !important;
+        top: calc(var(--mobile-header-height) + 90px) !important; /* Header 56px + exploration ~90px */
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 85 !important;
+        margin-left: 0 !important;
+        padding: 0.75rem 1rem !important;
+        background: linear-gradient(135deg, rgba(255,69,58,0.12), rgba(191,90,242,0.12)) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border-bottom: 1px solid var(--border) !important;
+    }
+    
+    .ambiance-intro h2 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .ambiance-intro p {
+        font-size: 0.8rem !important;
+    }
+    
+    .ambiance-intro .ambiance-tags {
+        gap: 0.3rem !important;
+        margin-top: 0.5rem !important;
+    }
+    
+    .ambiance-intro .ambiance-tag {
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.5rem !important;
     }
     
     /* ══════════════════════════════════════════

@@ -1320,7 +1320,7 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 8rem 2rem 4rem; /* 8rem ~= header 56px + exploration ~80px */
+padding: 1rem 2rem 4rem; /* Pas besoin de gros padding-top, l'exploration gère l'espacement */
 }
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
@@ -1553,6 +1553,7 @@ position: sticky;
 top: 56px;
 z-index: 90;
 margin-left: 260px;
+margin-top: 56px; /* Compense le header fixed */
 background: var(--bg);
 border-bottom: 2px solid var(--border);
 box-shadow: 0 4px 0 var(--pixel-shadow);
@@ -1637,7 +1638,7 @@ font-weight: 500;
 }
 .ambiance-intro {
 position: sticky;
-top: 92px; /* Sous header + barre ambiance */
+top: 146px; /* Header 56px + exploration tabs+pills ~90px */
 z-index: 85;
 padding: 1rem 1.5rem;
 text-align: center;
@@ -1663,12 +1664,6 @@ transition: opacity 0.2s;
 }
 .ambiance-intro .close-intro:hover {
 opacity: 1;
-}
-@media (max-width: 900px) {
-.ambiance-intro {
-    margin-left: 0;
-    top: 88px;
-}
 }
 .ambiance-intro h2 {
 font-family: 'Playfair Display', serif;
