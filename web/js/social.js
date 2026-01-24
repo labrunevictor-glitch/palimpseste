@@ -411,6 +411,65 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
     }
 }
 
+// Afficher mes extraits (depuis le profil)
+function showMyExtraits() {
+    openSocialFeed();
+    switchSocialTab('mine');
+}
+
+// Afficher mes likes (depuis le profil)
+async function showMyLikes() {
+    if (!currentUser || !supabaseClient) {
+        toast('📝 Connectez-vous d\'abord');
+        return;
+    }
+    
+    openSocialFeed();
+    
+    // Charger les extraits que j'ai likés
+    const container = document.getElementById('socialFeed');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-spinner">⏳ Chargement des likes...</div>';
+    
+    try {
+        // Récupérer mes likes
+        const { data: myLikes } = await supabaseClient
+            .from('likes')
+            .select('extrait_id')
+            .eq('user_id', currentUser.id);
+        
+        if (!myLikes || myLikes.length === 0) {
+            container.innerHTML = '<div class="social-empty"><div class="social-empty-icon">💔</div><div class="social-empty-title">Aucun like</div><div class="social-empty-text">Vous n\'avez pas encore liké d\'extraits</div></div>';
+            return;
+        }
+        
+        const extraitIds = myLikes.map(l => l.extrait_id);
+        
+        // Récupérer les extraits likés
+        const { data: extraits } = await supabaseClient
+            .from('extraits')
+            .select('*, profiles(username)')
+            .in('id', extraitIds)
+            .order('created_at', { ascending: false });
+        
+        if (!extraits || extraits.length === 0) {
+            container.innerHTML = '<div class="social-empty">Aucun extrait trouvé</div>';
+            return;
+        }
+        
+        socialExtraits = extraits;
+        
+        // Marquer l'onglet actif
+        document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+        
+        renderSocialFeed();
+        
+    } catch (err) {
+        container.innerHTML = `<div class="social-empty">❌ Erreur: ${err.message}</div>`;
+    }
+}
+
 // Rendre les fonctions accessibles globalement
 window.openSocialFeed = openSocialFeed;
 window.closeSocialFeed = closeSocialFeed;
@@ -421,3 +480,5 @@ window.renderSocialFeed = renderSocialFeed;
 window.toggleLikeExtrait = toggleLikeExtrait;
 window.loadFullTextFromSource = loadFullTextFromSource;
 window.copyExtrait = copyExtrait;
+window.showMyExtraits = showMyExtraits;
+window.showMyLikes = showMyLikes;

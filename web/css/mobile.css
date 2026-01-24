@@ -322,23 +322,32 @@
     /* Sections du drawer */
     .stats-section,
     .profile-section,
-    .favorites-section {
+    .favorites-section,
+    .badges-section {
         display: block !important;
         padding: 12px !important;
-        background: #0d0d0d !important;
-        border: 2px solid #2a2a2d !important;
-        border-radius: 8px !important;
+        background: #1a1a1c !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 12px !important;
+        color: #e8e6e3 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .stats-section h3 {
+        font-size: 0.85rem !important;
+        margin: 0 0 8px 0 !important;
         color: #e8e6e3 !important;
     }
     
     .stats-logo {
         display: block !important;
         font-family: var(--font-pixel, monospace) !important;
-        font-size: 1.2rem !important;
+        font-size: 1.4rem !important;
         font-weight: bold !important;
         color: #e63946 !important;
         text-align: center !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 12px !important;
+        padding: 8px 0 !important;
     }
     
     /* Texte dans le drawer */
@@ -351,12 +360,200 @@
     }
     
     /* ══════════════════════════════════════════
+       PROFIL DANS LE DRAWER
+       ══════════════════════════════════════════ */
+    
+    .profile-section {
+        padding: 16px !important;
+    }
+    
+    .login-prompt {
+        text-align: center !important;
+        padding: 16px 8px !important;
+    }
+    
+    .login-prompt-icon {
+        font-size: 2.5rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .login-prompt-text {
+        font-size: 0.85rem !important;
+        color: #9d9a95 !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .login-prompt-btn {
+        display: block !important;
+        width: 100% !important;
+        padding: 12px 16px !important;
+        margin: 6px 0 !important;
+        background: #e63946 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        color: white !important;
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+    }
+    
+    .login-prompt-btn.secondary {
+        background: transparent !important;
+        border: 1px solid #2a2a2d !important;
+        color: #e8e6e3 !important;
+    }
+    
+    .profile-header-card {
+        text-align: center !important;
+        padding-bottom: 12px !important;
+        border-bottom: 1px solid #2a2a2d !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .profile-avatar-large {
+        width: 64px !important;
+        height: 64px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #e63946, #9b5de5) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.8rem !important;
+        margin: 0 auto 8px auto !important;
+        border: 3px solid #2a2a2d !important;
+    }
+    
+    .profile-name-large {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #e8e6e3 !important;
+    }
+    
+    .profile-stats-row {
+        display: flex !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .profile-stat-btn {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        padding: 12px 8px !important;
+        background: #0d0d0d !important;
+        border: 1px solid #2a2a2d !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+    }
+    
+    .profile-stat-btn:active {
+        background: #2a2a2d !important;
+    }
+    
+    .profile-stat-btn .stat-number {
+        font-size: 1.4rem !important;
+        font-weight: bold !important;
+        color: #e63946 !important;
+    }
+    
+    .profile-stat-btn .stat-label {
+        font-size: 0.75rem !important;
+        color: #9d9a95 !important;
+        margin-top: 2px !important;
+    }
+    
+    .drawer-logout-btn {
+        display: block !important;
+        width: 100% !important;
+        padding: 10px !important;
+        background: transparent !important;
+        border: 1px solid #5c5a56 !important;
+        border-radius: 8px !important;
+        color: #9d9a95 !important;
+        font-size: 0.8rem !important;
+        cursor: pointer !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       BADGES COMPACT
+       ══════════════════════════════════════════ */
+    
+    .badges-section h3 {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    .badges-count-inline {
+        font-size: 0.7rem !important;
+        color: #9d9a95 !important;
+        font-weight: normal !important;
+    }
+    
+    .achievements-compact {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    
+    .achievements-compact .badge,
+    .achievements-compact .achievement {
+        font-size: 1.2rem !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #0d0d0d !important;
+        border-radius: 6px !important;
+        opacity: 0.3 !important;
+    }
+    
+    .achievements-compact .badge.unlocked,
+    .achievements-compact .achievement.unlocked {
+        opacity: 1 !important;
+        background: linear-gradient(135deg, #e63946, #f4a261) !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       MASQUER LES SECTIONS TROP VERBEUSES
+       ══════════════════════════════════════════ */
+    
+    .stats-panel .reading-stats-section,
+    .stats-panel .connections-section,
+    .stats-panel #readingPathSection {
+        display: none !important;
+    }
+    
+    .mini-stats,
+    .streak-section,
+    .weekly-chart,
+    .author-bars,
+    .genre-chart {
+        display: none !important;
+    }
+    
+    .big-number {
+        font-size: 2rem !important;
+        font-weight: bold !important;
+        color: #e63946 !important;
+        text-align: center !important;
+    }
+    
+    .big-number-label {
+        font-size: 0.75rem !important;
+        color: #9d9a95 !important;
+        text-align: center !important;
+    }
+    
+    /* ══════════════════════════════════════════
        CONTENU PRINCIPAL
        ══════════════════════════════════════════ */
     
     main {
         margin: 0 !important;
-        padding-top: 160px !important; /* header 56px + tabs ~70px + marge 34px */
+        padding-top: 160px !important;
         padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px) !important;
         padding-left: 12px !important;
         padding-right: 12px !important;

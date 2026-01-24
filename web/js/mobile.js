@@ -22,6 +22,19 @@ function closeMobileDrawer() {
     }
 }
 
+// Ouvrir le menu OU la connexion selon l'état
+function handleAvatarClick() {
+    if (typeof currentUser !== 'undefined' && currentUser) {
+        // Utilisateur connecté → ouvrir le drawer
+        openMobileDrawer();
+    } else {
+        // Pas connecté → ouvrir la modal de connexion
+        if (typeof openAuthModal === 'function') {
+            openAuthModal('login');
+        }
+    }
+}
+
 // Fermer le drawer en cliquant sur le bouton "Fermer" (pseudo-element)
 document.addEventListener('click', (e) => {
     if (window.innerWidth <= 900) {
@@ -122,40 +135,37 @@ function handleSwipe() {
 
 // Initialiser les éléments mobile
 function initMobile() {
-    // Bouton profil dans le header - utiliser event delegation
+    // Bouton profil dans le header - utiliser handleAvatarClick
     const profileBtn = document.getElementById('mobileProfileBtn');
     if (profileBtn) {
-        // Forcer le style cliquable
         profileBtn.style.cssText = 'cursor:pointer !important; pointer-events:auto !important; touch-action:manipulation !important;';
         
-        // Handler direct
         profileBtn.ontouchstart = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            openMobileDrawer();
+            handleAvatarClick();
             return false;
         };
         profileBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            openMobileDrawer();
+            handleAvatarClick();
             return false;
         };
         
-        // Aussi sur l'avatar à l'intérieur
         const avatar = profileBtn.querySelector('.mobile-profile-avatar');
         if (avatar) {
             avatar.style.cssText = 'cursor:pointer !important; pointer-events:auto !important;';
             avatar.ontouchstart = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                openMobileDrawer();
+                handleAvatarClick();
                 return false;
             };
             avatar.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                openMobileDrawer();
+                handleAvatarClick();
                 return false;
             };
         }
@@ -163,7 +173,7 @@ function initMobile() {
         console.log('📱 Mobile profile button READY');
     }
     
-    // Bouton menu dans la nav bottom
+    // Bouton menu dans la nav bottom - toujours ouvrir le drawer
     const menuBtn = document.getElementById('mobileMenuBtn');
     if (menuBtn) {
         menuBtn.style.cssText = 'cursor:pointer !important; pointer-events:auto !important; touch-action:manipulation !important;';
@@ -219,6 +229,7 @@ if (document.readyState === 'loading') {
 // Rendre les fonctions accessibles globalement
 window.openMobileDrawer = openMobileDrawer;
 window.closeMobileDrawer = closeMobileDrawer;
+window.handleAvatarClick = handleAvatarClick;
 window.mobileNavTo = mobileNavTo;
 window.updateMobileAvatar = updateMobileAvatar;
 window.updateMobileNotifBadge = updateMobileNotifBadge;

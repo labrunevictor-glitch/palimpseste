@@ -119,20 +119,27 @@
         <!-- Section Profil Social -->
         <div id="profileSection" class="profile-section">
             <div id="profileLoggedOut" class="login-prompt">
-                <div class="login-prompt-text">🐦 Rejoignez la communauté pour partager vos extraits préférés</div>
-                <button class="login-prompt-btn" onclick="openAuthModal('login')">Se connecter</button>
+                <div class="login-prompt-icon">👤</div>
+                <div class="login-prompt-text">Connectez-vous pour partager</div>
+                <button class="login-prompt-btn" onclick="openAuthModal('login'); closeMobileDrawer();">Se connecter</button>
+                <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawer();">Créer un compte</button>
             </div>
             <div id="profileLoggedIn" style="display:none;">
-                <div class="profile-header">
-                    <div class="profile-avatar" id="sidebarAvatar">👤</div>
-                    <div>
-                        <div class="profile-name" id="sidebarUsername">Utilisateur</div>
-                        <div class="profile-stats">
-                            <span class="profile-stat"><strong id="myExtraitsCount">0</strong> extraits</span>
-                            <span class="profile-stat"><strong id="myLikesCount">0</strong> likes</span>
-                        </div>
-                    </div>
+                <div class="profile-header-card">
+                    <div class="profile-avatar-large" id="sidebarAvatar">👤</div>
+                    <div class="profile-name-large" id="sidebarUsername">Utilisateur</div>
                 </div>
+                <div class="profile-stats-row">
+                    <button class="profile-stat-btn" onclick="showMyExtraits(); closeMobileDrawer();">
+                        <span class="stat-number" id="myExtraitsCount">0</span>
+                        <span class="stat-label">extraits</span>
+                    </button>
+                    <button class="profile-stat-btn" onclick="showMyLikes(); closeMobileDrawer();">
+                        <span class="stat-number" id="myLikesCount">0</span>
+                        <span class="stat-label">likes</span>
+                    </button>
+                </div>
+                <button class="drawer-logout-btn" onclick="logout(); closeMobileDrawer();">🚨 Déconnexion</button>
             </div>
         </div>
         
@@ -215,13 +222,14 @@
         </div>
         
         <!-- Badges -->
-        <div class="stats-section" id="achievementSection">
-            <h3>🏆 Badges</h3>
-            <div class="badges-summary">
-                <span class="badges-count"><span id="unlockedCount">0</span>/<span id="totalBadges">13</span> débloqués</span>
-                <span class="badges-toggle" id="badgesToggle" onclick="toggleBadgesView()">Voir tout</span>
-            </div>
-            <div class="achievements" id="achievementList"></div>
+        <div class="stats-section badges-section" id="achievementSection">
+            <h3>🏆 Badges <span class="badges-count-inline" id="badgesCountInline">0/13</span></h3>
+            <div class="achievements-compact" id="achievementList"></div>
+        </div>
+        
+        <!-- Parcours de lecture -->
+        <div class="stats-section" id="readingPathSection" style="display:none;">
+            <h3>📜Parcours</h3>
             <div class="reading-path" id="readingPath"></div>
         </div>
     </div>
