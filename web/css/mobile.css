@@ -38,10 +38,11 @@
     .header-inner {
         display: flex !important;
         align-items: center !important;
-        gap: 12px !important;
+        gap: 8px !important;
         padding: 8px 12px !important;
         height: 100% !important;
         width: 100% !important;
+        position: relative !important;
     }
     
     /* CACHER tout le desktop header */
@@ -69,6 +70,9 @@
         cursor: pointer !important;
         flex-shrink: 0 !important;
         -webkit-tap-highlight-color: transparent !important;
+        position: relative !important;
+        z-index: 150 !important;
+        pointer-events: auto !important;
     }
     
     .mobile-profile-avatar {
@@ -89,15 +93,9 @@
         display: none !important; /* On garde juste avatar + recherche */
     }
     
-    /* Titre mobile à la place du logo */
+    /* Pas de titre supplémentaire - juste avatar + recherche */
     .header-inner::after {
-        content: "Palimpseste";
-        font-family: var(--font-pixel, monospace);
-        font-size: 1rem;
-        font-weight: bold;
-        color: var(--accent);
-        flex-shrink: 0;
-        order: 2;
+        display: none !important;
     }
     
     /* Recherche prend l'espace restant */
@@ -333,10 +331,10 @@
     
     main {
         margin: 0 !important;
-        padding-top: calc(var(--mobile-header-height) + 8px) !important;
-        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 16px) !important;
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+        padding-top: calc(var(--mobile-header-height) + 60px) !important; /* Plus d'espace pour header + tabs */
+        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px) !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
         width: 100% !important;
         max-width: 100% !important;
         min-height: 100vh !important;
@@ -385,6 +383,7 @@
         z-index: 90 !important;
         background: var(--bg-card) !important;
         border-bottom: 2px solid var(--border) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
     }
     
     .exploration-tabs {
