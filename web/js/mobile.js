@@ -122,25 +122,43 @@ function handleSwipe() {
 
 // Initialiser les éléments mobile
 function initMobile() {
-    // Bouton profil dans le header
+    // Bouton profil dans le header - utiliser event delegation
     const profileBtn = document.getElementById('mobileProfileBtn');
     if (profileBtn) {
-        // Supprimer tous les anciens handlers
-        profileBtn.replaceWith(profileBtn.cloneNode(true));
-        const newBtn = document.getElementById('mobileProfileBtn');
+        // Forcer le style cliquable
+        profileBtn.style.cssText = 'cursor:pointer !important; pointer-events:auto !important; touch-action:manipulation !important;';
         
-        // Ajouter les handlers touch ET click
-        newBtn.addEventListener('touchstart', function(e) {
+        // Handler direct
+        profileBtn.ontouchstart = function(e) {
             e.preventDefault();
             e.stopPropagation();
             openMobileDrawer();
-        }, { passive: false });
-        
-        newBtn.addEventListener('click', function(e) {
+            return false;
+        };
+        profileBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
             openMobileDrawer();
-        });
+            return false;
+        };
+        
+        // Aussi sur l'avatar à l'intérieur
+        const avatar = profileBtn.querySelector('.mobile-profile-avatar');
+        if (avatar) {
+            avatar.style.cssText = 'cursor:pointer !important; pointer-events:auto !important;';
+            avatar.ontouchstart = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openMobileDrawer();
+                return false;
+            };
+            avatar.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openMobileDrawer();
+                return false;
+            };
+        }
         
         console.log('📱 Mobile profile button READY');
     }
@@ -148,20 +166,20 @@ function initMobile() {
     // Bouton menu dans la nav bottom
     const menuBtn = document.getElementById('mobileMenuBtn');
     if (menuBtn) {
-        menuBtn.replaceWith(menuBtn.cloneNode(true));
-        const newMenuBtn = document.getElementById('mobileMenuBtn');
+        menuBtn.style.cssText = 'cursor:pointer !important; pointer-events:auto !important; touch-action:manipulation !important;';
         
-        newMenuBtn.addEventListener('touchstart', function(e) {
+        menuBtn.ontouchstart = function(e) {
             e.preventDefault();
             e.stopPropagation();
             openMobileDrawer();
-        }, { passive: false });
-        
-        newMenuBtn.addEventListener('click', function(e) {
+            return false;
+        };
+        menuBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
             openMobileDrawer();
-        });
+            return false;
+        };
         
         console.log('📱 Mobile menu button READY');
     }
