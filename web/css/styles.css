@@ -610,8 +610,9 @@
         max-height: 35vh !important; /* Limite pour ne pas prendre tout l'écran */
         overflow-y: auto !important;
         z-index: 85 !important;
-        background: linear-gradient(135deg, rgba(255,69,58,0.95), rgba(191,90,242,0.95)) !important;
-        border-bottom: 2px solid var(--border) !important;
+        background: linear-gradient(135deg, rgba(14,13,11,0.98), rgba(28,26,23,0.98)) !important;
+        border-bottom: 1px solid var(--accent-secondary) !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
     }
     
     /* Quand l'intro est visible, le main doit être décalé sous elle */
@@ -1688,10 +1689,11 @@ margin-top: 0; /* Pas de marge car déjà dans le flux après exploration */
 z-index: 85;
 padding: 1rem 1.5rem;
 text-align: center;
-background: linear-gradient(135deg, rgba(255,69,58,0.08), rgba(191,90,242,0.08));
+background: linear-gradient(135deg, rgba(14,13,11,0.95), rgba(28,26,23,0.95));
 backdrop-filter: blur(10px);
 -webkit-backdrop-filter: blur(10px);
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(--accent-secondary);
+box-shadow: 0 2px 12px rgba(0,0,0,0.3);
 animation: fadeIn 0.5s ease;
 }
 .ambiance-intro .close-intro {
