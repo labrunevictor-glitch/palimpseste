@@ -511,7 +511,7 @@
         margin-right: 0 !important;
         padding-left: 0.75rem !important;
         padding-right: 0.75rem !important;
-        padding-top: 4.5rem !important;
+        padding-top: 1rem !important;
         padding-bottom: 5rem !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -520,7 +520,8 @@
     /* Exploration container */
     .exploration-container {
         margin-left: 0 !important;
-        top: 52px !important;
+        margin-top: 56px !important;
+        top: 56px !important;
         /* Pixel border */
         border-bottom: 2px solid var(--border) !important;
         box-shadow: 0 4px 0 var(--pixel-shadow) !important;
@@ -1388,7 +1389,7 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 4.5rem 2rem 4rem;
+padding: 1rem 2rem 4rem;
 }
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
@@ -1618,13 +1619,14 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
    ═══════════════════════════════════════════════════════════ */
 .exploration-container {
 position: sticky;
-top: 52px;
+top: 56px;
 z-index: 90;
 margin-left: 260px;
+margin-top: 56px; /* Compensate for fixed header */
 background: var(--bg);
 border-bottom: 2px solid var(--border);
 box-shadow: 0 4px 0 var(--pixel-shadow);
-padding-top: 0.75rem;
+padding-top: 0;
 }
 
 .exploration-tabs {
