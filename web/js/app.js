@@ -911,11 +911,11 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
         <div class="card-foot">
             <div class="card-keywords">${keywordsHtml}</div>
             <div class="actions">
-                <button class="btn" onclick="toggleLike('${cardId}',this)">♥</button>
-                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager cet extrait">🐦 Partager</button>
-                <button class="btn" onclick="quickShareAndComment('${cardId}')" title="Partager et commenter">💬</button>
-                <button class="btn" onclick="showRelatedAuthors('${cardId}')" title="Explorer auteurs proches">🔗</button>
-                <a class="btn" href="${url}" target="_blank">↗ Wikisource</a>
+                <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="Ajouter aux favoris">♥ <span class="btn-text">J'aime</span></button>
+                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span></button>
+                <button class="btn btn-comment" onclick="quickShareAndComment('${cardId}')" title="Commenter">💬 <span class="btn-text">Commenter</span></button>
+                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
+                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
             </div>
         </div>
     `;
@@ -1021,11 +1021,11 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
         <div class="card-foot">
             <div class="card-keywords">${keywordsHtml}</div>
             <div class="actions">
-                <button class="btn" onclick="toggleLike('${cardId}',this)">♥</button>
-                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager cet extrait">🐦 Partager</button>
-                <button class="btn" onclick="quickShareAndComment('${cardId}')" title="Partager et commenter">💬</button>
-                <button class="btn" onclick="showRelatedAuthors('${cardId}')" title="Explorer auteurs proches">🔗</button>
-                <a class="btn" href="${url}" target="_blank">↗ Wikisource</a>
+                <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="Ajouter aux favoris">♥ <span class="btn-text">J'aime</span></button>
+                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span></button>
+                <button class="btn btn-comment" onclick="quickShareAndComment('${cardId}')" title="Commenter">💬 <span class="btn-text">Commenter</span></button>
+                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
+                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
             </div>
         </div>
     `;
@@ -1144,7 +1144,7 @@ function doubleTapLike(id, event) {
     event.preventDefault();
     const card = document.getElementById(id);
     const heart = document.getElementById('heart-' + id);
-    const likeBtn = card?.querySelector('.card-foot .btn');
+    const likeBtn = card?.querySelector('.card-foot .btn-like');
     
     // Afficher l'animation du coeur
     if (heart) {
@@ -1201,7 +1201,7 @@ function scrollToCard(cardId) {
 function removeFavorite(id) {
     state.likes.delete(id);
     state.favorites = (state.favorites || []).filter(f => f.id !== id);
-    const btn = document.querySelector(`#${id} .btn.active`);
+    const btn = document.querySelector(`#${id} .btn-like.active`);
     if (btn) btn.classList.remove('active');
     saveState();
     renderFavorites();

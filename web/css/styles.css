@@ -448,34 +448,41 @@
         gap: 0.25rem !important;
     }
     
-    /* Garder uniquement le bouton Hasard visible sur mobile (pas le refresh) */
-    .header-actions .header-btn {
+    /* Header mobile - tout masqué sauf essentiel */
+    .header-actions {
         display: none !important;
     }
     
-    /* Le bouton Hasard est le 2e (après refresh), on le garde */
-    .header-actions .header-btn:nth-child(2) {
+    .lang-selector,
+    .user-menu,
+    .notif-btn,
+    .favorites-btn {
+        display: none !important;
+    }
+    
+    /* Header mobile : avatar + recherche + hasard */
+    .header-inner {
         display: flex !important;
-        padding: 0.35rem 0.5rem !important;
-        font-size: 0.65rem !important;
-        min-width: auto !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        padding: 0.5rem 0.75rem !important;
     }
     
-    /* Le bouton refresh est caché sur mobile (on utilise double-tap et bandeau) */
-    .header-actions .header-btn.refresh-btn {
-        display: none !important;
+    /* Logo et avatar mobile */
+    .mobile-profile-btn {
+        order: 1 !important;
     }
     
-    .lang-selector {
-        display: none !important;
+    .mobile-logo {
+        order: 2 !important;
     }
     
-    .user-menu {
-        display: none !important;
-    }
-    
-    .notif-btn {
-        display: none !important;
+    /* Recherche prend l'espace restant */
+    .search-container {
+        order: 3 !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        max-width: none !important;
     }
     
     /* CONTENU PRINCIPAL */
@@ -562,6 +569,47 @@
     
     .card-foot {
         padding: 0.75rem 1rem !important;
+    }
+    
+    /* Actions des cartes sur mobile - en grille 2x2 puis wrap */
+    .card-foot .actions {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+    }
+    
+    .card-foot .actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.7rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Like button plus visible */
+    .card-foot .actions .btn:first-child {
+        background: rgba(230, 57, 70, 0.1) !important;
+        border-color: var(--accent) !important;
+        color: var(--accent) !important;
+        font-size: 1.1rem !important;
+    }
+    
+    .card-foot .actions .btn:first-child.active {
+        background: var(--accent) !important;
+        color: white !important;
+    }
+    
+    /* Masquer les mots-clés sur mobile (trop encombrant) */
+    .card-keywords {
+        display: none !important;
+    }
+    
+    /* Masquer le texte des boutons sur mobile - icônes seulement */
+    .btn .btn-text {
+        display: none !important;
     }
     
     /* Boutons pixel style */
@@ -1877,7 +1925,33 @@ transform: translateY(-1px);
 content: '#';
 opacity: 0.5;
 }
-.actions { display: flex; gap: 0.4rem; }
+.actions {
+display: flex;
+gap: 0.4rem;
+flex-wrap: wrap;
+justify-content: flex-start;
+align-items: center;
+}
+
+/* Boutons d'action individuels */
+.btn-like { transition: all 0.2s ease; }
+.btn-like.active {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: white !important;
+    animation: likePopIn 0.3s ease;
+}
+@keyframes likePopIn {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Texte des boutons - visible sur desktop */
+.btn .btn-text {
+    display: inline;
+}
+
 .btn {
 background: transparent;
 border: 1px solid var(--border);
