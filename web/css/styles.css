@@ -271,6 +271,36 @@
     color: var(--text);
 }
 
+/* ====== DESKTOP MEDIA QUERY (> 900px) ====== */
+@media screen and (min-width: 901px) {
+    /* Assurer que le header desktop affiche tout */
+    .header-actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+        overflow: visible !important;
+    }
+    
+    .header-btn {
+        display: inline-flex !important;
+    }
+    
+    .notif-btn,
+    .user-menu,
+    .lang-selector,
+    .favorites-btn {
+        display: flex !important;
+    }
+    
+    /* Masquer éléments mobile sur desktop */
+    .mobile-profile-btn,
+    .mobile-logo,
+    .mobile-bottom-nav,
+    .mobile-drawer-overlay {
+        display: none !important;
+    }
+}
+
 /* ====== MOBILE MEDIA QUERIES ====== */
 @media screen and (max-width: 900px) {
     /* Afficher les éléments mobile */
@@ -1206,12 +1236,15 @@ backdrop-filter: blur(12px);
 border-bottom: 2px solid var(--border);
 /* Pixel shadow */
 box-shadow: 0 4px 0 var(--pixel-shadow);
+overflow: visible;
 }
 .header-inner {
 padding: 0.75rem 1.5rem;
 display: flex;
 align-items: center;
 gap: 1rem;
+overflow: visible;
+flex-wrap: nowrap;
 }
 .header-title {
 font-family: 'Courier New', monospace;
@@ -1225,7 +1258,7 @@ flex-shrink: 0;
 /* Subtle pixel effect */
 text-shadow: 1px 1px 0 var(--pixel-shadow);
 }
-.header-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+.header-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; overflow: visible; }
 .header-btn {
 background: transparent;
 border: 2px solid var(--border);
