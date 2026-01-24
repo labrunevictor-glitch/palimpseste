@@ -23,6 +23,14 @@ body {
     color: var(--text);
     background-color: var(--bg);
     min-height: 100vh;
+    padding-top: 60px; /* Compense le header fixed (56px + 4px de border/shadow) */
+}
+
+/* Mobile: pas de padding-top car géré différemment */
+@media screen and (max-width: 900px) {
+    body {
+        padding-top: 0;
+    }
 }
 
 /* Texture grain seulement sur desktop */

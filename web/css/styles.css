@@ -1550,10 +1550,9 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
    ═══════════════════════════════════════════════════════════ */
 .exploration-container {
 position: sticky;
-top: 56px;
+top: 0; /* Colle au haut de la zone visible après body padding-top */
 z-index: 90;
 margin-left: 260px;
-margin-top: 56px; /* Compense le header fixed */
 background: var(--bg);
 border-bottom: 2px solid var(--border);
 box-shadow: 0 4px 0 var(--pixel-shadow);
