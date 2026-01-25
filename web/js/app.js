@@ -1213,9 +1213,10 @@ function showMore(cardId) {
 let likedSourceUrls = new Set();
 let likedSourcesData = new Map(); // Stocke les métadonnées avec timestamp
 
-// Charger les likes depuis localStorage au démarrage
-function loadLikedSources() {
+// Charger les likes depuis localStorage ET Supabase
+async function loadLikedSources() {
     try {
+        // D'abord charger depuis localStorage (rapide, offline)
         const saved = localStorage.getItem('palimpseste-likes');
         const savedData = localStorage.getItem('palimpseste-likes-data');
         if (saved) {
@@ -1225,6 +1226,12 @@ function loadLikedSources() {
             const parsed = JSON.parse(savedData);
             likedSourcesData = new Map(Object.entries(parsed));
         }
+        
+        // Si connecté, synchroniser avec Supabase
+        if (supabaseClient && currentUser) {
+            await syncLikesFromSupabase();
+        }
+        
         // Migration : ajouter timestamp aux anciens likes sans data
         likedSourceUrls.forEach(url => {
             if (!likedSourcesData.has(url)) {
@@ -1236,16 +1243,104 @@ function loadLikedSources() {
     }
 }
 
-// Sauvegarder les likes dans localStorage
-function saveLikedSources() {
+// Synchroniser les likes depuis Supabase
+async function syncLikesFromSupabase() {
+    if (!supabaseClient || !currentUser) return;
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('source_likes')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+        
+        if (error) {
+            console.error('Erreur sync likes:', error);
+            return;
+        }
+        
+        if (data && data.length > 0) {
+            // Fusionner avec les likes locaux (Supabase = source de vérité)
+            data.forEach(like => {
+                likedSourceUrls.add(like.source_url);
+                // Ne pas écraser si déjà présent avec plus d'infos
+                if (!likedSourcesData.has(like.source_url) || !likedSourcesData.get(like.source_url).preview) {
+                    likedSourcesData.set(like.source_url, {
+                        timestamp: new Date(like.created_at).getTime(),
+                        title: like.title || '',
+                        author: like.author || '',
+                        preview: like.preview || ''
+                    });
+                }
+            });
+            
+            // Sauvegarder en local
+            saveLikedSourcesLocal();
+            updateLikeCount();
+            console.log('✅ Likes synchronisés depuis Supabase:', data.length);
+        }
+    } catch (e) {
+        console.error('Erreur syncLikesFromSupabase:', e);
+    }
+}
+
+// Sauvegarder les likes localement uniquement
+function saveLikedSourcesLocal() {
     try {
         localStorage.setItem('palimpseste-likes', JSON.stringify([...likedSourceUrls]));
-        // Convertir Map en objet pour JSON
         const dataObj = {};
         likedSourcesData.forEach((value, key) => dataObj[key] = value);
         localStorage.setItem('palimpseste-likes-data', JSON.stringify(dataObj));
     } catch (e) {
-        console.error('Erreur sauvegarde likes:', e);
+        console.error('Erreur sauvegarde likes locale:', e);
+    }
+}
+
+// Sauvegarder les likes dans localStorage ET Supabase
+async function saveLikedSources() {
+    // Toujours sauvegarder en local
+    saveLikedSourcesLocal();
+}
+
+// Ajouter un like dans Supabase
+async function addLikeToSupabase(sourceUrl, metadata) {
+    if (!supabaseClient || !currentUser) return;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('source_likes')
+            .upsert({
+                user_id: currentUser.id,
+                source_url: sourceUrl,
+                title: metadata.title || '',
+                author: metadata.author || '',
+                preview: metadata.preview || ''
+            }, { onConflict: 'user_id,source_url' });
+        
+        if (error) {
+            console.error('Erreur ajout like Supabase:', error);
+        }
+    } catch (e) {
+        console.error('Erreur addLikeToSupabase:', e);
+    }
+}
+
+// Retirer un like de Supabase
+async function removeLikeFromSupabase(sourceUrl) {
+    if (!supabaseClient || !currentUser) return;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('source_likes')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('source_url', sourceUrl);
+        
+        if (error) {
+            console.error('Erreur suppression like Supabase:', error);
+        }
+    } catch (e) {
+        console.error('Erreur removeLikeFromSupabase:', e);
     }
 }
 
@@ -1267,20 +1362,25 @@ function toggleLike(cardId, btn) {
         likedSourcesData.delete(sourceUrl);
         btn?.classList?.remove('active');
         toast('Like retiré');
+        // Sync avec Supabase
+        removeLikeFromSupabase(sourceUrl);
     } else {
         // LIKE - stocker avec métadonnées
-        likedSourceUrls.add(sourceUrl);
-        likedSourcesData.set(sourceUrl, {
+        const metadata = {
             timestamp: Date.now(),
             title: card.dataset.title || extractPageTitleFromUrl(sourceUrl),
             author: card.dataset.author || extractAuthorFromUrl(sourceUrl),
             preview: card.querySelector('.text-preview')?.textContent?.substring(0, 300) || ''
-        });
+        };
+        likedSourceUrls.add(sourceUrl);
+        likedSourcesData.set(sourceUrl, metadata);
         btn?.classList?.add('active');
         toast('❤ Liké !');
+        // Sync avec Supabase
+        addLikeToSupabase(sourceUrl, metadata);
     }
     
-    // Sauvegarder
+    // Sauvegarder localement
     saveLikedSources();
     
     // Mettre à jour le compteur dans la sidebar
@@ -1495,6 +1595,9 @@ function unlikeByUrl(url) {
     likedSourcesData.delete(url);
     saveLikedSources();
     updateLikeCount();
+    
+    // Sync avec Supabase
+    removeLikeFromSupabase(url);
     
     // Mettre à jour le bouton si la carte est visible
     const card = document.querySelector(`.text-card[data-url="${url}"]`);
@@ -1928,5 +2031,6 @@ document.onkeydown = e => { if (e.key === 'Escape') closeReader(); };
 // Exposer les fonctions et variables nécessaires pour les autres modules
 window.state = state;
 window.exploreAuthor = exploreAuthor;
+window.syncLikesFromSupabase = syncLikesFromSupabase;
 
 init();

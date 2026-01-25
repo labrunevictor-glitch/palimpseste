@@ -487,6 +487,9 @@ async function onUserLoggedIn() {
     // Charger le cache des likes de l'utilisateur
     if (typeof loadUserLikesCache === 'function') loadUserLikesCache();
     
+    // Synchroniser les likes de sources depuis Supabase
+    if (typeof syncLikesFromSupabase === 'function') syncLikesFromSupabase();
+    
     // Load user stats (défini dans app.js)
     if (typeof loadUserStats === 'function') loadUserStats();
     

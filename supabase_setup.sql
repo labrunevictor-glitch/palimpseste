@@ -386,6 +386,40 @@ CREATE POLICY "Les utilisateurs peuvent retirer leurs likes de commentaires"
     USING (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 📚 Table des likes sur les sources Wikisource (synchronisés entre appareils)
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS source_likes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    source_url TEXT NOT NULL,
+    title TEXT,
+    author TEXT,
+    preview TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id, source_url)
+);
+
+-- Index pour les performances
+CREATE INDEX IF NOT EXISTS idx_source_likes_user ON source_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_source_likes_created ON source_likes(created_at DESC);
+
+-- RLS pour source_likes
+ALTER TABLE source_likes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Les utilisateurs voient leurs propres likes de sources"
+    ON source_likes FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent liker des sources"
+    ON source_likes FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent retirer leurs likes de sources"
+    ON source_likes FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- ✅ Terminé ! 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 
