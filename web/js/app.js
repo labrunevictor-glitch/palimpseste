@@ -1205,17 +1205,32 @@ async function toggleLike(id, btn) {
     const text = card?.dataset?.text || '';
     const sourceUrl = card?.dataset?.url || '';
     
+    // Éviter les doubles clics
+    if (btn?.classList?.contains('loading')) return;
     btn?.classList?.add('loading');
     
     try {
-        // Chercher si un extrait existe déjà pour cette source
-        const { data: existingExtraits } = await supabaseClient
+        // Chercher si un extrait existe déjà pour cette source ET cet utilisateur
+        // On cherche d'abord un extrait partagé par l'utilisateur avec cette URL
+        let { data: existingExtraits } = await supabaseClient
             .from('extraits')
             .select('id')
             .eq('source_url', sourceUrl)
+            .eq('user_id', currentUser.id)
             .limit(1);
         
+        // Si pas trouvé, chercher n'importe quel extrait avec cette URL
+        if (!existingExtraits || existingExtraits.length === 0) {
+            const { data: anyExtraits } = await supabaseClient
+                .from('extraits')
+                .select('id')
+                .eq('source_url', sourceUrl)
+                .limit(1);
+            existingExtraits = anyExtraits;
+        }
+        
         let extraitId;
+        let isNewExtrait = false;
         
         if (existingExtraits && existingExtraits.length > 0) {
             extraitId = existingExtraits[0].id;
@@ -1235,31 +1250,60 @@ async function toggleLike(id, btn) {
             
             if (error) throw error;
             extraitId = newExtrait.id;
+            isNewExtrait = true;
         }
         
-        // Vérifier si déjà liké
+        // Vérifier si déjà liké avec maybeSingle pour éviter les erreurs
         const { data: existingLike } = await supabaseClient
             .from('likes')
             .select('id')
             .eq('user_id', currentUser.id)
             .eq('extrait_id', extraitId)
-            .single();
+            .maybeSingle();
         
         if (existingLike) {
-            // Unlike
-            await supabaseClient.from('likes').delete().eq('id', existingLike.id);
+            // Unlike - Supprimer le like
+            const { error } = await supabaseClient
+                .from('likes')
+                .delete()
+                .eq('id', existingLike.id);
+            
+            if (error) throw error;
+            
+            // Décrémenter le compteur likes_count
+            await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
+            
             btn?.classList?.remove('active');
             state.likes.delete(id);
+            
+            // Mettre à jour le cache global si disponible
+            if (typeof userLikesCache !== 'undefined') {
+                userLikesCache.delete(extraitId);
+            }
+            
             toast('💔 Like retiré');
         } else {
-            // Like
-            await supabaseClient.from('likes').insert({
-                user_id: currentUser.id,
-                extrait_id: extraitId,
-                created_at: new Date().toISOString()
-            });
+            // Like - Ajouter le like
+            const { error } = await supabaseClient
+                .from('likes')
+                .insert({
+                    user_id: currentUser.id,
+                    extrait_id: extraitId
+                });
+            
+            if (error) throw error;
+            
+            // Incrémenter le compteur likes_count
+            await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
+            
             btn?.classList?.add('active');
             state.likes.add(id);
+            
+            // Mettre à jour le cache global si disponible
+            if (typeof userLikesCache !== 'undefined') {
+                userLikesCache.add(extraitId);
+            }
+            
             toast('❤️ Liké !');
             
             // Ajouter l'auteur aux likedAuthors
@@ -1268,7 +1312,7 @@ async function toggleLike(id, btn) {
             }
         }
         
-        // Mettre à jour les compteurs
+        // Mettre à jour les compteurs dans la sidebar
         loadUserStats();
         
     } catch (err) {

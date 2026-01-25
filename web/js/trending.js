@@ -129,59 +129,72 @@ async function toggleLikeTrending(extraitId, btn) {
         toast('🔐 Connectez-vous pour liker');
         return;
     }
+    if (!supabaseClient) return;
     
-    // Utiliser le cache global si disponible
-    const wasLiked = typeof isExtraitLiked === 'function' ? isExtraitLiked(extraitId) : btn.classList.contains('liked');
+    // Éviter les doubles clics
+    if (btn.disabled) return;
+    btn.disabled = true;
     
-    // Mise à jour optimiste de l'UI
+    // Éléments UI
     const card = btn.closest('.trending-card');
     const statEl = card?.querySelector('.trending-stat');
     const countEl = statEl?.querySelector('span:last-child');
     const currentCount = parseInt(countEl?.textContent) || 0;
     
-    // Mettre à jour l'UI immédiatement
-    if (wasLiked) {
-        btn.classList.remove('liked');
-        btn.innerHTML = '🤍 Like';
-        if (countEl) countEl.textContent = Math.max(0, currentCount - 1);
-    } else {
-        btn.classList.add('liked');
-        btn.innerHTML = '❤️ Like';
-        if (countEl) countEl.textContent = currentCount + 1;
-    }
-    
-    // Animation
-    btn.style.transform = 'scale(1.2)';
-    setTimeout(() => btn.style.transform = 'scale(1)', 150);
-    
-    // Mettre à jour le cache global
-    if (typeof userLikesCache !== 'undefined') {
-        if (wasLiked) {
-            userLikesCache.delete(extraitId);
-        } else {
-            userLikesCache.add(extraitId);
-        }
-    }
-    if (typeof likesCountCache !== 'undefined') {
-        likesCountCache[extraitId] = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
-    }
-    
     try {
+        // Vérifier l'état réel dans la DB
+        const { data: existingLike } = await supabaseClient
+            .from('likes')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('extrait_id', extraitId)
+            .maybeSingle();
+        
+        const wasLiked = !!existingLike;
+        const newCount = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+        
+        // Mise à jour optimiste de l'UI
         if (wasLiked) {
-            await supabaseClient
+            btn.classList.remove('liked');
+            btn.innerHTML = '🤍 Like';
+        } else {
+            btn.classList.add('liked');
+            btn.innerHTML = '❤️ Like';
+        }
+        if (countEl) countEl.textContent = newCount;
+        
+        // Animation
+        btn.style.transform = 'scale(1.2)';
+        setTimeout(() => btn.style.transform = 'scale(1)', 150);
+        
+        // Mettre à jour le cache global
+        if (typeof userLikesCache !== 'undefined') {
+            if (wasLiked) {
+                userLikesCache.delete(extraitId);
+            } else {
+                userLikesCache.add(extraitId);
+            }
+        }
+        if (typeof likesCountCache !== 'undefined') {
+            likesCountCache[extraitId] = newCount;
+        }
+        
+        // Synchronisation avec la DB
+        if (wasLiked) {
+            const { error } = await supabaseClient
                 .from('likes')
                 .delete()
-                .eq('extrait_id', extraitId)
-                .eq('user_id', currentUser.id);
+                .eq('user_id', currentUser.id)
+                .eq('extrait_id', extraitId);
             
-            // Décrémenter le compteur likes_count
+            if (error) throw error;
             await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
         } else {
-            await supabaseClient
+            const { error } = await supabaseClient
                 .from('likes')
                 .insert({ extrait_id: extraitId, user_id: currentUser.id });
             
-            // Incrémenter le compteur likes_count
+            if (error) throw error;
             await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
         }
         
@@ -190,20 +203,18 @@ async function toggleLikeTrending(extraitId, btn) {
         
     } catch (err) {
         console.error('Erreur like trending:', err);
-        // Rollback en cas d'erreur
-        if (wasLiked) {
-            btn.classList.add('liked');
-            btn.innerHTML = '❤️ Like';
-            if (countEl) countEl.textContent = currentCount;
-            if (typeof userLikesCache !== 'undefined') userLikesCache.add(extraitId);
-        } else {
+        // Rollback - restaurer l'UI à l'état précédent
+        if (btn.classList.contains('liked')) {
             btn.classList.remove('liked');
             btn.innerHTML = '🤍 Like';
-            if (countEl) countEl.textContent = currentCount;
-            if (typeof userLikesCache !== 'undefined') userLikesCache.delete(extraitId);
+        } else {
+            btn.classList.add('liked');
+            btn.innerHTML = '❤️ Like';
         }
-        if (typeof likesCountCache !== 'undefined') likesCountCache[extraitId] = currentCount;
+        if (countEl) countEl.textContent = currentCount;
         toast('❌ Erreur');
+    } finally {
+        btn.disabled = false;
     }
 }
 
