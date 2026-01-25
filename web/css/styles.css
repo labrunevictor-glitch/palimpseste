@@ -2432,7 +2432,7 @@ gap: 0.4rem;
 .favorites-overlay {
 position: fixed;
 top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(13,13,13,0.95);
+background: var(--overlay-bg);
 z-index: 250;
 display: none;
 animation: fadeIn 0.3s ease;
