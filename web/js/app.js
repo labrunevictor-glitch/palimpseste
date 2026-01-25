@@ -1381,13 +1381,15 @@ async function openFavoritesView() {
                 preview: card.querySelector('.text-preview')?.textContent?.substring(0, 200) || ''
             });
         } else {
-            // URL likée mais pas dans le feed actuel
+            // URL likée mais pas dans le feed actuel - décoder l'URL pour l'affichage
+            const decodedTitle = decodeURIComponent(url.split('/').pop() || 'Texte');
             likedCards.push({
                 id: null,
-                title: url.split('/').pop() || 'Texte',
+                title: decodedTitle,
                 author: extractAuthorFromUrl(url),
                 url: url,
-                preview: ''
+                preview: '',
+                pageTitle: extractPageTitleFromUrl(url)
             });
         }
     });
@@ -1403,16 +1405,19 @@ async function openFavoritesView() {
         return;
     }
     
-    grid.innerHTML = likedCards.map(item => `
-        <div class="favorite-card" onclick="${item.id ? `closeFavoritesView(); scrollToCard('${item.id}')` : `loadSourceByUrl('${item.url}')`}">
+    grid.innerHTML = likedCards.map(item => {
+        // Échapper l'URL pour éviter les problèmes avec les caractères spéciaux
+        const safeUrl = item.url.replace(/'/g, "\\'");
+        return `
+        <div class="favorite-card" onclick="${item.id ? `closeFavoritesView(); scrollToCard('${item.id}')` : `loadSourceByUrl('${safeUrl}')`}">
             <div class="favorite-card-content">
                 <div class="favorite-card-title">${esc(item.title)}</div>
                 <div class="favorite-card-author">${esc(item.author)}</div>
                 ${item.preview ? `<div class="favorite-card-preview">${esc(item.preview)}</div>` : ''}
             </div>
-            <button class="favorite-card-remove" onclick="event.stopPropagation(); unlikeByUrl('${item.url}')" title="Retirer">✕</button>
+            <button class="favorite-card-remove" onclick="event.stopPropagation(); unlikeByUrl('${safeUrl}')" title="Retirer">✕</button>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Extraire l'auteur depuis l'URL
@@ -1420,9 +1425,19 @@ function extractAuthorFromUrl(url) {
     const parts = url.split('/');
     // Format typique: .../Auteur/oeuvre.txt
     if (parts.length >= 2) {
-        return parts[parts.length - 2] || 'Anonyme';
+        return decodeURIComponent(parts[parts.length - 2] || 'Anonyme');
     }
     return 'Anonyme';
+}
+
+// Extraire le titre de page Wikisource depuis l'URL
+function extractPageTitleFromUrl(url) {
+    // URL format: https://fr.wikisource.org/wiki/Titre_de_la_page
+    const match = url.match(/\/wiki\/(.+)$/);
+    if (match) {
+        return decodeURIComponent(match[1]);
+    }
+    return null;
 }
 
 // Unlike via URL
@@ -1443,9 +1458,48 @@ function unlikeByUrl(url) {
 }
 
 // Charger une source par URL (si pas dans le feed)
-function loadSourceByUrl(url) {
+async function loadSourceByUrl(url) {
     closeFavoritesView();
-    toast('📚 Ce texte n\'est plus dans le feed. Rechargez pour le retrouver !');
+    
+    // Extraire le titre de la page depuis l'URL
+    const pageTitle = extractPageTitleFromUrl(url);
+    if (!pageTitle) {
+        toast('❌ Impossible d\'extraire le titre depuis l\'URL');
+        return;
+    }
+    
+    // Déterminer le wikisource depuis l'URL
+    let ws = getCurrentWikisource();
+    const urlMatch = url.match(/https?:\/\/([a-z]{2})\.wikisource\.org/);
+    if (urlMatch) {
+        const lang = urlMatch[1];
+        ws = WIKISOURCES.find(w => w.lang === lang) || ws;
+    }
+    
+    toast('⏳ Chargement du texte...');
+    
+    try {
+        const result = await fetchText(pageTitle, 0, ws);
+        if (result?.text) {
+            // Ajouter la carte au feed
+            renderCard(result, pageTitle, ws);
+            // Scroller vers la nouvelle carte
+            setTimeout(() => {
+                const newCard = document.querySelector(`.text-card[data-url="${url}"]`);
+                if (newCard) {
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    newCard.style.boxShadow = '0 0 30px rgba(255,69,58,0.5)';
+                    setTimeout(() => newCard.style.boxShadow = '', 2000);
+                }
+            }, 100);
+            toast('✅ Texte chargé !');
+        } else {
+            toast('❌ Impossible de charger ce texte');
+        }
+    } catch (e) {
+        console.error('Erreur chargement texte liké:', e);
+        toast('❌ Erreur lors du chargement');
+    }
 }
 
 function closeFavoritesView() {
