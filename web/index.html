@@ -205,45 +205,22 @@
             <div class="fun-stat" id="funStat"></div>
         </div>
         
-        <!-- Statistiques de lecture -->
-        <div class="stats-section reading-stats-section">
-            <h3>❧ Lecture</h3>
-            <div class="reading-stats-grid">
-                <div class="reading-stat-item">
-                    <div class="reading-stat-icon">⧗</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="totalReadingTime">0 min</div>
-                        <div class="reading-stat-label">temps de lecture</div>
-                    </div>
-                </div>
-                <div class="reading-stat-item">
-                    <div class="reading-stat-icon">§</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="totalWordsRead">0</div>
-                        <div class="reading-stat-label">mots lus</div>
-                    </div>
-                </div>
-                <div class="reading-stat-item streak-item">
-                    <div class="reading-stat-icon">✶</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="currentStreak">0</div>
-                        <div class="reading-stat-label">jours d'affilée</div>
-                    </div>
-                </div>
-            </div>
-            <div class="streak-section">
-                <div class="streak-bar">
-                    <div class="streak-progress" id="streakProgress"></div>
-                </div>
-                <div class="streak-hint" id="streakHint">Continuez demain !</div>
-            </div>
-            <div class="weekly-chart" id="weeklyChart"></div>
+        <!-- Genres explorés - EN PREMIER -->
+        <div class="stats-section genres-section" id="genresSection">
+            <h3>✦ Univers littéraires</h3>
+            <div class="genre-chart" id="genreChart"></div>
         </div>
         
-        <!-- Genres explorés - CACHÉ SUR MOBILE -->
-        <div class="stats-section genres-section" id="genresSection">
-            <h3>Genres explorés</h3>
-            <div class="genre-chart" id="genreChart"></div>
+        <!-- Statistiques de lecture - DISCRET -->
+        <div class="stats-section reading-stats-section reading-stats-compact">
+            <div class="reading-stats-inline">
+                <span class="reading-inline-item"><span class="reading-inline-icon">⧗</span><span id="totalReadingTime">0 min</span></span>
+                <span class="reading-inline-sep">·</span>
+                <span class="reading-inline-item"><span class="reading-inline-icon">§</span><span id="totalWordsRead">0</span> mots</span>
+                <span class="reading-inline-sep">·</span>
+                <span class="reading-inline-item streak-inline"><span class="reading-inline-icon">✶</span><span id="currentStreak">0</span>j</span>
+            </div>
+            <div class="weekly-chart" id="weeklyChart"></div>
         </div>
         
         <!-- Connexions -->

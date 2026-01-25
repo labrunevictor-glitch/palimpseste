@@ -989,28 +989,46 @@ width: 24px;
 text-align: right;
 }
 
-/* Genre pills */
+/* Genre pills - Design attractif */
+.genres-section {
+    background: linear-gradient(135deg, rgba(255,69,58,0.05), rgba(191,90,242,0.05)) !important;
+    border: 1px solid rgba(255,69,58,0.15) !important;
+    border-radius: 12px !important;
+}
+.genres-section h3 {
+    color: var(--accent) !important;
+    font-size: 0.85rem !important;
+}
 .genre-chart {
-display: flex;
-flex-wrap: wrap;
-gap: 0.5rem;
-margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
 }
 .genre-pill {
-display: flex;
-align-items: center;
-gap: 0.4rem;
-padding: 0.4rem 0.75rem;
-background: var(--bg-elevated);
-border-radius: 100px;
-border: 1px solid var(--border);
-font-size: 0.7rem;
-color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.8rem;
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.genre-pill:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(255,69,58,0.15);
 }
 .genre-dot {
-width: 8px;
-height: 8px;
-border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
 }
 
 /* Connexions */
@@ -2900,28 +2918,55 @@ background: var(--accent) !important;
 color: var(--bg) !important;
 }
 
-/* Statistiques de lecture - Design épuré */
+/* Statistiques de lecture - Version compacte inline */
 .reading-stats-section {
-background: transparent;
-border: none;
-padding: 0 !important;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0 !important;
 }
 .reading-stats-section h3 {
-display: none;
+    display: none;
+}
+.reading-stats-compact {
+    padding: 0.5rem !important;
+}
+.reading-stats-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.4rem 0;
+}
+.reading-inline-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.reading-inline-icon {
+    opacity: 0.6;
+    font-size: 0.7rem;
+}
+.reading-inline-sep {
+    opacity: 0.3;
+}
+.streak-inline {
+    color: var(--accent);
 }
 .reading-stats-grid {
-display: flex;
-flex-direction: column;
-gap: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 .reading-stat-item {
-display: flex;
-align-items: center;
-gap: 0.75rem;
-padding: 0.6rem 0;
-background: transparent;
-border: none;
-border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
 }
 .reading-stat-item:last-child {
 border-bottom: none;
@@ -3126,59 +3171,60 @@ color: var(--text-secondary);
 margin-top: 0.2rem;
 }
 
-/* ═══ Badge Categories ═══ */
+/* ═══ Badge Categories - Compact ═══ */
 .badge-category {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
 }
 .badge-category-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
+    gap: 0.4rem;
+    padding: 0.3rem 0;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 .badge-category-icon {
-    font-size: 1.1rem;
-    opacity: 0.8;
+    font-size: 0.8rem;
+    opacity: 0.7;
 }
 .badge-category-name {
     font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    color: var(--text);
+    color: var(--text-secondary);
     flex: 1;
 }
 .badge-category-count {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.6rem;
+    color: var(--text-muted);
     background: var(--bg-elevated);
-    padding: 0.2rem 0.5rem;
+    padding: 0.15rem 0.4rem;
     border-radius: 4px;
 }
 .badge-category-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+    gap: 0.25rem;
 }
 .badge-category-grid .achievement {
     flex-direction: column;
     text-align: center;
-    padding: 0.75rem 0.5rem;
-    gap: 0.4rem;
+    padding: 0.3rem;
+    gap: 0;
+    border-radius: 6px;
 }
 .badge-category-grid .badge-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 1.4rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.9rem;
     margin: 0 auto;
+    background: transparent;
 }
 .badge-category-grid .badge-info {
-    width: 100%;
+    display: none;
 }
 .badge-category-grid .badge-name {
-    font-size: 0.75rem;
-    justify-content: center;
+    display: none;
 }
 
 /* Mini progress bar for badges */
