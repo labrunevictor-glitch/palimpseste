@@ -582,39 +582,14 @@
     }
     
     /* ═══════════════════════════════════════════
-       STATS - Nombre de textes en GROS
+       STATS - Masquer complètement sur mobile
        ═══════════════════════════════════════════ */
     .stats-panel .stats-section {
         display: none !important;
     }
     
-    /* Section "Votre dérive" - la seule visible pour les stats */
+    /* Section "Votre dérive" - CACHÉE sur mobile */
     .stats-panel .stats-section:has(.big-number) {
-        display: block !important;
-        padding: 20px 16px !important;
-        background: var(--bg-elevated) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 14px !important;
-        margin-bottom: 0 !important;
-        text-align: center !important;
-        flex-shrink: 0 !important;
-    }
-    
-    .stats-panel .stats-section:has(.big-number) h3 {
-        display: none !important;
-    }
-    
-    .stats-panel .big-number {
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        color: var(--accent) !important;
-        text-align: center !important;
-        line-height: 1 !important;
-        margin: 0 0 6px 0 !important;
-        text-shadow: 0 4px 20px rgba(230, 57, 70, 0.3) !important;
-    }
-    
-    .stats-panel .big-number-label {
         display: none !important;
     }
     
