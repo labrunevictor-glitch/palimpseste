@@ -241,7 +241,7 @@ async function sendPasswordReset() {
 function showForgotErrorWithContact(errorMsg) {
     const errorEl = document.getElementById('forgotError');
     errorEl.innerHTML = `
-        <div>❌ ${errorMsg}</div>
+        <div>${errorMsg}</div>
         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
             <strong>Alternative :</strong> Contactez l'admin sur Discord ou par email pour réinitialiser votre mot de passe manuellement.
         </div>

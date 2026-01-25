@@ -126,7 +126,7 @@ async function loadDiscoverUsers() {
         .limit(50);
     
     if (error || !profiles) {
-        container.innerHTML = '<div class="social-empty">❌ Erreur lors du chargement</div>';
+        container.innerHTML = '<div class="social-empty">Erreur lors du chargement</div>';
         return;
     }
     

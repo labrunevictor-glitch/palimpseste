@@ -376,19 +376,19 @@ function renderSearchTabs() {
     
     tabs.innerHTML = `
         <button class="search-tab ${currentSearchTab === 'users' ? 'active' : ''}" onclick="switchSearchTab('users')">
-            👥 Utilisateurs <span class="count">${usersCount}</span>
+            Utilisateurs <span class="count">${usersCount}</span>
         </button>
         <button class="search-tab ${currentSearchTab === 'all' ? 'active' : ''}" onclick="switchSearchTab('all')">
-            📚 Textes <span class="count">${totalAll}</span>
+            Textes <span class="count">${totalAll}</span>
         </button>
         <button class="search-tab ${currentSearchTab === 'wikisource' ? 'active' : ''}" onclick="switchSearchTab('wikisource')">
-            📜 Wikisource <span class="count">${searchResults.wikisource.length}</span>
+            Wikisource <span class="count">${searchResults.wikisource.length}</span>
         </button>
         <button class="search-tab ${currentSearchTab === 'poetrydb' ? 'active' : ''}" onclick="switchSearchTab('poetrydb')">
-            🎭 Poésie <span class="count">${searchResults.poetrydb.length}</span>
+            Poésie <span class="count">${searchResults.poetrydb.length}</span>
         </button>
         <button class="search-tab ${currentSearchTab === 'gutenberg' ? 'active' : ''}" onclick="switchSearchTab('gutenberg')">
-            📖 Gutenberg <span class="count">${searchResults.gutenberg.length}</span>
+            Gutenberg <span class="count">${searchResults.gutenberg.length}</span>
         </button>
     `;
 }
@@ -475,7 +475,7 @@ function renderSearchResults(tab) {
     }
     
     grid.innerHTML = results.map((r, idx) => {
-        const sourceIcon = r.source === 'wikisource' ? '📜' : r.source === 'poetrydb' ? '🎭' : '📖';
+        const sourceIcon = r.source === 'wikisource' ? '§' : r.source === 'poetrydb' ? '❧' : '¶';
         const sourceName = r.source === 'wikisource' ? 'Wikisource' : r.source === 'poetrydb' ? 'PoetryDB' : 'Gutenberg';
         const author = r.author || extractAuthorFromTitle(r.title) || '';
         
@@ -558,7 +558,7 @@ async function openSearchResult(idx, source) {
     if (!result) return;
     
     closeSearchResults();
-    toast('📖 Chargement...');
+    toast('Chargement...');
     
     if (result.source === 'wikisource') {
         // Charger le texte depuis Wikisource
@@ -586,7 +586,7 @@ async function openSearchResult(idx, source) {
         // Ouvrir le livre sur Gutenberg
         const readUrl = `https://www.gutenberg.org/ebooks/${result.id}`;
         window.open(readUrl, '_blank');
-        toast('📖 Ouverture sur Project Gutenberg');
+        toast('Ouverture sur Project Gutenberg');
     }
 }
 

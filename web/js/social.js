@@ -236,7 +236,7 @@ async function loadSocialFeed() {
     const { data, error } = await query;
     
     if (error) {
-        container.innerHTML = `<div class="social-empty">❌ Erreur: ${error.message}</div>`;
+        container.innerHTML = `<div class="social-empty">Erreur : ${error.message}</div>`;
         return;
     }
     
@@ -551,7 +551,7 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
             btnEl.innerHTML = '↗ Ouvrir sur Wikisource';
             btnEl.onclick = () => window.open(sourceUrl, '_blank');
         }
-        toast('📖 Ouverture de la source...');
+        toast('Ouverture de la source...');
     }
 }
 
@@ -609,7 +609,7 @@ async function showMyLikes() {
         renderSocialFeed();
         
     } catch (err) {
-        container.innerHTML = `<div class="social-empty">❌ Erreur: ${err.message}</div>`;
+        container.innerHTML = `<div class="social-empty">Erreur : ${err.message}</div>`;
     }
 }
 

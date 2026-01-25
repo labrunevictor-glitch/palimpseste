@@ -876,36 +876,74 @@
         left: 0 !important;
         right: 0 !important;
         z-index: 85 !important;
-        margin-left: 0 !important;
-        padding: 0.75rem 1rem !important;
+        margin: 0 !important;
+        padding: 1rem !important;
+        padding-top: 2.5rem !important; /* Espace pour le bouton fermer */
         text-align: center !important;
+        background: var(--bg-card) !important;
+        border-bottom: 2px solid var(--accent-secondary) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        max-height: 50vh !important;
+        overflow-y: auto !important;
     }
     
+    .ambiance-intro .close-intro {
+        position: absolute !important;
+        top: 0.5rem !important;
+        right: 0.5rem !important;
+        width: 2.2rem !important;
+        height: 2.2rem !important;
+        font-size: 1.1rem !important;
+        background: var(--bg-elevated) !important;
+        border: 2px solid var(--border) !important;
+        border-radius: 50% !important;
+        color: var(--text) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 100 !important;
+        cursor: pointer !important;
+        box-shadow: 2px 2px 0 var(--pixel-shadow) !important;
+    }
+
     .ambiance-intro h2 {
-        font-size: 1rem !important;
-        margin-bottom: 0.25rem !important;
+        font-size: 1.15rem !important;
+        margin-bottom: 0.4rem !important;
+        margin-top: 0 !important;
+        font-weight: 600 !important;
+        color: var(--text) !important;
+    }
+
+    .ambiance-intro p {
+        font-size: 0.8rem !important;
+        margin-bottom: 0.5rem !important;
+        color: var(--text-secondary) !important;
     }
     
-    .ambiance-intro p {
-        font-size: 0.75rem !important;
+    .ambiance-intro .period-badge {
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.6rem !important;
+        background: var(--accent-secondary) !important;
+        border-radius: 4px !important;
+        display: inline-block !important;
         margin-bottom: 0.5rem !important;
     }
-    
+
     .ambiance-intro .ambiance-tags {
-        gap: 0.25rem !important;
-        margin-top: 0.4rem !important;
-    }
-    
-    .ambiance-intro .ambiance-tag {
-        font-size: 0.6rem !important;
-        padding: 0.15rem 0.4rem !important;
-    }
-    
-    .exploration-tabs {
+        gap: 0.4rem !important;
+        margin-top: 0.5rem !important;
         display: flex !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .ambiance-intro .ambiance-tag {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.5rem !important;
+        background: var(--bg-elevated) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
         padding: 8px !important;
         gap: 8px !important;
     }
