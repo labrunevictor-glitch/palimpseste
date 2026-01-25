@@ -462,7 +462,15 @@ function saveState() {
 function updateStats() {
     // Mettre à jour les stats du panneau
     document.getElementById('totalRead').textContent = state.readCount;
-    document.getElementById('likeCountPanel').textContent = state.likes.size;
+    
+    // Favoris locaux - utiliser state.favorites comme source de vérité
+    const favCount = (state.favorites || []).length;
+    document.getElementById('likeCountPanel').textContent = favCount;
+    
+    // Header desktop - bouton favoris
+    const favCountHeader = document.getElementById('favCount');
+    if (favCountHeader) favCountHeader.textContent = favCount;
+    
     document.getElementById('authorCount').textContent = Object.keys(state.authorStats).length;
     
     // Titre dynamique selon le contexte
@@ -1378,11 +1386,15 @@ function removeFavoriteFromView(id) {
 }
 
 function updateFavCount() {
+    const count = (state.favorites || []).length;
+    
+    // Header desktop
     const countEl = document.getElementById('favCount');
-    if (countEl) {
-        const count = (state.favorites || []).length;
-        countEl.textContent = count;
-    }
+    if (countEl) countEl.textContent = count;
+    
+    // Panneau stats (sidebar)
+    const panelEl = document.getElementById('likeCountPanel');
+    if (panelEl) panelEl.textContent = count;
 }
 
 // Trouver les auteurs connexes basés sur les favoris et les découvertes
