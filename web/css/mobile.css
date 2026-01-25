@@ -714,17 +714,17 @@
     .stats-panel .badges-section,
     .stats-panel #achievementSection {
         display: block !important;
-        padding: 16px !important;
+        padding: 12px !important;
         background: linear-gradient(145deg, #1a1a1c, #141416) !important;
         border: 1px solid #2a2a2d !important;
-        border-radius: 14px !important;
-        margin-bottom: 20px !important;
+        border-radius: 10px !important;
+        margin-bottom: 16px !important;
     }
     
     .stats-panel .badges-section h3 {
-        font-size: 0.9rem !important;
+        font-size: 0.8rem !important;
         font-weight: 600 !important;
-        margin: 0 0 12px 0 !important;
+        margin: 0 0 8px 0 !important;
         padding: 0 !important;
         color: #fff !important;
         display: flex !important;
@@ -733,32 +733,32 @@
     }
     
     .stats-panel .badges-count-inline {
-        font-size: 0.75rem !important;
+        font-size: 0.7rem !important;
         color: #6d6a65 !important;
         font-weight: 400 !important;
     }
     
-    /* Liste des badges en grille 5 colonnes - ICÔNES SEULES */
+    /* Liste des badges en grille 8 colonnes - ICÔNES MINI */
     .stats-panel .achievements-compact,
     .stats-panel #achievementList {
         display: grid !important;
-        grid-template-columns: repeat(5, 1fr) !important;
-        gap: 8px !important;
+        grid-template-columns: repeat(8, 1fr) !important;
+        gap: 4px !important;
     }
     
-    /* Chaque badge = juste l'icône */
+    /* Chaque badge = juste l'icône mini */
     .stats-panel #achievementList .achievement,
     .stats-panel .achievements-compact .achievement {
         width: 100% !important;
         aspect-ratio: 1 !important;
         height: auto !important;
-        min-height: 44px !important;
-        max-height: 60px !important;
+        min-height: 28px !important;
+        max-height: 36px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         background: #0d0d0d !important;
-        border-radius: 10px !important;
+        border-radius: 6px !important;
         border: 1px solid #2a2a2d !important;
         padding: 0 !important;
         margin: 0 !important;
@@ -769,7 +769,7 @@
     
     /* Badge verrouillé */
     .stats-panel #achievementList .achievement.locked {
-        opacity: 0.3 !important;
+        opacity: 0.25 !important;
         filter: grayscale(1) !important;
     }
     
@@ -779,16 +779,19 @@
         filter: none !important;
         background: linear-gradient(145deg, #1e1e21, #161618) !important;
         border-color: #e63946 !important;
-        box-shadow: 0 0 10px rgba(230, 57, 70, 0.25) !important;
+        box-shadow: 0 0 6px rgba(230, 57, 70, 0.2) !important;
     }
     
-    /* Icône du badge - VISIBLE */
+    /* Icône du badge - VISIBLE - TAILLE RÉDUITE */
     .stats-panel #achievementList .badge-icon {
-        font-size: 1.4rem !important;
+        font-size: 0.9rem !important;
         line-height: 1 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        width: 20px !important;
+        height: 20px !important;
+        background: transparent !important;
     }
     
     /* CACHER tout le reste du badge (texte, progress, etc.) */
