@@ -567,7 +567,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
                         a partagé un extrait
                     </div>
                     <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
-                    <div class="activity-snippet" style="font-style: normal; color: var(--text-secondary);">Source : ${escapeHtml(source)}</div>
+                    <div class="activity-snippet" style="font-style: normal; color: var(--text-secondary);">📖 ${escapeHtml(source)}</div>
                     <div class="activity-time">${timeAgo}</div>
                 </div>
                 <div class="activity-icon">📝</div>

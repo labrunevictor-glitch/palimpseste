@@ -180,7 +180,7 @@ async function quickShareAndComment(cardId) {
         
         if (existing) {
             // Ouvrir le feed social et afficher cet extrait
-            toast('Cet extrait existe déjà, ouverture...');
+            toast('📖 Cet extrait existe déjà, ouverture...');
             openSocialFeed();
             setTimeout(async () => {
                 await viewExtraitById(existing.id);
@@ -537,7 +537,7 @@ function recordReading(wordCount) {
         if (stats.streak > (stats.bestStreak || 0)) {
             stats.bestStreak = stats.streak;
             if (stats.streak >= 7) {
-                toast('Streak record : ' + stats.streak + ' jours !');
+                toast('🔥 Streak record : ' + stats.streak + ' jours !');
             }
         }
     } else {
@@ -601,11 +601,11 @@ function updateReadingStatsUI() {
         } else if (streak < 3) {
             hintEl.textContent = `${streak} jour${streak > 1 ? 's' : ''} - Continuez demain !`;
         } else if (streak < 7) {
-            hintEl.textContent = `${streak} jours — Plus que ${7 - streak} pour la semaine !`;
+            hintEl.textContent = `🔥 ${streak} jours ! Plus que ${7 - streak} pour la semaine complète !`;
         } else if (streak < 30) {
-            hintEl.textContent = `${streak} jours — Vers le mois complet !`;
+            hintEl.textContent = `🔥🔥 ${streak} jours ! Vers le mois complet !`;
         } else {
-            hintEl.textContent = `${streak} jours — Incroyable dévotion !`;
+            hintEl.textContent = `🏆 ${streak} jours ! Incroyable dévotion !`;
         }
     }
     

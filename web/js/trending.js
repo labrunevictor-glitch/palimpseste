@@ -13,7 +13,7 @@ function closeTrendingFeed() {
 
 async function loadTrendingFeed() {
     const container = document.getElementById('trendingFeed');
-    container.innerHTML = '<div class="trending-loading">Chargement des tendances...</div>';
+    container.innerHTML = '<div class="trending-loading">🔥 Chargement des tendances...</div>';
     
     if (!supabaseClient) {
         container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">🔌</div><p>Connexion requise pour voir les tendances</p></div>';
@@ -97,7 +97,7 @@ async function loadTrendingFeed() {
                     <div class="trending-card-footer">
                         <div class="trending-stats">
                             <div class="trending-stat ${isHot ? 'hot' : ''}">
-                                <span>${isHot ? '★' : '♡'}</span>
+                                <span>${isHot ? '🔥' : '❤️'}</span>
                                 <span>${likesCount}</span>
                             </div>
                             <div class="trending-stat">

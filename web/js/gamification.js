@@ -79,7 +79,7 @@ const FUN_MESSAGES = [
  */
 const ACHIEVEMENTS = {
     first_read: { 
-        icon: '≡', 
+        icon: '📖', 
         name: 'Premier pas', 
         desc: 'Lire votre premier texte' 
     },
@@ -114,7 +114,7 @@ const ACHIEVEMENTS = {
         desc: 'Trouver un auteur secret' 
     },
     love_10: { 
-        icon: '♥', 
+        icon: '❤️‍🔥', 
         name: 'Passionné', 
         desc: 'Aimer 10 textes' 
     },

@@ -300,7 +300,7 @@ async function renderSocialFeed() {
                     ` : ''}
                 </div>
                 <div class="extrait-text" id="extraitText-${extrait.id}">${escapeHtml(extrait.texte)}</div>
-                ${extrait.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${extrait.id}', '${escapeHtml(extrait.source_url)}', '${escapeHtml(extrait.source_title)}')" id="voirPlus-${extrait.id}">Voir le texte complet →</button>` : ''}
+                ${extrait.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${extrait.id}', '${escapeHtml(extrait.source_url)}', '${escapeHtml(extrait.source_title)}')" id="voirPlus-${extrait.id}">📖 Voir le texte complet</button>` : ''}
                 <div class="extrait-source">
                     <strong>${escapeHtml(extrait.source_author)}</strong> — ${escapeHtml(extrait.source_title)}
                     ${extrait.source_url ? `<a href="${extrait.source_url}" target="_blank" class="source-link">↗</a>` : ''}
@@ -491,7 +491,7 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
         if (!urlMatch) {
             // Si pas une URL Wikisource valide, ouvrir dans un nouvel onglet
             window.open(sourceUrl, '_blank');
-            if (btnEl) btnEl.innerHTML = 'Voir le texte complet →';
+            if (btnEl) btnEl.innerHTML = '📖 Voir le texte complet';
             return;
         }
         
@@ -551,7 +551,7 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
             btnEl.innerHTML = '↗ Ouvrir sur Wikisource';
             btnEl.onclick = () => window.open(sourceUrl, '_blank');
         }
-        toast('Ouverture de la source...');
+        toast('📖 Ouverture de la source...');
     }
 }
 
