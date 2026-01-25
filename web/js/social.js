@@ -302,6 +302,8 @@ async function toggleLikeExtrait(extraitId) {
         if (existing) {
             await supabaseClient.from('likes').delete().eq('id', existing.id);
             toast('💔 Like retiré');
+            // Mettre à jour les compteurs
+            if (typeof loadUserStats === 'function') loadUserStats();
         } else {
             await supabaseClient.from('likes').insert({
                 user_id: currentUser.id,
@@ -317,6 +319,8 @@ async function toggleLikeExtrait(extraitId) {
             }
         }
         loadSocialFeed();
+        // Mettre à jour les compteurs de likes dans la sidebar
+        if (typeof loadUserStats === 'function') loadUserStats();
     } catch (err) {
         toast('❌ Erreur');
     }

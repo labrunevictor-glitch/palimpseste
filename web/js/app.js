@@ -111,10 +111,6 @@ async function loadUserStats() {
     const favCountHeader = document.getElementById('favCount');
     if (favCountHeader) favCountHeader.textContent = myLikesCount || 0;
     
-    // Panneau stats sidebar - aussi synchroniser
-    const likeCountPanel = document.getElementById('likeCountPanel');
-    if (likeCountPanel) likeCountPanel.textContent = myLikesCount || 0;
-    
     // Panneau profil mobile
     const mobileExtraits = document.getElementById('mobileProfileExtraits');
     const mobileLikes = document.getElementById('mobileProfileLikes');
@@ -484,8 +480,7 @@ function updateStats() {
         // Non connecté: masquer car ne peut pas liker
         if (drawerFavBtn) drawerFavBtn.style.display = 'none';
         if (favoritesSection) favoritesSection.style.display = 'none';
-        // Compteurs à 0
-        document.getElementById('likeCountPanel').textContent = 0;
+        // Compteur header à 0
         const favCountHeader = document.getElementById('favCount');
         if (favCountHeader) favCountHeader.textContent = 0;
     }
@@ -1386,10 +1381,6 @@ function updateFavCount() {
     // Header desktop
     const countEl = document.getElementById('favCount');
     if (countEl) countEl.textContent = count;
-    
-    // Panneau stats (sidebar)
-    const panelEl = document.getElementById('likeCountPanel');
-    if (panelEl) panelEl.textContent = count;
 }
 
 // Trouver les auteurs connexes basés sur les favoris et les découvertes
