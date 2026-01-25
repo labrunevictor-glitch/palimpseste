@@ -459,10 +459,6 @@ function updateStats() {
     document.getElementById('totalRead').textContent = state.readCount;
     document.getElementById('authorCount').textContent = Object.keys(state.authorStats).length;
     
-    // Mettre à jour aussi la version compacte
-    const totalReadCompact = document.getElementById('totalReadCompact');
-    if (totalReadCompact) totalReadCompact.textContent = state.readCount;
-    
     // Bouton favoris visible seulement si connecté
     const drawerFavBtn = document.getElementById('drawerFavBtn');
     if (drawerFavBtn) {
@@ -485,8 +481,6 @@ function updateStats() {
     // Mettre à jour les barres d'auteurs
     renderAuthorBars();
     renderGenreChart();
-    renderExplorationTree();
-    renderMiniBadges();
     
     // Mettre à jour les statistiques de lecture
     updateReadingStatsUI();
@@ -701,74 +695,12 @@ function renderAuthorBars() {
 
 function renderGenreChart() {
     const container = document.getElementById('genreChart');
-    if (!container) return;
     container.innerHTML = Object.entries(state.genreStats).map(([genre, count]) => `
         <div class="genre-pill" onclick="exploreCategory('${genre}')" title="Explorer l'arborescence ${genre}">
             <span class="genre-dot" style="background: ${GENRE_COLORS[genre] || '#6e6e73'}"></span>
             ${genre} <strong>${count}</strong>
         </div>
     `).join('');
-}
-
-// ═══════════════════════════════════════════════════════════
-// 🌳 ARBRE D'EXPLORATION - Navigation Genre × Époque
-// ═══════════════════════════════════════════════════════════
-
-const GENRE_ICONS = {
-    'philosophie': '💭',
-    'poésie': '✒️',
-    'roman': '📖',
-    'théâtre': '🎭',
-    'conte': '🧚',
-    'nouvelle': '📄',
-    'mystique': '✨',
-    'fable': '🦊',
-    'histoire': '📜'
-};
-
-function renderExplorationTree() {
-    const container = document.getElementById('explorationTree');
-    if (!container) return;
-    
-    const genres = Object.keys(GENRE_BRANCHES);
-    
-    container.innerHTML = genres.map(genre => {
-        const branches = GENRE_BRANCHES[genre];
-        const icon = GENRE_ICONS[genre] || '📚';
-        const genreCount = state.genreStats[genre] || 0;
-        
-        // Construire les sous-groupes
-        const subgroupsHTML = Object.entries(branches).map(([groupName, items]) => `
-            <div class="tree-subgroup">
-                <div class="tree-subgroup-title">${groupName}</div>
-                <div class="tree-items">
-                    ${items.map(item => {
-                        const isExplored = state.authorStats[item] > 0;
-                        return `<span class="tree-item ${isExplored ? 'explored' : ''}" onclick="exploreCategory('${item}', true)">${item}</span>`;
-                    }).join('')}
-                </div>
-            </div>
-        `).join('');
-        
-        return `
-            <div class="tree-category" data-genre="${genre}">
-                <div class="tree-category-header" onclick="toggleTreeCategory(this)">
-                    <span class="tree-category-icon">${icon}</span>
-                    <span class="tree-category-name">${genre.charAt(0).toUpperCase() + genre.slice(1)}</span>
-                    ${genreCount > 0 ? `<span class="tree-category-count">${genreCount}</span>` : ''}
-                    <span class="tree-category-arrow">▶</span>
-                </div>
-                <div class="tree-subcategories">
-                    ${subgroupsHTML}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function toggleTreeCategory(header) {
-    const category = header.closest('.tree-category');
-    category.classList.toggle('open');
 }
 
 function trackStats(author, tag) {

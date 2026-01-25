@@ -867,37 +867,6 @@ function toggleBadgesView() {
     }
 }
 
-/**
- * Rendu compact des badges en mini-icônes (pour le panneau stats)
- */
-function renderMiniBadges() {
-    const container = document.getElementById('badgesMiniRow');
-    if (!container) return;
-    
-    const countEl = document.getElementById('badgesCountMini');
-    const totalBadges = Object.keys(ACHIEVEMENTS).length;
-    const unlockedCount = state.achievements?.length || 0;
-    
-    if (countEl) {
-        countEl.textContent = `${unlockedCount}/${totalBadges}`;
-    }
-    
-    // Afficher tous les badges en mini (unlocked en premier, puis locked)
-    const allBadges = Object.entries(ACHIEVEMENTS)
-        .map(([id, ach]) => ({
-            id,
-            ...ach,
-            unlocked: state.achievements?.includes(id) || false
-        }))
-        .sort((a, b) => (b.unlocked ? 1 : 0) - (a.unlocked ? 1 : 0));
-    
-    container.innerHTML = allBadges.map(badge => `
-        <span class="badge-mini ${badge.unlocked ? 'unlocked' : ''}" 
-              title="${badge.name}: ${badge.desc}"
-              onclick="showBadgeDetails('${badge.id}')">${badge.icon}</span>
-    `).join('');
-}
-
 // ═══════════════════════════════════════════════════════════
 // ℹ️ DÉTAILS D'UN BADGE
 // ═══════════════════════════════════════════════════════════
