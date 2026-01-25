@@ -1191,129 +1191,77 @@ function showMore(cardId) {
     // NE PAS scroller - garder l'écran stable pour ne pas gêner la lecture
 }
 
-async function toggleLike(id, btn) {
-    // Exiger connexion pour liker
+// ═══════════════════════════════════════════════════════════
+// ❤️ SYSTÈME DE LIKES SIMPLIFIÉ - Supabase uniquement
+// ═══════════════════════════════════════════════════════════
+// Chaque carte a un ID unique basé sur son URL source
+// On stocke les likes dans la table "likes" avec l'ID de l'extrait
+// Un extrait est créé automatiquement si besoin
+
+async function toggleLike(cardId, btn) {
+    // Exiger connexion
     if (!currentUser || !supabaseClient) {
         if (typeof openAuthModal === 'function') openAuthModal('login');
-        toast('🔐 Connectez-vous pour aimer des extraits');
+        toast('🔐 Connectez-vous pour aimer');
         return;
     }
-    
-    const card = document.getElementById(id);
-    const author = card?.dataset?.author || 'Anonyme';
-    const title = card?.dataset?.title || 'Sans titre';
-    const text = card?.dataset?.text || '';
-    const sourceUrl = card?.dataset?.url || '';
     
     // Éviter les doubles clics
     if (btn?.classList?.contains('loading')) return;
     btn?.classList?.add('loading');
     
+    const card = document.getElementById(cardId);
+    if (!card) {
+        btn?.classList?.remove('loading');
+        return;
+    }
+    
+    const author = card.dataset?.author || 'Anonyme';
+    const title = card.dataset?.title || 'Sans titre';
+    const text = card.dataset?.text || '';
+    const sourceUrl = card.dataset?.url || '';
+    
+    // Générer un hash unique pour cette source (pour identifier de manière stable)
+    const sourceHash = btoa(encodeURIComponent(sourceUrl)).substring(0, 50);
+    
     try {
-        // Chercher si un extrait existe déjà pour cette source ET cet utilisateur
-        // On cherche d'abord un extrait partagé par l'utilisateur avec cette URL
-        let { data: existingExtraits } = await supabaseClient
-            .from('extraits')
-            .select('id')
-            .eq('source_url', sourceUrl)
-            .eq('user_id', currentUser.id)
-            .limit(1);
+        // 1. Trouver ou créer l'extrait pour cette source
+        let extraitId = await getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title, text);
         
-        // Si pas trouvé, chercher n'importe quel extrait avec cette URL
-        if (!existingExtraits || existingExtraits.length === 0) {
-            const { data: anyExtraits } = await supabaseClient
-                .from('extraits')
-                .select('id')
-                .eq('source_url', sourceUrl)
-                .limit(1);
-            existingExtraits = anyExtraits;
+        if (!extraitId) {
+            throw new Error('Impossible de créer l\'extrait');
         }
         
-        let extraitId;
-        let isNewExtrait = false;
-        
-        if (existingExtraits && existingExtraits.length > 0) {
-            extraitId = existingExtraits[0].id;
-        } else {
-            // Créer un extrait automatiquement
-            const preview = text.substring(0, 150) + (text.length > 150 ? '…' : '');
-            const { data: newExtrait, error } = await supabaseClient.from('extraits').insert({
-                user_id: currentUser.id,
-                texte: preview,
-                source_title: title,
-                source_author: author,
-                source_url: sourceUrl,
-                commentary: null,
-                likes_count: 0,
-                created_at: new Date().toISOString()
-            }).select('id').single();
-            
-            if (error) throw error;
-            extraitId = newExtrait.id;
-            isNewExtrait = true;
-        }
-        
-        // Vérifier si déjà liké avec maybeSingle pour éviter les erreurs
-        const { data: existingLike } = await supabaseClient
+        // 2. Vérifier si déjà liké
+        const { data: existingLike, error: checkError } = await supabaseClient
             .from('likes')
             .select('id')
             .eq('user_id', currentUser.id)
             .eq('extrait_id', extraitId)
             .maybeSingle();
         
+        if (checkError) throw checkError;
+        
+        // 3. Toggle le like
         if (existingLike) {
-            // Unlike - Supprimer le like
-            const { error } = await supabaseClient
-                .from('likes')
-                .delete()
-                .eq('id', existingLike.id);
-            
-            if (error) throw error;
-            
-            // Décrémenter le compteur likes_count
+            // UNLIKE
+            await supabaseClient.from('likes').delete().eq('id', existingLike.id);
             await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
-            
             btn?.classList?.remove('active');
-            state.likes.delete(id);
-            
-            // Mettre à jour le cache global si disponible
-            if (typeof userLikesCache !== 'undefined') {
-                userLikesCache.delete(extraitId);
-            }
-            
             toast('💔 Like retiré');
         } else {
-            // Like - Ajouter le like
-            const { error } = await supabaseClient
-                .from('likes')
-                .insert({
-                    user_id: currentUser.id,
-                    extrait_id: extraitId
-                });
-            
-            if (error) throw error;
-            
-            // Incrémenter le compteur likes_count
+            // LIKE
+            await supabaseClient.from('likes').insert({
+                user_id: currentUser.id,
+                extrait_id: extraitId
+            });
             await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
-            
             btn?.classList?.add('active');
-            state.likes.add(id);
-            
-            // Mettre à jour le cache global si disponible
-            if (typeof userLikesCache !== 'undefined') {
-                userLikesCache.add(extraitId);
-            }
-            
             toast('❤️ Liké !');
-            
-            // Ajouter l'auteur aux likedAuthors
-            if (author && author !== 'Anonyme') {
-                state.likedAuthors.add(author);
-            }
         }
         
-        // Mettre à jour les compteurs dans la sidebar
-        loadUserStats();
+        // 4. Mettre à jour les stats
+        if (typeof loadUserStats === 'function') loadUserStats();
         
     } catch (err) {
         console.error('Erreur like:', err);
@@ -1321,6 +1269,70 @@ async function toggleLike(id, btn) {
     } finally {
         btn?.classList?.remove('loading');
     }
+}
+
+// Trouver ou créer un extrait pour une source donnée
+async function getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title, text) {
+    // Chercher un extrait existant avec cette URL
+    const { data: existing } = await supabaseClient
+        .from('extraits')
+        .select('id')
+        .eq('source_url', sourceUrl)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+    
+    if (existing) {
+        return existing.id;
+    }
+    
+    // Créer un nouvel extrait
+    const preview = text.substring(0, 150) + (text.length > 150 ? '…' : '');
+    const { data: newExtrait, error } = await supabaseClient
+        .from('extraits')
+        .insert({
+            user_id: currentUser.id,
+            texte: preview,
+            source_title: title,
+            source_author: author,
+            source_url: sourceUrl,
+            text_hash: sourceHash,
+            likes_count: 0
+        })
+        .select('id')
+        .single();
+    
+    if (error) {
+        console.error('Erreur création extrait:', error);
+        return null;
+    }
+    
+    return newExtrait.id;
+}
+
+// Vérifier si une carte est likée (pour l'affichage initial)
+async function isCardLiked(sourceUrl) {
+    if (!currentUser || !supabaseClient) return false;
+    
+    // Trouver l'extrait
+    const { data: extrait } = await supabaseClient
+        .from('extraits')
+        .select('id')
+        .eq('source_url', sourceUrl)
+        .limit(1)
+        .maybeSingle();
+    
+    if (!extrait) return false;
+    
+    // Vérifier le like
+    const { data: like } = await supabaseClient
+        .from('likes')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .eq('extrait_id', extrait.id)
+        .maybeSingle();
+    
+    return !!like;
 }
 
 // Double-tap pour liker (style Instagram)
@@ -1337,13 +1349,8 @@ function doubleTapLike(id, event) {
         heart.classList.add('animate');
     }
     
-    // Si pas déjà liké, liker
-    if (!state.likes.has(id)) {
-        toggleLike(id, likeBtn);
-    } else {
-        // Déjà liké, juste montrer le coeur (feedback visuel)
-        toast('❤️ Déjà liké !');
-    }
+    // Toujours appeler toggleLike - il vérifiera si déjà liké
+    toggleLike(id, likeBtn);
 }
 
 // Afficher la liste des favoris dans le panneau
@@ -1383,7 +1390,7 @@ function scrollToCard(cardId) {
 }
 
 function removeFavorite(id) {
-    state.likes.delete(id);
+    // Legacy - pour les anciens favoris locaux
     state.favorites = (state.favorites || []).filter(f => f.id !== id);
     const btn = document.querySelector(`#${id} .btn-like.active`);
     if (btn) btn.classList.remove('active');
