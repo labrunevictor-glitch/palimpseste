@@ -89,33 +89,23 @@ function updateThemeIcons() {
 // ═══════════════════════════════════════════════════════════
 
 async function loadUserStats() {
+    // Mettre à jour les likes locaux (indépendant de la connexion)
+    updateLikeCount();
+    
     if (!supabaseClient || !currentUser) return;
     
-    // Compter les extraits partagés
+    // Compter les extraits partagés (vrais partages, pas les likes)
     const { count: extraitCount } = await supabaseClient
         .from('extraits')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', currentUser.id);
     
-    // Compter les likes Supabase (extraits que j'ai likés)
-    const { count: myLikesCount } = await supabaseClient
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', currentUser.id);
-    
     // Sidebar desktop - section profil
     document.getElementById('myExtraitsCount').textContent = extraitCount || 0;
-    document.getElementById('myLikesCount').textContent = myLikesCount || 0;
-    
-    // Header desktop - bouton ♥
-    const favCountHeader = document.getElementById('favCount');
-    if (favCountHeader) favCountHeader.textContent = myLikesCount || 0;
     
     // Panneau profil mobile
     const mobileExtraits = document.getElementById('mobileProfileExtraits');
-    const mobileLikes = document.getElementById('mobileProfileLikes');
     if (mobileExtraits) mobileExtraits.textContent = extraitCount || 0;
-    if (mobileLikes) mobileLikes.textContent = myLikesCount || 0;
     
     // Aussi afficher le nombre d'abonnés
     const { count: followersCount } = await supabaseClient
@@ -1194,176 +1184,94 @@ function showMore(cardId) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ❤️ SYSTÈME DE LIKES SIMPLIFIÉ - Supabase uniquement
+// ❤️ SYSTÈME DE LIKES DES CARTES - Simple et local
 // ═══════════════════════════════════════════════════════════
+// Les likes des cartes sont stockés localement par URL source
+// Pas de création d'extrait - c'est juste un "favori personnel"
+// Les extraits sont créés uniquement via le bouton "Partager"
 
-async function toggleLike(cardId, btn) {
-    // Exiger connexion
-    if (!currentUser || !supabaseClient) {
-        if (typeof openAuthModal === 'function') openAuthModal('login');
-        toast('🔐 Connectez-vous pour aimer');
-        return;
+// Cache local des likes (Set d'URLs likées)
+let likedSourceUrls = new Set();
+
+// Charger les likes depuis localStorage au démarrage
+function loadLikedSources() {
+    try {
+        const saved = localStorage.getItem('palimpseste-likes');
+        if (saved) {
+            likedSourceUrls = new Set(JSON.parse(saved));
+        }
+    } catch (e) {
+        console.error('Erreur chargement likes:', e);
     }
-    
-    // Éviter les doubles clics
-    if (btn?.classList?.contains('loading')) return;
-    btn?.classList?.add('loading');
-    
+}
+
+// Sauvegarder les likes dans localStorage
+function saveLikedSources() {
+    try {
+        localStorage.setItem('palimpseste-likes', JSON.stringify([...likedSourceUrls]));
+    } catch (e) {
+        console.error('Erreur sauvegarde likes:', e);
+    }
+}
+
+// Toggle like sur une carte (simple et instantané)
+function toggleLike(cardId, btn) {
     const card = document.getElementById(cardId);
-    if (!card) {
-        btn?.classList?.remove('loading');
-        toast('❌ Carte introuvable');
-        return;
-    }
+    if (!card) return;
     
-    const author = card.dataset?.author || 'Anonyme';
-    const title = card.dataset?.title || 'Sans titre';
-    const text = card.dataset?.text || '';
     const sourceUrl = card.dataset?.url || '';
-    
-    console.log('🔍 toggleLike - sourceUrl:', sourceUrl);
-    
-    // Si pas d'URL source, on ne peut pas liker
     if (!sourceUrl) {
-        btn?.classList?.remove('loading');
         toast('❌ URL source manquante');
         return;
     }
     
-    try {
-        // 1. Trouver ou créer l'extrait pour cette source
-        let extraitId = await getOrCreateExtraitForSource(sourceUrl, author, title, text);
-        
-        console.log('🔍 toggleLike - extraitId:', extraitId);
-        
-        if (!extraitId) {
-            throw new Error('Impossible de créer l\'extrait');
-        }
-        
-        // 2. Vérifier si déjà liké
-        const { data: existingLike, error: checkError } = await supabaseClient
-            .from('likes')
-            .select('id')
-            .eq('user_id', currentUser.id)
-            .eq('extrait_id', extraitId)
-            .maybeSingle();
-        
-        console.log('🔍 toggleLike - existingLike:', existingLike);
-        
-        if (checkError) throw checkError;
-        
-        // 3. Toggle le like
-        if (existingLike) {
-            // UNLIKE
-            const { error: deleteError } = await supabaseClient
-                .from('likes')
-                .delete()
-                .eq('id', existingLike.id);
-            
-            if (deleteError) throw deleteError;
-            
-            await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
-            btn?.classList?.remove('active');
-            toast('💔 Like retiré');
-        } else {
-            // LIKE
-            const { error: insertError } = await supabaseClient
-                .from('likes')
-                .insert({
-                    user_id: currentUser.id,
-                    extrait_id: extraitId
-                });
-            
-            if (insertError) throw insertError;
-            
-            await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
-            btn?.classList?.add('active');
-            toast('❤️ Liké !');
-        }
-        
-        // 4. Mettre à jour les stats
-        if (typeof loadUserStats === 'function') loadUserStats();
-        
-    } catch (err) {
-        console.error('❌ Erreur like:', err);
-        toast('❌ Erreur: ' + (err.message || 'inconnue'));
-    } finally {
-        btn?.classList?.remove('loading');
+    // Toggle le like
+    if (likedSourceUrls.has(sourceUrl)) {
+        // UNLIKE
+        likedSourceUrls.delete(sourceUrl);
+        btn?.classList?.remove('active');
+        toast('💔 Like retiré');
+    } else {
+        // LIKE
+        likedSourceUrls.add(sourceUrl);
+        btn?.classList?.add('active');
+        toast('❤️ Liké !');
     }
+    
+    // Sauvegarder
+    saveLikedSources();
+    
+    // Mettre à jour le compteur dans la sidebar
+    updateLikeCount();
 }
 
-// Trouver ou créer un extrait pour une source donnée
-async function getOrCreateExtraitForSource(sourceUrl, author, title, text) {
-    console.log('🔍 getOrCreateExtraitForSource - sourceUrl:', sourceUrl);
+// Mettre à jour le compteur de likes
+function updateLikeCount() {
+    const count = likedSourceUrls.size;
     
-    // Chercher un extrait existant avec cette URL exacte
-    const { data: existing, error: searchError } = await supabaseClient
-        .from('extraits')
-        .select('id')
-        .eq('source_url', sourceUrl)
-        .order('created_at', { ascending: true })
-        .limit(1);
+    // Sidebar desktop
+    const myLikesCount = document.getElementById('myLikesCount');
+    if (myLikesCount) myLikesCount.textContent = count;
     
-    console.log('🔍 getOrCreateExtraitForSource - existing:', existing);
+    // Header
+    const favCount = document.getElementById('favCount');
+    if (favCount) favCount.textContent = count;
     
-    if (searchError) {
-        console.error('Erreur recherche extrait:', searchError);
-    }
-    
-    if (existing && existing.length > 0) {
-        return existing[0].id;
-    }
-    
-    // Créer un nouvel extrait
-    const preview = text.substring(0, 150) + (text.length > 150 ? '…' : '');
-    console.log('🔍 Création nouvel extrait pour:', sourceUrl);
-    
-    const { data: newExtrait, error } = await supabaseClient
-        .from('extraits')
-        .insert({
-            user_id: currentUser.id,
-            texte: preview,
-            source_title: title,
-            source_author: author,
-            source_url: sourceUrl,
-            likes_count: 0
-        })
-        .select('id')
-        .single();
-    
-    if (error) {
-        console.error('Erreur création extrait:', error);
-        return null;
-    }
-    
-    console.log('✅ Extrait créé:', newExtrait.id);
-    return newExtrait.id;
+    // Mobile
+    const mobileLikes = document.getElementById('mobileProfileLikes');
+    if (mobileLikes) mobileLikes.textContent = count;
 }
 
-// Vérifier si une carte est likée (pour l'affichage initial)
-async function isCardLiked(sourceUrl) {
-    if (!currentUser || !supabaseClient) return false;
-    
-    // Trouver l'extrait
-    const { data: extrait } = await supabaseClient
-        .from('extraits')
-        .select('id')
-        .eq('source_url', sourceUrl)
-        .limit(1)
-        .maybeSingle();
-    
-    if (!extrait) return false;
-    
-    // Vérifier le like
-    const { data: like } = await supabaseClient
-        .from('likes')
-        .select('id')
-        .eq('user_id', currentUser.id)
-        .eq('extrait_id', extrait.id)
-        .maybeSingle();
-    
-    return !!like;
+// Vérifier si une URL est likée (pour l'affichage initial des boutons)
+function isSourceLiked(sourceUrl) {
+    return likedSourceUrls.has(sourceUrl);
 }
+
+// Initialiser les likes au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    loadLikedSources();
+    updateLikeCount();
+});
 
 // Double-tap pour liker (style Instagram)
 function doubleTapLike(id, event) {
@@ -1371,6 +1279,7 @@ function doubleTapLike(id, event) {
     const card = document.getElementById(id);
     const heart = document.getElementById('heart-' + id);
     const likeBtn = card?.querySelector('.card-foot .btn-like');
+    const sourceUrl = card?.dataset?.url || '';
     
     // Afficher l'animation du coeur
     if (heart) {
@@ -1379,8 +1288,10 @@ function doubleTapLike(id, event) {
         heart.classList.add('animate');
     }
     
-    // Toujours appeler toggleLike - il vérifiera si déjà liké
-    toggleLike(id, likeBtn);
+    // Si pas encore liké, liker. Sinon juste l'animation
+    if (!isSourceLiked(sourceUrl)) {
+        toggleLike(id, likeBtn);
+    }
 }
 
 // Afficher la liste des favoris dans le panneau
