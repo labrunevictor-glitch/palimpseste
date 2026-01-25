@@ -237,7 +237,7 @@ async function markAllNotifsRead() {
             .eq('user_id', currentUser.id)
             .is('read_at', null);
         
-        toast('✅ Toutes les notifications marquées comme lues');
+        toast('Notifications lues');
         loadNotifications();
         updateNotifBadge();
     } catch (err) {

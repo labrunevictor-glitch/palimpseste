@@ -274,7 +274,7 @@ async function loginWithEmail() {
         showAuthError('login', error.message);
     } else {
         closeAuthModal();
-        toast('✅ Connexion réussie !');
+        toast('Connexion réussie');
     }
 }
 
@@ -369,9 +369,9 @@ async function registerWithEmail() {
             // Succès ! Le profil est créé automatiquement par un trigger Supabase
             closeAuthModal();
             if (data.user && !data.user.email_confirmed_at) {
-                toast('🎉 Compte créé ! Vérifiez votre email pour confirmer.');
+                toast('Compte créé ! Vérifiez votre email.');
             } else {
-                toast('🎉 Compte créé avec succès !');
+                toast('Compte créé !');
             }
         }
     } catch (e) {
@@ -396,7 +396,7 @@ async function loginWithGoogle() {
     });
     
     if (error) {
-        toast('❌ Erreur: ' + error.message);
+        toast('Erreur : ' + error.message);
     }
 }
 

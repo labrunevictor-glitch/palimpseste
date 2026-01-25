@@ -207,11 +207,11 @@ async function quickShareAndComment(cardId) {
         
         if (error) {
             console.error('Erreur création extrait:', error);
-            toast('❌ Erreur: ' + error.message);
+            toast('Erreur : ' + error.message);
             return;
         }
         
-        toast('✅ Extrait partagé ! Ajoutez votre commentaire');
+        toast('Extrait partagé !');
         
         // Ouvrir le feed social et afficher cet extrait avec les commentaires ouverts
         openSocialFeed();
@@ -1221,7 +1221,7 @@ function toggleLike(cardId, btn) {
     
     const sourceUrl = card.dataset?.url || '';
     if (!sourceUrl) {
-        toast('❌ URL source manquante');
+        toast('URL source manquante');
         return;
     }
     
@@ -1230,7 +1230,7 @@ function toggleLike(cardId, btn) {
         // UNLIKE
         likedSourceUrls.delete(sourceUrl);
         btn?.classList?.remove('active');
-        toast('💔 Like retiré');
+        toast('Like retiré');
     } else {
         // LIKE
         likedSourceUrls.add(sourceUrl);
@@ -1464,7 +1464,7 @@ async function loadSourceByUrl(url) {
     // Extraire le titre de la page depuis l'URL
     const pageTitle = extractPageTitleFromUrl(url);
     if (!pageTitle) {
-        toast('❌ Impossible d\'extraire le titre depuis l\'URL');
+        toast('Impossible d\'extraire le titre');
         return;
     }
     
@@ -1476,29 +1476,30 @@ async function loadSourceByUrl(url) {
         ws = WIKISOURCES.find(w => w.lang === lang) || ws;
     }
     
-    toast('⏳ Chargement du texte...');
+    toast('Chargement...');
     
     try {
         const result = await fetchText(pageTitle, 0, ws);
         if (result?.text) {
-            // Ajouter la carte au feed
-            renderCard(result, pageTitle, ws);
-            // Scroller vers la nouvelle carte
-            setTimeout(() => {
-                const newCard = document.querySelector(`.text-card[data-url="${url}"]`);
-                if (newCard) {
-                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    newCard.style.boxShadow = '0 0 30px rgba(255,69,58,0.5)';
-                    setTimeout(() => newCard.style.boxShadow = '', 2000);
-                }
-            }, 100);
-            toast('✅ Texte chargé !');
+            // Ouvrir directement dans le reader
+            const author = detectAuthor(pageTitle, result.text, result.author);
+            const displayTitle = pageTitle.split('/').pop() || pageTitle;
+            
+            document.getElementById('readerTitle').textContent = `${author} — ${displayTitle}`;
+            document.getElementById('readerContent').innerHTML = `
+                <div style="white-space: pre-wrap; text-align: justify; line-height: 1.8;">${esc(result.text)}</div>
+                <div style="margin-top: 2rem; text-align: center;">
+                    <a href="${url}" target="_blank" style="color: var(--muted); font-size: 0.85rem;">Voir sur Wikisource →</a>
+                </div>
+            `;
+            document.getElementById('reader').classList.add('open');
+            document.body.style.overflow = 'hidden';
         } else {
-            toast('❌ Impossible de charger ce texte');
+            toast('Texte introuvable');
         }
     } catch (e) {
         console.error('Erreur chargement texte liké:', e);
-        toast('❌ Erreur lors du chargement');
+        toast('Erreur de chargement');
     }
 }
 

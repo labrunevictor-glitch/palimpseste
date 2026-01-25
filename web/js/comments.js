@@ -168,7 +168,7 @@ async function postComment(extraitId) {
         
         if (error) {
             console.error('Erreur insert comment:', error);
-            toast('❌ Erreur: ' + error.message);
+            toast('Erreur : ' + error.message);
             return;
         }
         
@@ -192,7 +192,7 @@ async function postComment(extraitId) {
         
     } catch (err) {
         console.error('Erreur post commentaire:', err);
-        toast('❌ Erreur d\'envoi');
+        toast('Erreur d\'envoi');
     }
 }
 
@@ -228,7 +228,7 @@ async function deleteComment(commentId, extraitId) {
         
     } catch (err) {
         console.error('Erreur suppression commentaire:', err);
-        toast('❌ Erreur de suppression');
+        toast('Erreur de suppression');
     }
 }
 

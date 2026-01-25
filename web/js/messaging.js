@@ -281,7 +281,7 @@ async function sendMessage() {
         
     } catch (err) {
         console.error('Erreur envoi message:', err);
-        toast('❌ Erreur d\'envoi');
+        toast('Erreur d\'envoi');
     }
 }
 

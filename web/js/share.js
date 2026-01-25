@@ -135,7 +135,7 @@ async function publishExtrait() {
         if (typeof loadUserStats === 'function') loadUserStats();
         
     } catch (err) {
-        toast('❌ Erreur: ' + (err.message || err));
+        toast('Erreur : ' + (err.message || err));
     } finally {
         if (btn) btn.disabled = false;
     }
@@ -305,7 +305,7 @@ async function sendInlineComment(cardId, inputEl) {
         }
         
     } catch (err) {
-        toast('❌ ' + (err.message || 'Erreur'));
+        toast(err.message || 'Erreur');
     } finally {
         inputEl.disabled = false;
         inputEl.focus();

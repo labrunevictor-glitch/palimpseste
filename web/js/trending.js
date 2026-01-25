@@ -212,7 +212,7 @@ async function toggleLikeTrending(extraitId, btn) {
             btn.innerHTML = '❤️ Like';
         }
         if (countEl) countEl.textContent = currentCount;
-        toast('❌ Erreur');
+        toast('Erreur');
     } finally {
         btn.disabled = false;
     }

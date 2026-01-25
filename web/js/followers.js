@@ -70,7 +70,7 @@ async function toggleFollow(userId, event) {
                 created_at: new Date().toISOString()
             });
         userFollowing.add(userId);
-        toast('✅ Vous suivez maintenant cet utilisateur !');
+        toast('Abonné !');
         
         // Notifier l'utilisateur qu'on le suit
         createNotification(userId, 'follow');

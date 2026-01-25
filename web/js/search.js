@@ -569,7 +569,7 @@ async function openSearchResult(idx, source) {
             renderCard(text, result.title, result.wikisource);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            toast('❌ Impossible de charger ce texte');
+            toast('Impossible de charger ce texte');
         }
     } else if (result.source === 'poetrydb') {
         // Afficher directement le poème

@@ -460,7 +460,7 @@ async function toggleLikeExtrait(extraitId) {
             likeCountEl.textContent = realCount;
         }
         
-        toast('❌ Erreur de synchronisation');
+        toast('Erreur de synchronisation');
     } finally {
         delete pendingLikeOperations[extraitId];
     }
