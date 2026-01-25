@@ -784,8 +784,10 @@ function renderAchievements() {
     // Mettre à jour le compteur
     const unlockedEl = document.getElementById('unlockedCount');
     const totalEl = document.getElementById('totalBadges');
+    const inlineCountEl = document.getElementById('badgesCountInline');
     if (unlockedEl) unlockedEl.textContent = unlockedCount;
     if (totalEl) totalEl.textContent = totalBadges;
+    if (inlineCountEl) inlineCountEl.textContent = `${unlockedCount}/${totalBadges}`;
     
     // Grouper par catégorie
     const categories = {
