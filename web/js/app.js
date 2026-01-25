@@ -651,47 +651,9 @@ window.addEventListener('visibilitychange', () => {
 });
 
 // Phrases d'en-tête dynamiques selon l'état de l'exploration
-const HEADER_PHRASES = {
-    start: [
-        "Laissez-vous dériver...",
-        "Un texte vous attend...",
-        "La bibliothèque murmure...",
-        "Plongez dans l'inconnu..."
-    ],
-    exploring: [
-        "Le voyage continue...",
-        "Vous vous enfoncez...",
-        "Les pages tournent...",
-        "Le labyrinthe s'ouvre..."
-    ],
-    deep: [
-        "Vous êtes loin du rivage...",
-        "Les profondeurs vous appellent...",
-        "Le temps se suspend...",
-        "Bienvenue dans l'abîme..."
-    ],
-    expert: [
-        "Vous êtes un érudit...",
-        "Les auteurs vous reconnaissent...",
-        "Le palimpseste se révèle...",
-        "Maître des mots anciens..."
-    ]
-};
-
+// Titre statique - plus de phrases dynamiques
 function updateDynamicHeader() {
-    const authorCount = Object.keys(state.authorStats).length;
-    const readCount = state.readCount || 0;
-    
-    let phrases;
-    if (readCount < 3) phrases = HEADER_PHRASES.start;
-    else if (authorCount < 10) phrases = HEADER_PHRASES.exploring;
-    else if (authorCount < 25) phrases = HEADER_PHRASES.deep;
-    else phrases = HEADER_PHRASES.expert;
-    
-    const headerEl = document.getElementById('headerTitle');
-    if (headerEl && Math.random() < 0.3) { // 30% de chance de changer
-        headerEl.textContent = phrases[Math.floor(Math.random() * phrases.length)];
-    }
+    // Ne rien faire - garder le titre par défaut
 }
 
 function renderAuthorBars() {
