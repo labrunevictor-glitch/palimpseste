@@ -1018,6 +1018,7 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
     card.dataset.title = title;
     card.dataset.author = author;
     card.dataset.text = text;
+    card.dataset.url = url;  // URL source pour le système de likes
     card.dataset.remaining = remaining;
     card.dataset.shown = '0';
     card.dataset.tag = tag;
@@ -1128,6 +1129,7 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
     card.dataset.title = title;
     card.dataset.author = author;
     card.dataset.text = text;
+    card.dataset.url = url;  // URL source pour le système de likes
     card.dataset.remaining = remaining;
     card.dataset.shown = '0';
     card.dataset.tag = tag;
@@ -1194,9 +1196,6 @@ function showMore(cardId) {
 // ═══════════════════════════════════════════════════════════
 // ❤️ SYSTÈME DE LIKES SIMPLIFIÉ - Supabase uniquement
 // ═══════════════════════════════════════════════════════════
-// Chaque carte a un ID unique basé sur son URL source
-// On stocke les likes dans la table "likes" avec l'ID de l'extrait
-// Un extrait est créé automatiquement si besoin
 
 async function toggleLike(cardId, btn) {
     // Exiger connexion
@@ -1213,6 +1212,7 @@ async function toggleLike(cardId, btn) {
     const card = document.getElementById(cardId);
     if (!card) {
         btn?.classList?.remove('loading');
+        toast('❌ Carte introuvable');
         return;
     }
     
@@ -1221,12 +1221,20 @@ async function toggleLike(cardId, btn) {
     const text = card.dataset?.text || '';
     const sourceUrl = card.dataset?.url || '';
     
-    // Générer un hash unique pour cette source (pour identifier de manière stable)
-    const sourceHash = btoa(encodeURIComponent(sourceUrl)).substring(0, 50);
+    console.log('🔍 toggleLike - sourceUrl:', sourceUrl);
+    
+    // Si pas d'URL source, on ne peut pas liker
+    if (!sourceUrl) {
+        btn?.classList?.remove('loading');
+        toast('❌ URL source manquante');
+        return;
+    }
     
     try {
         // 1. Trouver ou créer l'extrait pour cette source
-        let extraitId = await getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title, text);
+        let extraitId = await getOrCreateExtraitForSource(sourceUrl, author, title, text);
+        
+        console.log('🔍 toggleLike - extraitId:', extraitId);
         
         if (!extraitId) {
             throw new Error('Impossible de créer l\'extrait');
@@ -1240,21 +1248,34 @@ async function toggleLike(cardId, btn) {
             .eq('extrait_id', extraitId)
             .maybeSingle();
         
+        console.log('🔍 toggleLike - existingLike:', existingLike);
+        
         if (checkError) throw checkError;
         
         // 3. Toggle le like
         if (existingLike) {
             // UNLIKE
-            await supabaseClient.from('likes').delete().eq('id', existingLike.id);
+            const { error: deleteError } = await supabaseClient
+                .from('likes')
+                .delete()
+                .eq('id', existingLike.id);
+            
+            if (deleteError) throw deleteError;
+            
             await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
             btn?.classList?.remove('active');
             toast('💔 Like retiré');
         } else {
             // LIKE
-            await supabaseClient.from('likes').insert({
-                user_id: currentUser.id,
-                extrait_id: extraitId
-            });
+            const { error: insertError } = await supabaseClient
+                .from('likes')
+                .insert({
+                    user_id: currentUser.id,
+                    extrait_id: extraitId
+                });
+            
+            if (insertError) throw insertError;
+            
             await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
             btn?.classList?.add('active');
             toast('❤️ Liké !');
@@ -1264,30 +1285,39 @@ async function toggleLike(cardId, btn) {
         if (typeof loadUserStats === 'function') loadUserStats();
         
     } catch (err) {
-        console.error('Erreur like:', err);
-        toast('❌ Erreur');
+        console.error('❌ Erreur like:', err);
+        toast('❌ Erreur: ' + (err.message || 'inconnue'));
     } finally {
         btn?.classList?.remove('loading');
     }
 }
 
 // Trouver ou créer un extrait pour une source donnée
-async function getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title, text) {
-    // Chercher un extrait existant avec cette URL
-    const { data: existing } = await supabaseClient
+async function getOrCreateExtraitForSource(sourceUrl, author, title, text) {
+    console.log('🔍 getOrCreateExtraitForSource - sourceUrl:', sourceUrl);
+    
+    // Chercher un extrait existant avec cette URL exacte
+    const { data: existing, error: searchError } = await supabaseClient
         .from('extraits')
         .select('id')
         .eq('source_url', sourceUrl)
         .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
     
-    if (existing) {
-        return existing.id;
+    console.log('🔍 getOrCreateExtraitForSource - existing:', existing);
+    
+    if (searchError) {
+        console.error('Erreur recherche extrait:', searchError);
+    }
+    
+    if (existing && existing.length > 0) {
+        return existing[0].id;
     }
     
     // Créer un nouvel extrait
     const preview = text.substring(0, 150) + (text.length > 150 ? '…' : '');
+    console.log('🔍 Création nouvel extrait pour:', sourceUrl);
+    
     const { data: newExtrait, error } = await supabaseClient
         .from('extraits')
         .insert({
@@ -1296,7 +1326,6 @@ async function getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title,
             source_title: title,
             source_author: author,
             source_url: sourceUrl,
-            text_hash: sourceHash,
             likes_count: 0
         })
         .select('id')
@@ -1307,6 +1336,7 @@ async function getOrCreateExtraitForSource(sourceUrl, sourceHash, author, title,
         return null;
     }
     
+    console.log('✅ Extrait créé:', newExtrait.id);
     return newExtrait.id;
 }
 
