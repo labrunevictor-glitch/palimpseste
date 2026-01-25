@@ -205,70 +205,48 @@
             <div class="fun-stat" id="funStat"></div>
         </div>
         
-        <!-- Statistiques de lecture -->
-        <div class="stats-section reading-stats-section">
-            <h3>❧ Lecture</h3>
-            <div class="reading-stats-grid">
-                <div class="reading-stat-item">
-                    <div class="reading-stat-icon">⧗</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="totalReadingTime">0 min</div>
-                        <div class="reading-stat-label">temps de lecture</div>
-                    </div>
+        <!-- Statistiques de lecture - VERSION COMPACTE -->
+        <div class="stats-section reading-stats-compact">
+            <div class="stats-row-compact">
+                <div class="stat-compact">
+                    <span class="stat-icon">✶</span>
+                    <span class="stat-value" id="currentStreak">0</span>
+                    <span class="stat-label">jours</span>
                 </div>
-                <div class="reading-stat-item">
-                    <div class="reading-stat-icon">§</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="totalWordsRead">0</div>
-                        <div class="reading-stat-label">mots lus</div>
-                    </div>
+                <div class="stat-compact">
+                    <span class="stat-icon">📚</span>
+                    <span class="stat-value" id="totalReadCompact">0</span>
+                    <span class="stat-label">textes</span>
                 </div>
-                <div class="reading-stat-item streak-item">
-                    <div class="reading-stat-icon">✶</div>
-                    <div class="reading-stat-content">
-                        <div class="reading-stat-value" id="currentStreak">0</div>
-                        <div class="reading-stat-label">jours d'affilée</div>
-                    </div>
+                <div class="stat-compact">
+                    <span class="stat-icon">⧗</span>
+                    <span class="stat-value" id="totalReadingTime">0</span>
+                    <span class="stat-label">min</span>
                 </div>
             </div>
-            <div class="streak-section">
-                <div class="streak-bar">
-                    <div class="streak-progress" id="streakProgress"></div>
-                </div>
-                <div class="streak-hint" id="streakHint">Continuez demain !</div>
+            <div class="streak-bar-mini">
+                <div class="streak-progress" id="streakProgress"></div>
             </div>
-            <div class="weekly-chart" id="weeklyChart"></div>
+            <div class="streak-hint-mini" id="streakHint">Continuez demain !</div>
         </div>
         
-        <!-- Territoire exploré - CACHÉ SUR MOBILE -->
-        <div class="stats-section territory-section" id="territorySection">
-            <h3>❧ Territoire exploré</h3>
-            <div class="author-bars" id="authorBars"></div>
+        <!-- ARBRE DE NAVIGATION - EXPLORATION -->
+        <div class="stats-section exploration-tree-section">
+            <h3>🧭 Explorer</h3>
+            <div class="exploration-tree" id="explorationTree">
+                <!-- Généré dynamiquement par JS -->
+            </div>
         </div>
         
-        <!-- Genres explorés - CACHÉ SUR MOBILE -->
-        <div class="stats-section genres-section" id="genresSection">
-            <h3>Genres explorés</h3>
-            <div class="genre-chart" id="genreChart"></div>
+        <!-- Graphique hebdomadaire compact -->
+        <div class="stats-section weekly-section-compact">
+            <div class="weekly-chart-mini" id="weeklyChart"></div>
         </div>
         
-        <!-- Connexions -->
-        <div class="stats-section connections-section" id="connectionsSection" style="display:none;">
-            <h3>🕸️ Fils à tirer</h3>
-            <p class="connections-hint">Cliquez pour vous perdre...</p>
-            <div class="connection-graph" id="connectionGraph"></div>
-        </div>
-        
-        <!-- Favoris (masqué si connecté - utilise les likes Supabase) -->
-        <div class="stats-section favorites-section" id="favoritesSection" style="display:none;">
-            <h3>💎 Mes likés</h3>
-            <div id="favoritesList"><div class="favorites-empty">Connectez-vous pour liker</div></div>
-        </div>
-        
-        <!-- Badges -->
-        <div class="stats-section badges-section" id="achievementSection">
-            <h3>🏆 Badges <span class="badges-count-inline" id="badgesCountInline">0/13</span></h3>
-            <div class="achievements-compact" id="achievementList"></div>
+        <!-- Badges - VERSION MINI (1 ligne) -->
+        <div class="stats-section badges-mini-section" id="achievementSection">
+            <div class="badges-mini-row" id="badgesMiniRow"></div>
+            <div class="badges-count-mini" id="badgesCountMini">0/13</div>
         </div>
         
         <!-- Parcours de lecture -->
