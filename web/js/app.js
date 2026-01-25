@@ -1341,19 +1341,111 @@ function removeFavorite(id) {
     toast('Retiré des favoris');
 }
 
-// === VUE FAVORIS COMPLÈTE ===
+// === VUE FAVORIS/LIKES LOCAUX ===
 async function openFavoritesView() {
-    // Exiger connexion pour voir les likes
-    if (!currentUser || !supabaseClient) {
-        if (typeof openAuthModal === 'function') openAuthModal('login');
-        toast('🔐 Connectez-vous pour voir vos likés');
+    const overlay = document.getElementById('favoritesOverlay');
+    const grid = document.getElementById('favoritesGrid');
+    if (!overlay || !grid) return;
+    
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    
+    // Charger les sources likées depuis localStorage
+    const likedUrls = Array.from(likedSourceUrls);
+    
+    if (likedUrls.length === 0) {
+        grid.innerHTML = `
+            <div class="social-empty">
+                <div class="social-empty-icon">💔</div>
+                <div class="social-empty-title">Aucun texte liké</div>
+                <div class="social-empty-text">Cliquez sur ♥ pour sauvegarder vos textes préférés</div>
+            </div>
+        `;
         return;
     }
     
-    // Afficher les likes Supabase via le feed social
-    if (typeof showMyLikes === 'function') {
-        showMyLikes();
+    // Afficher la liste des sources likées
+    grid.innerHTML = '<div class="loading-spinner">⏳ Chargement...</div>';
+    
+    // Trouver les cartes correspondant aux URLs likées
+    const likedCards = [];
+    likedUrls.forEach(url => {
+        // Chercher dans le feed actuel
+        const card = document.querySelector(`.text-card[data-url="${url}"]`);
+        if (card) {
+            likedCards.push({
+                id: card.id,
+                title: card.dataset.title || 'Sans titre',
+                author: card.dataset.author || 'Anonyme',
+                url: url,
+                preview: card.querySelector('.text-preview')?.textContent?.substring(0, 200) || ''
+            });
+        } else {
+            // URL likée mais pas dans le feed actuel
+            likedCards.push({
+                id: null,
+                title: url.split('/').pop() || 'Texte',
+                author: extractAuthorFromUrl(url),
+                url: url,
+                preview: ''
+            });
+        }
+    });
+    
+    if (likedCards.length === 0) {
+        grid.innerHTML = `
+            <div class="social-empty">
+                <div class="social-empty-icon">📚</div>
+                <div class="social-empty-title">${likedUrls.length} texte(s) liké(s)</div>
+                <div class="social-empty-text">Rechargez le feed pour les revoir</div>
+            </div>
+        `;
+        return;
     }
+    
+    grid.innerHTML = likedCards.map(item => `
+        <div class="favorite-card" onclick="${item.id ? `closeFavoritesView(); scrollToCard('${item.id}')` : `loadSourceByUrl('${item.url}')`}">
+            <div class="favorite-card-content">
+                <div class="favorite-card-title">${esc(item.title)}</div>
+                <div class="favorite-card-author">${esc(item.author)}</div>
+                ${item.preview ? `<div class="favorite-card-preview">${esc(item.preview)}</div>` : ''}
+            </div>
+            <button class="favorite-card-remove" onclick="event.stopPropagation(); unlikeByUrl('${item.url}')" title="Retirer">✕</button>
+        </div>
+    `).join('');
+}
+
+// Extraire l'auteur depuis l'URL
+function extractAuthorFromUrl(url) {
+    const parts = url.split('/');
+    // Format typique: .../Auteur/oeuvre.txt
+    if (parts.length >= 2) {
+        return parts[parts.length - 2] || 'Anonyme';
+    }
+    return 'Anonyme';
+}
+
+// Unlike via URL
+function unlikeByUrl(url) {
+    likedSourceUrls.delete(url);
+    saveLikedSources();
+    updateLikeCount();
+    
+    // Mettre à jour le bouton si la carte est visible
+    const card = document.querySelector(`.text-card[data-url="${url}"]`);
+    if (card) {
+        const btn = card.querySelector('.btn-like');
+        if (btn) btn.classList.remove('active');
+    }
+    
+    // Re-render la vue
+    openFavoritesView();
+}
+
+// Charger une source par URL (si pas dans le feed)
+function loadSourceByUrl(url) {
+    closeFavoritesView();
+    toast('📚 Ce texte n\'est plus dans le feed. Rechargez pour le retrouver !');
 }
 
 function closeFavoritesView() {

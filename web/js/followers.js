@@ -519,7 +519,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
         
         return `
             <div class="activity-item ${highlight}" onclick="viewExtraitById('${activity.extrait_id}')">
-                <div class="activity-avatar comment" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                <div class="activity-avatar comment" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorSymbol}</div>
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
@@ -540,7 +540,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
         
         return `
             <div class="activity-item ${highlight}" onclick="openUserProfile('${activity.target_id}', '${escapeHtml(targetName)}')">
-                <div class="activity-avatar follow" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                <div class="activity-avatar follow" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorSymbol}</div>
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
@@ -560,7 +560,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
         
         return `
             <div class="activity-item" onclick="viewExtraitById('${activity.extrait_id}')">
-                <div class="activity-avatar share" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorInitial}</div>
+                <div class="activity-avatar share" onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${actorSymbol}</div>
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
