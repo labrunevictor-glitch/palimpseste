@@ -137,22 +137,22 @@
         <!-- Actions rapides (visible surtout sur mobile) -->
         <div class="drawer-quick-actions">
             <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawer();">
-                <span>🔥</span> Tendances
+                <i data-lucide="flame" class="drawer-icon"></i> Tendances
             </button>
             <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();" id="drawerFavBtn">
-                <span>♥</span> Mes likés
+                <i data-lucide="heart" class="drawer-icon"></i> Mes likés
             </button>
             <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
-                <span>🐦</span> Social
+                <i data-lucide="users" class="drawer-icon"></i> Social
             </button>
             <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawer();">
-                <span>💬</span> Messages
+                <i data-lucide="mail" class="drawer-icon"></i> Messages
             </button>
             <button class="drawer-action-btn theme-toggle-drawer" onclick="toggleTheme();">
-                <span id="drawerThemeIcon">☀︎</span> <span id="drawerThemeText">Mode clair</span>
+                <i data-lucide="sun" class="drawer-icon" id="drawerThemeIcon"></i> <span id="drawerThemeText">Mode clair</span>
             </button>
             <div class="drawer-lang-selector">
-                <span>🌍</span>
+                <i data-lucide="globe" class="drawer-icon"></i>
                 <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawer();">
                     <option value="all">Toutes langues</option>
                     <option value="fr">🇫🇷 Français</option>

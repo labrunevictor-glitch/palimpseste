@@ -480,20 +480,21 @@
     }
     
     /* ═══════════════════════════════════════════
-       HEADER - Titre "📊 Mon Palimpseste"
+       HEADER - Titre "Palimpseste"
        ═══════════════════════════════════════════ */
     .stats-panel::before {
-        content: '📊 Mon Palimpseste' !important;
+        content: 'Palimpseste' !important;
         display: block !important;
         flex-shrink: 0 !important;
-        font-size: 1.2rem !important;
+        font-size: 1.3rem !important;
         font-weight: 700 !important;
         color: var(--text) !important;
         text-align: center !important;
         padding: 8px 40px 16px 16px !important;
         margin-bottom: 4px !important;
         border-bottom: 1px solid var(--border) !important;
-        letter-spacing: 0.5px !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
     }
     
     /* ═══════════════════════════════════════════
@@ -527,9 +528,15 @@
         min-height: 70px !important;
     }
     
-    .stats-panel .drawer-action-btn span:first-child {
-        font-size: 1.5rem !important;
-        line-height: 1 !important;
+    .stats-panel .drawer-action-btn .drawer-icon {
+        width: 22px !important;
+        height: 22px !important;
+        stroke-width: 1.5 !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .stats-panel .drawer-action-btn:active .drawer-icon {
+        color: var(--accent) !important;
     }
     
     .stats-panel .drawer-action-btn:active {
@@ -552,8 +559,11 @@
         color: var(--text) !important;
     }
     
-    .stats-panel .drawer-lang-selector span:first-child {
-        font-size: 1.2rem !important;
+    .stats-panel .drawer-lang-selector .drawer-icon {
+        width: 20px !important;
+        height: 20px !important;
+        stroke-width: 1.5 !important;
+        color: var(--text-secondary) !important;
     }
     
     .stats-panel .drawer-lang-selector select {
@@ -605,12 +615,7 @@
     }
     
     .stats-panel .big-number-label {
-        font-size: 0.8rem !important;
-        color: var(--text-secondary) !important;
-        text-align: center !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1.5px !important;
-        margin: 0 !important;
+        display: none !important;
     }
     
     /* ═══════════════════════════════════════════

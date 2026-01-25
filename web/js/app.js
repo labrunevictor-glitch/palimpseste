@@ -77,10 +77,14 @@ function updateThemeIcons() {
         headerBtn.title = isLight ? 'Mode sombre' : 'Mode clair';
     }
     
-    // Bouton drawer mobile
+    // Bouton drawer mobile - icône Lucide
     const drawerIcon = document.getElementById('drawerThemeIcon');
     const drawerText = document.getElementById('drawerThemeText');
-    if (drawerIcon) drawerIcon.textContent = isLight ? '☾' : '☀︎';
+    if (drawerIcon) {
+        drawerIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        // Réinitialiser Lucide pour l'icône
+        if (window.lucide) lucide.createIcons();
+    }
     if (drawerText) drawerText.textContent = isLight ? 'Mode sombre' : 'Mode clair';
 }
 
