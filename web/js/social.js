@@ -349,44 +349,54 @@ async function toggleLikeExtrait(extraitId) {
     }
     pendingLikeOperations[extraitId] = true;
     
-    // État actuel
-    const wasLiked = isExtraitLiked(extraitId);
-    const currentCount = getLikeCount(extraitId);
-    
-    // ═══════════════════════════════════════════════════════════
-    // MISE À JOUR OPTIMISTE DE L'UI (instantanée)
-    // ═══════════════════════════════════════════════════════════
+    // Éléments UI
     const likeBtn = document.getElementById(`likeBtn-${extraitId}`);
     const likeIcon = likeBtn?.querySelector('.like-icon');
     const likeCountEl = document.getElementById(`likeCount-${extraitId}`);
     
-    // Mettre à jour le cache immédiatement
-    if (wasLiked) {
-        userLikesCache.delete(extraitId);
-        likesCountCache[extraitId] = Math.max(0, currentCount - 1);
-    } else {
-        userLikesCache.add(extraitId);
-        likesCountCache[extraitId] = currentCount + 1;
-    }
-    
-    // Mettre à jour l'UI immédiatement
-    if (likeBtn) {
-        likeBtn.classList.toggle('liked', !wasLiked);
-        // Animation du bouton
-        likeBtn.classList.add('like-animating');
-        setTimeout(() => likeBtn.classList.remove('like-animating'), 300);
-    }
-    if (likeIcon) {
-        likeIcon.textContent = wasLiked ? '🤍' : '❤️';
-    }
-    if (likeCountEl) {
-        likeCountEl.textContent = getLikeCount(extraitId);
-    }
-    
-    // ═══════════════════════════════════════════════════════════
-    // SYNCHRONISATION AVEC LA BASE DE DONNÉES
-    // ═══════════════════════════════════════════════════════════
     try {
+        // ═══════════════════════════════════════════════════════════
+        // VÉRIFIER L'ÉTAT RÉEL DANS LA BASE DE DONNÉES
+        // ═══════════════════════════════════════════════════════════
+        const { data: existingLike } = await supabaseClient
+            .from('likes')
+            .select('id')
+            .eq('user_id', currentUser.id)
+            .eq('extrait_id', extraitId)
+            .maybeSingle();
+        
+        const wasLiked = !!existingLike;
+        const currentCount = parseInt(likeCountEl?.textContent) || 0;
+        
+        // ═══════════════════════════════════════════════════════════
+        // MISE À JOUR OPTIMISTE DE L'UI (instantanée)
+        // ═══════════════════════════════════════════════════════════
+        const newCount = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+        
+        // Mettre à jour le cache
+        if (wasLiked) {
+            userLikesCache.delete(extraitId);
+        } else {
+            userLikesCache.add(extraitId);
+        }
+        likesCountCache[extraitId] = newCount;
+        
+        // Mettre à jour l'UI immédiatement
+        if (likeBtn) {
+            likeBtn.classList.toggle('liked', !wasLiked);
+            likeBtn.classList.add('like-animating');
+            setTimeout(() => likeBtn.classList.remove('like-animating'), 300);
+        }
+        if (likeIcon) {
+            likeIcon.textContent = wasLiked ? '🤍' : '❤️';
+        }
+        if (likeCountEl) {
+            likeCountEl.textContent = newCount;
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // SYNCHRONISATION AVEC LA BASE DE DONNÉES
+        // ═══════════════════════════════════════════════════════════
         if (wasLiked) {
             // Supprimer le like
             const { error } = await supabaseClient
@@ -430,25 +440,24 @@ async function toggleLikeExtrait(extraitId) {
         console.error('Erreur like:', err);
         
         // ═══════════════════════════════════════════════════════════
-        // ROLLBACK EN CAS D'ERREUR
+        // ROLLBACK EN CAS D'ERREUR - Recharger l'état réel
         // ═══════════════════════════════════════════════════════════
-        if (wasLiked) {
-            userLikesCache.add(extraitId);
-            likesCountCache[extraitId] = currentCount;
-        } else {
-            userLikesCache.delete(extraitId);
-            likesCountCache[extraitId] = currentCount;
-        }
+        await loadUserLikesCache();
+        const extraitIds = socialExtraits.map(e => e.id);
+        await loadLikesCountForExtraits(extraitIds);
         
-        // Restaurer l'UI
+        // Restaurer l'UI avec les vraies valeurs
+        const isNowLiked = isExtraitLiked(extraitId);
+        const realCount = getLikeCount(extraitId);
+        
         if (likeBtn) {
-            likeBtn.classList.toggle('liked', wasLiked);
+            likeBtn.classList.toggle('liked', isNowLiked);
         }
         if (likeIcon) {
-            likeIcon.textContent = wasLiked ? '❤️' : '🤍';
+            likeIcon.textContent = isNowLiked ? '❤️' : '🤍';
         }
         if (likeCountEl) {
-            likeCountEl.textContent = currentCount;
+            likeCountEl.textContent = realCount;
         }
         
         toast('❌ Erreur de synchronisation');
