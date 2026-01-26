@@ -1050,6 +1050,7 @@ function loadTextFromCollectionById(itemId) {
 
 /**
  * Charger le texte complet depuis la source et l'afficher dans la vue collection
+ * Utilise la même méthode que fetchText (action=parse) pour un résultat fiable
  */
 async function loadTextFromCollection(itemId, title, author, url) {
     const fullContainer = document.getElementById(`full-${itemId}`);
@@ -1078,29 +1079,57 @@ async function loadTextFromCollection(itemId, title, author, url) {
             // Déterminer la langue depuis l'URL
             const langMatch = url.match(/https?:\/\/([a-z]+)\.wikisource/);
             const lang = langMatch ? langMatch[1] : 'fr';
-            const apiUrl = `https://${lang}.wikisource.org/w/api.php`;
+            const baseUrl = `https://${lang}.wikisource.org`;
             
-            // Charger le texte via l'API Wikisource
-            const response = await fetch(`${apiUrl}?action=query&titles=${encodeURIComponent(pageTitle)}&prop=extracts&explaintext=1&format=json&origin=*`);
+            // Utiliser action=parse comme fetchText (méthode fiable)
+            const apiUrl = `${baseUrl}/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&prop=text&format=json&origin=*&redirects=true`;
+            const response = await fetch(apiUrl);
             const data = await response.json();
             
-            const pages = data.query?.pages;
-            if (pages) {
-                const page = Object.values(pages)[0];
-                if (page && page.extract) {
-                    // Nettoyer et formater le texte
-                    let text = page.extract
-                        .replace(/\n{3,}/g, '\n\n')
+            if (data.parse?.text) {
+                const html = data.parse.text['*'];
+                
+                // Extraire le texte du HTML (même méthode que analyzeHtml)
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                
+                // Supprimer les éléments non-texte
+                div.querySelectorAll('table, .noprint, .mw-editsection, script, style, .reference, sup.reference, .mw-cite-backlink, .ws-noexport, .navigation, .navbox, .infobox, .toc, .thumbinner, .magnify, .gallery').forEach(el => el.remove());
+                
+                // Extraire le texte des paragraphes et divs de poème
+                let text = '';
+                const elements = div.querySelectorAll('p, div.poem, div.verse, blockquote, .text, pre');
+                elements.forEach(el => {
+                    const t = el.textContent.trim();
+                    if (t.length > 20) {
+                        text += t + '\n\n';
+                    }
+                });
+                
+                // Si pas assez de texte, prendre tout le contenu
+                if (text.length < 200) {
+                    text = div.textContent
+                        .replace(/\[\d+\]/g, '')        // Notes [1], [2]
+                        .replace(/\[modifier\]/gi, '')  // Liens d'édition
+                        .replace(/\s+/g, ' ')           // Espaces multiples
                         .trim();
-                    
-                    // Afficher le texte complet
+                }
+                
+                text = text
+                    .replace(/\n{3,}/g, '\n\n')
+                    .trim();
+                
+                if (text.length > 100) {
                     fullContainer.innerHTML = `<div class="collection-full-text">${escapeHtml(text)}</div>`;
                     toast('Texte complet chargé');
                 } else {
-                    fullContainer.innerHTML = '<div class="collection-error">Texte non disponible</div>';
+                    // Texte trop court = probablement une page d'index
+                    fullContainer.innerHTML = `<div class="collection-error">Cette page est un sommaire. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
                 }
+            } else if (data.error) {
+                fullContainer.innerHTML = `<div class="collection-error">Page introuvable. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
             } else {
-                fullContainer.innerHTML = '<div class="collection-error">Texte non disponible</div>';
+                fullContainer.innerHTML = `<div class="collection-error">Texte non disponible. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
             }
         } catch (err) {
             console.error('Erreur chargement texte:', err);
