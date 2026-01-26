@@ -1690,11 +1690,12 @@ background: var(--bg-card);
 border: 2px solid var(--border);
 border-radius: 0;
 margin-bottom: 2.5rem;
-overflow: hidden;
+overflow: visible; /* Permet aux boutons de rester visibles */
 opacity: 0;
 transform: translateY(20px);
 transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 position: relative;
+z-index: 1;
 /* Pixel art shadow */
 box-shadow: 4px 4px 0 var(--pixel-shadow);
 }
@@ -1712,9 +1713,10 @@ background: var(--accent);
 .card:hover { 
 transform: translateY(-3px); 
 box-shadow: 6px 6px 0 var(--pixel-shadow), -2px -2px 0 var(--accent);
+z-index: 10; /* Passe au-dessus des autres cartes au hover */
 }
 .card.show { opacity: 1; transform: translateY(0); }
-.card.show:hover { transform: translateY(-3px); }
+.card.show:hover { transform: translateY(-3px); z-index: 10; }
 
 .card-head {
 padding: 1.5rem 1.5rem 0.75rem;
@@ -2382,6 +2384,9 @@ border-top: 1px solid var(--border);
 display: flex;
 flex-direction: column;
 gap: 0.75rem;
+position: relative;
+z-index: 2; /* S'assure que les boutons sont toujours cliquables */
+background: var(--bg-card); /* Fond pour éviter la transparence */
 }
 .card-keywords {
 display: flex;
