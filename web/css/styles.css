@@ -4566,8 +4566,26 @@ font-family: 'Playfair Display', serif;
 font-size: 0.95rem;
 line-height: 1.6;
 color: var(--text);
-margin-bottom: 0.75rem;
+margin-bottom: 0.5rem;
 font-style: italic;
+}
+.profile-voir-plus {
+display: block;
+width: 100%;
+padding: 0.4rem;
+margin-bottom: 0.75rem;
+background: var(--bg);
+border: 1px dashed var(--border);
+border-radius: 6px;
+color: var(--accent);
+font-size: 0.75rem;
+cursor: pointer;
+text-align: center;
+transition: all 0.2s;
+}
+.profile-voir-plus:hover {
+background: var(--bg-elevated);
+border-color: var(--accent);
 }
 .profile-extrait-source {
 font-size: 0.75rem;

@@ -760,12 +760,18 @@ async function switchProfileTab(tab) {
 async function loadProfileExtraits(userId) {
     const container = document.getElementById('profileContentArea');
     
-    const { data: extraits } = await supabaseClient
+    const { data: extraits, error } = await supabaseClient
         .from('extraits')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(30);
+    
+    if (error) {
+        console.error('Erreur chargement extraits:', error);
+        container.innerHTML = `<div class="profile-empty"><div class="profile-empty-text">Erreur de chargement</div></div>`;
+        return;
+    }
     
     if (!extraits || extraits.length === 0) {
         container.innerHTML = `
@@ -779,20 +785,48 @@ async function loadProfileExtraits(userId) {
     
     container.innerHTML = `
         <div class="profile-extraits-list">
-            ${extraits.map(e => `
-                <div class="profile-extrait-card" onclick="viewExtraitById('${e.id}')" style="cursor:pointer;" title="Cliquer pour voir en entier">
-                    <div class="profile-extrait-text">"${esc(e.texte)}"</div>
+            ${extraits.map((e, index) => {
+                const texte = e.texte || '';
+                const isLong = texte.length > 200;
+                const displayText = isLong ? texte.substring(0, 200) + '...' : texte;
+                return `
+                <div class="profile-extrait-card" id="profExtrait-${e.id}">
+                    <div class="profile-extrait-text" id="profExtraitText-${e.id}">"${esc(displayText)}"</div>
+                    ${isLong ? `<button class="profile-voir-plus" onclick="toggleProfileExtraitText('${e.id}', ${JSON.stringify(texte).replace(/'/g, "\\'")})" id="profVoirPlus-${e.id}">▼ Voir plus</button>` : ''}
                     <div class="profile-extrait-source">
-                        <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
+                        <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                     </div>
                     <div class="profile-extrait-meta">
                         <span>❤️ ${e.likes_count || 0} likes</span>
                         <span>${formatTimeAgo(new Date(e.created_at))}</span>
                     </div>
                 </div>
-            `).join('')}
+            `}).join('')}
         </div>
     `;
+}
+
+/**
+ * Toggle l'affichage complet d'un texte dans le profil
+ */
+function toggleProfileExtraitText(extraitId, fullText) {
+    const textEl = document.getElementById(`profExtraitText-${extraitId}`);
+    const btnEl = document.getElementById(`profVoirPlus-${extraitId}`);
+    if (!textEl || !btnEl) return;
+    
+    const isExpanded = textEl.dataset.expanded === 'true';
+    
+    if (isExpanded) {
+        // Réduire
+        textEl.innerHTML = '"' + esc(fullText.substring(0, 200) + '...') + '"';
+        textEl.dataset.expanded = 'false';
+        btnEl.textContent = '▼ Voir plus';
+    } else {
+        // Étendre
+        textEl.innerHTML = '"' + esc(fullText) + '"';
+        textEl.dataset.expanded = 'true';
+        btnEl.textContent = '▲ Réduire';
+    }
 }
 
 /**
@@ -842,11 +876,15 @@ async function loadProfileLikes(userId) {
                 const e = extraitMap.get(l.extrait_id);
                 if (!e) return '';
                 const authorName = e.profiles?.username || 'Anonyme';
+                const texte = e.texte || '';
+                const isLong = texte.length > 200;
+                const displayText = isLong ? texte.substring(0, 200) + '...' : texte;
                 return `
-                    <div class="profile-extrait-card" onclick="viewExtraitById('${e.id}')" style="cursor:pointer;" title="Cliquer pour voir en entier">
-                        <div class="profile-extrait-text">"${esc(e.texte)}"</div>
+                    <div class="profile-extrait-card" id="profLike-${e.id}">
+                        <div class="profile-extrait-text" id="profLikeText-${e.id}">"${esc(displayText)}"</div>
+                        ${isLong ? `<button class="profile-voir-plus" onclick="toggleProfileLikeText('${e.id}', ${JSON.stringify(texte).replace(/'/g, "\\'")})" id="profLikeVoirPlus-${e.id}">▼ Voir plus</button>` : ''}
                         <div class="profile-extrait-source">
-                            <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
+                            <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         </div>
                         <div class="profile-extrait-meta">
                             <span>par @${esc(authorName)}</span>
@@ -857,6 +895,27 @@ async function loadProfileLikes(userId) {
             }).join('')}
         </div>
     `;
+}
+
+/**
+ * Toggle l'affichage complet d'un texte liké dans le profil
+ */
+function toggleProfileLikeText(extraitId, fullText) {
+    const textEl = document.getElementById(`profLikeText-${extraitId}`);
+    const btnEl = document.getElementById(`profLikeVoirPlus-${extraitId}`);
+    if (!textEl || !btnEl) return;
+    
+    const isExpanded = textEl.dataset.expanded === 'true';
+    
+    if (isExpanded) {
+        textEl.innerHTML = '"' + esc(fullText.substring(0, 200) + '...') + '"';
+        textEl.dataset.expanded = 'false';
+        btnEl.textContent = '▼ Voir plus';
+    } else {
+        textEl.innerHTML = '"' + esc(fullText) + '"';
+        textEl.dataset.expanded = 'true';
+        btnEl.textContent = '▲ Réduire';
+    }
 }
 
 /**
@@ -978,3 +1037,7 @@ function closeUserProfile() {
     document.getElementById('userProfileModal').classList.remove('open');
     currentProfileUserId = null;
 }
+
+// Exposer les fonctions de toggle au window
+window.toggleProfileExtraitText = toggleProfileExtraitText;
+window.toggleProfileLikeText = toggleProfileLikeText;
