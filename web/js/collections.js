@@ -71,6 +71,17 @@ async function loadUserCollections() {
         if (error) throw error;
         
         userCollections = data || [];
+        
+        // Charger le nombre d'items pour chaque collection
+        for (const collection of userCollections) {
+            const { count, error: countError } = await supabaseClient
+                .from('collection_items')
+                .select('*', { count: 'exact', head: true })
+                .eq('collection_id', collection.id);
+            
+            collection.items_count = countError ? 0 : (count || 0);
+        }
+        
         collectionsLoaded = true;
         console.log('📚 Collections chargées:', userCollections.length);
         

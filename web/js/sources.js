@@ -89,20 +89,28 @@ const ALT_SOURCES = {
         name: 'Gallica (BNF)',
         url: 'https://gallica.bnf.fr',
         lang: 'fr',
-        // Œuvres classiques disponibles via l'API Gallica
-        collections: [
-            { query: 'Baudelaire Fleurs du mal', author: 'Charles Baudelaire' },
-            { query: 'Rimbaud Illuminations', author: 'Arthur Rimbaud' },
-            { query: 'Verlaine Fêtes galantes', author: 'Paul Verlaine' },
-            { query: 'Victor Hugo Contemplations', author: 'Victor Hugo' },
-            { query: 'Mallarmé poésies', author: 'Stéphane Mallarmé' },
-            { query: 'Nerval Chimères', author: 'Gérard de Nerval' },
-            { query: 'Lamartine Méditations', author: 'Alphonse de Lamartine' },
-            { query: 'Musset Nuits', author: 'Alfred de Musset' },
-            { query: 'Chateaubriand René', author: 'François-René de Chateaubriand' },
-            { query: 'Montaigne Essais', author: 'Michel de Montaigne' },
-            { query: 'La Rochefoucauld Maximes', author: 'François de La Rochefoucauld' },
-            { query: 'Pascal Pensées', author: 'Blaise Pascal' }
+        // Œuvres classiques avec extraits célèbres
+        works: [
+            { title: 'Les Fleurs du mal - Spleen', author: 'Charles Baudelaire',
+              excerpt: 'Quand le ciel bas et lourd pèse comme un couvercle\nSur l\'esprit gémissant en proie aux longs ennuis,\nEt que de l\'horizon embrassant tout le cercle\nIl nous verse un jour noir plus triste que les nuits.' },
+            { title: 'Le Bateau ivre', author: 'Arthur Rimbaud',
+              excerpt: 'Comme je descendais des Fleuves impassibles,\nJe ne me sentis plus guidé par les haleurs :\nDes Peaux-Rouges criards les avaient pris pour cibles,\nLes ayant cloués nus aux poteaux de couleurs.' },
+            { title: 'Chanson d\'automne', author: 'Paul Verlaine',
+              excerpt: 'Les sanglots longs\nDes violons\nDe l\'automne\nBlessent mon cœur\nD\'une langueur\nMonotone.' },
+            { title: 'Demain, dès l\'aube', author: 'Victor Hugo',
+              excerpt: 'Demain, dès l\'aube, à l\'heure où blanchit la campagne,\nJe partirai. Vois-tu, je sais que tu m\'attends.\nJ\'irai par la forêt, j\'irai par la montagne.\nJe ne puis demeurer loin de toi plus longtemps.' },
+            { title: 'L\'Azur', author: 'Stéphane Mallarmé',
+              excerpt: 'De l\'éternel azur la sereine ironie\nAccable, belle indolemment comme les fleurs,\nLe poëte impuissant qui maudit son génie\nÀ travers un désert stérile de Douleurs.' },
+            { title: 'El Desdichado', author: 'Gérard de Nerval',
+              excerpt: 'Je suis le Ténébreux, — le Veuf, — l\'Inconsolé,\nLe Prince d\'Aquitaine à la Tour abolie :\nMa seule Étoile est morte, — et mon luth constellé\nPorte le Soleil noir de la Mélancolie.' },
+            { title: 'Le Lac', author: 'Alphonse de Lamartine',
+              excerpt: 'Ô temps, suspends ton vol ! et vous, heures propices,\nSuspendez votre cours !\nLaissez-nous savourer les rapides délices\nDes plus beaux de nos jours !' },
+            { title: 'La Nuit de mai', author: 'Alfred de Musset',
+              excerpt: 'Poëte, prends ton luth et me donne un baiser ;\nLa fleur de l\'églantier sent ses bourgeons éclore.\nLe printemps naît ce soir ; les vents vont s\'embraser ;\nEt la bergeronnette, en attendant l\'aurore.' },
+            { title: 'Pensées', author: 'Blaise Pascal',
+              excerpt: 'Le silence éternel de ces espaces infinis m\'effraie.' },
+            { title: 'Maximes', author: 'La Rochefoucauld',
+              excerpt: 'Nos vertus ne sont, le plus souvent, que des vices déguisés.' }
         ]
     },
     // ═══════════════════════════════════════════════════════════
@@ -836,61 +844,26 @@ async function fetchPoetryDB() {
 async function fetchGallica() {
     if (selectedLang !== 'all' && selectedLang !== 'fr') return [];
     
-    const collections = ALT_SOURCES.gallica.collections;
-    const collection = collections[Math.floor(Math.random() * collections.length)];
-    const cacheKey = `gallica:${collection.query}`;
+    const works = ALT_SOURCES.gallica.works;
+    const work = works[Math.floor(Math.random() * works.length)];
+    const cacheKey = `gallica:${work.title}`;
     
     // Éviter les doublons
     if (state.shownPages.has(cacheKey)) return [];
     
-    try {
-        // Recherche via l'API SRU de Gallica (documents textuels)
-        const searchUrl = `https://gallica.bnf.fr/SRU?operation=searchRetrieve&version=1.2&query=dc.title%20all%20"${encodeURIComponent(collection.query)}"&maximumRecords=10&startRecord=1`;
-        
-        const res = await fetch(searchUrl);
-        const xmlText = await res.text();
-        
-        // Parser le XML pour extraire les identifiants ARK
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(xmlText, 'text/xml');
-        const records = xml.querySelectorAll('record');
-        
-        const results = [];
-        for (const record of records) {
-            const identifier = record.querySelector('identifier')?.textContent;
-            const title = record.querySelector('title')?.textContent || collection.query;
-            
-            if (identifier && identifier.includes('ark:')) {
-                const arkId = identifier.match(/ark:\/\d+\/\w+/)?.[0];
-                if (arkId) {
-                    results.push({
-                        title: title.split('/')[0].trim(),
-                        author: collection.author,
-                        arkId: arkId,
-                        source: 'gallica',
-                        lang: 'fr',
-                        sourceUrl: `https://gallica.bnf.fr/${arkId}`
-                    });
-                }
-            }
-        }
-        
-        // Retourner un résultat aléatoire avec un extrait simulé
-        if (results.length > 0) {
-            const item = results[Math.floor(Math.random() * results.length)];
-            return [{
-                title: item.title,
-                author: item.author,
-                text: `[Extrait de "${item.title}" disponible sur Gallica]\n\nConsultez l'œuvre complète sur gallica.bnf.fr`,
-                source: 'gallica',
-                sourceUrl: item.sourceUrl,
-                lang: 'fr',
-                isPreloaded: true
-            }];
-        }
-    } catch (e) {
-        console.error('Gallica error:', e);
+    // Retourner l'extrait directement
+    if (work.excerpt) {
+        return [{
+            title: work.title,
+            author: work.author,
+            text: work.excerpt,
+            source: 'gallica',
+            sourceUrl: `https://gallica.bnf.fr/services/engine/search/sru?operation=searchRetrieve&query=dc.title%20all%20"${encodeURIComponent(work.title)}"`,
+            lang: 'fr',
+            isPreloaded: true
+        }];
     }
+    
     return [];
 }
 
