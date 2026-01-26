@@ -1028,36 +1028,51 @@
         position: relative !important;
         right: auto !important;
         top: auto !important;
+        transform: none !important;
         width: 100% !important;
-        height: 28px !important;
+        height: 32px !important;
         margin-top: 0.3rem !important;
+        padding: 0 !important;
         font-size: 0.55rem !important;
         background: linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.08)) !important;
         border: none !important;
         border-top: 1px dotted rgba(212, 165, 116, 0.25) !important;
         border-radius: 0 !important;
         color: var(--accent) !important;
-        opacity: 0.7 !important;
+        opacity: 0.8 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 0.3rem !important;
+        gap: 0.4rem !important;
+        box-shadow: none !important;
     }
     
     .exploration-toggle::before {
-        content: "replier" !important;
-        font-size: 0.6rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.05em !important;
+        content: "▲ Replier les filtres" !important;
+        font-size: 0.65rem !important;
+        text-transform: none !important;
+        letter-spacing: 0.03em !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle {
+        background: var(--accent) !important;
+        color: white !important;
+        opacity: 1 !important;
+        height: 36px !important;
+        border-top: none !important;
     }
     
     .exploration-container.collapsed .exploration-toggle::before {
-        content: "filtres" !important;
+        content: "▼ Afficher les filtres" !important;
     }
     
     .exploration-toggle:active {
-        background: rgba(212, 165, 116, 0.15) !important;
+        background: rgba(212, 165, 116, 0.2) !important;
         opacity: 1 !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle:active {
+        background: var(--accent-secondary) !important;
     }
     
     /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */
