@@ -233,34 +233,41 @@ function viewTrendingComments(extraitId) {
 }
 
 /**
- * Ouvre un extrait depuis les tendances - navigue vers le feed social et affiche l'extrait
+ * Ouvre un extrait depuis les tendances - utilise viewExtraitById pour afficher l'extrait
  */
 function openTrendingExtrait(extraitId) {
     // Fermer le trending
     closeTrendingFeed();
     
-    // Ouvrir le feed social si la fonction existe
-    if (typeof openSocialFeed === 'function') {
-        openSocialFeed();
-    }
-    
-    // Attendre que le feed soit chargé puis scroller vers l'extrait
-    setTimeout(() => {
-        const card = document.querySelector(`[data-extrait-id="${extraitId}"]`);
-        if (card) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Ajouter un effet de highlight temporaire
-            card.style.boxShadow = '0 0 20px var(--accent)';
-            setTimeout(() => {
-                card.style.boxShadow = '';
-            }, 2000);
-        } else {
-            // Si l'extrait n'est pas dans le feed actuel, afficher un message
-            if (typeof toast === 'function') {
-                toast('📜 Extrait trouvé ! Chargement en cours...');
-            }
+    // Utiliser viewExtraitById si disponible (charge et affiche l'extrait dans le feed social)
+    if (typeof viewExtraitById === 'function') {
+        // Ouvrir le feed social d'abord
+        if (typeof openSocialFeed === 'function') {
+            openSocialFeed();
         }
-    }, 600);
+        // Puis charger l'extrait spécifique
+        setTimeout(() => {
+            viewExtraitById(extraitId);
+            if (typeof toast === 'function') {
+                toast('📜 Extrait chargé');
+            }
+        }, 300);
+    } else {
+        // Fallback: ouvrir le feed social et essayer de trouver la carte
+        if (typeof openSocialFeed === 'function') {
+            openSocialFeed();
+        }
+        setTimeout(() => {
+            const card = document.querySelector(`[data-extrait-id="${extraitId}"]`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.style.boxShadow = '0 0 20px var(--accent)';
+                setTimeout(() => {
+                    card.style.boxShadow = '';
+                }, 2000);
+            }
+        }, 600);
+    }
 }
 
 // Rendre les fonctions accessibles globalement
