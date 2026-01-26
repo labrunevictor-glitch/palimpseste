@@ -802,18 +802,22 @@ async function loadProfileExtraits(userId) {
                 const timeAgo = formatTimeAgo(new Date(e.created_at));
                 const isLiked = typeof isExtraitLiked === 'function' && isExtraitLiked(e.id);
                 const likeCount = e.likes_count || 0;
+                // Échapper les quotes pour les attributs onclick
+                const safeUrl = (e.source_url || '').replace(/'/g, "\\'");
+                const safeTitle = (e.source_title || '').replace(/'/g, "\\'");
+                const safeUsername = (username || '').replace(/'/g, "\\'");
                 
                 return `
                 <div class="extrait-card" data-id="${e.id}">
                     <div class="extrait-header">
-                        <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${esc(username)}')" style="cursor:pointer">${avatarSymbol}</div>
-                        <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${esc(username)}')" style="cursor:pointer">
+                        <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">${avatarSymbol}</div>
+                        <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">
                             <div class="extrait-username">${esc(username)}</div>
                             <div class="extrait-time">${timeAgo}</div>
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(e.texte || '')}</div>
-                    ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${e.id}', '${esc(e.source_url)}', '${esc(e.source_title)}')" id="voirPlus-${e.id}">📖 Voir le texte complet</button>` : ''}
+                    ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${e.id}', '${safeUrl}', '${safeTitle}')" id="voirPlus-${e.id}">📖 Voir le texte complet</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">↗</a>` : ''}
@@ -928,18 +932,22 @@ async function loadProfileLikes(userId) {
                 const timeAgo = formatTimeAgo(new Date(e.created_at));
                 const isLiked = true; // Forcément liké puisque c'est dans mes likes
                 const likeCount = e.likes_count || 0;
+                // Échapper les quotes pour les attributs onclick
+                const safeUrl = (e.source_url || '').replace(/'/g, "\\'");
+                const safeTitle = (e.source_title || '').replace(/'/g, "\\'");
+                const safeUsername = (username || '').replace(/'/g, "\\'");
                 
                 return `
                 <div class="extrait-card" data-id="${e.id}">
                     <div class="extrait-header">
-                        <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${esc(username)}')" style="cursor:pointer">${avatarSymbol}</div>
-                        <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${esc(username)}')" style="cursor:pointer">
+                        <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">${avatarSymbol}</div>
+                        <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">
                             <div class="extrait-username">${esc(username)}</div>
                             <div class="extrait-time">${timeAgo}</div>
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(e.texte || '')}</div>
-                    ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${e.id}', '${esc(e.source_url)}', '${esc(e.source_title)}')" id="voirPlus-${e.id}">📖 Voir le texte complet</button>` : ''}
+                    ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource('${e.id}', '${safeUrl}', '${safeTitle}')" id="voirPlus-${e.id}">📖 Voir le texte complet</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">↗</a>` : ''}
