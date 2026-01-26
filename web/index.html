@@ -203,7 +203,7 @@
                 <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawer();">Créer un compte</button>
             </div>
             <div id="profileLoggedIn" style="display:none;">
-                <div class="profile-header-card">
+                <div class="profile-header-card" onclick="openMyProfile(); closeMobileDrawer();" style="cursor:pointer;" title="Voir mon profil">
                     <div class="profile-avatar-large" id="sidebarAvatar">👤</div>
                     <div class="profile-name-large" id="sidebarUsername">Utilisateur</div>
                 </div>

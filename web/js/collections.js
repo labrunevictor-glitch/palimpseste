@@ -20,15 +20,15 @@ let userCollections = [];
 let collectionsLoaded = false;
 let currentViewingCollection = null;
 
-// Emojis suggérés pour les collections
+// Symboles suggérés pour les collections (style sobre et élégant)
 const COLLECTION_EMOJIS = [
-    '📚', '📖', '📕', '📗', '📘', '📙', '📓', '📒', 
-    '✨', '💎', '🌟', '⭐', '🔥', '💫', '🌙', '☀️',
-    '🎭', '🎨', '🎬', '🎵', '🎼', '🎹', '🎻', '🎺',
-    '💭', '💡', '🧠', '💫', '🌊', '🌸', '🍂', '❄️',
-    '❤️', '💜', '💙', '💚', '🖤', '🤍', '💛', '🧡',
-    '🦋', '🌹', '🌺', '🍀', '🌿', '🌴', '🌲', '🏔️',
-    '🏛️', '🗿', '⚔️', '🛡️', '👑', '🗡️', '🔮', '🪄'
+    '♡', '♢', '♤', '♧', '★', '☆', '◆', '◇',
+    '❧', '§', '¶', '†', '‡', '※', '⁂', '⁕',
+    '∞', '≈', '∴', '∵', '∷', '⊕', '⊗', '⊙',
+    '●', '○', '◉', '◎', '■', '□', '▲', '△',
+    '♪', '♫', '♬', '⚘', '❦', '❡', '✦', '✧',
+    '⟐', '⟡', '⧫', '⬡', '⬢', '⬣', '⬤', '⬥',
+    '⊛', '⊜', '⊝', '⊞', '⊟', '⊠', '⊡', '⍟'
 ];
 
 // Couleurs suggérées pour les collections
@@ -115,7 +115,7 @@ async function loadCollectionItems(collectionId) {
 /**
  * Créer une nouvelle collection
  */
-async function createCollection(name, emoji = '📚', color = '#5a7a8a', description = '', isPublic = false) {
+async function createCollection(name, emoji = '❧', color = '#5a7a8a', description = '', isPublic = false) {
     if (!currentUser || !supabaseClient) {
         toast('📝 Connectez-vous pour créer une collection');
         return null;
@@ -224,7 +224,7 @@ async function deleteCollection(collectionId) {
         // Retirer du cache local
         userCollections = userCollections.filter(c => c.id !== collectionId);
         
-        toast(`🗑️ Collection "${collection.name}" supprimée`);
+        toast(`Collection "${collection.name}" supprimée`);
         
         // Rafraîchir l'UI
         if (typeof renderCollectionsList === 'function') {
@@ -332,7 +332,7 @@ async function removeFromCollection(collectionId, itemId) {
             userCollections[collectionIdx].items_count--;
         }
         
-        toast('🗑️ Retiré de la collection');
+        toast('Retiré de la collection');
         return true;
     } catch (err) {
         console.error('Erreur retrait de collection:', err);
@@ -411,7 +411,7 @@ async function openCollectionPicker(item) {
     modal.innerHTML = `
         <div class="collection-picker-content">
             <div class="collection-picker-header">
-                <h3>📚 Ajouter à une collection</h3>
+                <h3>+ Ajouter à une collection</h3>
                 <button class="collection-picker-close" onclick="closeCollectionPicker()">✕</button>
             </div>
             
@@ -427,7 +427,7 @@ async function openCollectionPicker(item) {
                         <button class="collection-picker-item ${existingCollections.includes(c.id) ? 'in-collection' : ''}" 
                                 onclick="toggleItemInCollection('${c.id}')"
                                 data-collection-id="${c.id}">
-                            <span class="collection-picker-emoji">${c.emoji || '📚'}</span>
+                            <span class="collection-picker-emoji">${c.emoji || '❧'}</span>
                             <div class="collection-picker-info">
                                 <span class="collection-picker-name">${escapeHtml(c.name)}</span>
                                 <span class="collection-picker-count">${c.items_count || 0} texte${(c.items_count || 0) > 1 ? 's' : ''}</span>
@@ -448,7 +448,7 @@ async function openCollectionPicker(item) {
                 <input type="text" id="newCollectionName" class="collection-input" placeholder="Nom de la collection">
                 <div class="collection-emoji-picker">
                     ${COLLECTION_EMOJIS.slice(0, 16).map(e => `
-                        <button class="emoji-btn ${e === '📚' ? 'selected' : ''}" onclick="selectCollectionEmoji('${e}')">${e}</button>
+                        <button class="emoji-btn ${e === '❧' ? 'selected' : ''}" onclick="selectCollectionEmoji('${e}')">${e}</button>
                     `).join('')}
                 </div>
                 <div class="collection-form-actions">
@@ -523,7 +523,7 @@ function hideNewCollectionForm() {
     }
 }
 
-let selectedNewCollectionEmoji = '📚';
+let selectedNewCollectionEmoji = '❧';
 
 /**
  * Sélectionner un emoji pour la nouvelle collection
@@ -563,7 +563,7 @@ async function createNewCollectionFromPicker() {
             newItem.dataset.collectionId = collection.id;
             newItem.onclick = () => toggleItemInCollection(collection.id);
             newItem.innerHTML = `
-                <span class="collection-picker-emoji">${collection.emoji || '📚'}</span>
+                <span class="collection-picker-emoji">${collection.emoji || '❧'}</span>
                 <div class="collection-picker-info">
                     <span class="collection-picker-name">${escapeHtml(collection.name)}</span>
                     <span class="collection-picker-count">1 texte</span>
@@ -607,7 +607,7 @@ async function openCollectionsView() {
     
     if (!overlay || !grid) return;
     
-    if (title) title.innerHTML = '📚 MES COLLECTIONS';
+    if (title) title.innerHTML = '❧ MES COLLECTIONS';
     
     grid.innerHTML = `
         <div class="collections-view">
@@ -620,22 +620,22 @@ async function openCollectionsView() {
             <div class="collections-list" id="collectionsListView">
                 ${userCollections.length === 0 
                     ? `<div class="collections-empty">
-                        <div class="collections-empty-icon">📚</div>
+                        <div class="collections-empty-icon">❧</div>
                         <div class="collections-empty-title">Pas encore de collection</div>
                         <div class="collections-empty-text">Créez des collections pour organiser vos textes favoris par thèmes</div>
                         <button class="btn-create-first" onclick="showCreateCollectionModal()">Créer ma première collection</button>
                        </div>`
                     : userCollections.map(c => `
                         <div class="collection-card" onclick="openCollection('${c.id}')">
-                            <div class="collection-card-emoji" style="background: ${c.color}15; color: ${c.color}">${c.emoji || '📚'}</div>
+                            <div class="collection-card-emoji" style="background: ${c.color}15; color: ${c.color}">${c.emoji || '❧'}</div>
                             <div class="collection-card-info">
                                 <div class="collection-card-name">${escapeHtml(c.name)}</div>
                                 <div class="collection-card-count">${c.items_count || 0} texte${(c.items_count || 0) > 1 ? 's' : ''}</div>
                                 ${c.description ? `<div class="collection-card-desc">${escapeHtml(c.description)}</div>` : ''}
                             </div>
                             <div class="collection-card-actions">
-                                <button class="collection-card-action" onclick="event.stopPropagation(); editCollection('${c.id}')" title="Modifier">✏️</button>
-                                <button class="collection-card-action" onclick="event.stopPropagation(); deleteCollection('${c.id}')" title="Supprimer">🗑️</button>
+                                <button class="collection-card-action" onclick="event.stopPropagation(); editCollection('${c.id}')" title="Modifier">✎</button>
+                                <button class="collection-card-action" onclick="event.stopPropagation(); deleteCollection('${c.id}')" title="Supprimer">×</button>
                             </div>
                         </div>
                     `).join('')
@@ -665,7 +665,7 @@ async function openCollection(collectionId) {
     
     if (!grid) return;
     
-    if (title) title.innerHTML = `${collection.emoji || '📚'} ${escapeHtml(collection.name)}`;
+    if (title) title.innerHTML = `${collection.emoji || '❧'} ${escapeHtml(collection.name)}`;
     
     grid.innerHTML = `
         <div class="collection-view">
@@ -677,9 +677,9 @@ async function openCollection(collectionId) {
             <div class="collection-items" id="collectionItemsView">
                 ${items.length === 0 
                     ? `<div class="collection-empty">
-                        <div class="collection-empty-icon">📭</div>
+                        <div class="collection-empty-icon">○</div>
                         <div class="collection-empty-title">Collection vide</div>
-                        <div class="collection-empty-text">Ajoutez des textes en cliquant sur l'icône 📚 sur une carte</div>
+                        <div class="collection-empty-text">Ajoutez des textes en cliquant sur + Collection sur une carte</div>
                        </div>`
                     : items.map(item => {
                         // Déterminer les données de l'item
@@ -702,16 +702,18 @@ async function openCollection(collectionId) {
                         }
                         
                         return `
-                            <div class="collection-item-card">
+                            <div class="collection-item-card" onclick="openCollectionItemReader('${item.id}', '${escapeHtml(title || '')}', '${escapeHtml(author || '')}', '${url || ''}')">
                                 <div class="collection-item-content">
-                                    <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
-                                    <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
-                                    ${preview ? `<div class="collection-item-preview">${escapeHtml(preview.substring(0, 150))}...</div>` : ''}
-                                    ${item.note ? `<div class="collection-item-note">💬 ${escapeHtml(item.note)}</div>` : ''}
+                                    <div class="collection-item-header">
+                                        <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
+                                        <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
+                                    </div>
+                                    ${preview ? `<div class="collection-item-preview">${escapeHtml(preview.substring(0, 300))}${preview.length > 300 ? '...' : ''}</div>` : ''}
+                                    ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
                                 </div>
-                                <div class="collection-item-actions">
-                                    ${url ? `<button class="item-action" onclick="window.open('${url}', '_blank')" title="Ouvrir la source">↗️</button>` : ''}
-                                    <button class="item-action danger" onclick="removeFromCollection('${collectionId}', '${item.id}')" title="Retirer">🗑️</button>
+                                <div class="collection-item-actions" onclick="event.stopPropagation()">
+                                    ${url ? `<button class="item-action" onclick="window.open('${url}', '_blank')" title="Ouvrir la source">↗</button>` : ''}
+                                    <button class="item-action danger" onclick="removeFromCollection('${collectionId}', '${item.id}')" title="Retirer">×</button>
                                 </div>
                             </div>
                         `;
@@ -738,7 +740,7 @@ function showCreateCollectionModal() {
     modal.innerHTML = `
         <div class="collection-modal-content">
             <div class="collection-modal-header">
-                <h3>📚 Nouvelle collection</h3>
+                <h3>+ Nouvelle collection</h3>
                 <button class="collection-modal-close" onclick="closeCreateCollectionModal()">✕</button>
             </div>
             
@@ -757,7 +759,7 @@ function showCreateCollectionModal() {
                     <label>Emoji</label>
                     <div class="emoji-grid">
                         ${COLLECTION_EMOJIS.map(e => `
-                            <button class="emoji-btn-large ${e === '📚' ? 'selected' : ''}" onclick="selectCreateEmoji('${e}')">${e}</button>
+                            <button class="emoji-btn-large ${e === '❧' ? 'selected' : ''}" onclick="selectCreateEmoji('${e}')">${e}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -793,7 +795,7 @@ function showCreateCollectionModal() {
     document.getElementById('createCollectionName')?.focus();
 }
 
-let createCollectionEmoji = '📚';
+let createCollectionEmoji = '❧';
 let createCollectionColor = '#5a7a8a';
 
 function selectCreateEmoji(emoji) {
@@ -833,7 +835,7 @@ function closeCreateCollectionModal() {
     if (modal) {
         modal.classList.remove('open');
     }
-    createCollectionEmoji = '📚';
+    createCollectionEmoji = '❧';
     createCollectionColor = '#5a7a8a';
 }
 
@@ -856,7 +858,7 @@ async function editCollection(collectionId) {
     modal.innerHTML = `
         <div class="collection-modal-content">
             <div class="collection-modal-header">
-                <h3>✏️ Modifier la collection</h3>
+                <h3>Modifier la collection</h3>
                 <button class="collection-modal-close" onclick="closeEditCollectionModal()">✕</button>
             </div>
             
@@ -970,6 +972,39 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+/**
+ * Ouvrir un lecteur pour un item de collection
+ */
+function openCollectionItemReader(itemId, title, author, url) {
+    // Si on a une URL source, on peut charger le texte complet depuis Wikisource
+    if (url && url.includes('wikisource.org')) {
+        // Extraire le titre de la page depuis l'URL
+        const pageTitle = decodeURIComponent(url.split('/wiki/').pop());
+        if (typeof exploreFromCard === 'function') {
+            // Fermer l'overlay des collections temporairement
+            const overlay = document.getElementById('favoritesOverlay');
+            if (overlay) overlay.classList.remove('open');
+            
+            // Charger le texte dans le feed
+            toast('Chargement du texte...');
+            
+            // Utiliser la fonction de chargement existante
+            if (typeof loadTextDirectly === 'function') {
+                loadTextDirectly(pageTitle, title, author);
+            } else if (typeof pureRandomJump === 'function') {
+                // Fallback: ouvrir la source dans un nouvel onglet
+                window.open(url, '_blank');
+            }
+        } else {
+            window.open(url, '_blank');
+        }
+    } else if (url) {
+        window.open(url, '_blank');
+    } else {
+        toast('Aucune source disponible');
+    }
+}
+
 // ═══════════════════════════════════════════════════════════
 // 📤 EXPORTS GLOBAUX
 // ═══════════════════════════════════════════════════════════
@@ -1001,5 +1036,6 @@ window.closeEditCollectionModal = closeEditCollectionModal;
 window.selectEditEmoji = selectEditEmoji;
 window.selectEditColor = selectEditColor;
 window.submitEditCollection = submitEditCollection;
+window.openCollectionItemReader = openCollectionItemReader;
 window.COLLECTION_EMOJIS = COLLECTION_EMOJIS;
 window.COLLECTION_COLORS = COLLECTION_COLORS;
