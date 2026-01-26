@@ -1,10 +1,10 @@
-﻿    /* 📦 Import des fichiers modulaires */
+    /* ?? Import des fichiers modulaires */
 @import 'variables.css';
 @import 'base.css';
 
-/* ═══ CABINET DE CURIOSITÉS ═══ Palette moderne & étrange */
+/* --- CABINET DE CURIOSIT?S --- Palette moderne & ?trange */
 :root {
-/* Fonds - ivoire sombre, comme un vieux parchemin dans l'obscurité */
+/* Fonds - ivoire sombre, comme un vieux parchemin dans l'obscurit? */
 --bg: #0e0d0b;
 --bg-card: #17160f;
 --bg-elevated: #201e16;
@@ -12,11 +12,11 @@
 --text: #e4dfd3;
 --text-secondary: #a09882;
 --muted: #635d4e;
-/* Accents - bleu ardoise, sépia, bordeaux */
+/* Accents - bleu ardoise, s?pia, bordeaux */
 --accent: #5a7a8a;          /* Bleu ardoise - l'encre */
---accent-secondary: #8b7355; /* Sépia doré - le temps */
---accent-tertiary: #6b3a3a;  /* Bordeaux profond - le mystère */
---accent-purple: #5c5470;    /* Prune grisé - le crépusculaire */
+--accent-secondary: #8b7355; /* S?pia dor? - le temps */
+--accent-tertiary: #6b3a3a;  /* Bordeaux profond - le myst?re */
+--accent-purple: #5c5470;    /* Prune gris? - le cr?pusculaire */
 --border: #2a2821;
 --glow: 0 0 40px rgba(125,132,113,0.08);
 /* Ombres - encre et vieux bois */
@@ -31,21 +31,21 @@
 --ambiance-badge-border: rgba(255,255,255,0.1);
 }
 
-/* ═══ MODE CLAIR - Parchemin éclairé ═══ */
+/* --- MODE CLAIR - Parchemin ?clair? --- */
 [data-theme="light"] {
 /* Fonds - parchemin et papier ancien */
 --bg: #f8f5ef;
 --bg-card: #fffdf8;
 --bg-elevated: #f0ebe1;
 --bg-header: rgba(248,245,239,0.95);
-/* Textes - encre et sépia */
+/* Textes - encre et s?pia */
 --text: #2c2416;
 --text-secondary: #5a5045;
 --muted: #8a7f70;
-/* Accents - prune, rose, bordeaux (élégance littéraire) */
---accent: #6b5a7a;          /* Prune doux - l'élégance */
+/* Accents - prune, rose, bordeaux (?l?gance litt?raire) */
+--accent: #6b5a7a;          /* Prune doux - l'?l?gance */
 --accent-secondary: #7a5a6a; /* Rose ancien */
---accent-tertiary: #8c3d3d;  /* Bordeaux élégant */
+--accent-tertiary: #8c3d3d;  /* Bordeaux ?l?gant */
 --accent-purple: #5f4a6e;    /* Prune profond */
 --border: #d8d2c4;
 --glow: 0 0 40px rgba(155,107,74,0.1);
@@ -59,9 +59,9 @@
 --ambiance-badge-border: rgba(0,0,0,0.1);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   🎮 PIXEL ART DESIGN SYSTEM
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? PIXEL ART DESIGN SYSTEM
+   --------------------------------------------------------------------------- */
 
 /* Police pixel pour les titres */
 @font-face {
@@ -69,9 +69,9 @@
     src: local('Courier New'), local('Consolas'), local('monospace');
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   📱 MOBILE FIRST - Style Twitter-like (< 900px)
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? MOBILE FIRST - Style Twitter-like (< 900px)
+   --------------------------------------------------------------------------- */
 
 /* ====== MOBILE DRAWER OVERLAY ====== */
 .mobile-drawer-overlay {
@@ -360,7 +360,7 @@
         flex-shrink: 0 !important;
     }
     
-    /* Masquer éléments mobile sur desktop */
+    /* Masquer ?l?ments mobile sur desktop */
     .mobile-profile-btn,
     .mobile-logo,
     .mobile-bottom-nav,
@@ -371,10 +371,10 @@
 
 /* ====== MOBILE MEDIA QUERIES ====== */
 @media screen and (max-width: 900px) {
-    /* === MOBILE: Tout le drawer est géré par mobile.css === */
-    /* Ne pas définir de styles pour .stats-panel ici ! */
+    /* === MOBILE: Tout le drawer est g?r? par mobile.css === */
+    /* Ne pas d?finir de styles pour .stats-panel ici ! */
     
-    /* Afficher les éléments mobile basiques */
+    /* Afficher les ?l?ments mobile basiques */
     .mobile-bottom-nav {
         display: flex !important;
     }
@@ -391,10 +391,10 @@
         display: block !important;
     }
 
-    /* ═══════════════════════════════════════════════════════════════
+    /* ---------------------------------------------------------------
        HEADER MOBILE - Simple et ergonomique
        Layout: [Avatar profil] [Logo] [Recherche]
-       ═══════════════════════════════════════════════════════════════ */
+       --------------------------------------------------------------- */
     
     header {
         left: 0 !important;
@@ -415,7 +415,7 @@
         justify-content: flex-start !important;
     }
     
-    /* MASQUER les éléments desktop sur mobile */
+    /* MASQUER les ?l?ments desktop sur mobile */
     .header-actions,
     .lang-selector,
     .user-menu,
@@ -425,7 +425,7 @@
         display: none !important;
     }
     
-    /* Avatar profil - ORDRE 1 - à gauche, bien visible */
+    /* Avatar profil - ORDRE 1 - ? gauche, bien visible */
     .mobile-profile-btn {
         display: flex !important;
         order: 1 !important;
@@ -594,12 +594,12 @@
         color: white !important;
     }
     
-    /* Masquer les mots-clés sur mobile (trop encombrant) */
+    /* Masquer les mots-cl?s sur mobile (trop encombrant) */
     .card-keywords {
         display: none !important;
     }
     
-    /* Masquer le texte des boutons sur mobile - icônes seulement */
+    /* Masquer le texte des boutons sur mobile - ic?nes seulement */
     .btn .btn-text {
         display: none !important;
     }
@@ -616,7 +616,7 @@
         transform: translate(2px, 2px) !important;
     }
     
-    /* Bannière reco */
+    /* Banni?re reco */
     .reco-banner {
         margin-left: 0 !important;
         margin-right: 0 !important;
@@ -651,7 +651,7 @@
         box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
     }
     
-    /* Quand l'intro est visible, le main doit être décalé sous elle */
+    /* Quand l'intro est visible, le main doit ?tre d?cal? sous elle */
     body.has-ambiance-intro main {
         padding-top: 340px !important; /* header + exploration + intro */
     }
@@ -767,7 +767,7 @@
         font-size: 1.1rem !important;
     }
     
-    /* Overlays et modales plein écran sur mobile */
+    /* Overlays et modales plein ?cran sur mobile */
     .favorites-overlay,
     .search-results-overlay,
     .reader-overlay {
@@ -846,7 +846,7 @@
         border-radius: 0 !important;
     }
     
-    /* Feed loading centré sur mobile */
+    /* Feed loading centr? sur mobile */
     .feed-loading {
         padding: 3rem 1rem !important;
         margin: 0 auto !important;
@@ -873,11 +873,11 @@
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════ */
+/* --------------------------------------------------------------------------- */
 
-/* 🔄 Reset et body importés depuis base.css */
+/* ?? Reset et body import?s depuis base.css */
 
-/* Stats Panel - Style épuré + pixel touches */
+/* Stats Panel - Style ?pur? + pixel touches */
 .stats-panel {
 position: fixed;
 left: 0;
@@ -1135,7 +1135,7 @@ text-transform: uppercase;
 letter-spacing: 0.05em;
 }
 .favorite-preview {
-display: none; /* Simplifié */
+display: none; /* Simplifi? */
 }
 .favorite-remove {
 background: none;
@@ -1311,7 +1311,7 @@ text-shadow: 1px 1px 0 var(--pixel-shadow);
 }
 .header-actions { display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; overflow: visible; }
 
-/* Séparateur entre groupes */
+/* S?parateur entre groupes */
 .header-separator {
     width: 1px;
     height: 20px;
@@ -1319,7 +1319,7 @@ text-shadow: 1px 1px 0 var(--pixel-shadow);
     margin: 0 0.3rem;
 }
 
-/* Icônes Lucide dans le header */
+/* Ic?nes Lucide dans le header */
 .header-icon {
     width: 15px;
     height: 15px;
@@ -1345,7 +1345,7 @@ text-shadow: 1px 1px 0 var(--pixel-shadow);
     color: white;
 }
 
-/* Boutons icône seule */
+/* Boutons ic?ne seule */
 .header-btn.btn-icon {
     padding: 0.4rem;
     position: relative;
@@ -1354,7 +1354,7 @@ text-shadow: 1px 1px 0 var(--pixel-shadow);
     margin: 0;
 }
 
-/* Badge sur bouton icône */
+/* Badge sur bouton ic?ne */
 .btn-badge {
     position: absolute;
     top: -4px;
@@ -1519,7 +1519,7 @@ padding: 130px 2rem 4rem 2rem;
 transition: padding-top 0.3s ease;
 }
 
-/* Ajuster le padding quand les filtres sont repliés */
+/* Ajuster le padding quand les filtres sont repli?s */
 body.filters-collapsed main {
 padding-top: 60px;
 }
@@ -1757,18 +1757,18 @@ transition: all 0.15s ease;
 transform: translate(-1px, -1px);
 box-shadow: 3px 3px 0 var(--pixel-shadow);
 }
-.tag.poésie { border-color: var(--accent-purple); color: var(--accent-purple); }
+.tag.po?sie { border-color: var(--accent-purple); color: var(--accent-purple); }
 .tag.fable { border-color: var(--accent-tertiary); color: var(--accent-tertiary); }
 .tag.nouvelle { border-color: var(--accent-secondary); color: var(--accent-secondary); }
 .tag.mystique { border-color: #c9a227; color: #c9a227; }
 .tag.philosophie { border-color: #8b7355; color: #a08060; }
 .tag.roman { border-color: #c44569; color: #c44569; }
-.tag.théâtre { border-color: #3d9be9; color: #3d9be9; }
+.tag.th??tre { border-color: #3d9be9; color: #3d9be9; }
 .tag.conte { border-color: var(--accent-secondary); color: var(--accent-secondary); }
 
-/* ═══════════════════════════════════════════════════════════
-   EXPLORATION - Kaléidoscope (filtres croisés)
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   EXPLORATION - Kal?idoscope (filtres crois?s)
+   ----------------------------------------------------------- */
 .exploration-container {
 position: fixed;
 top: 54px;
@@ -1784,7 +1784,7 @@ max-height: 500px;
 overflow: hidden;
 }
 
-/* État rétracté au scroll */
+/* ?tat r?tract? au scroll */
 .exploration-container.collapsed {
 max-height: 42px;
 opacity: 0.95;
@@ -1803,7 +1803,7 @@ display: none !important;
 display: none !important;
 }
 
-/* Bouton pour déplier/replier - Barre horizontale en bas */
+/* Bouton pour d?plier/replier - Barre horizontale en bas */
 .exploration-toggle {
 position: relative;
 width: 100%;
@@ -1910,7 +1910,7 @@ border-color: var(--text-secondary);
 color: var(--text);
 }
 
-/* Séparateur de filtres */
+/* S?parateur de filtres */
 .filter-separator {
 color: var(--text-secondary);
 opacity: 0.3;
@@ -1920,7 +1920,7 @@ user-select: none;
 flex-shrink: 0;
 }
 
-/* Catégories parentes (dépliables) */
+/* Cat?gories parentes (d?pliables) */
 .filter-chip.filter-parent {
 background: rgba(212, 165, 116, 0.1);
 border-color: var(--accent);
@@ -1937,7 +1937,7 @@ background: var(--accent);
 color: white;
 }
 
-/* Conteneur des sous-catégories */
+/* Conteneur des sous-cat?gories */
 .filter-subchips {
 display: flex;
 gap: 0.4rem;
@@ -1961,7 +1961,7 @@ transform: translateY(0);
 }
 }
 
-/* Sous-catégories (enfants) */
+/* Sous-cat?gories (enfants) */
 .filter-chip.filter-child {
 background: rgba(255,255,255,0.03);
 border-style: dashed;
@@ -1980,7 +1980,7 @@ border-color: var(--accent);
 color: white;
 }
 
-/* Résumé des filtres */
+/* R?sum? des filtres */
 .filter-summary {
 display: flex;
 align-items: center;
@@ -2031,9 +2031,9 @@ transform: translateY(-1px);
 box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* -----------------------------------------------------------
    SIDEBAR - Barres de territoires cliquables
-   ═══════════════════════════════════════════════════════════ */
+   ----------------------------------------------------------- */
 .territory-bars {
 display: flex;
 flex-direction: column;
@@ -2090,7 +2090,7 @@ color: var(--accent);
 filter: brightness(1.2);
 }
 
-/* Anciennes classes conservées pour compatibilité */
+/* Anciennes classes conserv?es pour compatibilit? */
 .exploration-tabs {
 display: flex;
 gap: 0;
@@ -2170,7 +2170,7 @@ font-weight: 500;
 .ambiance-intro {
 position: relative;
 margin-left: 260px;
-margin-top: 0; /* Pas de marge car déjà dans le flux après exploration */
+margin-top: 0; /* Pas de marge car d?j? dans le flux apr?s exploration */
 z-index: 85;
 padding: 1rem 1.5rem;
 text-align: center;
@@ -2255,8 +2255,8 @@ border-color: var(--border);
 transform: none;
 }
 
-/* Ajustement du main quand l'intro d'ambiance est visible - plus nécessaire avec position relative */
-/* body.has-ambiance-intro main { padding ajusté automatiquement } */
+/* Ajustement du main quand l'intro d'ambiance est visible - plus n?cessaire avec position relative */
+/* body.has-ambiance-intro main { padding ajust? automatiquement } */
 
 /* Language badge */
 .lang-badge {
@@ -2315,7 +2315,7 @@ animation: likeHeartPop 0.8s ease-out forwards;
 white-space: pre-wrap;
 }
 .text-teaser::after {
-content: ' ▪▪▪';
+content: ' ???';
 color: var(--muted);
 font-size: 0.7em;
 }
@@ -2367,7 +2367,7 @@ transition: transform 0.3s;
 transform: translateX(3px);
 }
 
-/* Chunks de texte révélés progressivement */
+/* Chunks de texte r?v?l?s progressivement */
 .text-chunk {
 margin-top: 1rem;
 padding-top: 0.75rem;
@@ -2495,9 +2495,9 @@ margin-right: 0.5rem;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ✨ BANDEAU "NOUVEAUX TEXTES" (style Twitter)
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ? BANDEAU "NOUVEAUX TEXTES" (style Twitter)
+   --------------------------------------------------------------------------- */
 .new-texts-banner {
 position: fixed;
 top: 80px;
@@ -2561,7 +2561,7 @@ opacity: 0;
 transition: opacity 0.2s;
 }
 
-/* Animation pour les nouvelles cartes insérées en haut */
+/* Animation pour les nouvelles cartes ins?r?es en haut */
 .card.card-new {
 opacity: 0;
 transform: translateY(-30px);
@@ -2630,7 +2630,7 @@ border-color: var(--accent);
 animation: bounceNew 2s ease-in-out infinite;
 }
 .scroll-top-btn.has-new::after {
-content: '✨';
+content: '?';
 position: absolute;
 top: -8px;
 right: -8px;
@@ -2772,7 +2772,7 @@ width: 100%;
 font-weight: 300;
 }
 
-/* Navigateur de Catégories - Barre flottante en bas */
+/* Navigateur de Cat?gories - Barre flottante en bas */
 .category-nav {
 position: fixed;
 bottom: 0;
@@ -3505,7 +3505,7 @@ font-size: 0.55rem;
 color: var(--muted);
 }
 
-/* Achievement popup - Version discrète style toast */
+/* Achievement popup - Version discr?te style toast */
 .achievement-popup {
 position: fixed;
 bottom: 2rem;
@@ -3526,7 +3526,7 @@ transition: transform 0.3s ease;
 .achievement-popup .achievement-icon { font-size: 1.5rem; }
 .achievement-popup .achievement-name { font-size: 0.9rem; color: var(--text); }
 
-/* Version subtile encore plus discrète */
+/* Version subtile encore plus discr?te */
 .achievement-popup.subtle {
 bottom: 5rem;
 right: 1rem;
@@ -3537,7 +3537,7 @@ background: rgba(40,40,45,0.9);
 .achievement-popup.subtle .achievement-icon { font-size: 1.2rem; }
 .achievement-popup.subtle .achievement-name { font-size: 0.8rem; color: var(--text-secondary); }
 
-/* Anciennes classes conservées pour compatibilité */
+/* Anciennes classes conserv?es pour compatibilit? */
 .achievement-info { display: flex; flex-direction: column; gap: 0.25rem; }
 .achievement-title { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
 .achievement-desc { font-size: 0.8rem; color: var(--text-secondary); }
@@ -3616,7 +3616,7 @@ color: var(--text-secondary);
 margin-top: 0.2rem;
 }
 
-/* ═══ Badge Categories - Compact ═══ */
+/* --- Badge Categories - Compact --- */
 .badge-category {
     margin-bottom: 0.75rem;
 }
@@ -3839,9 +3839,9 @@ transition: opacity 0.2s;
 opacity: 1;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   🐦 SOCIAL FEATURES - Style Twitter/X
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   ?? SOCIAL FEATURES - Style Twitter/X
+   ----------------------------------------------------------- */
 
 /* Modal Auth */
 .auth-modal {
@@ -4221,9 +4221,9 @@ color: var(--text-secondary);
 }
 .share-btn.secondary:hover { border-color: var(--text); color: var(--text); }
 
-/* ═══════════════════════════════════════════════════════════
-   💬 COMMENTAIRES
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   ?? COMMENTAIRES
+   ----------------------------------------------------------- */
 .comments-section {
 border-top: 1px solid var(--border);
 margin-top: 0.75rem;
@@ -4772,9 +4772,9 @@ color: var(--accent-tertiary);
 background: rgba(42, 157, 143, 0.2);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   💬 MESSAGERIE
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   ?? MESSAGERIE
+   ----------------------------------------------------------- */
 .messages-modal {
 position: fixed;
 top: 0;
@@ -5088,9 +5088,9 @@ font-weight: 600;
 .chat-back { display: none; }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   🔔 NOTIFICATIONS
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   ?? NOTIFICATIONS
+   ----------------------------------------------------------- */
 .notif-btn {
 position: relative;
 }
@@ -5257,7 +5257,7 @@ color: var(--muted);
 margin-top: 0.2rem;
 }
 
-/* Feed d'activité */
+/* Feed d'activit? */
 .activity-feed {
 display: flex;
 flex-direction: column;
@@ -5498,7 +5498,7 @@ padding: 0.3rem 0;
 .extrait-action.liked { color: #e74c3c; }
 .extrait-action .icon { font-size: 1.1rem; }
 
-/* ═══ ANIMATIONS LIKE STYLE TWITTER/INSTA ═══ */
+/* --- ANIMATIONS LIKE STYLE TWITTER/INSTA --- */
 .extrait-action.like-btn {
     transition: transform 0.15s ease, color 0.2s ease;
 }
@@ -5620,14 +5620,14 @@ transition: all 0.2s;
 }
 .login-prompt-btn:hover { background: #ff4757; }
 
-/* ═══════════════════════════════════════════════════════════
-   📱 RESPONSIVE MOBILE (iPhone & petits écrans)
+/* -----------------------------------------------------------
+   ?? RESPONSIVE MOBILE (iPhone & petits ?crans)
    Safari-compatible avec !important pour forcer les styles
-   ═══════════════════════════════════════════════════════════ */
+   ----------------------------------------------------------- */
 
-/* Tablettes et petits écrans */
+/* Tablettes et petits ?crans */
 @media screen and (max-width: 768px) {
-    /* Le drawer est géré par mobile.css - NE PAS LE CACHER ICI */
+    /* Le drawer est g?r? par mobile.css - NE PAS LE CACHER ICI */
     
     /* Header mobile */
     header {
@@ -5653,7 +5653,7 @@ transition: all 0.2s;
     }
     .search-input {
         padding: 0.5rem 0.75rem 0.5rem 2rem;
-        font-size: 16px; /* 16px empêche le zoom auto sur iOS */
+        font-size: 16px; /* 16px emp?che le zoom auto sur iOS */
     }
     .header-btn {
         padding: 0.35rem 0.6rem;
@@ -5737,9 +5737,9 @@ transition: all 0.2s;
     }
 }
 
-/* iPhone et très petits écrans */
+/* iPhone et tr?s petits ?crans */
 @media screen and (max-width: 480px) {
-    /* Le drawer est géré par mobile.css */
+    /* Le drawer est g?r? par mobile.css */
     
     /* Header ultra compact */
     header {
@@ -5750,7 +5750,7 @@ transition: all 0.2s;
         gap: 0.35rem;
     }
     .header-title {
-        display: none !important; /* Cacher le titre sur très petits écrans */
+        display: none !important; /* Cacher le titre sur tr?s petits ?crans */
     }
     .search-container {
         margin: 0 0.25rem;
@@ -5758,7 +5758,7 @@ transition: all 0.2s;
     }
     .search-input {
         padding: 0.45rem 0.6rem 0.45rem 1.8rem;
-        font-size: 16px; /* 16px empêche le zoom auto sur iOS */
+        font-size: 16px; /* 16px emp?che le zoom auto sur iOS */
         border-radius: 20px;
     }
     .search-icon {
@@ -5970,7 +5970,7 @@ transition: all 0.2s;
     }
 }
 
-/* Amélioration du touch sur mobile */
+/* Am?lioration du touch sur mobile */
 @media (hover: none) and (pointer: coarse) {
     /* Zones de tap plus grandes */
     .card-action,
@@ -5981,7 +5981,7 @@ transition: all 0.2s;
         min-width: 44px;
     }
     
-    /* Désactiver les effets hover qui ne marchent pas bien sur touch */
+    /* D?sactiver les effets hover qui ne marchent pas bien sur touch */
     .card:hover {
         transform: none;
     }
@@ -5998,18 +5998,18 @@ transition: all 0.2s;
     }
 }
 
-/* ═══════════════════════════════════════════════════════════
-   📱 MOBILE RESPONSIVE - SAFARI iOS & ANDROID
-   Version complète et robuste
-   Note: Le drawer mobile est géré dans mobile.css
-   ═══════════════════════════════════════════════════════════ */
+/* -----------------------------------------------------------
+   ?? MOBILE RESPONSIVE - SAFARI iOS & ANDROID
+   Version compl?te et robuste
+   Note: Le drawer mobile est g?r? dans mobile.css
+   ----------------------------------------------------------- */
 
 /* ====== TABLETTES ET MOBILE (< 900px) ====== */
 @media screen and (max-width: 900px) {
-    /* SIDEBAR devient DRAWER - géré dans mobile.css, ne pas masquer ici */
-    /* On laisse mobile.css gérer le drawer */
+    /* SIDEBAR devient DRAWER - g?r? dans mobile.css, ne pas masquer ici */
+    /* On laisse mobile.css g?rer le drawer */
     
-    /* Body - empêcher le scroll horizontal */
+    /* Body - emp?cher le scroll horizontal */
     html, body {
         overflow-x: hidden !important;
         width: 100% !important;
@@ -6049,7 +6049,7 @@ transition: all 0.2s;
     }
     
     .search-input {
-        font-size: 16px !important; /* Empêche zoom iOS */
+        font-size: 16px !important; /* Emp?che zoom iOS */
         padding: 0.5rem 0.75rem 0.5rem 2rem !important;
         border-radius: 20px !important;
     }
@@ -6083,7 +6083,7 @@ transition: all 0.2s;
         justify-content: center !important;
     }
     
-    /* Cacher sélecteur de langue */
+    /* Cacher s?lecteur de langue */
     .lang-selector {
         display: none !important;
     }
@@ -6214,7 +6214,7 @@ transition: all 0.2s;
 
 /* ====== SMARTPHONES (< 480px) ====== */
 @media screen and (max-width: 480px) {
-    /* Le drawer est géré par mobile.css */
+    /* Le drawer est g?r? par mobile.css */
     
     /* Header ultra compact */
     .header-inner {
@@ -6223,7 +6223,7 @@ transition: all 0.2s;
     }
     
     .header-title {
-        display: none !important; /* Masquer titre sur petit écran */
+        display: none !important; /* Masquer titre sur petit ?cran */
     }
     
     .search-container {
@@ -6277,7 +6277,7 @@ transition: all 0.2s;
     }
     
     .auth-input {
-        font-size: 16px !important; /* Empêche zoom iOS */
+        font-size: 16px !important; /* Emp?che zoom iOS */
         padding: 0.75rem !important;
     }
     
@@ -6287,7 +6287,7 @@ transition: all 0.2s;
         min-height: 48px !important;
     }
     
-    /* Detail modal plein écran */
+    /* Detail modal plein ?cran */
     .detail-modal-content {
         width: 100% !important;
         height: 100% !important;
@@ -6335,7 +6335,7 @@ transition: all 0.2s;
     }
 }
 
-/* ====== TRÈS PETITS ÉCRANS (< 375px) - iPhone SE, etc ====== */
+/* ====== TR?S PETITS ?CRANS (< 375px) - iPhone SE, etc ====== */
 @media screen and (max-width: 375px) {
     .header-inner {
         padding: 0.35rem 0.4rem !important;
@@ -6409,7 +6409,7 @@ transition: all 0.2s;
         min-height: 44px !important;
     }
     
-    /* Désactiver hover effects */
+    /* D?sactiver hover effects */
     .card:hover,
     .card-action:hover,
     .header-btn:hover {
@@ -6436,7 +6436,7 @@ transition: all 0.2s;
         -webkit-overflow-scrolling: touch !important;
     }
     
-    /* Empêcher sélection accidentelle */
+    /* Emp?cher s?lection accidentelle */
     .card-action,
     .header-btn,
     .exploration-tab {
@@ -6478,9 +6478,9 @@ transition: all 0.2s;
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   💬 COMMENTAIRES INLINE - Directement sous les cartes
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? COMMENTAIRES INLINE - Directement sous les cartes
+   --------------------------------------------------------------------------- */
 
 .inline-comment-box {
     max-height: 0;
@@ -6606,9 +6606,9 @@ transition: all 0.2s;
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   📤 SHARE MODAL AMÉLIORÉ
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? SHARE MODAL AM?LIOR?
+   --------------------------------------------------------------------------- */
 
 .share-text-selectable {
     user-select: text;
@@ -6660,9 +6660,9 @@ transition: all 0.2s;
     opacity: 1;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   📖 VOIR PLUS - Chargement depuis Wikisource
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? VOIR PLUS - Chargement depuis Wikisource
+   --------------------------------------------------------------------------- */
 
 .btn-voir-plus {
     display: inline-block;
@@ -6706,9 +6706,9 @@ transition: all 0.2s;
     text-decoration: underline;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   👤 PROFIL SIDEBAR - Styles desktop
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ---------------------------------------------------------------------------
+   ?? PROFIL SIDEBAR - Styles desktop
+   --------------------------------------------------------------------------- */
 
 /* Header profil avec avatar */
 .profile-header-card {
@@ -6784,7 +6784,7 @@ transition: all 0.2s;
     max-width: 100%;
 }
 
-/* Bouton déconnexion */
+/* Bouton d?connexion */
 .drawer-logout-btn {
     display: block;
     width: 100%;
@@ -6805,7 +6805,7 @@ transition: all 0.2s;
     color: var(--accent);
 }
 
-/* Section stats avec titre stylé */
+/* Section stats avec titre styl? */
 .stats-section h3 {
     font-size: 0.75rem;
     font-weight: 600;
@@ -6863,3 +6863,179 @@ transition: all 0.2s;
 }/ *   r e b u i l d   * / 
  
  
+
+
+/* MODAL LIKERS - Voir qui a like */
+
+.likers-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 250;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.likers-modal.open {
+    display: flex;
+}
+
+.likers-content {
+    background: var(--bg-card);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.likers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.likers-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.likers-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.likers-close:hover {
+    background: var(--bg-elevated);
+    color: var(--text);
+}
+
+.likers-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.likers-loading,
+.likers-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.liker-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    transition: background 0.2s;
+}
+
+.liker-item:hover {
+    background: var(--bg-elevated);
+}
+
+.liker-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.liker-info {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.liker-username {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.liker-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.liker-follow-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.liker-follow-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+.liker-follow-btn.following {
+    background: var(--bg-elevated);
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+.liker-follow-btn.following:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.like-count.clickable {
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-left: -8px;
+}
+
+.like-count.clickable:hover {
+    background: var(--bg-elevated);
+    color: var(--text);
+}
+
+/* Grouper c?ur + compteur */
+.extrait-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.extrait-action.like-btn {
+    padding-right: 4px;
+}

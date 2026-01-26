@@ -309,8 +309,8 @@ async function renderSocialFeed() {
                 <div class="extrait-actions">
                     <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
                         <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                        <span class="like-count" id="likeCount-${extrait.id}">${likeCount}</span>
                     </button>
+                    <span class="like-count clickable" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')">${likeCount}</span>
                     <button class="extrait-action" onclick="copyExtrait('${extrait.id}')">
                         <span class="icon">📋</span>
                         <span>Copier</span>
@@ -628,6 +628,148 @@ function resetLikesCache() {
     console.log('🔄 Cache des likes réinitialisé');
 }
 
+// ═══════════════════════════════════════════════════════════
+// 👥 VOIR QUI A LIKÉ
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Afficher la liste des utilisateurs qui ont liké un extrait
+ */
+async function showLikers(extraitId) {
+    console.log('showLikers appelé avec:', extraitId);
+    
+    if (!supabaseClient) {
+        console.log('Pas de supabaseClient');
+        return;
+    }
+    
+    // Créer la modal si elle n'existe pas
+    let modal = document.getElementById('likersModal');
+    console.log('Modal existante:', !!modal);
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'likersModal';
+        modal.className = 'likers-modal';
+        modal.innerHTML = `
+            <div class="likers-content">
+                <div class="likers-header">
+                    <h3>❤️ Aimé par</h3>
+                    <button class="likers-close" onclick="closeLikersModal()">✕</button>
+                </div>
+                <div class="likers-list" id="likersList">
+                    <div class="likers-loading">Chargement...</div>
+                </div>
+            </div>
+        `;
+        modal.onclick = (e) => { if (e.target === modal) closeLikersModal(); };
+        document.body.appendChild(modal);
+        console.log('Modal créée et ajoutée au body');
+    }
+    
+    // Ouvrir la modal
+    modal.classList.add('open');
+    const listContainer = document.getElementById('likersList');
+    listContainer.innerHTML = '<div class="likers-loading">Chargement...</div>';
+    
+    try {
+        // Charger les likes avec les profils
+        const { data: likes, error } = await supabaseClient
+            .from('likes')
+            .select('user_id, created_at')
+            .eq('extrait_id', extraitId)
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (!likes || likes.length === 0) {
+            listContainer.innerHTML = '<div class="likers-empty">Aucun like pour le moment</div>';
+            return;
+        }
+        
+        // Charger les profils
+        const userIds = likes.map(l => l.user_id);
+        const { data: profiles } = await supabaseClient
+            .from('profiles')
+            .select('id, username')
+            .in('id', userIds);
+        
+        const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+        
+        // Charger les follows de l'utilisateur actuel
+        let userFollowingSet = new Set();
+        if (currentUser && typeof userFollowing !== 'undefined') {
+            userFollowingSet = userFollowing;
+        }
+        
+        listContainer.innerHTML = likes.map(like => {
+            const profile = profileMap.get(like.user_id);
+            const username = profile?.username || 'Anonyme';
+            const avatarSymbol = getAvatarSymbol(username);
+            const timeAgo = formatTimeAgo(new Date(like.created_at));
+            const isMe = currentUser && like.user_id === currentUser.id;
+            const isFollowing = userFollowingSet.has(like.user_id);
+            
+            return `
+                <div class="liker-item">
+                    <div class="liker-avatar" onclick="openUserProfile('${like.user_id}', '${escapeHtml(username)}'); closeLikersModal();">${avatarSymbol}</div>
+                    <div class="liker-info" onclick="openUserProfile('${like.user_id}', '${escapeHtml(username)}'); closeLikersModal();">
+                        <div class="liker-username">${escapeHtml(username)}${isMe ? ' <span style="color:var(--text-muted)">(vous)</span>' : ''}</div>
+                        <div class="liker-time">${timeAgo}</div>
+                    </div>
+                    ${!isMe && currentUser ? `
+                        <button class="liker-follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollowFromLikers('${like.user_id}', this)">
+                            ${isFollowing ? '✓ Suivi' : 'Suivre'}
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error('Erreur chargement likers:', err);
+        listContainer.innerHTML = '<div class="likers-empty">Erreur de chargement</div>';
+    }
+}
+
+/**
+ * Fermer la modal des likers
+ */
+function closeLikersModal() {
+    const modal = document.getElementById('likersModal');
+    if (modal) modal.classList.remove('open');
+}
+
+/**
+ * Suivre/ne plus suivre depuis la liste des likers
+ */
+async function toggleFollowFromLikers(userId, btn) {
+    if (!currentUser || !supabaseClient) return;
+    
+    const isFollowing = btn.classList.contains('following');
+    
+    if (isFollowing) {
+        await supabaseClient.from('follows').delete()
+            .eq('follower_id', currentUser.id)
+            .eq('following_id', userId);
+        if (typeof userFollowing !== 'undefined') userFollowing.delete(userId);
+        btn.classList.remove('following');
+        btn.textContent = 'Suivre';
+    } else {
+        await supabaseClient.from('follows').insert({
+            follower_id: currentUser.id,
+            following_id: userId,
+            created_at: new Date().toISOString()
+        });
+        if (typeof userFollowing !== 'undefined') userFollowing.add(userId);
+        if (typeof createNotification === 'function') {
+            await createNotification(userId, 'follow');
+        }
+        btn.classList.add('following');
+        btn.textContent = '✓ Suivi';
+    }
+}
+
 // Rendre les fonctions accessibles globalement
 window.openSocialFeed = openSocialFeed;
 window.closeSocialFeed = closeSocialFeed;
@@ -647,3 +789,6 @@ window.loadLikesCountForExtraits = loadLikesCountForExtraits;
 window.isExtraitLiked = isExtraitLiked;
 window.getLikeCount = getLikeCount;
 window.resetLikesCache = resetLikesCache;
+window.showLikers = showLikers;
+window.closeLikersModal = closeLikersModal;
+window.toggleFollowFromLikers = toggleFollowFromLikers;

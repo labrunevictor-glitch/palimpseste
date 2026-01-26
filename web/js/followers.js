@@ -868,8 +868,8 @@ async function loadProfileExtraits(userId) {
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
                             <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                            <span class="like-count" id="likeCount-${e.id}">${likeCount}</span>
                         </button>
+                        <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
                         <button class="extrait-action" onclick="copyExtrait('${e.id}')">
                             <span class="icon">📋</span>
                             <span>Copier</span>
@@ -1010,8 +1010,8 @@ async function loadProfileLikes(userId) {
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
                             <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                            <span class="like-count" id="likeCount-${e.id}">${likeCount}</span>
                         </button>
+                        <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
                         <button class="extrait-action" onclick="copyExtrait('${e.id}')">
                             <span class="icon">📋</span>
                             <span>Copier</span>
