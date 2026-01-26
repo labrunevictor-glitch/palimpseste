@@ -1784,51 +1784,35 @@ display: flex;
 display: none !important;
 }
 
-/* Bouton pour déplier/replier - Desktop */
+/* Bouton pour déplier/replier */
 .exploration-toggle {
 position: absolute;
 right: 1rem;
-top: 0.5rem;
+top: 50%;
+transform: translateY(-50%);
 background: var(--bg-elevated);
 border: 1px solid var(--border);
-border-radius: 16px;
-padding: 0.35rem 0.8rem;
-height: auto;
-width: auto;
+border-radius: 50%;
+width: 24px;
+height: 24px;
 display: flex;
 align-items: center;
 justify-content: center;
-gap: 0.4rem;
 cursor: pointer;
 font-size: 0.7rem;
 color: var(--text-secondary);
 transition: all 0.2s ease;
 z-index: 10;
-box-shadow: 2px 2px 0 var(--pixel-shadow);
-}
-
-.exploration-toggle::before {
-content: "Replier";
-font-size: 0.7rem;
-text-transform: none;
-letter-spacing: 0.02em;
 }
 
 .exploration-toggle:hover {
 background: var(--accent);
 color: white;
 border-color: var(--accent);
-box-shadow: 2px 2px 0 var(--accent);
 }
 
 .exploration-container.collapsed .exploration-toggle {
-background: var(--accent);
-color: white;
-border-color: var(--accent);
-}
-
-.exploration-container.collapsed .exploration-toggle::before {
-content: "Déplier";
+transform: translateY(-50%) rotate(180deg);
 }
 
 /* Ligne de filtres */
