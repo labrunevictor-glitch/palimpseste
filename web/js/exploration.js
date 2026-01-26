@@ -4,19 +4,351 @@
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * Ce module gère les différents modes d'exploration de Palimpseste :
+ * - Système de filtres croisés (Kaléidoscope) : Forme × Époque × Ton
  * - Ambiances de lecture (gothique, romantique, mystique, etc.)
  * - Époques littéraires (Antiquité → XXe siècle)
- * - Courants littéraires (humanisme, symbolisme, surréalisme, etc.)
  * 
  * @requires app.js - state, exploreAuthor, toast
  * 
- * @version 1.0.0
- * @date 2025-01-24
+ * @version 2.0.0
+ * @date 2026-01-26
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
 // ═══════════════════════════════════════════════════════════
-// 🎨 AMBIANCES DE LECTURE
+// 🎯 SYSTÈME DE FILTRES CROISÉS (KALÉIDOSCOPE)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * État actuel des filtres
+ */
+const activeFilters = {
+    forme: ['all'],
+    epoque: ['all'],
+    ton: ['all']
+};
+
+/**
+ * Mapping des formes vers des mots-clés de recherche
+ */
+const FORMES = {
+    'poésie': { keywords: ['poème', 'poésie', 'vers', 'sonnet', 'ode', 'élégie', 'ballade'], authors: ['Charles Baudelaire', 'Arthur Rimbaud', 'Paul Verlaine', 'Victor Hugo', 'Stéphane Mallarmé'] },
+    'conte': { keywords: ['conte', 'il était une fois', 'fée', 'merveilleux'], authors: ['Charles Perrault', 'Hans Christian Andersen', 'Grimm', 'Madame d\'Aulnoy'] },
+    'fable': { keywords: ['fable', 'morale', 'animal'], authors: ['Jean de La Fontaine', 'Ésope', 'Phèdre'] },
+    'roman': { keywords: ['roman', 'chapitre'], authors: ['Honoré de Balzac', 'Gustave Flaubert', 'Émile Zola', 'Stendhal', 'Victor Hugo'] },
+    'nouvelle': { keywords: ['nouvelle', 'récit'], authors: ['Guy de Maupassant', 'Prosper Mérimée', 'Edgar Allan Poe'] },
+    'théâtre': { keywords: ['acte', 'scène', 'réplique', 'didascalie', 'tragédie', 'comédie'], authors: ['Molière', 'Jean Racine', 'Pierre Corneille', 'Shakespeare'] },
+    'essai': { keywords: ['essai', 'réflexion', 'méditation'], authors: ['Michel de Montaigne', 'Blaise Pascal', 'Jean-Jacques Rousseau'] },
+    'philosophie': { keywords: ['philosophie', 'pensée', 'sagesse', 'vérité', 'raison'], authors: ['Platon', 'Aristote', 'René Descartes', 'Voltaire', 'Friedrich Nietzsche'] },
+    'lettre': { keywords: ['lettre', 'correspondance', 'épître'], authors: ['Madame de Sévigné', 'Voltaire', 'Denis Diderot'] },
+    'discours': { keywords: ['discours', 'éloquence', 'oraison', 'plaidoyer'], authors: ['Cicéron', 'Bossuet', 'Victor Hugo'] }
+};
+
+/**
+ * Mapping des époques vers des auteurs
+ */
+const EPOQUES_FILTER = {
+    'antiquite': { period: 'Antiquité', authors: ['Homère', 'Sophocle', 'Platon', 'Aristote', 'Virgile', 'Ovide', 'Sénèque', 'Marc Aurèle'] },
+    'medieval': { period: 'Moyen Âge', authors: ['Chrétien de Troyes', 'François Villon', 'Dante Alighieri', 'Marie de France', 'Rutebeuf'] },
+    'renaissance': { period: 'Renaissance', authors: ['François Rabelais', 'Michel de Montaigne', 'Pierre de Ronsard', 'Joachim du Bellay', 'Louise Labé'] },
+    'classique': { period: 'XVIIᵉ siècle', authors: ['Molière', 'Jean Racine', 'Pierre Corneille', 'Jean de La Fontaine', 'Blaise Pascal', 'Madame de La Fayette'] },
+    'lumieres': { period: 'XVIIIᵉ siècle', authors: ['Voltaire', 'Jean-Jacques Rousseau', 'Denis Diderot', 'Montesquieu', 'Beaumarchais', 'Marivaux'] },
+    'xixe': { period: 'XIXᵉ siècle', authors: ['Victor Hugo', 'Charles Baudelaire', 'Gustave Flaubert', 'Émile Zola', 'Stendhal', 'Arthur Rimbaud', 'Guy de Maupassant'] },
+    'xxe': { period: 'XXᵉ siècle', authors: ['Albert Camus', 'Jean-Paul Sartre', 'Marcel Proust', 'André Breton', 'Samuel Beckett', 'Marguerite Duras'] }
+};
+
+/**
+ * Mapping des tonalités vers des mots-clés et auteurs
+ */
+const TONS = {
+    'gothique': { keywords: ['fantôme', 'spectre', 'terreur', 'nuit', 'vampire', 'ténèbres'], authors: ['Edgar Allan Poe', 'Mary Shelley', 'Bram Stoker', 'Théophile Gautier'] },
+    'romantique': { keywords: ['amour', 'passion', 'coeur', 'âme', 'sentiment', 'larmes'], authors: ['Victor Hugo', 'Alphonse de Lamartine', 'Alfred de Musset', 'George Sand'] },
+    'mystique': { keywords: ['âme', 'divin', 'extase', 'vision', 'lumière', 'sacré'], authors: ['William Blake', 'Rûmî', 'Maître Eckhart', 'San Juan de la Cruz'] },
+    'melancolie': { keywords: ['spleen', 'ennui', 'tristesse', 'automne', 'solitude', 'nostalgie'], authors: ['Charles Baudelaire', 'Paul Verlaine', 'Giacomo Leopardi'] },
+    'epique': { keywords: ['héros', 'bataille', 'gloire', 'honneur', 'guerre', 'conquête'], authors: ['Homère', 'Virgile', 'Milton', 'Victor Hugo'] },
+    'pastoral': { keywords: ['berger', 'prairie', 'fleur', 'printemps', 'nature', 'campagne'], authors: ['Théocrite', 'Virgile', 'Francis Jammes', 'Jean Giono'] },
+    'nocturne': { keywords: ['nuit', 'lune', 'étoiles', 'ténèbres', 'rêve', 'ombre'], authors: ['Gérard de Nerval', 'Novalis', 'Charles Baudelaire', 'Aloysius Bertrand'] },
+    'philosophique': { keywords: ['pensée', 'raison', 'vérité', 'existence', 'sagesse', 'doute'], authors: ['Platon', 'Montaigne', 'Blaise Pascal', 'Voltaire', 'Albert Camus'] }
+};
+
+/**
+ * Toggle un filtre (ajouter/retirer de la sélection)
+ * @param {string} category - 'forme', 'epoque', ou 'ton'
+ * @param {string} value - La valeur du filtre
+ */
+function toggleFilter(category, value) {
+    const filters = activeFilters[category];
+    
+    if (value === 'all') {
+        // Cliquer sur "tout" réinitialise cette catégorie
+        activeFilters[category] = ['all'];
+    } else {
+        // Retirer 'all' si on sélectionne autre chose
+        const allIndex = filters.indexOf('all');
+        if (allIndex > -1) {
+            filters.splice(allIndex, 1);
+        }
+        
+        // Toggle la valeur
+        const index = filters.indexOf(value);
+        if (index > -1) {
+            filters.splice(index, 1);
+            // Si plus rien, remettre 'all'
+            if (filters.length === 0) {
+                filters.push('all');
+            }
+        } else {
+            filters.push(value);
+        }
+    }
+    
+    // Mettre à jour l'UI
+    updateFilterUI();
+    updateFilterSummary();
+}
+
+/**
+ * Met à jour l'affichage des chips de filtres
+ */
+function updateFilterUI() {
+    ['forme', 'epoque', 'ton'].forEach(category => {
+        const chips = document.querySelectorAll(`.filter-chip[data-filter="${category}"]`);
+        chips.forEach(chip => {
+            const value = chip.dataset.value;
+            const isActive = activeFilters[category].includes(value);
+            chip.classList.toggle('active', isActive);
+        });
+    });
+}
+
+/**
+ * Met à jour le résumé des filtres actifs
+ */
+function updateFilterSummary() {
+    const summary = document.getElementById('filterSummary');
+    const summaryText = document.getElementById('filterSummaryText');
+    
+    const hasActiveFilters = 
+        !activeFilters.forme.includes('all') ||
+        !activeFilters.epoque.includes('all') ||
+        !activeFilters.ton.includes('all');
+    
+    if (hasActiveFilters) {
+        const parts = [];
+        if (!activeFilters.forme.includes('all')) {
+            parts.push(activeFilters.forme.join(' + '));
+        }
+        if (!activeFilters.epoque.includes('all')) {
+            const epochs = activeFilters.epoque.map(e => EPOQUES_FILTER[e]?.period || e);
+            parts.push(epochs.join(' + '));
+        }
+        if (!activeFilters.ton.includes('all')) {
+            parts.push(activeFilters.ton.join(' + '));
+        }
+        summaryText.textContent = parts.join(' × ');
+        summary.style.display = 'flex';
+    } else {
+        summary.style.display = 'none';
+    }
+}
+
+/**
+ * Efface tous les filtres
+ */
+function clearAllFilters() {
+    activeFilters.forme = ['all'];
+    activeFilters.epoque = ['all'];
+    activeFilters.ton = ['all'];
+    updateFilterUI();
+    updateFilterSummary();
+    toast('🔄 Filtres effacés');
+}
+
+/**
+ * Sélectionne des filtres au hasard
+ */
+function randomizeFilters() {
+    const formes = Object.keys(FORMES);
+    const epoques = Object.keys(EPOQUES_FILTER);
+    const tons = Object.keys(TONS);
+    
+    activeFilters.forme = [formes[Math.floor(Math.random() * formes.length)]];
+    activeFilters.epoque = [epoques[Math.floor(Math.random() * epoques.length)]];
+    activeFilters.ton = [tons[Math.floor(Math.random() * tons.length)]];
+    
+    updateFilterUI();
+    updateFilterSummary();
+    toast('🎲 Filtres mélangés !');
+}
+
+/**
+ * Applique les filtres et lance l'exploration
+ */
+async function applyFilters() {
+    // Collecter les auteurs et mots-clés en fonction des filtres
+    let authors = [];
+    let keywords = [];
+    
+    // Filtres de forme
+    if (!activeFilters.forme.includes('all')) {
+        activeFilters.forme.forEach(forme => {
+            if (FORMES[forme]) {
+                authors.push(...FORMES[forme].authors);
+                keywords.push(...FORMES[forme].keywords);
+            }
+        });
+    }
+    
+    // Filtres d'époque
+    if (!activeFilters.epoque.includes('all')) {
+        activeFilters.epoque.forEach(epoque => {
+            if (EPOQUES_FILTER[epoque]) {
+                authors.push(...EPOQUES_FILTER[epoque].authors);
+            }
+        });
+    }
+    
+    // Filtres de ton
+    if (!activeFilters.ton.includes('all')) {
+        activeFilters.ton.forEach(ton => {
+            if (TONS[ton]) {
+                authors.push(...TONS[ton].authors);
+                keywords.push(...TONS[ton].keywords);
+            }
+        });
+    }
+    
+    // Dédupliquer
+    authors = [...new Set(authors)];
+    keywords = [...new Set(keywords)];
+    
+    // Si pas de filtres spécifiques, mode libre
+    if (authors.length === 0 && keywords.length === 0) {
+        const classicAuthors = ['Victor Hugo', 'Charles Baudelaire', 'Gustave Flaubert', 'Voltaire'];
+        authors = classicAuthors;
+    }
+    
+    // Effacer le feed
+    const feed = document.getElementById('feed');
+    if (feed) feed.innerHTML = '';
+    state.loading = false;
+    
+    // Toast
+    toast('🧭 Exploration en cours...');
+    
+    // Mélanger et charger
+    const shuffledAuthors = [...authors].sort(() => Math.random() - 0.5);
+    const shuffledKeywords = [...keywords].sort(() => Math.random() - 0.5);
+    
+    // Charger 2-3 auteurs
+    for (const author of shuffledAuthors.slice(0, 3)) {
+        await exploreAuthor(author);
+    }
+    
+    // Et éventuellement un mot-clé
+    if (shuffledKeywords.length > 0 && Math.random() > 0.5) {
+        await exploreAuthor(shuffledKeywords[0]);
+    }
+}
+
+/**
+ * Rendu des barres de territoires dans la sidebar
+ */
+function renderTerritoryBars() {
+    const container = document.getElementById('territoryBars');
+    if (!container) return;
+    
+    const entries = Object.entries(state.genreStats || {});
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="territory-empty">Explorez pour découvrir vos territoires</div>';
+        return;
+    }
+    
+    const total = entries.reduce((sum, [_, count]) => sum + count, 0);
+    const sorted = entries.sort((a, b) => b[1] - a[1]).slice(0, 5);
+    
+    container.innerHTML = sorted.map(([genre, count]) => {
+        const percent = Math.round((count / total) * 100);
+        return `
+            <div class="territory-bar" onclick="filterByTerritory('forme', '${genre}')" title="Explorer ${genre}">
+                <span class="territory-bar-label">${genre}</span>
+                <div class="territory-bar-track">
+                    <div class="territory-bar-fill" style="width: ${percent}%"></div>
+                </div>
+                <span class="territory-bar-value">${percent}%</span>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Rendu des barres d'époques dans la sidebar
+ */
+function renderEpochBars() {
+    const container = document.getElementById('epochBars');
+    if (!container) return;
+    
+    // On utilise les stats d'auteurs pour estimer les époques
+    const epochCounts = {};
+    Object.entries(state.authorStats || {}).forEach(([author, count]) => {
+        // Trouver l'époque de cet auteur
+        for (const [epochId, epoch] of Object.entries(EPOQUES_FILTER)) {
+            if (epoch.authors.some(a => a.toLowerCase().includes(author.toLowerCase()) || author.toLowerCase().includes(a.toLowerCase()))) {
+                epochCounts[epoch.period] = (epochCounts[epoch.period] || 0) + count;
+            }
+        }
+    });
+    
+    const entries = Object.entries(epochCounts);
+    if (entries.length === 0) {
+        container.innerHTML = '<div class="territory-empty">Vos époques apparaîtront ici</div>';
+        return;
+    }
+    
+    const total = entries.reduce((sum, [_, count]) => sum + count, 0);
+    const sorted = entries.sort((a, b) => b[1] - a[1]).slice(0, 4);
+    
+    container.innerHTML = sorted.map(([epoch, count]) => {
+        const percent = Math.round((count / total) * 100);
+        const epochId = Object.keys(EPOQUES_FILTER).find(k => EPOQUES_FILTER[k].period === epoch) || '';
+        return `
+            <div class="territory-bar" onclick="filterByTerritory('epoque', '${epochId}')" title="Explorer ${epoch}">
+                <span class="territory-bar-label">${epoch}</span>
+                <div class="territory-bar-track">
+                    <div class="territory-bar-fill" style="width: ${percent}%"></div>
+                </div>
+                <span class="territory-bar-value">${percent}%</span>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Filtre depuis la sidebar (clic sur une barre)
+ */
+function filterByTerritory(category, value) {
+    if (category === 'forme' && FORMES[value]) {
+        activeFilters.forme = [value];
+    } else if (category === 'epoque' && value) {
+        activeFilters.epoque = [value];
+    }
+    updateFilterUI();
+    updateFilterSummary();
+    applyFilters();
+}
+
+// Exports globaux pour le nouveau système
+window.toggleFilter = toggleFilter;
+window.clearAllFilters = clearAllFilters;
+window.randomizeFilters = randomizeFilters;
+window.applyFilters = applyFilters;
+window.renderTerritoryBars = renderTerritoryBars;
+window.renderEpochBars = renderEpochBars;
+window.filterByTerritory = filterByTerritory;
+window.activeFilters = activeFilters;
+
+// ═══════════════════════════════════════════════════════════
+// 🎨 AMBIANCES DE LECTURE (conservé pour compatibilité)
 // ═══════════════════════════════════════════════════════════
 
 /**

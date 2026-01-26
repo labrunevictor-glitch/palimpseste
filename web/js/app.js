@@ -484,7 +484,10 @@ function updateStats() {
     
     // Mettre à jour les barres d'auteurs
     renderAuthorBars();
-    renderGenreChart();
+    
+    // Mettre à jour les barres de territoires (nouveau système)
+    if (typeof renderTerritoryBars === 'function') renderTerritoryBars();
+    if (typeof renderEpochBars === 'function') renderEpochBars();
     
     // Mettre à jour les statistiques de lecture
     updateReadingStatsUI();

@@ -849,7 +849,7 @@
     }
     
     /* ══════════════════════════════════════════
-       EXPLORATION TABS
+       EXPLORATION - KALÉIDOSCOPE (filtres croisés)
        ══════════════════════════════════════════ */
     
     .exploration-container {
@@ -858,10 +858,41 @@
         left: 0 !important;
         right: 0 !important;
         z-index: 90 !important;
-        margin-top: 0 !important; /* Pas de margin sur mobile car fixed */
+        margin-top: 0 !important;
         background: var(--bg-card) !important;
-        border-bottom: 2px solid var(--border) !important;
+        border-bottom: 1px solid var(--border) !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        padding: 0.25rem 0 !important;
+    }
+    
+    .filter-row {
+        padding: 0.25rem 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .filter-label {
+        font-size: 0.65rem !important;
+        min-width: 50px !important;
+    }
+    
+    .filter-chip {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.65rem !important;
+        border-radius: 12px !important;
+    }
+    
+    .filter-summary {
+        padding: 0.4rem 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .filter-summary-text {
+        font-size: 0.7rem !important;
+    }
+    
+    .filter-summary-go {
+        padding: 0.3rem 0.75rem !important;
+        font-size: 0.7rem !important;
     }
     
     /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */

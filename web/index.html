@@ -205,10 +205,16 @@
             <div class="fun-stat" id="funStat"></div>
         </div>
         
-        <!-- Genres explorés - EN PREMIER -->
+        <!-- Territoires explorés - Barres cliquables -->
         <div class="stats-section genres-section" id="genresSection">
-            <h3>✦ Univers littéraires</h3>
-            <div class="genre-chart" id="genreChart"></div>
+            <h3>✦ Vos territoires</h3>
+            <div class="territory-bars" id="territoryBars"></div>
+        </div>
+        
+        <!-- Époques explorées -->
+        <div class="stats-section epochs-section" id="epochsSection">
+            <h3>🏺 Vos époques</h3>
+            <div class="territory-bars" id="epochBars"></div>
         </div>
         
         <!-- Statistiques de lecture - DISCRET -->
@@ -359,156 +365,68 @@
     </div>
     
     <!-- ═══════════════════════════════════════════════════════════════════════
-         BARRE D'EXPLORATION (Onglets + Pills)
+         BARRE D'EXPLORATION - Kaléidoscope (3 dimensions croisées)
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="exploration-container" id="explorationContainer">
-        <!-- Onglets de navigation -->
-        <div class="exploration-tabs">
-            <button class="exploration-tab active" data-mode="derives" onclick="switchExplorationMode('derives')">
-                Θ Dérives
-            </button>
-            <button class="exploration-tab" data-mode="epoques" onclick="switchExplorationMode('epoques')">
-                ⁂ Époques
-            </button>
-            <button class="exploration-tab" data-mode="courants" onclick="switchExplorationMode('courants')">
-                ∴ Courants
-            </button>
-        </div>
-        
-        <!-- Contenu Dérives (par défaut) -->
-        <div class="ambiance-bar" id="ambianceBar" data-mode="derives">
-            <div class="ambiance-pill active" data-ambiance="libre" onclick="setAmbiance('libre')">
-                <span class="ambiance-icon">๏</span>
-                <span class="ambiance-name">Dérive libre</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="gothique" onclick="setAmbiance('gothique')">
-                <span class="ambiance-icon">⛧</span>
-                <span class="ambiance-name">Gothique</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="surrealiste" onclick="setAmbiance('surrealiste')">
-                <span class="ambiance-icon">◬</span>
-                <span class="ambiance-name">Surréaliste</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="romantique" onclick="setAmbiance('romantique')">
-                <span class="ambiance-icon">❧</span>
-                <span class="ambiance-name">Romantique</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="melancolie" onclick="setAmbiance('melancolie')">
-                <span class="ambiance-icon">☁︎</span>
-                <span class="ambiance-name">Mélancolie</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="mystique" onclick="setAmbiance('mystique')">
-                <span class="ambiance-icon">⍟</span>
-                <span class="ambiance-name">Mystique</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="epique" onclick="setAmbiance('epique')">
-                <span class="ambiance-icon">☬</span>
-                <span class="ambiance-name">Épique</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="pastoral" onclick="setAmbiance('pastoral')">
-                <span class="ambiance-icon">⚘</span>
-                <span class="ambiance-name">Pastoral</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="decadent" onclick="setAmbiance('decadent')">
-                <span class="ambiance-icon">♱</span>
-                <span class="ambiance-name">Décadent</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="nocturne" onclick="setAmbiance('nocturne')">
-                <span class="ambiance-icon">☾</span>
-                <span class="ambiance-name">Nocturne</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="voyage" onclick="setAmbiance('voyage')">
-                <span class="ambiance-icon">⚓︎</span>
-                <span class="ambiance-name">Voyage</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="philosophie" onclick="setAmbiance('philosophie')">
-                <span class="ambiance-icon">◎</span>
-                <span class="ambiance-name">Philosophie</span>
+        <!-- Ligne 1: Forme / Type de texte -->
+        <div class="filter-row" id="filterRowForme">
+            <span class="filter-label">📜 Forme</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="forme" data-value="all" onclick="toggleFilter('forme', 'all')">∞ tout</button>
+                <button class="filter-chip" data-filter="forme" data-value="poésie" onclick="toggleFilter('forme', 'poésie')">poésie</button>
+                <button class="filter-chip" data-filter="forme" data-value="conte" onclick="toggleFilter('forme', 'conte')">conte</button>
+                <button class="filter-chip" data-filter="forme" data-value="fable" onclick="toggleFilter('forme', 'fable')">fable</button>
+                <button class="filter-chip" data-filter="forme" data-value="roman" onclick="toggleFilter('forme', 'roman')">roman</button>
+                <button class="filter-chip" data-filter="forme" data-value="nouvelle" onclick="toggleFilter('forme', 'nouvelle')">nouvelle</button>
+                <button class="filter-chip" data-filter="forme" data-value="théâtre" onclick="toggleFilter('forme', 'théâtre')">théâtre</button>
+                <button class="filter-chip" data-filter="forme" data-value="essai" onclick="toggleFilter('forme', 'essai')">essai</button>
+                <button class="filter-chip" data-filter="forme" data-value="philosophie" onclick="toggleFilter('forme', 'philosophie')">philosophie</button>
+                <button class="filter-chip" data-filter="forme" data-value="lettre" onclick="toggleFilter('forme', 'lettre')">lettre</button>
+                <button class="filter-chip" data-filter="forme" data-value="discours" onclick="toggleFilter('forme', 'discours')">discours</button>
             </div>
         </div>
         
-        <!-- Contenu Époques -->
-        <div class="ambiance-bar" id="epoquesBar" data-mode="epoques" style="display: none;">
-            <div class="ambiance-pill" data-ambiance="antiquite" onclick="setEpoque('antiquite')">
-                <span class="ambiance-icon">☤</span>
-                <span class="ambiance-name">Antiquité</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="medieval" onclick="setEpoque('medieval')">
-                <span class="ambiance-icon">✠</span>
-                <span class="ambiance-name">Moyen Âge</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="renaissance" onclick="setEpoque('renaissance')">
-                <span class="ambiance-icon">✡</span>
-                <span class="ambiance-name">Renaissance</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="classique" onclick="setEpoque('classique')">
-                <span class="ambiance-icon">✧</span>
-                <span class="ambiance-name">Grand Siècle</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="lumieres" onclick="setEpoque('lumieres')">
-                <span class="ambiance-icon">✶</span>
-                <span class="ambiance-name">Lumières</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="xixe" onclick="setEpoque('xixe')">
-                <span class="ambiance-icon">⚗</span>
-                <span class="ambiance-name">XIXᵉ siècle</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="belleepoque" onclick="setEpoque('belleepoque')">
-                <span class="ambiance-icon">❦</span>
-                <span class="ambiance-name">Belle Époque</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="xxe" onclick="setEpoque('xxe')">
-                <span class="ambiance-icon">☢</span>
-                <span class="ambiance-name">XXᵉ siècle</span>
+        <!-- Ligne 2: Époque -->
+        <div class="filter-row" id="filterRowEpoque">
+            <span class="filter-label">⏳ Époque</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="epoque" data-value="all" onclick="toggleFilter('epoque', 'all')">∞ tout</button>
+                <button class="filter-chip" data-filter="epoque" data-value="antiquite" onclick="toggleFilter('epoque', 'antiquite')">Antiquité</button>
+                <button class="filter-chip" data-filter="epoque" data-value="medieval" onclick="toggleFilter('epoque', 'medieval')">Moyen Âge</button>
+                <button class="filter-chip" data-filter="epoque" data-value="renaissance" onclick="toggleFilter('epoque', 'renaissance')">Renaissance</button>
+                <button class="filter-chip" data-filter="epoque" data-value="classique" onclick="toggleFilter('epoque', 'classique')">XVIIᵉ</button>
+                <button class="filter-chip" data-filter="epoque" data-value="lumieres" onclick="toggleFilter('epoque', 'lumieres')">XVIIIᵉ</button>
+                <button class="filter-chip" data-filter="epoque" data-value="xixe" onclick="toggleFilter('epoque', 'xixe')">XIXᵉ</button>
+                <button class="filter-chip" data-filter="epoque" data-value="xxe" onclick="toggleFilter('epoque', 'xxe')">XXᵉ</button>
             </div>
         </div>
         
-        <!-- Contenu Courants -->
-        <div class="ambiance-bar" id="courantsBar" data-mode="courants" style="display: none;">
-            <div class="ambiance-pill" data-ambiance="humanisme" onclick="setCourant('humanisme')">
-                <span class="ambiance-icon">❁</span>
-                <span class="ambiance-name">Humanisme</span>
+        <!-- Ligne 3: Tonalité / Ambiance -->
+        <div class="filter-row" id="filterRowTon">
+            <span class="filter-label">🎭 Ton</span>
+            <div class="filter-chips">
+                <button class="filter-chip active" data-filter="ton" data-value="all" onclick="toggleFilter('ton', 'all')">∞ libre</button>
+                <button class="filter-chip" data-filter="ton" data-value="gothique" onclick="toggleFilter('ton', 'gothique')">gothique</button>
+                <button class="filter-chip" data-filter="ton" data-value="romantique" onclick="toggleFilter('ton', 'romantique')">romantique</button>
+                <button class="filter-chip" data-filter="ton" data-value="mystique" onclick="toggleFilter('ton', 'mystique')">mystique</button>
+                <button class="filter-chip" data-filter="ton" data-value="melancolie" onclick="toggleFilter('ton', 'melancolie')">mélancolique</button>
+                <button class="filter-chip" data-filter="ton" data-value="epique" onclick="toggleFilter('ton', 'epique')">épique</button>
+                <button class="filter-chip" data-filter="ton" data-value="pastoral" onclick="toggleFilter('ton', 'pastoral')">pastoral</button>
+                <button class="filter-chip" data-filter="ton" data-value="nocturne" onclick="toggleFilter('ton', 'nocturne')">nocturne</button>
+                <button class="filter-chip" data-filter="ton" data-value="philosophique" onclick="toggleFilter('ton', 'philosophique')">philosophique</button>
             </div>
-            <div class="ambiance-pill" data-ambiance="baroque" onclick="setCourant('baroque')">
-                <span class="ambiance-icon">❀</span>
-                <span class="ambiance-name">Baroque</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="classicisme" onclick="setCourant('classicisme')">
-                <span class="ambiance-icon">⚖︎</span>
-                <span class="ambiance-name">Classicisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="romantisme" onclick="setCourant('romantisme')">
-                <span class="ambiance-icon">❧</span>
-                <span class="ambiance-name">Romantisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="realisme" onclick="setCourant('realisme')">
-                <span class="ambiance-icon">◉</span>
-                <span class="ambiance-name">Réalisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="naturalisme" onclick="setCourant('naturalisme')">
-                <span class="ambiance-icon">⚗</span>
-                <span class="ambiance-name">Naturalisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="symbolisme" onclick="setCourant('symbolisme')">
-                <span class="ambiance-icon">✶</span>
-                <span class="ambiance-name">Symbolisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="surrealisme" onclick="setCourant('surrealisme')">
-                <span class="ambiance-icon">◬</span>
-                <span class="ambiance-name">Surréalisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="existentialisme" onclick="setCourant('existentialisme')">
-                <span class="ambiance-icon">⦿</span>
-                <span class="ambiance-name">Existentialisme</span>
-            </div>
-            <div class="ambiance-pill" data-ambiance="absurde" onclick="setCourant('absurde')">
-                <span class="ambiance-icon">⧖</span>
-                <span class="ambiance-name">Absurde</span>
-            </div>
+        </div>
+        
+        <!-- Résumé des filtres actifs -->
+        <div class="filter-summary" id="filterSummary" style="display: none;">
+            <span class="filter-summary-text" id="filterSummaryText"></span>
+            <button class="filter-summary-clear" onclick="clearAllFilters()" title="Effacer les filtres">✕</button>
+            <button class="filter-summary-random" onclick="randomizeFilters()" title="Mélanger au hasard">🎲</button>
+            <button class="filter-summary-go" onclick="applyFilters()">Lancer →</button>
         </div>
     </div>
     
-    <!-- Intro d'ambiance -->
+    <!-- Intro d'ambiance (conservé pour compatibilité) -->
     <div class="ambiance-intro" id="ambianceIntro" style="display: none;"></div>
     
     <!-- ═══════════════════════════════════════════════════════════════════════

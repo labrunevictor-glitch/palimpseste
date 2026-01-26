@@ -1513,11 +1513,20 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 160px 2rem 4rem 2rem; /* Espace pour header + exploration-container */
+padding: 180px 2rem 4rem 2rem; /* Espace pour header + exploration-container (3 lignes) */
 }
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
 .reco-banner { margin-left: 260px; margin-right: 1rem; max-width: none; }
+}
+
+/* Territoire vide */
+.territory-empty {
+font-size: 0.75rem;
+color: var(--muted);
+text-align: center;
+padding: 1rem 0.5rem;
+font-style: italic;
 }
 
 /* Search Results Overlay */
@@ -1739,22 +1748,190 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
 .tag.conte { border-color: var(--accent-secondary); color: var(--accent-secondary); }
 
 /* ═══════════════════════════════════════════════════════════
-   EXPLORATION - Container avec onglets
+   EXPLORATION - Kaléidoscope (filtres croisés)
    ═══════════════════════════════════════════════════════════ */
 .exploration-container {
 position: fixed;
-top: 54px; /* Colle juste sous le header fixe avec un petit espace */
+top: 54px;
 left: 260px;
 right: 0;
 z-index: 90;
 background: var(--bg);
-border-bottom: 2px solid var(--border);
-box-shadow: 0 4px 0 var(--pixel-shadow);
-padding-top: 4px; /* Petit espace en haut */
-/* Headroom transition */
+border-bottom: 1px solid var(--border);
+box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+padding: 0.5rem 0;
 transition: transform 0.3s ease;
 }
 
+/* Ligne de filtres */
+.filter-row {
+display: flex;
+align-items: center;
+padding: 0.35rem 1rem;
+gap: 0.75rem;
+}
+
+.filter-label {
+font-size: 0.75rem;
+font-weight: 600;
+color: var(--text-secondary);
+min-width: 70px;
+flex-shrink: 0;
+}
+
+.filter-chips {
+display: flex;
+gap: 0.4rem;
+overflow-x: auto;
+scrollbar-width: none;
+-ms-overflow-style: none;
+padding: 0.2rem 0;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+padding: 0.3rem 0.7rem;
+background: transparent;
+border: 1px solid var(--border);
+border-radius: 14px;
+font-size: 0.75rem;
+color: var(--text-secondary);
+cursor: pointer;
+transition: all 0.15s ease;
+white-space: nowrap;
+flex-shrink: 0;
+}
+
+.filter-chip:hover {
+border-color: var(--text-secondary);
+color: var(--text);
+background: rgba(255,255,255,0.03);
+}
+
+.filter-chip.active {
+background: var(--accent);
+border-color: var(--accent);
+color: white;
+font-weight: 500;
+}
+
+.filter-chip[data-value="all"].active {
+background: var(--bg-elevated);
+border-color: var(--text-secondary);
+color: var(--text);
+}
+
+/* Résumé des filtres */
+.filter-summary {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+padding: 0.5rem 1rem;
+background: rgba(212, 165, 116, 0.1);
+border-top: 1px solid var(--border);
+margin-top: 0.25rem;
+}
+
+.filter-summary-text {
+flex: 1;
+font-size: 0.8rem;
+color: var(--accent);
+font-weight: 500;
+}
+
+.filter-summary-clear,
+.filter-summary-random {
+background: none;
+border: none;
+font-size: 1rem;
+cursor: pointer;
+padding: 0.3rem;
+opacity: 0.6;
+transition: opacity 0.2s;
+}
+
+.filter-summary-clear:hover,
+.filter-summary-random:hover {
+opacity: 1;
+}
+
+.filter-summary-go {
+background: var(--accent);
+border: none;
+border-radius: 14px;
+padding: 0.4rem 1rem;
+font-size: 0.8rem;
+font-weight: 600;
+color: white;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.filter-summary-go:hover {
+transform: translateY(-1px);
+box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR - Barres de territoires cliquables
+   ═══════════════════════════════════════════════════════════ */
+.territory-bars {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+
+.territory-bar {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.4rem 0.6rem;
+border-radius: 6px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.territory-bar:hover {
+background: rgba(255,255,255,0.05);
+}
+
+.territory-bar-label {
+font-size: 0.75rem;
+color: var(--text-secondary);
+min-width: 70px;
+}
+
+.territory-bar-track {
+flex: 1;
+height: 6px;
+background: var(--bg-elevated);
+border-radius: 3px;
+overflow: hidden;
+}
+
+.territory-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+border-radius: 3px;
+transition: width 0.3s ease;
+}
+
+.territory-bar-value {
+font-size: 0.7rem;
+color: var(--muted);
+min-width: 30px;
+text-align: right;
+}
+
+.territory-bar:hover .territory-bar-label {
+color: var(--accent);
+}
+
+.territory-bar:hover .territory-bar-fill {
+filter: brightness(1.2);
+}
+
+/* Anciennes classes conservées pour compatibilité */
 .exploration-tabs {
 display: flex;
 gap: 0;
