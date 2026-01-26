@@ -495,32 +495,12 @@ function isMobileDevice() {
 }
 
 /**
- * Gère la rétraction automatique au scroll (desktop uniquement)
+ * Gère la rétraction automatique au scroll (DÉSACTIVÉ - contrôle manuel uniquement)
  */
 function handleExplorationScroll() {
-    const container = document.getElementById('explorationContainer');
-    if (!container || userManuallyToggled) return;
-    
-    // Désactiver le collapse auto sur mobile - géré par CSS
-    if (isMobileDevice()) return;
-    
-    const currentScrollY = window.scrollY;
-    const scrollThreshold = 100;
-    
-    // Si on scrolle vers le bas et qu'on a dépassé le seuil → rétracter
-    if (currentScrollY > scrollThreshold && currentScrollY > lastScrollY && !isExplorationCollapsed) {
-        container.classList.add('collapsed');
-        isExplorationCollapsed = true;
-        // Fermer tous les groupes ouverts
-        closeAllFilterGroups();
-    }
-    // Si on scrolle vers le haut près du top → déplier
-    else if (currentScrollY < 50 && isExplorationCollapsed) {
-        container.classList.remove('collapsed');
-        isExplorationCollapsed = false;
-    }
-    
-    lastScrollY = currentScrollY;
+    // Comportement de scroll auto désactivé
+    // L'utilisateur contrôle manuellement via le bouton toggle
+    return;
 }
 
 /**
