@@ -19,6 +19,7 @@ CREATE TABLE profiles (
     username TEXT UNIQUE NOT NULL,
     avatar_url TEXT,
     bio TEXT,
+    last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -164,6 +165,7 @@ CREATE POLICY "Les utilisateurs peuvent unfollow"
 -- Ajouter compteurs followers/following dans profiles
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS followers_count INTEGER DEFAULT 0;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS following_count INTEGER DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- Fonction pour incrémenter followers
 CREATE OR REPLACE FUNCTION increment_followers(user_id UUID)

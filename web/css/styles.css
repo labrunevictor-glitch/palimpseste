@@ -4525,7 +4525,26 @@ flex: 1;
 }
 .profile-info h3 {
 font-size: 1.25rem;
+margin-bottom: 0.25rem;
+}
+.profile-last-seen {
+font-size: 0.75rem;
+color: var(--text-muted);
 margin-bottom: 0.5rem;
+display: flex;
+align-items: center;
+gap: 0.35rem;
+}
+.profile-last-seen .online-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: #22c55e;
+animation: pulse-online 2s infinite;
+}
+@keyframes pulse-online {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.5; }
 }
 .profile-stats {
 display: flex;

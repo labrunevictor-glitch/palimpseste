@@ -691,6 +691,35 @@ async function openUserProfile(userId, username, defaultTab = 'extraits') {
     document.getElementById('profileFollowing').textContent = followingCount || 0;
     document.getElementById('profileExtraits').textContent = extraitCount || 0;
     
+    // Afficher la dernière connexion
+    const lastSeenEl = document.getElementById('profileLastSeen');
+    if (lastSeenEl && profile?.last_seen) {
+        const lastSeenDate = new Date(profile.last_seen);
+        const now = new Date();
+        const diffMinutes = Math.floor((now - lastSeenDate) / 60000);
+        
+        if (diffMinutes < 5) {
+            // En ligne (actif dans les 5 dernières minutes)
+            lastSeenEl.innerHTML = '<span class="online-dot"></span> En ligne';
+        } else if (diffMinutes < 60) {
+            lastSeenEl.innerHTML = `Vu il y a ${diffMinutes} min`;
+        } else if (diffMinutes < 1440) {
+            const hours = Math.floor(diffMinutes / 60);
+            lastSeenEl.innerHTML = `Vu il y a ${hours}h`;
+        } else {
+            const days = Math.floor(diffMinutes / 1440);
+            if (days === 1) {
+                lastSeenEl.innerHTML = 'Vu hier';
+            } else if (days < 7) {
+                lastSeenEl.innerHTML = `Vu il y a ${days} jours`;
+            } else {
+                lastSeenEl.innerHTML = `Vu le ${lastSeenDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`;
+            }
+        }
+    } else if (lastSeenEl) {
+        lastSeenEl.innerHTML = '';
+    }
+    
     // Bouton suivre
     const followBtn = document.getElementById('profileFollowBtn');
     const messageBtn = document.getElementById('profileMessageBtn');

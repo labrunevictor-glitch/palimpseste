@@ -497,6 +497,12 @@ async function onUserLoggedIn() {
     // S'assurer que le profil existe dans la table profiles
     await ensureProfileExists();
     
+    // Mettre à jour last_seen
+    updateLastSeen();
+    
+    // Mettre à jour last_seen toutes les 2 minutes tant que l'utilisateur est actif
+    setInterval(updateLastSeen, 2 * 60 * 1000);
+    
     const username = currentUser.user_metadata?.username || currentUser.email?.split('@')[0] || 'Utilisateur';
     const avatarSymbol = getAvatarSymbol(username);
     
@@ -570,6 +576,23 @@ function toggleUserDropdown() {
 
 function closeUserDropdown() {
     document.getElementById('userDropdown').classList.remove('open');
+}
+
+/**
+ * Mettre à jour last_seen dans le profil utilisateur
+ * Appelé à la connexion et toutes les 2 minutes
+ */
+async function updateLastSeen() {
+    if (!supabaseClient || !currentUser) return;
+    
+    try {
+        await supabaseClient
+            .from('profiles')
+            .update({ last_seen: new Date().toISOString() })
+            .eq('id', currentUser.id);
+    } catch (err) {
+        // Ignorer les erreurs silencieusement
+    }
 }
 
 // Fermer dropdown si clic ailleurs
