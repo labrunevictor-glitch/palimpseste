@@ -19,6 +19,8 @@ let state = {
     likes: new Set(), readCount: 0, loading: false, cache: new Map(),
     textPool: [], shownPages: new Set(), cardIdx: 0,
     authorStats: {}, genreStats: {},
+    // Stats basées sur les textes likés/partagés (vos vrais goûts)
+    likedGenreStats: {}, likedAuthorStats: {},
     likedAuthors: new Set(), discoveredConnections: new Set(),
     achievements: [], readingPath: [],
     // Statistiques de lecture
@@ -139,6 +141,7 @@ function shareCardExtrait(cardId) {
     const fullText = card.dataset.text || '';
     const author = card.dataset.author || 'Inconnu';
     const title = card.dataset.title || 'Sans titre';
+    const tag = card.dataset.tag || '';
     
     // Priorité : sélection utilisateur > texte complet
     const selection = window.getSelection().toString().trim();
@@ -148,7 +151,7 @@ function shareCardExtrait(cardId) {
     const lang = card.dataset.lang || 'fr';
     const sourceUrl = `https://${lang}.wikisource.org/wiki/${encodeURIComponent(title)}`;
     
-    openShareModal(textToShare, author, title, sourceUrl, cardId);
+    openShareModal(textToShare, author, title, sourceUrl, cardId, tag);
 }
 
 // Partager rapidement et ouvrir les commentaires
@@ -419,6 +422,9 @@ function loadState() {
         state.readCount = d.readCount || 0;
         state.authorStats = d.authorStats || {};
         state.genreStats = d.genreStats || {};
+        // Stats basées sur les textes likés/partagés (vos vrais goûts)
+        state.likedGenreStats = d.likedGenreStats || {};
+        state.likedAuthorStats = d.likedAuthorStats || {};
         state.likedAuthors = new Set(d.likedAuthors || []);
         state.discoveredConnections = new Set(d.discoveredConnections || []);
         state.achievements = d.achievements || [];
@@ -448,6 +454,9 @@ function saveState() {
         readCount: state.readCount,
         authorStats: state.authorStats,
         genreStats: state.genreStats,
+        // Stats basées sur les textes likés/partagés
+        likedGenreStats: state.likedGenreStats,
+        likedAuthorStats: state.likedAuthorStats,
         likedAuthors: [...state.likedAuthors],
         discoveredConnections: [...state.discoveredConnections],
         achievements: state.achievements || [],
@@ -715,6 +724,32 @@ function trackStats(author, tag) {
     state.authorStats[author] = (state.authorStats[author] || 0) + 1;
     state.genreStats[tag] = (state.genreStats[tag] || 0) + 1;
     saveState();
+}
+
+// Tracker les stats des textes likés/partagés (vos vrais goûts)
+// Utilisé pour "Vos territoires" et "Vos époques"
+function trackLikedStats(author, tag, isUnlike = false) {
+    if (!author && !tag) return;
+    
+    if (isUnlike) {
+        // Décrémenter (unlike)
+        if (author && state.likedAuthorStats[author]) {
+            state.likedAuthorStats[author] = Math.max(0, state.likedAuthorStats[author] - 1);
+            if (state.likedAuthorStats[author] === 0) delete state.likedAuthorStats[author];
+        }
+        if (tag && state.likedGenreStats[tag]) {
+            state.likedGenreStats[tag] = Math.max(0, state.likedGenreStats[tag] - 1);
+            if (state.likedGenreStats[tag] === 0) delete state.likedGenreStats[tag];
+        }
+    } else {
+        // Incrémenter (like/partage)
+        if (author) state.likedAuthorStats[author] = (state.likedAuthorStats[author] || 0) + 1;
+        if (tag) state.likedGenreStats[tag] = (state.likedGenreStats[tag] || 0) + 1;
+    }
+    saveState();
+    // Mettre à jour l'affichage si exploration ouverte
+    if (typeof renderTerritoryBars === 'function') renderTerritoryBars();
+    if (typeof renderEpochBars === 'function') renderEpochBars();
 }
 
 // Construire dynamiquement les connexions entre auteurs
@@ -1363,6 +1398,10 @@ function toggleLike(cardId, btn) {
         return;
     }
     
+    // Récupérer les métadonnées pour les stats
+    const author = card.dataset.author || 'Anonyme';
+    const tag = card.dataset.tag || '';
+    
     // Toggle le like
     if (likedSourceUrls.has(sourceUrl)) {
         // UNLIKE
@@ -1372,12 +1411,14 @@ function toggleLike(cardId, btn) {
         toast('Like retiré');
         // Sync avec Supabase
         removeLikeFromSupabase(sourceUrl);
+        // Décrémenter les stats likées
+        trackLikedStats(author, tag, true);
     } else {
         // LIKE - stocker avec métadonnées
         const metadata = {
             timestamp: Date.now(),
             title: card.dataset.title || extractPageTitleFromUrl(sourceUrl),
-            author: card.dataset.author || extractAuthorFromUrl(sourceUrl),
+            author: author,
             preview: card.querySelector('.text-preview')?.textContent?.substring(0, 300) || ''
         };
         likedSourceUrls.add(sourceUrl);
@@ -1386,6 +1427,8 @@ function toggleLike(cardId, btn) {
         toast('❤ Liké !');
         // Sync avec Supabase
         addLikeToSupabase(sourceUrl, metadata);
+        // Incrémenter les stats likées
+        trackLikedStats(author, tag, false);
     }
     
     // Sauvegarder localement

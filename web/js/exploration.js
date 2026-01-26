@@ -392,14 +392,16 @@ async function applyFilters() {
 
 /**
  * Rendu des barres de territoires dans la sidebar
+ * Basé sur les textes likés/partagés (vos vrais goûts)
  */
 function renderTerritoryBars() {
     const container = document.getElementById('territoryBars');
     if (!container) return;
     
-    const entries = Object.entries(state.genreStats || {});
+    // Utiliser likedGenreStats (textes aimés) au lieu de genreStats (tous les textes vus)
+    const entries = Object.entries(state.likedGenreStats || {});
     if (entries.length === 0) {
-        container.innerHTML = '<div class="territory-empty">Explorez pour découvrir vos territoires</div>';
+        container.innerHTML = '<div class="territory-empty">Likez ou partagez des textes pour découvrir vos territoires ❤️</div>';
         return;
     }
     
@@ -422,14 +424,15 @@ function renderTerritoryBars() {
 
 /**
  * Rendu des barres d'époques dans la sidebar
+ * Basé sur les auteurs des textes likés/partagés
  */
 function renderEpochBars() {
     const container = document.getElementById('epochBars');
     if (!container) return;
     
-    // On utilise les stats d'auteurs pour estimer les époques
+    // Utiliser likedAuthorStats (textes aimés) au lieu de authorStats (tous les textes vus)
     const epochCounts = {};
-    Object.entries(state.authorStats || {}).forEach(([author, count]) => {
+    Object.entries(state.likedAuthorStats || {}).forEach(([author, count]) => {
         // Trouver l'époque de cet auteur
         for (const [epochId, epoch] of Object.entries(EPOQUES_FILTER)) {
             if (epoch.authors.some(a => a.toLowerCase().includes(author.toLowerCase()) || author.toLowerCase().includes(a.toLowerCase()))) {
@@ -440,7 +443,7 @@ function renderEpochBars() {
     
     const entries = Object.entries(epochCounts);
     if (entries.length === 0) {
-        container.innerHTML = '<div class="territory-empty">Vos époques apparaîtront ici</div>';
+        container.innerHTML = '<div class="territory-empty">Likez des textes pour voir vos époques ❤️</div>';
         return;
     }
     

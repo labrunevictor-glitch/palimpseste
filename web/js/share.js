@@ -13,7 +13,7 @@ var originalShareText = '';
  * Ouvrir le modal de partage avec le texte COMPLET
  * L'utilisateur peut ensuite sélectionner une partie s'il le souhaite
  */
-function openShareModal(text, author, title, sourceUrl, cardId = null) {
+function openShareModal(text, author, title, sourceUrl, cardId = null, tag = '') {
     if (!currentUser) {
         if (typeof openAuthModal === 'function') openAuthModal('login');
         toast('📝 Connectez-vous pour partager');
@@ -21,7 +21,7 @@ function openShareModal(text, author, title, sourceUrl, cardId = null) {
     }
     
     originalShareText = text;
-    pendingShare = { text, author, title, sourceUrl, cardId };
+    pendingShare = { text, author, title, sourceUrl, cardId, tag };
     
     const previewEl = document.getElementById('sharePreviewText');
     const sourceEl = document.getElementById('sharePreviewSource');
@@ -129,6 +129,11 @@ async function publishExtrait() {
         });
         
         if (error) throw error;
+        
+        // Tracker les stats des textes partagés (vos vrais goûts)
+        if (typeof trackLikedStats === 'function') {
+            trackLikedStats(pendingShare.author, pendingShare.tag, false);
+        }
         
         closeShareModal();
         toast('🐦 Extrait publié !');
