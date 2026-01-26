@@ -822,12 +822,12 @@
     
     /* Filtres dépliés sur mobile - plus d'espace en haut */
     body:not(.filters-collapsed) main {
-        padding-top: 280px !important; /* Espace pour header + filtres dépliés */
+        padding-top: 300px !important; /* Espace pour header + filtres dépliés */
     }
     
     /* Filtres repliés sur mobile - espace réduit */
     body.filters-collapsed main {
-        padding-top: 110px !important; /* Header + bouton afficher filtres */
+        padding-top: 120px !important; /* Header + bouton afficher filtres */
     }
     
     /* Cards */
