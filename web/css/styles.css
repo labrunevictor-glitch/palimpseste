@@ -6875,7 +6875,7 @@ transition: all 0.2s;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
-    z-index: 250;
+    z-index: 10000;
     display: none;
     align-items: center;
     justify-content: center;
