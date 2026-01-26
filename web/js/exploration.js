@@ -476,9 +476,74 @@ function filterByTerritory(category, value) {
     applyFilters();
 }
 
+// ═══════════════════════════════════════════════════════════
+// 📐 RÉTRACTION AUTOMATIQUE AU SCROLL
+// ═══════════════════════════════════════════════════════════
+
+let lastScrollY = 0;
+let isExplorationCollapsed = false;
+let userManuallyToggled = false;
+
+/**
+ * Gère la rétraction automatique au scroll
+ */
+function handleExplorationScroll() {
+    const container = document.getElementById('explorationContainer');
+    if (!container || userManuallyToggled) return;
+    
+    const currentScrollY = window.scrollY;
+    const scrollThreshold = 100;
+    
+    // Si on scrolle vers le bas et qu'on a dépassé le seuil → rétracter
+    if (currentScrollY > scrollThreshold && currentScrollY > lastScrollY && !isExplorationCollapsed) {
+        container.classList.add('collapsed');
+        isExplorationCollapsed = true;
+        // Fermer tous les groupes ouverts
+        ['forme', 'epoque', 'ton', 'pensee'].forEach(cat => {
+            if (openGroups[cat]) {
+                const subchips = document.getElementById(`subchips-${cat}-${openGroups[cat]}`);
+                const parentBtn = document.querySelector(`.filter-parent[data-filter="${cat}"][data-group="${openGroups[cat]}"]`);
+                if (subchips) subchips.style.display = 'none';
+                if (parentBtn) parentBtn.classList.remove('expanded');
+                openGroups[cat] = null;
+            }
+        });
+    }
+    // Si on scrolle vers le haut près du top → déplier
+    else if (currentScrollY < 50 && isExplorationCollapsed) {
+        container.classList.remove('collapsed');
+        isExplorationCollapsed = false;
+    }
+    
+    lastScrollY = currentScrollY;
+}
+
+/**
+ * Toggle manuel de la rétraction
+ */
+function toggleExplorationCollapse() {
+    const container = document.getElementById('explorationContainer');
+    if (!container) return;
+    
+    userManuallyToggled = true;
+    isExplorationCollapsed = !isExplorationCollapsed;
+    container.classList.toggle('collapsed', isExplorationCollapsed);
+    
+    // Réinitialiser après 5 secondes pour permettre le scroll auto à nouveau
+    setTimeout(() => {
+        userManuallyToggled = false;
+    }, 5000);
+}
+
+// Attacher l'écouteur de scroll
+document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('scroll', handleExplorationScroll, { passive: true });
+});
+
 // Exports globaux pour le nouveau système
 window.toggleFilter = toggleFilter;
 window.toggleFilterGroup = toggleFilterGroup;
+window.toggleExplorationCollapse = toggleExplorationCollapse;
 window.clearAllFilters = clearAllFilters;
 window.randomizeFilters = randomizeFilters;
 window.applyFilters = applyFilters;

@@ -1760,7 +1760,59 @@ background: var(--bg);
 border-bottom: 1px solid var(--border);
 box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 padding: 0.5rem 0;
-transition: transform 0.3s ease;
+transition: transform 0.3s ease, opacity 0.3s ease, max-height 0.4s ease;
+max-height: 500px;
+overflow: hidden;
+}
+
+/* État rétracté au scroll */
+.exploration-container.collapsed {
+max-height: 40px;
+opacity: 0.95;
+padding: 0.25rem 0;
+}
+
+.exploration-container.collapsed .filter-row {
+display: none;
+}
+
+.exploration-container.collapsed .filter-row:first-child {
+display: flex;
+}
+
+.exploration-container.collapsed .filter-subchips {
+display: none !important;
+}
+
+/* Bouton pour déplier/replier */
+.exploration-toggle {
+position: absolute;
+right: 1rem;
+top: 50%;
+transform: translateY(-50%);
+background: var(--bg-elevated);
+border: 1px solid var(--border);
+border-radius: 50%;
+width: 24px;
+height: 24px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+font-size: 0.7rem;
+color: var(--text-secondary);
+transition: all 0.2s ease;
+z-index: 10;
+}
+
+.exploration-toggle:hover {
+background: var(--accent);
+color: white;
+border-color: var(--accent);
+}
+
+.exploration-container.collapsed .exploration-toggle {
+transform: translateY(-50%) rotate(180deg);
 }
 
 /* Ligne de filtres */
@@ -1777,6 +1829,8 @@ font-weight: 600;
 color: var(--text-secondary);
 min-width: 70px;
 flex-shrink: 0;
+font-family: 'Cormorant Garamond', serif;
+letter-spacing: 0.02em;
 }
 
 .filter-chips {

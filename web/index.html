@@ -368,9 +368,10 @@
          BARRE D'EXPLORATION - Kaléidoscope (filtres hiérarchiques)
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="exploration-container" id="explorationContainer">
+        <button class="exploration-toggle" onclick="toggleExplorationCollapse()" title="Replier/Déplier">▲</button>
         <!-- Ligne 1: Forme / Type de texte (hiérarchique) -->
         <div class="filter-row" id="filterRowForme">
-            <span class="filter-label">📜 Forme</span>
+            <span class="filter-label">❧ Forme</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="forme" data-value="all" onclick="toggleFilter('forme', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
@@ -416,7 +417,7 @@
         
         <!-- Ligne 2: Époque (hiérarchique) -->
         <div class="filter-row" id="filterRowEpoque">
-            <span class="filter-label">⏳ Époque</span>
+            <span class="filter-label">※ Époque</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="epoque" data-value="all" onclick="toggleFilter('epoque', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
@@ -457,7 +458,7 @@
         
         <!-- Ligne 3: Registre (hiérarchique) -->
         <div class="filter-row" id="filterRowTon">
-            <span class="filter-label">🎭 Registre</span>
+            <span class="filter-label">◆ Registre</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="ton" data-value="all" onclick="toggleFilter('ton', 'all')">∞ libre</button>
                 <!-- Catégories parentes -->
@@ -502,7 +503,7 @@
         
         <!-- Ligne 4: Pensée (hiérarchique) -->
         <div class="filter-row" id="filterRowPensee">
-            <span class="filter-label">💭 Pensée</span>
+            <span class="filter-label">๏ Pensée</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="pensee" data-value="all" onclick="toggleFilter('pensee', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
