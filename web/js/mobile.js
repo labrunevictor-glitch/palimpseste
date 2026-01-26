@@ -50,9 +50,22 @@ function closeAllDrawers() {
     closeProfilePanel();
 }
 
-// Avatar = Ouvrir panneau profil
+// Avatar = Ouvrir le profil complet si connecté, sinon panneau connexion
 function handleAvatarClick() {
-    openProfilePanel();
+    if (typeof currentUser !== 'undefined' && currentUser) {
+        // Utilisateur connecté → ouvrir la modal profil complète
+        if (typeof openMyProfile === 'function') {
+            openMyProfile();
+        } else if (typeof openUserProfile === 'function') {
+            const username = currentUser.user_metadata?.username || 'Moi';
+            openUserProfile(currentUser.id, username, 'extraits');
+        } else {
+            openProfilePanel();
+        }
+    } else {
+        // Non connecté → panneau de connexion
+        openProfilePanel();
+    }
 }
 
 // Navigation mobile

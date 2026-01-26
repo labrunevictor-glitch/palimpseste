@@ -164,8 +164,20 @@ window.showMyFollowing = showMyFollowing;
 
 function openMyProfile() {
     closeUserDropdown();
-    switchSocialTab('mine');
-    openSocialFeed();
+    if (!currentUser) {
+        openAuthModal('login');
+        toast('Connectez-vous pour voir votre profil');
+        return;
+    }
+    // Ouvrir le profil de l'utilisateur connecté
+    const username = currentUser.user_metadata?.username || 'Moi';
+    if (typeof openUserProfile === 'function') {
+        openUserProfile(currentUser.id, username, 'extraits');
+    } else {
+        // Fallback
+        switchSocialTab('mine');
+        openSocialFeed();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
