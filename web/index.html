@@ -217,8 +217,6 @@
                 <span class="reading-inline-item"><span class="reading-inline-icon">⧗</span><span id="totalReadingTime">0 min</span></span>
                 <span class="reading-inline-sep">·</span>
                 <span class="reading-inline-item"><span class="reading-inline-icon">§</span><span id="totalWordsRead">0</span> mots</span>
-                <span class="reading-inline-sep">·</span>
-                <span class="reading-inline-item streak-inline"><span class="reading-inline-icon">✶</span><span id="currentStreak">0</span>j</span>
             </div>
             <div class="weekly-chart" id="weeklyChart"></div>
         </div>
@@ -673,7 +671,7 @@
                 <div class="auth-title">Bon retour 📚</div>
                 <div class="auth-subtitle">Connectez-vous pour partager vos extraits</div>
                 <div class="auth-error" id="loginError"></div>
-                <input type="email" class="auth-input" id="loginEmail" placeholder="Email">
+                <input type="text" class="auth-input" id="loginEmail" placeholder="Email ou pseudo">
                 <input type="password" class="auth-input" id="loginPassword" placeholder="Mot de passe">
                 <div class="auth-forgot"><a onclick="switchAuthForm('forgot')">Mot de passe oublié ?</a></div>
                 <button class="auth-btn" onclick="loginWithEmail()" id="loginBtn">Se connecter</button>

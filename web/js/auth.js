@@ -256,22 +256,58 @@ async function loginWithEmail() {
         return;
     }
     
-    const email = document.getElementById('loginEmail').value;
+    let identifier = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     
-    if (!email || !password) {
+    if (!identifier || !password) {
         showAuthError('login', 'Veuillez remplir tous les champs');
         return;
     }
     
     document.getElementById('loginBtn').disabled = true;
+    document.getElementById('loginBtn').textContent = 'Connexion...';
+    
+    let email = identifier;
+    
+    // Si ce n'est pas un email (pas de @), c'est un pseudo
+    if (!identifier.includes('@')) {
+        try {
+            // Chercher l'email associé au pseudo
+            const { data: profile, error: profileError } = await supabaseClient
+                .from('profiles')
+                .select('email')
+                .ilike('username', identifier)
+                .maybeSingle();
+            
+            if (profileError || !profile || !profile.email) {
+                document.getElementById('loginBtn').disabled = false;
+                document.getElementById('loginBtn').textContent = 'Se connecter';
+                showAuthError('login', 'Pseudo introuvable. Vérifiez votre saisie.');
+                return;
+            }
+            
+            email = profile.email;
+        } catch (e) {
+            console.error('Erreur recherche pseudo:', e);
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').textContent = 'Se connecter';
+            showAuthError('login', 'Erreur lors de la recherche du pseudo.');
+            return;
+        }
+    }
     
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     
     document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'Se connecter';
     
     if (error) {
-        showAuthError('login', error.message);
+        // Améliorer le message d'erreur
+        let errorMsg = error.message;
+        if (error.message.includes('Invalid login credentials')) {
+            errorMsg = 'Identifiants incorrects. Vérifiez votre email/pseudo et mot de passe.';
+        }
+        showAuthError('login', errorMsg);
     } else {
         closeAuthModal();
         toast('Connexion réussie');
