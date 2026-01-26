@@ -1654,75 +1654,14 @@ function removeFavorite(id) {
     toast('Retiré des favoris');
 }
 
-// === VUE FAVORIS/LIKES LOCAUX ===
+// === VUE FAVORIS/LIKES - Redirige vers le profil ===
 async function openFavoritesView() {
-    const overlay = document.getElementById('favoritesOverlay');
-    const grid = document.getElementById('favoritesGrid');
-    if (!overlay || !grid) return;
-    
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    
-    // Charger les sources likées avec leurs métadonnées, triées par date
-    const likedItems = [];
-    likedSourceUrls.forEach(url => {
-        const data = likedSourcesData.get(url) || { timestamp: 0 };
-        likedItems.push({
-            url,
-            timestamp: data.timestamp || 0,
-            title: data.title || extractPageTitleFromUrl(url),
-            author: data.author || extractAuthorFromUrl(url),
-            preview: data.preview || ''
-        });
-    });
-    
-    // Trier par date décroissante (plus récent en premier)
-    likedItems.sort((a, b) => b.timestamp - a.timestamp);
-    
-    if (likedItems.length === 0) {
-        grid.innerHTML = `
-            <div class="likes-empty">
-                <div class="likes-empty-icon">♡</div>
-                <h3>Votre bibliothèque est vide</h3>
-                <p>Cliquez sur ♥ pour sauvegarder vos textes préférés et les retrouver ici.</p>
-            </div>
-        `;
+    if (!currentUser) {
+        toast('📝 Connectez-vous d\'abord');
         return;
     }
-    
-    // Générer le HTML avec un style plus attrayant
-    grid.innerHTML = `
-        <div class="likes-header-info">
-            <span class="likes-count">♥ ${likedItems.length} texte${likedItems.length > 1 ? 's' : ''} dans votre bibliothèque</span>
-        </div>
-        <div class="likes-list">
-            ${likedItems.map((item, index) => {
-                const safeUrl = item.url.replace(/'/g, "\\'");
-                const timeAgo = getTimeAgo(item.timestamp);
-                // Toujours afficher un extrait, même court
-                const excerpt = item.preview 
-                    ? item.preview.substring(0, 150).trim() + (item.preview.length > 150 ? '…' : '')
-                    : '« Cliquez pour découvrir ce texte »';
-                return `
-                <article class="liked-text-card" onclick="loadSourceByUrl('${safeUrl}')" style="animation-delay: ${index * 0.04}s">
-                    <div class="liked-card-accent"></div>
-                    <div class="liked-text-main">
-                        <div class="liked-text-meta">
-                            <span class="liked-text-author">${esc(item.author)}</span>
-                            <span class="liked-text-dot">·</span>
-                            <span class="liked-text-time">${timeAgo}</span>
-                        </div>
-                        <h3 class="liked-text-title">${esc(item.title)}</h3>
-                        <p class="liked-text-excerpt">${esc(excerpt)}</p>
-                        <div class="liked-text-cta">
-                            <span class="liked-cta-text">Lire →</span>
-                        </div>
-                    </div>
-                    <button class="liked-text-remove" onclick="event.stopPropagation(); unlikeByUrl('${safeUrl}')" title="Retirer de ma bibliothèque">✕</button>
-                </article>
-            `}).join('')}
-        </div>
-    `;
+    // Ouvrir mon profil sur l'onglet likes
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi', 'likes');
 }
 
 // Formater le temps écoulé

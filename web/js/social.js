@@ -557,8 +557,12 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
 
 // Afficher mes extraits (depuis le profil)
 function showMyExtraits() {
-    openSocialFeed();
-    switchSocialTab('mine');
+    if (!currentUser) {
+        toast('📝 Connectez-vous d\'abord');
+        return;
+    }
+    // Ouvrir mon profil sur l'onglet extraits
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi', 'extraits');
 }
 
 // Afficher mes likes (depuis le profil)
