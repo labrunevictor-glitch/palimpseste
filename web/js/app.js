@@ -752,6 +752,84 @@ function trackLikedStats(author, tag, isUnlike = false) {
     if (typeof renderEpochBars === 'function') renderEpochBars();
 }
 
+// Migrer les likes existants vers les nouvelles stats likedGenreStats/likedAuthorStats
+async function migrateLikesToStats() {
+    console.log('🔄 Migration des likes vers les stats...');
+    
+    // Si déjà des stats, ne pas re-migrer
+    if (Object.keys(state.likedGenreStats || {}).length > 0) {
+        console.log('✅ Stats déjà présentes, pas de migration nécessaire');
+        return;
+    }
+    
+    // 1. Migrer depuis likedSourcesData (likes locaux)
+    if (likedSourcesData && likedSourcesData.size > 0) {
+        likedSourcesData.forEach((data, url) => {
+            const author = data.author || 'Anonyme';
+            // Estimer le tag depuis l'auteur ou le titre
+            const tag = detectTagFromAuthor(author) || 'Prose';
+            if (author && author !== 'Anonyme') {
+                state.likedAuthorStats[author] = (state.likedAuthorStats[author] || 0) + 1;
+            }
+            if (tag) {
+                state.likedGenreStats[tag] = (state.likedGenreStats[tag] || 0) + 1;
+            }
+        });
+        console.log('📊 Likes locaux migrés:', likedSourcesData.size);
+    }
+    
+    // 2. Migrer depuis les extraits partagés (Supabase)
+    if (supabaseClient && currentUser) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('extraits')
+                .select('source_author, source_title')
+                .eq('user_id', currentUser.id);
+            
+            if (!error && data && data.length > 0) {
+                data.forEach(extrait => {
+                    const author = extrait.source_author || 'Anonyme';
+                    const tag = detectTagFromAuthor(author) || 'Prose';
+                    if (author && author !== 'Anonyme') {
+                        state.likedAuthorStats[author] = (state.likedAuthorStats[author] || 0) + 1;
+                    }
+                    if (tag) {
+                        state.likedGenreStats[tag] = (state.likedGenreStats[tag] || 0) + 1;
+                    }
+                });
+                console.log('📊 Extraits partagés migrés:', data.length);
+            }
+        } catch (e) {
+            console.error('Erreur migration extraits:', e);
+        }
+    }
+    
+    saveState();
+    // Actualiser les barres
+    if (typeof renderTerritoryBars === 'function') renderTerritoryBars();
+    if (typeof renderEpochBars === 'function') renderEpochBars();
+    console.log('✅ Migration terminée:', state.likedGenreStats, state.likedAuthorStats);
+}
+
+// Détecter le tag probable depuis l'auteur (heuristique simple)
+function detectTagFromAuthor(author) {
+    if (!author) return 'Prose';
+    const a = author.toLowerCase();
+    
+    // Poètes connus
+    if (/baudelaire|rimbaud|verlaine|mallarmé|hugo|lamartine|musset|apollinaire|éluard|prévert|nerval/.test(a)) return 'Poésie';
+    // Dramaturges
+    if (/molière|racine|corneille|beaumarchais|marivaux|ionesco|beckett/.test(a)) return 'Théâtre';
+    // Philosophes
+    if (/descartes|pascal|montaigne|rousseau|voltaire|diderot|montesquieu|bergson|sartre|camus|simone|beauvoir/.test(a)) return 'Pensée';
+    // Romanciers réalistes/naturalistes
+    if (/balzac|zola|flaubert|maupassant|stendhal/.test(a)) return 'Prose';
+    // Auteurs classiques (souvent poètes)
+    if (/ronsard|du bellay|villon|marot|la fontaine/.test(a)) return 'Poésie';
+    
+    return 'Prose'; // Par défaut
+}
+
 // Construire dynamiquement les connexions entre auteurs
 // Les auteurs du même genre sont connectés entre eux
 function buildAuthorConnections(author, tag) {
@@ -1461,9 +1539,11 @@ function isSourceLiked(sourceUrl) {
 }
 
 // Initialiser les likes au chargement
-document.addEventListener('DOMContentLoaded', () => {
-    loadLikedSources();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadLikedSources();
     updateLikeCount();
+    // Migrer les likes existants vers les nouvelles stats
+    setTimeout(() => migrateLikesToStats(), 500);
 });
 
 // Double-tap pour liker (style Instagram)

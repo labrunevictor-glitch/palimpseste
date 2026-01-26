@@ -401,7 +401,7 @@ function renderTerritoryBars() {
     // Utiliser likedGenreStats (textes aimés) au lieu de genreStats (tous les textes vus)
     const entries = Object.entries(state.likedGenreStats || {});
     if (entries.length === 0) {
-        container.innerHTML = '<div class="territory-empty">Likez ou partagez des textes pour découvrir vos territoires ❤️</div>';
+        container.innerHTML = '<div class="territory-empty">Likez des textes pour voir vos genres favoris ❤️</div>';
         return;
     }
     
@@ -443,7 +443,7 @@ function renderEpochBars() {
     
     const entries = Object.entries(epochCounts);
     if (entries.length === 0) {
-        container.innerHTML = '<div class="territory-empty">Likez des textes pour voir vos époques ❤️</div>';
+        container.innerHTML = '<div class="territory-empty">Likez des textes pour voir vos époques favorites ❤️</div>';
         return;
     }
     
