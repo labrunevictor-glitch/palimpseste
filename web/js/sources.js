@@ -135,37 +135,43 @@ const ALT_SOURCES = {
     feedbooks: {
         name: 'Feedbooks',
         url: 'https://www.feedbooks.com',
-        // Livres gratuits du domaine public
+        // Livres gratuits du domaine public avec extraits célèbres
         works: [
-            // Français - Classiques
-            { id: 28, title: 'Le Père Goriot', author: 'Honoré de Balzac', lang: 'fr' },
-            { id: 27, title: 'Eugénie Grandet', author: 'Honoré de Balzac', lang: 'fr' },
-            { id: 58, title: 'Bel-Ami', author: 'Guy de Maupassant', lang: 'fr' },
-            { id: 59, title: 'Une Vie', author: 'Guy de Maupassant', lang: 'fr' },
-            { id: 38, title: 'Candide', author: 'Voltaire', lang: 'fr' },
-            { id: 39, title: 'Zadig', author: 'Voltaire', lang: 'fr' },
-            { id: 40, title: 'Micromégas', author: 'Voltaire', lang: 'fr' },
-            { id: 143, title: 'Les Liaisons dangereuses', author: 'Pierre Choderlos de Laclos', lang: 'fr' },
-            { id: 49, title: 'La Princesse de Clèves', author: 'Madame de La Fayette', lang: 'fr' },
-            { id: 88, title: 'Paul et Virginie', author: 'Bernardin de Saint-Pierre', lang: 'fr' },
-            { id: 50, title: 'Manon Lescaut', author: 'Abbé Prévost', lang: 'fr' },
-            { id: 2612, title: 'Le Horla', author: 'Guy de Maupassant', lang: 'fr' },
-            { id: 7016, title: 'Boule de Suif', author: 'Guy de Maupassant', lang: 'fr' },
+            // Français - Classiques avec incipits/extraits
+            { id: 28, title: 'Le Père Goriot', author: 'Honoré de Balzac', lang: 'fr',
+              excerpt: 'Madame Vauquer, née de Conflans, est une vieille femme qui, depuis quarante ans, tient à Paris une pension bourgeoise établie rue Neuve-Sainte-Geneviève, entre le quartier latin et le faubourg Saint-Marceau.' },
+            { id: 27, title: 'Eugénie Grandet', author: 'Honoré de Balzac', lang: 'fr',
+              excerpt: 'Il se trouve dans certaines villes de province des maisons dont la vue inspire une mélancolie égale à celle que provoquent les cloîtres les plus sombres, les landes les plus ternes ou les ruines les plus tristes.' },
+            { id: 58, title: 'Bel-Ami', author: 'Guy de Maupassant', lang: 'fr',
+              excerpt: 'Quand la caissière lui eut rendu la monnaie de sa pièce de cent sous, Georges Duroy sortit du restaurant. Comme il portait beau par nature et par pose d\'ancien sous-officier, il cambra sa taille, frisa sa moustache d\'un geste militaire et familier.' },
+            { id: 59, title: 'Une Vie', author: 'Guy de Maupassant', lang: 'fr',
+              excerpt: 'Jeanne, ayant fini ses malles, s\'approcha de la fenêtre, mais la pluie ne cessait pas. L\'averse, toute la nuit, avait sonné contre les carreaux et les toits. Le ciel bas et chargé d\'eau semblait crevé.' },
+            { id: 38, title: 'Candide', author: 'Voltaire', lang: 'fr',
+              excerpt: 'Il y avait en Westphalie, dans le château de M. le baron de Thunder-ten-tronckh, un jeune garçon à qui la nature avait donné les mœurs les plus douces. Sa physionomie annonçait son âme.' },
+            { id: 39, title: 'Zadig', author: 'Voltaire', lang: 'fr',
+              excerpt: 'Du temps du roi Moabdar il y avait à Babylone un jeune homme nommé Zadig, né avec un beau naturel fortifié par l\'éducation. Quoique riche et jeune, il savait modérer ses passions.' },
+            { id: 143, title: 'Les Liaisons dangereuses', author: 'Pierre Choderlos de Laclos', lang: 'fr',
+              excerpt: 'Vous voyez, ma bonne amie, que je vous tiens parole, et que les bonnets et les pompons ne prennent pas tout mon temps ; il m\'en restera toujours pour vous.' },
+            { id: 49, title: 'La Princesse de Clèves', author: 'Madame de La Fayette', lang: 'fr',
+              excerpt: 'La magnificence et la galanterie n\'ont jamais paru en France avec tant d\'éclat que dans les dernières années du règne de Henri second.' },
+            { id: 2612, title: 'Le Horla', author: 'Guy de Maupassant', lang: 'fr',
+              excerpt: '8 mai. — Quelle journée admirable ! J\'ai passé toute la matinée étendu sur l\'herbe, devant ma maison, sous l\'énorme platane qui la couvre, l\'abrite et l\'ombrage tout entière.' },
             // Poésie française
-            { id: 282, title: 'Les Fleurs du mal', author: 'Charles Baudelaire', lang: 'fr' },
-            { id: 5618, title: 'Romances sans paroles', author: 'Paul Verlaine', lang: 'fr' },
-            { id: 5619, title: 'Sagesse', author: 'Paul Verlaine', lang: 'fr' },
-            { id: 5664, title: 'Une Saison en enfer', author: 'Arthur Rimbaud', lang: 'fr' },
-            { id: 5663, title: 'Illuminations', author: 'Arthur Rimbaud', lang: 'fr' },
+            { id: 282, title: 'Les Fleurs du mal', author: 'Charles Baudelaire', lang: 'fr',
+              excerpt: 'Quand le ciel bas et lourd pèse comme un couvercle\nSur l\'esprit gémissant en proie aux longs ennuis,\nEt que de l\'horizon embrassant tout le cercle\nIl nous verse un jour noir plus triste que les nuits.' },
+            { id: 5618, title: 'Romances sans paroles', author: 'Paul Verlaine', lang: 'fr',
+              excerpt: 'Il pleure dans mon cœur\nComme il pleut sur la ville ;\nQuelle est cette langueur\nQui pénètre mon cœur ?' },
+            { id: 5664, title: 'Une Saison en enfer', author: 'Arthur Rimbaud', lang: 'fr',
+              excerpt: 'Jadis, si je me souviens bien, ma vie était un festin où s\'ouvraient tous les cœurs, où tous les vins coulaient. Un soir, j\'ai assis la Beauté sur mes genoux. — Et je l\'ai trouvée amère. — Et je l\'ai injuriée.' },
             // Anglais
-            { id: 61, title: 'Frankenstein', author: 'Mary Shelley', lang: 'en' },
-            { id: 62, title: 'Dracula', author: 'Bram Stoker', lang: 'en' },
-            { id: 5, title: 'The Picture of Dorian Gray', author: 'Oscar Wilde', lang: 'en' },
-            { id: 2546, title: 'The Importance of Being Earnest', author: 'Oscar Wilde', lang: 'en' },
-            { id: 23, title: 'A Study in Scarlet', author: 'Arthur Conan Doyle', lang: 'en' },
-            { id: 24, title: 'The Sign of the Four', author: 'Arthur Conan Doyle', lang: 'en' },
-            { id: 8, title: 'The Strange Case of Dr Jekyll and Mr Hyde', author: 'Robert Louis Stevenson', lang: 'en' },
-            { id: 254, title: 'A Christmas Carol', author: 'Charles Dickens', lang: 'en' }
+            { id: 61, title: 'Frankenstein', author: 'Mary Shelley', lang: 'en',
+              excerpt: 'I am by birth a Genevese, and my family is one of the most distinguished of that republic. My ancestors had been for many years counsellors and syndics.' },
+            { id: 62, title: 'Dracula', author: 'Bram Stoker', lang: 'en',
+              excerpt: 'Left Munich at 8:35 P. M., on 1st May, arriving at Vienna early next morning; should have arrived at 6:46, but train was an hour late. Buda-Pesth seems a wonderful place.' },
+            { id: 5, title: 'The Picture of Dorian Gray', author: 'Oscar Wilde', lang: 'en',
+              excerpt: 'The studio was filled with the rich odour of roses, and when the light summer wind stirred amidst the trees of the garden, there came through the open door the heavy scent of the lilac.' },
+            { id: 8, title: 'The Strange Case of Dr Jekyll and Mr Hyde', author: 'Robert Louis Stevenson', lang: 'en',
+              excerpt: 'Mr. Utterson the lawyer was a man of a rugged countenance that was never lighted by a smile; cold, scanty and embarrassed in discourse; backward in sentiment; lean, long, dusty, dreary and yet somehow lovable.' }
         ]
     }
 };
@@ -912,9 +918,9 @@ async function fetchArchiveOrg() {
         const metaRes = await fetch(`https://archive.org/metadata/${work.id}`);
         const metadata = await metaRes.json();
         
-        // Chercher un fichier texte dans les fichiers disponibles
+        // Chercher un fichier texte (djvu.txt est souvent le seul disponible)
         const textFile = metadata.files?.find(f => 
-            f.name.endsWith('.txt') && !f.name.includes('_djvu')
+            f.name.endsWith('.txt')
         );
         
         if (textFile) {
@@ -922,11 +928,21 @@ async function fetchArchiveOrg() {
             const textRes = await fetch(textUrl);
             let text = await textRes.text();
             
-            // Nettoyer et extraire un passage
+            // Nettoyer le texte OCR (djvu) des scories
+            text = text
+                .replace(/\f/g, '\n\n') // Form feeds → paragraphes
+                .replace(/\r\n/g, '\n')
+                .replace(/\n{4,}/g, '\n\n\n');
+            
+            // Extraire un passage intéressant
             const paragraphs = text.split(/\n\n+/).filter(p => 
-                p.trim().length > 100 && 
+                p.trim().length > 80 && 
+                p.trim().length < 2000 &&
                 !p.includes('Internet Archive') &&
-                !p.includes('Digitized by')
+                !p.includes('Digitized by') &&
+                !p.includes('Google') &&
+                !p.match(/^\d+$/) && // Pas les numéros de page seuls
+                !p.match(/^[A-Z\s]{20,}$/) // Pas les titres en majuscules
             );
             
             if (paragraphs.length > 10) {
@@ -953,6 +969,8 @@ async function fetchArchiveOrg() {
 // ═══════════════════════════════════════════════════════════
 // 📱 FEEDBOOKS - Livres du domaine public (OPDS)
 // ═══════════════════════════════════════════════════════════
+// 📱 FEEDBOOKS - Livres du domaine public (avec extraits)
+// ═══════════════════════════════════════════════════════════
 async function fetchFeedbooks() {
     const works = ALT_SOURCES.feedbooks.works;
     // Filtrer par langue si nécessaire
@@ -969,24 +987,20 @@ async function fetchFeedbooks() {
     // Éviter les doublons
     if (state.shownPages.has(cacheKey)) return [];
     
-    try {
-        // L'API OPDS de Feedbooks permet de récupérer les métadonnées
-        // Note: L'accès direct au texte nécessite de télécharger l'EPUB
-        // On retourne les métadonnées avec un lien vers la source
-        
+    // Utiliser l'extrait intégré s'il existe
+    if (work.excerpt) {
         return [{
             title: work.title,
             author: work.author,
-            text: `[Œuvre complète disponible sur Feedbooks]\n\n"${work.title}" de ${work.author}\n\nCe texte du domaine public est disponible gratuitement en téléchargement.`,
+            text: work.excerpt,
             source: 'feedbooks',
             sourceUrl: `https://www.feedbooks.com/book/${work.id}`,
             lang: work.lang,
             feedbooksId: work.id,
             isPreloaded: true
         }];
-    } catch (e) {
-        console.error('Feedbooks error:', work.title, e);
     }
+    
     return [];
 }
 
