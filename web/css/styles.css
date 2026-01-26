@@ -1515,7 +1515,7 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 120px 2rem 4rem 2rem; /* Espace pour header + exploration-container */
+padding: 100px 2rem 4rem 2rem; /* Espace pour header (54px) + exploration-container repliée (42px) */
 }
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
