@@ -1515,8 +1515,15 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 100px 2rem 4rem 2rem; /* Espace pour header (54px) + exploration-container repliée (42px) */
+padding: 180px 2rem 4rem 2rem; /* Espace pour header + filtres dépliés */
+transition: padding-top 0.3s ease;
 }
+
+/* Ajuster le padding quand les filtres sont repliés */
+body.filters-collapsed main {
+padding-top: 100px; /* Espace réduit quand filtres cachés */
+}
+
 @media (max-width: 1100px) {
 main { margin-left: 260px; margin-right: 1rem; }
 .reco-banner { margin-left: 260px; margin-right: 1rem; max-width: none; }

@@ -529,6 +529,9 @@ function toggleExplorationCollapse() {
     isExplorationCollapsed = !isExplorationCollapsed;
     container.classList.toggle('collapsed', isExplorationCollapsed);
     
+    // Ajouter/retirer la classe sur body pour adapter le padding du main
+    document.body.classList.toggle('filters-collapsed', isExplorationCollapsed);
+    
     if (isExplorationCollapsed) {
         closeAllFilterGroups();
     }
@@ -539,9 +542,16 @@ function toggleExplorationCollapse() {
     }, 10000);
 }
 
-// Attacher l'écouteur de scroll
+// Attacher l'écouteur de scroll et initialiser l'état
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', handleExplorationScroll, { passive: true });
+    
+    // Initialiser l'état du body selon l'état des filtres
+    const container = document.getElementById('explorationContainer');
+    if (container && container.classList.contains('collapsed')) {
+        document.body.classList.add('filters-collapsed');
+        isExplorationCollapsed = true;
+    }
 });
 
 // Exports globaux pour le nouveau système
