@@ -939,21 +939,52 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        -webkit-tap-highlight-color: rgba(212, 165, 116, 0.3) !important;
+        -webkit-tap-highlight-color: transparent !important;
         touch-action: manipulation !important;
         flex-shrink: 0 !important;
-        background: rgba(255,255,255,0.02) !important;
+        background: rgba(40, 40, 40, 0.5) !important;
+        color: var(--text-secondary) !important;
+        border: 1px solid var(--border) !important;
+    }
+    
+    .filter-chip:active {
+        background: rgba(212, 165, 116, 0.3) !important;
+        color: var(--text) !important;
+    }
+    
+    .filter-chip.active {
+        background: var(--accent) !important;
+        border-color: var(--accent) !important;
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
     }
     
     .filter-chip.filter-parent {
         padding: 0.32rem 0.6rem !important;
         font-weight: 500 !important;
-        border-color: rgba(212, 165, 116, 0.3) !important;
+        border-color: rgba(212, 165, 116, 0.4) !important;
+        color: var(--text) !important;
+    }
+    
+    .filter-chip.filter-parent.expanded {
+        background: var(--accent) !important;
+        color: #1a1a1a !important;
+        font-weight: 600 !important;
     }
     
     .filter-chip.filter-child {
         padding: 0.28rem 0.5rem !important;
         font-size: 0.68rem !important;
+        border-style: dashed !important;
+        border-color: rgba(212, 165, 116, 0.4) !important;
+        color: var(--accent) !important;
+        background: rgba(212, 165, 116, 0.08) !important;
+    }
+    
+    .filter-chip.filter-child.active {
+        background: var(--accent) !important;
+        border-style: solid !important;
+        color: #1a1a1a !important;
     }
     
     /* Sous-catégories - fond légèrement différent */
@@ -992,15 +1023,41 @@
         min-height: 32px !important;
     }
     
-    /* Bouton toggle plus visible */
+    /* Bouton toggle - barre horizontale cliquable en bas */
     .exploration-toggle {
-        right: 0.4rem !important;
-        top: 0.35rem !important;
-        width: 24px !important;
-        height: 24px !important;
+        position: relative !important;
+        right: auto !important;
+        top: auto !important;
+        width: 100% !important;
+        height: 28px !important;
+        margin-top: 0.3rem !important;
+        font-size: 0.55rem !important;
+        background: linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.08)) !important;
+        border: none !important;
+        border-top: 1px dotted rgba(212, 165, 116, 0.25) !important;
+        border-radius: 0 !important;
+        color: var(--accent) !important;
+        opacity: 0.7 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.3rem !important;
+    }
+    
+    .exploration-toggle::before {
+        content: "replier" !important;
         font-size: 0.6rem !important;
-        background: rgba(212, 165, 116, 0.1) !important;
-        border: 1px solid rgba(212, 165, 116, 0.3) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+    }
+    
+    .exploration-container.collapsed .exploration-toggle::before {
+        content: "filtres" !important;
+    }
+    
+    .exploration-toggle:active {
+        background: rgba(212, 165, 116, 0.15) !important;
+        opacity: 1 !important;
     }
     
     /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */
