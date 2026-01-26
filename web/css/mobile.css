@@ -866,33 +866,65 @@
     }
     
     .filter-row {
-        padding: 0.25rem 0.75rem !important;
+        padding: 0.4rem 0.75rem !important;
         gap: 0.5rem !important;
+        flex-wrap: wrap !important;
     }
     
     .filter-label {
-        font-size: 0.65rem !important;
-        min-width: 50px !important;
+        font-size: 0.75rem !important;
+        min-width: 70px !important;
+        font-weight: 600 !important;
     }
     
     .filter-chip {
-        padding: 0.25rem 0.5rem !important;
-        font-size: 0.65rem !important;
-        border-radius: 12px !important;
+        padding: 0.5rem 0.85rem !important;
+        font-size: 0.8rem !important;
+        border-radius: 16px !important;
+        min-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        -webkit-tap-highlight-color: rgba(212, 165, 116, 0.3) !important;
+        touch-action: manipulation !important;
     }
     
-    .filter-summary {
-        padding: 0.4rem 0.75rem !important;
+    .filter-chip.filter-parent {
+        padding: 0.55rem 0.9rem !important;
+        font-weight: 600 !important;
+    }
+    
+    .filter-chip.filter-child {
+        padding: 0.45rem 0.75rem !important;
+        font-size: 0.78rem !important;
+    }
+    
+    .filter-subchips {
+        padding: 0.5rem 0.75rem 0.5rem 70px !important;
         gap: 0.5rem !important;
     }
     
+    .filter-summary {
+        padding: 0.5rem 0.75rem !important;
+        gap: 0.6rem !important;
+    }
+    
     .filter-summary-text {
-        font-size: 0.7rem !important;
+        font-size: 0.75rem !important;
     }
     
     .filter-summary-go {
-        padding: 0.3rem 0.75rem !important;
-        font-size: 0.7rem !important;
+        padding: 0.45rem 1rem !important;
+        font-size: 0.8rem !important;
+        min-height: 38px !important;
+    }
+    
+    .filter-summary-clear,
+    .filter-summary-random {
+        padding: 0.4rem !important;
+        font-size: 1.1rem !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
     }
     
     /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */
