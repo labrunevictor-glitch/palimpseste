@@ -780,8 +780,8 @@ async function loadProfileExtraits(userId) {
     container.innerHTML = `
         <div class="profile-extraits-list">
             ${extraits.map(e => `
-                <div class="profile-extrait-card">
-                    <div class="profile-extrait-text">"${esc(e.texte.substring(0, 300))}${e.texte.length > 300 ? '...' : ''}"</div>
+                <div class="profile-extrait-card" onclick="viewExtraitById('${e.id}')" style="cursor:pointer;" title="Cliquer pour voir en entier">
+                    <div class="profile-extrait-text">"${esc(e.texte)}"</div>
                     <div class="profile-extrait-source">
                         <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
                     </div>
@@ -843,8 +843,8 @@ async function loadProfileLikes(userId) {
                 if (!e) return '';
                 const authorName = e.profiles?.username || 'Anonyme';
                 return `
-                    <div class="profile-extrait-card">
-                        <div class="profile-extrait-text">"${esc(e.texte.substring(0, 300))}${e.texte.length > 300 ? '...' : ''}"</div>
+                    <div class="profile-extrait-card" onclick="viewExtraitById('${e.id}')" style="cursor:pointer;" title="Cliquer pour voir en entier">
+                        <div class="profile-extrait-text">"${esc(e.texte)}"</div>
                         <div class="profile-extrait-source">
                             <strong>${esc(e.source_author)}</strong> — ${esc(e.source_title)}
                         </div>
@@ -865,14 +865,21 @@ async function loadProfileLikes(userId) {
 async function loadProfileFollowersList(userId) {
     const container = document.getElementById('profileContentArea');
     
-    const { data } = await supabaseClient
+    // D'abord récupérer les follows
+    const { data: follows, error } = await supabaseClient
         .from('follows')
-        .select('follower_id, created_at, profiles!follows_follower_id_fkey(username)')
+        .select('follower_id, created_at')
         .eq('following_id', userId)
         .order('created_at', { ascending: false })
         .limit(50);
     
-    if (!data || data.length === 0) {
+    if (error) {
+        console.error('Erreur chargement followers:', error);
+        container.innerHTML = `<div class="profile-empty"><div class="profile-empty-text">Erreur de chargement</div></div>`;
+        return;
+    }
+    
+    if (!follows || follows.length === 0) {
         container.innerHTML = `
             <div class="profile-empty">
                 <div class="profile-empty-icon">👥</div>
@@ -882,10 +889,20 @@ async function loadProfileFollowersList(userId) {
         return;
     }
     
+    // Récupérer les profils des followers
+    const followerIds = follows.map(f => f.follower_id);
+    const { data: profiles } = await supabaseClient
+        .from('profiles')
+        .select('id, username')
+        .in('id', followerIds);
+    
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+    
     container.innerHTML = `
         <div class="friends-list">
-            ${data.map(f => {
-                const name = f.profiles?.username || 'Anonyme';
+            ${follows.map(f => {
+                const profile = profileMap.get(f.follower_id);
+                const name = profile?.username || 'Anonyme';
                 return `
                     <div class="friend-item" onclick="openUserProfile('${f.follower_id}', '${esc(name)}')">
                         <div class="friend-avatar">${getAvatarSymbol(name)}</div>
@@ -904,14 +921,21 @@ async function loadProfileFollowersList(userId) {
 async function loadProfileFollowingList(userId) {
     const container = document.getElementById('profileContentArea');
     
-    const { data } = await supabaseClient
+    // D'abord récupérer les follows
+    const { data: follows, error } = await supabaseClient
         .from('follows')
-        .select('following_id, created_at, profiles!follows_following_id_fkey(username)')
+        .select('following_id, created_at')
         .eq('follower_id', userId)
         .order('created_at', { ascending: false })
         .limit(50);
     
-    if (!data || data.length === 0) {
+    if (error) {
+        console.error('Erreur chargement following:', error);
+        container.innerHTML = `<div class="profile-empty"><div class="profile-empty-text">Erreur de chargement</div></div>`;
+        return;
+    }
+    
+    if (!follows || follows.length === 0) {
         container.innerHTML = `
             <div class="profile-empty">
                 <div class="profile-empty-icon">📤</div>
@@ -921,10 +945,20 @@ async function loadProfileFollowingList(userId) {
         return;
     }
     
+    // Récupérer les profils des utilisateurs suivis
+    const followingIds = follows.map(f => f.following_id);
+    const { data: profiles } = await supabaseClient
+        .from('profiles')
+        .select('id, username')
+        .in('id', followingIds);
+    
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+    
     container.innerHTML = `
         <div class="friends-list">
-            ${data.map(f => {
-                const name = f.profiles?.username || 'Anonyme';
+            ${follows.map(f => {
+                const profile = profileMap.get(f.following_id);
+                const name = profile?.username || 'Anonyme';
                 return `
                     <div class="friend-item" onclick="openUserProfile('${f.following_id}', '${esc(name)}')">
                         <div class="friend-avatar">${getAvatarSymbol(name)}</div>
