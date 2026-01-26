@@ -801,7 +801,7 @@ async function loadProfileExtraits(userId) {
                 const avatarSymbol = getAvatarSymbol(username);
                 const timeAgo = formatTimeAgo(new Date(e.created_at));
                 const isLiked = typeof isExtraitLiked === 'function' && isExtraitLiked(e.id);
-                const likeCount = typeof getLikeCount === 'function' ? getLikeCount(e.id) : (e.likes_count || 0);
+                const likeCount = e.likes_count || 0;
                 
                 return `
                 <div class="extrait-card" data-id="${e.id}">
@@ -926,8 +926,8 @@ async function loadProfileLikes(userId) {
                 const username = e.profiles?.username || 'Anonyme';
                 const avatarSymbol = getAvatarSymbol(username);
                 const timeAgo = formatTimeAgo(new Date(e.created_at));
-                const isLiked = typeof isExtraitLiked === 'function' && isExtraitLiked(e.id);
-                const likeCount = typeof getLikeCount === 'function' ? getLikeCount(e.id) : (e.likes_count || 0);
+                const isLiked = true; // Forcément liké puisque c'est dans mes likes
+                const likeCount = e.likes_count || 0;
                 
                 return `
                 <div class="extrait-card" data-id="${e.id}">
