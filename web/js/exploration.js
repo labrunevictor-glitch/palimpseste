@@ -483,13 +483,24 @@ function filterByTerritory(category, value) {
 let lastScrollY = 0;
 let isExplorationCollapsed = false;
 let userManuallyToggled = false;
+let userInteracting = false; // Empêche le collapse pendant l'interaction
+
+/**
+ * Détecte si on est sur mobile
+ */
+function isMobileDevice() {
+    return window.innerWidth <= 768 || ('ontouchstart' in window);
+}
 
 /**
  * Gère la rétraction automatique au scroll
  */
 function handleExplorationScroll() {
     const container = document.getElementById('explorationContainer');
-    if (!container || userManuallyToggled) return;
+    if (!container || userManuallyToggled || userInteracting) return;
+    
+    // Désactiver le collapse auto sur mobile
+    if (isMobileDevice()) return;
     
     const currentScrollY = window.scrollY;
     const scrollThreshold = 100;
@@ -535,9 +546,28 @@ function toggleExplorationCollapse() {
     }, 5000);
 }
 
+/**
+ * Marquer le début d'une interaction utilisateur (empêche le collapse)
+ */
+function startFilterInteraction() {
+    userInteracting = true;
+    // Réinitialiser après 2 secondes d'inactivité
+    clearTimeout(window.filterInteractionTimeout);
+    window.filterInteractionTimeout = setTimeout(() => {
+        userInteracting = false;
+    }, 2000);
+}
+
 // Attacher l'écouteur de scroll
 document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', handleExplorationScroll, { passive: true });
+    
+    // Empêcher le collapse pendant les interactions avec les filtres
+    const explorationContainer = document.getElementById('explorationContainer');
+    if (explorationContainer) {
+        explorationContainer.addEventListener('touchstart', startFilterInteraction, { passive: true });
+        explorationContainer.addEventListener('mousedown', startFilterInteraction, { passive: true });
+    }
 });
 
 // Exports globaux pour le nouveau système
