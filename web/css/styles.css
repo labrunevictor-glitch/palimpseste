@@ -1526,10 +1526,10 @@ padding-top: 60px;
 
 @media (min-width: 901px) {
 main {
-padding-top: 95px !important;
+padding-top: 95px !important; /* Desktop filtres ouverts */
 }
 body.filters-collapsed main {
-padding-top: 10px !important;
+padding-top: 10px !important; /* Desktop filtres fermés */
 }
 }
 
