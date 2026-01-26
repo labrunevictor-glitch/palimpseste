@@ -1821,6 +1821,16 @@ border-color: var(--text-secondary);
 color: var(--text);
 }
 
+/* Séparateur de filtres */
+.filter-separator {
+color: var(--text-secondary);
+opacity: 0.3;
+font-size: 0.9rem;
+margin: 0 0.2rem;
+user-select: none;
+flex-shrink: 0;
+}
+
 /* Résumé des filtres */
 .filter-summary {
 display: flex;
