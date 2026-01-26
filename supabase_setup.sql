@@ -422,6 +422,120 @@ CREATE POLICY "Les utilisateurs peuvent retirer leurs likes de sources"
     USING (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 🔖 Table des Collections (listes personnalisées de favoris)
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS collections (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    emoji TEXT DEFAULT '📚',
+    color TEXT DEFAULT '#5a7a8a',
+    is_public BOOLEAN DEFAULT false,
+    position INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Index pour les performances
+CREATE INDEX IF NOT EXISTS idx_collections_user ON collections(user_id);
+CREATE INDEX IF NOT EXISTS idx_collections_position ON collections(user_id, position);
+CREATE INDEX IF NOT EXISTS idx_collections_public ON collections(is_public) WHERE is_public = true;
+
+-- RLS pour collections
+ALTER TABLE collections ENABLE ROW LEVEL SECURITY;
+
+-- Les utilisateurs voient leurs propres collections + les collections publiques
+CREATE POLICY "Les utilisateurs voient leurs collections et les publiques"
+    ON collections FOR SELECT
+    USING (auth.uid() = user_id OR is_public = true);
+
+CREATE POLICY "Les utilisateurs peuvent créer des collections"
+    ON collections FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent modifier leurs collections"
+    ON collections FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs collections"
+    ON collections FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 🔗 Table de liaison Collection <-> Source/Extrait
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS collection_items (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    collection_id UUID REFERENCES collections(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    -- Un item peut être un extrait partagé OU un like de source locale
+    extrait_id UUID REFERENCES extraits(id) ON DELETE CASCADE,
+    source_like_id UUID REFERENCES source_likes(id) ON DELETE CASCADE,
+    -- Ou directement une référence locale (titre/auteur/url) si pas de source_like
+    local_title TEXT,
+    local_author TEXT,
+    local_url TEXT,
+    local_preview TEXT,
+    note TEXT, -- Note personnelle sur cet item
+    position INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    -- Un item par collection (soit extrait, soit source_like, soit local)
+    CONSTRAINT unique_extrait_in_collection UNIQUE(collection_id, extrait_id),
+    CONSTRAINT unique_source_in_collection UNIQUE(collection_id, source_like_id),
+    CONSTRAINT unique_local_in_collection UNIQUE(collection_id, local_url)
+);
+
+-- Index pour les performances
+CREATE INDEX IF NOT EXISTS idx_collection_items_collection ON collection_items(collection_id);
+CREATE INDEX IF NOT EXISTS idx_collection_items_user ON collection_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_collection_items_position ON collection_items(collection_id, position);
+
+-- RLS pour collection_items
+ALTER TABLE collection_items ENABLE ROW LEVEL SECURITY;
+
+-- Les utilisateurs voient les items de leurs collections et des collections publiques
+CREATE POLICY "Les utilisateurs voient les items de leurs collections"
+    ON collection_items FOR SELECT
+    USING (
+        auth.uid() = user_id 
+        OR collection_id IN (SELECT id FROM collections WHERE is_public = true)
+    );
+
+CREATE POLICY "Les utilisateurs peuvent ajouter des items à leurs collections"
+    ON collection_items FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent modifier leurs items"
+    ON collection_items FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs items"
+    ON collection_items FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Ajouter compteur d'items dans collections
+ALTER TABLE collections ADD COLUMN IF NOT EXISTS items_count INTEGER DEFAULT 0;
+
+-- Fonction pour incrémenter le compteur d'items
+CREATE OR REPLACE FUNCTION increment_collection_items(p_collection_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE collections SET items_count = items_count + 1, updated_at = NOW() WHERE id = p_collection_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Fonction pour décrémenter le compteur d'items
+CREATE OR REPLACE FUNCTION decrement_collection_items(p_collection_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE collections SET items_count = GREATEST(0, items_count - 1), updated_at = NOW() WHERE id = p_collection_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- ✅ Terminé ! 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 

@@ -169,6 +169,9 @@
             <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();" id="drawerFavBtn">
                 <i data-lucide="heart" class="drawer-icon"></i> Mes likés
             </button>
+            <button class="drawer-action-btn" onclick="openCollectionsView(); closeMobileDrawer();" id="drawerCollectionsBtn">
+                <i data-lucide="folder-heart" class="drawer-icon"></i> Collections
+            </button>
             <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
                 <i data-lucide="users" class="drawer-icon"></i> Social
             </button>
@@ -345,6 +348,9 @@
                 <button class="header-btn btn-icon favorites-btn" onclick="openFavoritesView()" title="Mes likés">
                     <i data-lucide="heart" class="header-icon"></i>
                     <span class="btn-badge" id="favCount">0</span>
+                </button>
+                <button class="header-btn btn-icon collections-btn" onclick="openCollectionsView()" title="Mes collections">
+                    <i data-lucide="folder-heart" class="header-icon"></i>
                 </button>
                 <button class="header-btn btn-icon" onclick="openSocialFeed()" title="Communauté"><i data-lucide="users" class="header-icon"></i></button>
                 <button class="header-btn btn-icon" onclick="openMessaging()" title="Messages">
@@ -850,6 +856,7 @@
     <script src="js/search.js"></script>
     <script src="js/exploration.js"></script>
     <script src="js/gamification.js"></script>
+    <script src="js/collections.js"></script>
     <script src="js/sources.js"></script>
     <script src="js/app.js"></script>
     <script>lucide.createIcons();</script>

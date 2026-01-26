@@ -81,6 +81,92 @@ const ALT_SOURCES = {
             { id: 2229, title: 'The Sorrows of Young Werther', author: 'Johann Wolfgang von Goethe', lang: 'de' },
             { id: 7849, title: 'Faust', author: 'Johann Wolfgang von Goethe', lang: 'de' }
         ]
+    },
+    // ═══════════════════════════════════════════════════════════
+    // 📚 BIBLIOTHÈQUE NATIONALE DE FRANCE - Gallica
+    // ═══════════════════════════════════════════════════════════
+    gallica: {
+        name: 'Gallica (BNF)',
+        url: 'https://gallica.bnf.fr',
+        lang: 'fr',
+        // Œuvres classiques disponibles via l'API Gallica
+        collections: [
+            { query: 'Baudelaire Fleurs du mal', author: 'Charles Baudelaire' },
+            { query: 'Rimbaud Illuminations', author: 'Arthur Rimbaud' },
+            { query: 'Verlaine Fêtes galantes', author: 'Paul Verlaine' },
+            { query: 'Victor Hugo Contemplations', author: 'Victor Hugo' },
+            { query: 'Mallarmé poésies', author: 'Stéphane Mallarmé' },
+            { query: 'Nerval Chimères', author: 'Gérard de Nerval' },
+            { query: 'Lamartine Méditations', author: 'Alphonse de Lamartine' },
+            { query: 'Musset Nuits', author: 'Alfred de Musset' },
+            { query: 'Chateaubriand René', author: 'François-René de Chateaubriand' },
+            { query: 'Montaigne Essais', author: 'Michel de Montaigne' },
+            { query: 'La Rochefoucauld Maximes', author: 'François de La Rochefoucauld' },
+            { query: 'Pascal Pensées', author: 'Blaise Pascal' }
+        ]
+    },
+    // ═══════════════════════════════════════════════════════════
+    // 📖 ARCHIVE.ORG - Internet Archive
+    // ═══════════════════════════════════════════════════════════
+    archiveorg: {
+        name: 'Archive.org',
+        url: 'https://archive.org',
+        // Identifiants de livres classiques sur Archive.org
+        works: [
+            // Français
+            { id: 'lesmisrables00hugogoog', title: 'Les Misérables', author: 'Victor Hugo', lang: 'fr' },
+            { id: 'lesfleursdumal00baud', title: 'Les Fleurs du mal', author: 'Charles Baudelaire', lang: 'fr' },
+            { id: 'germinalleszougoog', title: 'Germinal', author: 'Émile Zola', lang: 'fr' },
+            { id: 'madamebovary00flau', title: 'Madame Bovary', author: 'Gustave Flaubert', lang: 'fr' },
+            { id: 'lecomtedemontec01duma', title: 'Le Comte de Monte-Cristo', author: 'Alexandre Dumas', lang: 'fr' },
+            { id: 'lespenseesdepas00pasc', title: 'Pensées', author: 'Blaise Pascal', lang: 'fr' },
+            { id: 'lesessaisdemon01mont', title: 'Essais', author: 'Michel de Montaigne', lang: 'fr' },
+            // Anglais
+            { id: 'completeworksof00shakuoft', title: 'Complete Works', author: 'William Shakespeare', lang: 'en' },
+            { id: 'prideandprejudi00aust', title: 'Pride and Prejudice', author: 'Jane Austen', lang: 'en' },
+            { id: 'janeeyre00bron', title: 'Jane Eyre', author: 'Charlotte Brontë', lang: 'en' },
+            { id: 'wutheringheight00bron', title: 'Wuthering Heights', author: 'Emily Brontë', lang: 'en' },
+            { id: 'greatexpectatio00dick', title: 'Great Expectations', author: 'Charles Dickens', lang: 'en' }
+        ]
+    },
+    // ═══════════════════════════════════════════════════════════
+    // 📱 FEEDBOOKS - Livres libres de droits
+    // ═══════════════════════════════════════════════════════════
+    feedbooks: {
+        name: 'Feedbooks',
+        url: 'https://www.feedbooks.com',
+        // Livres gratuits du domaine public
+        works: [
+            // Français - Classiques
+            { id: 28, title: 'Le Père Goriot', author: 'Honoré de Balzac', lang: 'fr' },
+            { id: 27, title: 'Eugénie Grandet', author: 'Honoré de Balzac', lang: 'fr' },
+            { id: 58, title: 'Bel-Ami', author: 'Guy de Maupassant', lang: 'fr' },
+            { id: 59, title: 'Une Vie', author: 'Guy de Maupassant', lang: 'fr' },
+            { id: 38, title: 'Candide', author: 'Voltaire', lang: 'fr' },
+            { id: 39, title: 'Zadig', author: 'Voltaire', lang: 'fr' },
+            { id: 40, title: 'Micromégas', author: 'Voltaire', lang: 'fr' },
+            { id: 143, title: 'Les Liaisons dangereuses', author: 'Pierre Choderlos de Laclos', lang: 'fr' },
+            { id: 49, title: 'La Princesse de Clèves', author: 'Madame de La Fayette', lang: 'fr' },
+            { id: 88, title: 'Paul et Virginie', author: 'Bernardin de Saint-Pierre', lang: 'fr' },
+            { id: 50, title: 'Manon Lescaut', author: 'Abbé Prévost', lang: 'fr' },
+            { id: 2612, title: 'Le Horla', author: 'Guy de Maupassant', lang: 'fr' },
+            { id: 7016, title: 'Boule de Suif', author: 'Guy de Maupassant', lang: 'fr' },
+            // Poésie française
+            { id: 282, title: 'Les Fleurs du mal', author: 'Charles Baudelaire', lang: 'fr' },
+            { id: 5618, title: 'Romances sans paroles', author: 'Paul Verlaine', lang: 'fr' },
+            { id: 5619, title: 'Sagesse', author: 'Paul Verlaine', lang: 'fr' },
+            { id: 5664, title: 'Une Saison en enfer', author: 'Arthur Rimbaud', lang: 'fr' },
+            { id: 5663, title: 'Illuminations', author: 'Arthur Rimbaud', lang: 'fr' },
+            // Anglais
+            { id: 61, title: 'Frankenstein', author: 'Mary Shelley', lang: 'en' },
+            { id: 62, title: 'Dracula', author: 'Bram Stoker', lang: 'en' },
+            { id: 5, title: 'The Picture of Dorian Gray', author: 'Oscar Wilde', lang: 'en' },
+            { id: 2546, title: 'The Importance of Being Earnest', author: 'Oscar Wilde', lang: 'en' },
+            { id: 23, title: 'A Study in Scarlet', author: 'Arthur Conan Doyle', lang: 'en' },
+            { id: 24, title: 'The Sign of the Four', author: 'Arthur Conan Doyle', lang: 'en' },
+            { id: 8, title: 'The Strange Case of Dr Jekyll and Mr Hyde', author: 'Robert Louis Stevenson', lang: 'en' },
+            { id: 254, title: 'A Christmas Carol', author: 'Charles Dickens', lang: 'en' }
+        ]
     }
 };
 
@@ -739,6 +825,172 @@ async function fetchPoetryDB() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// 📚 GALLICA (BNF) - Bibliothèque Nationale de France
+// ═══════════════════════════════════════════════════════════
+async function fetchGallica() {
+    if (selectedLang !== 'all' && selectedLang !== 'fr') return [];
+    
+    const collections = ALT_SOURCES.gallica.collections;
+    const collection = collections[Math.floor(Math.random() * collections.length)];
+    const cacheKey = `gallica:${collection.query}`;
+    
+    // Éviter les doublons
+    if (state.shownPages.has(cacheKey)) return [];
+    
+    try {
+        // Recherche via l'API SRU de Gallica (documents textuels)
+        const searchUrl = `https://gallica.bnf.fr/SRU?operation=searchRetrieve&version=1.2&query=dc.title%20all%20"${encodeURIComponent(collection.query)}"&maximumRecords=10&startRecord=1`;
+        
+        const res = await fetch(searchUrl);
+        const xmlText = await res.text();
+        
+        // Parser le XML pour extraire les identifiants ARK
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, 'text/xml');
+        const records = xml.querySelectorAll('record');
+        
+        const results = [];
+        for (const record of records) {
+            const identifier = record.querySelector('identifier')?.textContent;
+            const title = record.querySelector('title')?.textContent || collection.query;
+            
+            if (identifier && identifier.includes('ark:')) {
+                const arkId = identifier.match(/ark:\/\d+\/\w+/)?.[0];
+                if (arkId) {
+                    results.push({
+                        title: title.split('/')[0].trim(),
+                        author: collection.author,
+                        arkId: arkId,
+                        source: 'gallica',
+                        lang: 'fr',
+                        sourceUrl: `https://gallica.bnf.fr/${arkId}`
+                    });
+                }
+            }
+        }
+        
+        // Retourner un résultat aléatoire avec un extrait simulé
+        if (results.length > 0) {
+            const item = results[Math.floor(Math.random() * results.length)];
+            return [{
+                title: item.title,
+                author: item.author,
+                text: `[Extrait de "${item.title}" disponible sur Gallica]\n\nConsultez l'œuvre complète sur gallica.bnf.fr`,
+                source: 'gallica',
+                sourceUrl: item.sourceUrl,
+                lang: 'fr',
+                isPreloaded: true
+            }];
+        }
+    } catch (e) {
+        console.error('Gallica error:', e);
+    }
+    return [];
+}
+
+// ═══════════════════════════════════════════════════════════
+// 📖 ARCHIVE.ORG - Internet Archive (textes complets)
+// ═══════════════════════════════════════════════════════════
+async function fetchArchiveOrg() {
+    const works = ALT_SOURCES.archiveorg.works;
+    // Filtrer par langue si nécessaire
+    const filtered = selectedLang === 'all' 
+        ? works 
+        : works.filter(w => w.lang === selectedLang);
+    
+    if (filtered.length === 0) return [];
+    
+    // Choisir une œuvre au hasard
+    const work = filtered[Math.floor(Math.random() * filtered.length)];
+    const cacheKey = `archiveorg:${work.id}`;
+    
+    // Éviter les doublons
+    if (state.shownPages.has(cacheKey)) return [];
+    
+    try {
+        // Utiliser l'API metadata pour obtenir des infos
+        const metaRes = await fetch(`https://archive.org/metadata/${work.id}`);
+        const metadata = await metaRes.json();
+        
+        // Chercher un fichier texte dans les fichiers disponibles
+        const textFile = metadata.files?.find(f => 
+            f.name.endsWith('.txt') && !f.name.includes('_djvu')
+        );
+        
+        if (textFile) {
+            const textUrl = `https://archive.org/download/${work.id}/${textFile.name}`;
+            const textRes = await fetch(textUrl);
+            let text = await textRes.text();
+            
+            // Nettoyer et extraire un passage
+            const paragraphs = text.split(/\n\n+/).filter(p => 
+                p.trim().length > 100 && 
+                !p.includes('Internet Archive') &&
+                !p.includes('Digitized by')
+            );
+            
+            if (paragraphs.length > 10) {
+                const startIdx = Math.floor(Math.random() * Math.max(1, paragraphs.length - 8)) + 5;
+                const excerpt = paragraphs.slice(startIdx, startIdx + 4).join('\n\n');
+                
+                return [{
+                    title: work.title,
+                    text: excerpt.trim(),
+                    author: work.author,
+                    source: 'archiveorg',
+                    sourceUrl: `https://archive.org/details/${work.id}`,
+                    lang: work.lang,
+                    archiveId: work.id
+                }];
+            }
+        }
+    } catch (e) {
+        console.error('Archive.org error:', work.title, e);
+    }
+    return [];
+}
+
+// ═══════════════════════════════════════════════════════════
+// 📱 FEEDBOOKS - Livres du domaine public (OPDS)
+// ═══════════════════════════════════════════════════════════
+async function fetchFeedbooks() {
+    const works = ALT_SOURCES.feedbooks.works;
+    // Filtrer par langue si nécessaire
+    const filtered = selectedLang === 'all' 
+        ? works 
+        : works.filter(w => w.lang === selectedLang);
+    
+    if (filtered.length === 0) return [];
+    
+    // Choisir une œuvre au hasard
+    const work = filtered[Math.floor(Math.random() * filtered.length)];
+    const cacheKey = `feedbooks:${work.id}`;
+    
+    // Éviter les doublons
+    if (state.shownPages.has(cacheKey)) return [];
+    
+    try {
+        // L'API OPDS de Feedbooks permet de récupérer les métadonnées
+        // Note: L'accès direct au texte nécessite de télécharger l'EPUB
+        // On retourne les métadonnées avec un lien vers la source
+        
+        return [{
+            title: work.title,
+            author: work.author,
+            text: `[Œuvre complète disponible sur Feedbooks]\n\n"${work.title}" de ${work.author}\n\nCe texte du domaine public est disponible gratuitement en téléchargement.`,
+            source: 'feedbooks',
+            sourceUrl: `https://www.feedbooks.com/book/${work.id}`,
+            lang: work.lang,
+            feedbooksId: work.id,
+            isPreloaded: true
+        }];
+    } catch (e) {
+        console.error('Feedbooks error:', work.title, e);
+    }
+    return [];
+}
+
+// ═══════════════════════════════════════════════════════════
 // 🌍 ALIMENTER LE POOL - Littérature mondiale
 // ═══════════════════════════════════════════════════════════
 async function fillPool() {
@@ -775,6 +1027,34 @@ async function fillPool() {
         }
     } catch (e) {
         console.error('Gutenberg fillPool error:', e);
+    }
+    
+    // === 1.6 ARCHIVE.ORG - Internet Archive ===
+    try {
+        const archiveTexts = await fetchArchiveOrg();
+        for (const item of archiveTexts) {
+            state.textPool.unshift({
+                ...item,
+                isPreloaded: true
+            });
+        }
+    } catch (e) {
+        console.error('Archive.org fillPool error:', e);
+    }
+    
+    // === 1.7 FEEDBOOKS - Domaine public (français) ===
+    if (selectedLang === 'all' || selectedLang === 'fr') {
+        try {
+            const feedbooksTexts = await fetchFeedbooks();
+            for (const item of feedbooksTexts) {
+                state.textPool.unshift({
+                    ...item,
+                    isPreloaded: true
+                });
+            }
+        } catch (e) {
+            console.error('Feedbooks fillPool error:', e);
+        }
     }
     
     // === 2. WIKISOURCE (sources traditionnelles) ===
@@ -1154,6 +1434,9 @@ window.isValidTitle = isValidTitle;
 window.analyzeContentQuality = analyzeContentQuality;
 window.fetchGutenberg = fetchGutenberg;
 window.fetchPoetryDB = fetchPoetryDB;
+window.fetchGallica = fetchGallica;
+window.fetchArchiveOrg = fetchArchiveOrg;
+window.fetchFeedbooks = fetchFeedbooks;
 window.fillPool = fillPool;
 window.exploreCategory = exploreCategory;
 window.renderEnrichedBranches = renderEnrichedBranches;
