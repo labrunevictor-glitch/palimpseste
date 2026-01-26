@@ -653,11 +653,11 @@ async function viewExtraitById(extraitId) {
 /**
  * Ouvrir le profil d'un utilisateur
  */
-async function openUserProfile(userId, username) {
+async function openUserProfile(userId, username, defaultTab = 'extraits') {
     if (!supabaseClient) return;
     
     currentProfileUserId = userId;
-    currentProfileTab = 'extraits';
+    currentProfileTab = defaultTab;
     
     // Charger les infos du profil
     const { data: profile } = await supabaseClient
@@ -705,15 +705,21 @@ async function openUserProfile(userId, username) {
         messageBtn.style.display = 'none';
     }
     
-    // Reset tabs
+    // Reset tabs et charger le bon onglet
     document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tabProfileExtraits').classList.add('active');
-    
-    // Charger le contenu initial (extraits)
-    await loadProfileExtraits(userId);
+    const tabMap = {
+        'extraits': 'tabProfileExtraits',
+        'likes': 'tabProfileLikes',
+        'followers': 'tabProfileFollowers',
+        'following': 'tabProfileFollowing'
+    };
+    document.getElementById(tabMap[defaultTab])?.classList.add('active');
     
     // Ouvrir la modal
     document.getElementById('userProfileModal').classList.add('open');
+    
+    // Charger le contenu de l'onglet
+    await switchProfileTab(defaultTab);
 }
 
 /**

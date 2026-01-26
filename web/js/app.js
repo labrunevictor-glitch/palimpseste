@@ -137,9 +137,8 @@ async function loadUserStats() {
  */
 function showMyFollowers() {
     if (!currentUser) return;
-    // Ouvrir mon propre profil sur l'onglet abonnés
-    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi');
-    setTimeout(() => switchProfileTab('followers'), 300);
+    // Ouvrir mon propre profil directement sur l'onglet abonnés
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi', 'followers');
 }
 
 /**
@@ -147,9 +146,8 @@ function showMyFollowers() {
  */
 function showMyFollowing() {
     if (!currentUser) return;
-    // Ouvrir mon propre profil sur l'onglet abonnements
-    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi');
-    setTimeout(() => switchProfileTab('following'), 300);
+    // Ouvrir mon propre profil directement sur l'onglet abonnements
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi', 'following');
 }
 
 // Exposer les fonctions
