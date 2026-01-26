@@ -74,9 +74,9 @@ async function loadTrendingFeed() {
             const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
             
             return `
-                <div class="trending-card" data-extrait-id="${extrait.id}">
+                <div class="trending-card" data-extrait-id="${extrait.id}" onclick="openTrendingExtrait('${extrait.id}')" style="cursor: pointer;">
                     <div class="trending-card-header">
-                        <div class="trending-card-author" onclick="openUserProfile('${extrait.user_id}')">
+                        <div class="trending-card-author" onclick="event.stopPropagation(); openUserProfile('${extrait.user_id}')">
                             <div class="trending-avatar">${avatar.startsWith('http') ? `<img src="${avatar}" style="width:100%;height:100%;border-radius:50%;">` : avatar}</div>
                             <div>
                                 <div class="trending-username">${escapeHtml(username)}</div>
@@ -106,10 +106,10 @@ async function loadTrendingFeed() {
                             </div>
                         </div>
                         <div class="trending-actions">
-                            <button class="trending-action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLikeTrending('${extrait.id}', this)">
+                            <button class="trending-action-btn ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLikeTrending('${extrait.id}', this)">
                                 ${isLiked ? '❤️' : '🤍'} Like
                             </button>
-                            <button class="trending-action-btn" onclick="viewTrendingComments('${extrait.id}')">
+                            <button class="trending-action-btn" onclick="event.stopPropagation(); viewTrendingComments('${extrait.id}')">
                                 💬 Commenter
                             </button>
                         </div>
@@ -232,8 +232,40 @@ function viewTrendingComments(extraitId) {
     }, 500);
 }
 
+/**
+ * Ouvre un extrait depuis les tendances - navigue vers le feed social et affiche l'extrait
+ */
+function openTrendingExtrait(extraitId) {
+    // Fermer le trending
+    closeTrendingFeed();
+    
+    // Ouvrir le feed social si la fonction existe
+    if (typeof openSocialFeed === 'function') {
+        openSocialFeed();
+    }
+    
+    // Attendre que le feed soit chargé puis scroller vers l'extrait
+    setTimeout(() => {
+        const card = document.querySelector(`[data-extrait-id="${extraitId}"]`);
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Ajouter un effet de highlight temporaire
+            card.style.boxShadow = '0 0 20px var(--accent)';
+            setTimeout(() => {
+                card.style.boxShadow = '';
+            }, 2000);
+        } else {
+            // Si l'extrait n'est pas dans le feed actuel, afficher un message
+            if (typeof toast === 'function') {
+                toast('📜 Extrait trouvé ! Chargement en cours...');
+            }
+        }
+    }, 600);
+}
+
 // Rendre les fonctions accessibles globalement
 window.openTrendingFeed = openTrendingFeed;
 window.closeTrendingFeed = closeTrendingFeed;
 window.toggleLikeTrending = toggleLikeTrending;
 window.viewTrendingComments = viewTrendingComments;
+window.openTrendingExtrait = openTrendingExtrait;

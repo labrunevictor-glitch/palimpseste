@@ -879,14 +879,14 @@
         border-bottom: none !important;
     }
     
-    /* État rétracté sur mobile - une seule ligne */
+    /* État rétracté sur mobile - tout caché sauf le bouton */
     .exploration-container.collapsed {
-        max-height: 48px !important;
+        max-height: 42px !important;
         overflow-y: hidden !important;
-        padding: 0.3rem 0 !important;
+        padding: 0 !important;
     }
     
-    .exploration-container.collapsed .filter-row:not(:first-child) {
+    .exploration-container.collapsed .filter-row {
         display: none !important;
     }
     

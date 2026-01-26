@@ -887,8 +887,9 @@ width: 260px;
 background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg) 100%);
 border-right: 2px solid var(--border);
 padding: 1.5rem 1.25rem;
+padding-top: 0.75rem;
 overflow-y: auto;
-z-index: 50;
+z-index: 101;
 display: flex;
 flex-direction: column;
 gap: 1.5rem;
@@ -1281,6 +1282,7 @@ background: var(--bg-header);
 backdrop-filter: blur(12px);
 -webkit-backdrop-filter: blur(12px);
 border-bottom: 2px solid var(--border);
+border-left: none;
 /* Pixel shadow */
 box-shadow: 0 4px 0 var(--pixel-shadow);
 overflow: visible;
@@ -1767,20 +1769,20 @@ overflow: hidden;
 
 /* État rétracté au scroll */
 .exploration-container.collapsed {
-max-height: 40px;
+max-height: 42px;
 opacity: 0.95;
-padding: 0.25rem 0;
+padding: 0;
 }
 
 .exploration-container.collapsed .filter-row {
-display: none;
-}
-
-.exploration-container.collapsed .filter-row:first-child {
-display: flex;
+display: none !important;
 }
 
 .exploration-container.collapsed .filter-subchips {
+display: none !important;
+}
+
+.exploration-container.collapsed .filter-summary {
 display: none !important;
 }
 
