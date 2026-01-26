@@ -1524,13 +1524,14 @@ body.filters-collapsed main {
 padding-top: 60px;
 }
 
+/* Desktop padding adaptatif v2 - 26/01/2026 */
 @media (min-width: 901px) {
-main {
-padding-top: 95px !important; /* Desktop filtres ouverts */
-}
-body.filters-collapsed main {
-padding-top: 10px !important; /* Desktop filtres fermés */
-}
+    main {
+        padding-top: 95px !important;
+    }
+    body.filters-collapsed main {
+        padding-top: 10px !important;
+    }
 }
 
 @media (max-width: 1100px) {
@@ -6840,5 +6841,6 @@ transition: all 0.2s;
     font-size: 0.65rem;
     color: var(--muted);
     margin-top: 0.15rem;
-}/ *   r e b u i l d   * /  
+}/ *   r e b u i l d   * / 
+ 
  
