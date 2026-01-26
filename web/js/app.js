@@ -113,12 +113,48 @@ async function loadUserStats() {
     const mobileExtraits = document.getElementById('mobileProfileExtraits');
     if (mobileExtraits) mobileExtraits.textContent = extraitCount || 0;
     
-    // Aussi afficher le nombre d'abonnés
+    // Compter les abonnés (personnes qui me suivent)
     const { count: followersCount } = await supabaseClient
         .from('follows')
         .select('*', { count: 'exact', head: true })
         .eq('following_id', currentUser.id);
+    
+    const myFollowersEl = document.getElementById('myFollowersCount');
+    if (myFollowersEl) myFollowersEl.textContent = followersCount || 0;
+    
+    // Compter les abonnements (personnes que je suis)
+    const { count: followingCount } = await supabaseClient
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', currentUser.id);
+    
+    const myFollowingEl = document.getElementById('myFollowingCount');
+    if (myFollowingEl) myFollowingEl.textContent = followingCount || 0;
 }
+
+/**
+ * Ouvrir la liste de mes abonnés
+ */
+function showMyFollowers() {
+    if (!currentUser) return;
+    // Ouvrir mon propre profil sur l'onglet abonnés
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi');
+    setTimeout(() => switchProfileTab('followers'), 300);
+}
+
+/**
+ * Ouvrir la liste de mes abonnements
+ */
+function showMyFollowing() {
+    if (!currentUser) return;
+    // Ouvrir mon propre profil sur l'onglet abonnements
+    openUserProfile(currentUser.id, currentUser.user_metadata?.username || 'Moi');
+    setTimeout(() => switchProfileTab('following'), 300);
+}
+
+// Exposer les fonctions
+window.showMyFollowers = showMyFollowers;
+window.showMyFollowing = showMyFollowing;
 
 // Helpers formatTimeAgo et escapeHtml sont dans utils.js
 

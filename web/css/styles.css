@@ -6646,8 +6646,8 @@ transition: all 0.2s;
 /* Stats row */
 .profile-stats-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
     margin-bottom: 0.75rem;
 }
 
@@ -6655,12 +6655,13 @@ transition: all 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.25rem;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 0;
 }
 
 .profile-stat-btn:hover {
@@ -6669,15 +6670,19 @@ transition: all 0.2s;
 }
 
 .profile-stat-btn .stat-number {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--accent);
 }
 
 .profile-stat-btn .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--muted);
-    margin-top: 0.2rem;
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* Bouton déconnexion */
