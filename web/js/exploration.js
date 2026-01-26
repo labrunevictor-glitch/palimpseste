@@ -188,6 +188,47 @@ function toggleFilter(category, value) {
 }
 
 /**
+ * État des groupes ouverts
+ */
+const openGroups = {
+    forme: null,
+    epoque: null,
+    ton: null,
+    pensee: null
+};
+
+/**
+ * Toggle l'ouverture/fermeture d'un groupe de filtres
+ * @param {string} category - La catégorie (forme, epoque, ton, pensee)
+ * @param {string} group - Le groupe à ouvrir/fermer
+ */
+function toggleFilterGroup(category, group) {
+    const subchipsId = `subchips-${category}-${group}`;
+    const subchips = document.getElementById(subchipsId);
+    const parentBtn = document.querySelector(`.filter-parent[data-filter="${category}"][data-group="${group}"]`);
+    
+    // Si ce groupe est déjà ouvert, le fermer
+    if (openGroups[category] === group) {
+        subchips.style.display = 'none';
+        parentBtn.classList.remove('expanded');
+        openGroups[category] = null;
+    } else {
+        // Fermer l'ancien groupe ouvert de cette catégorie
+        if (openGroups[category]) {
+            const oldSubchips = document.getElementById(`subchips-${category}-${openGroups[category]}`);
+            const oldParent = document.querySelector(`.filter-parent[data-filter="${category}"][data-group="${openGroups[category]}"]`);
+            if (oldSubchips) oldSubchips.style.display = 'none';
+            if (oldParent) oldParent.classList.remove('expanded');
+        }
+        
+        // Ouvrir le nouveau groupe
+        subchips.style.display = 'flex';
+        parentBtn.classList.add('expanded');
+        openGroups[category] = group;
+    }
+}
+
+/**
  * Met à jour l'affichage des chips de filtres
  */
 function updateFilterUI() {
@@ -195,8 +236,10 @@ function updateFilterUI() {
         const chips = document.querySelectorAll(`.filter-chip[data-filter="${category}"]`);
         chips.forEach(chip => {
             const value = chip.dataset.value;
-            const isActive = activeFilters[category] && activeFilters[category].includes(value);
-            chip.classList.toggle('active', isActive);
+            if (value) { // Seulement les chips avec data-value (pas les parents)
+                const isActive = activeFilters[category] && activeFilters[category].includes(value);
+                chip.classList.toggle('active', isActive);
+            }
         });
     });
 }
@@ -435,6 +478,7 @@ function filterByTerritory(category, value) {
 
 // Exports globaux pour le nouveau système
 window.toggleFilter = toggleFilter;
+window.toggleFilterGroup = toggleFilterGroup;
 window.clearAllFilters = clearAllFilters;
 window.randomizeFilters = randomizeFilters;
 window.applyFilters = applyFilters;

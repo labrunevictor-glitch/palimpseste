@@ -1831,6 +1831,66 @@ user-select: none;
 flex-shrink: 0;
 }
 
+/* Catégories parentes (dépliables) */
+.filter-chip.filter-parent {
+background: rgba(212, 165, 116, 0.1);
+border-color: var(--accent);
+color: var(--accent);
+font-weight: 500;
+}
+
+.filter-chip.filter-parent:hover {
+background: rgba(212, 165, 116, 0.2);
+}
+
+.filter-chip.filter-parent.expanded {
+background: var(--accent);
+color: white;
+}
+
+/* Conteneur des sous-catégories */
+.filter-subchips {
+display: flex;
+gap: 0.4rem;
+padding: 0.4rem 0 0.4rem 70px;
+overflow-x: auto;
+scrollbar-width: none;
+-ms-overflow-style: none;
+animation: slideDown 0.2s ease-out;
+flex-wrap: wrap;
+}
+.filter-subchips::-webkit-scrollbar { display: none; }
+
+@keyframes slideDown {
+from {
+opacity: 0;
+transform: translateY(-5px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+
+/* Sous-catégories (enfants) */
+.filter-chip.filter-child {
+background: rgba(255,255,255,0.03);
+border-style: dashed;
+font-size: 0.7rem;
+padding: 0.25rem 0.6rem;
+}
+
+.filter-chip.filter-child:hover {
+border-style: solid;
+}
+
+.filter-chip.filter-child.active {
+background: var(--accent);
+border-style: solid;
+border-color: var(--accent);
+color: white;
+}
+
 /* Résumé des filtres */
 .filter-summary {
 display: flex;

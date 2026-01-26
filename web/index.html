@@ -365,130 +365,172 @@
     </div>
     
     <!-- ═══════════════════════════════════════════════════════════════════════
-         BARRE D'EXPLORATION - Kaléidoscope (3 dimensions croisées)
+         BARRE D'EXPLORATION - Kaléidoscope (filtres hiérarchiques)
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="exploration-container" id="explorationContainer">
-        <!-- Ligne 1: Forme / Type de texte -->
+        <!-- Ligne 1: Forme / Type de texte (hiérarchique) -->
         <div class="filter-row" id="filterRowForme">
             <span class="filter-label">📜 Forme</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="forme" data-value="all" onclick="toggleFilter('forme', 'all')">∞ tout</button>
+                <!-- Catégories parentes -->
+                <button class="filter-chip filter-parent" data-filter="forme" data-group="poesie" onclick="toggleFilterGroup('forme', 'poesie')">Poésie ▾</button>
+                <button class="filter-chip filter-parent" data-filter="forme" data-group="recit" onclick="toggleFilterGroup('forme', 'recit')">Récit ▾</button>
+                <button class="filter-chip filter-parent" data-filter="forme" data-group="theatre" onclick="toggleFilterGroup('forme', 'theatre')">Théâtre ▾</button>
+                <button class="filter-chip filter-parent" data-filter="forme" data-group="idees" onclick="toggleFilterGroup('forme', 'idees')">Prose d'idées ▾</button>
+            </div>
+            <!-- Sous-catégories (cachées par défaut) -->
+            <div class="filter-subchips" id="subchips-forme-poesie" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="sonnet" onclick="toggleFilter('forme', 'sonnet')">sonnet</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="ode" onclick="toggleFilter('forme', 'ode')">ode</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="elegie" onclick="toggleFilter('forme', 'elegie')">élégie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="ballade" onclick="toggleFilter('forme', 'ballade')">ballade</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="hymne" onclick="toggleFilter('forme', 'hymne')">hymne</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="poeme-prose" onclick="toggleFilter('forme', 'poeme-prose')">poème en prose</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-recit" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="conte" onclick="toggleFilter('forme', 'conte')">conte</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="fable" onclick="toggleFilter('forme', 'fable')">fable</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="legende" onclick="toggleFilter('forme', 'legende')">légende</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="mythe" onclick="toggleFilter('forme', 'mythe')">mythe</button>
                 <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="forme" data-value="sonnet" onclick="toggleFilter('forme', 'sonnet')">sonnet</button>
-                <button class="filter-chip" data-filter="forme" data-value="ode" onclick="toggleFilter('forme', 'ode')">ode</button>
-                <button class="filter-chip" data-filter="forme" data-value="elegie" onclick="toggleFilter('forme', 'elegie')">élégie</button>
-                <button class="filter-chip" data-filter="forme" data-value="ballade" onclick="toggleFilter('forme', 'ballade')">ballade</button>
-                <button class="filter-chip" data-filter="forme" data-value="hymne" onclick="toggleFilter('forme', 'hymne')">hymne</button>
-                <button class="filter-chip" data-filter="forme" data-value="poeme-prose" onclick="toggleFilter('forme', 'poeme-prose')">poème en prose</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="roman" onclick="toggleFilter('forme', 'roman')">roman</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="nouvelle" onclick="toggleFilter('forme', 'nouvelle')">nouvelle</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-theatre" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="tragedie" onclick="toggleFilter('forme', 'tragedie')">tragédie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="comedie" onclick="toggleFilter('forme', 'comedie')">comédie</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="drame" onclick="toggleFilter('forme', 'drame')">drame</button>
+            </div>
+            <div class="filter-subchips" id="subchips-forme-idees" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="forme" data-value="essai" onclick="toggleFilter('forme', 'essai')">essai</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="maxime" onclick="toggleFilter('forme', 'maxime')">maxime</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="aphorisme" onclick="toggleFilter('forme', 'aphorisme')">aphorisme</button>
                 <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="forme" data-value="conte" onclick="toggleFilter('forme', 'conte')">conte</button>
-                <button class="filter-chip" data-filter="forme" data-value="fable" onclick="toggleFilter('forme', 'fable')">fable</button>
-                <button class="filter-chip" data-filter="forme" data-value="legende" onclick="toggleFilter('forme', 'legende')">légende</button>
-                <button class="filter-chip" data-filter="forme" data-value="mythe" onclick="toggleFilter('forme', 'mythe')">mythe</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="forme" data-value="roman" onclick="toggleFilter('forme', 'roman')">roman</button>
-                <button class="filter-chip" data-filter="forme" data-value="nouvelle" onclick="toggleFilter('forme', 'nouvelle')">nouvelle</button>
-                <button class="filter-chip" data-filter="forme" data-value="recit" onclick="toggleFilter('forme', 'recit')">récit</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="forme" data-value="tragedie" onclick="toggleFilter('forme', 'tragedie')">tragédie</button>
-                <button class="filter-chip" data-filter="forme" data-value="comedie" onclick="toggleFilter('forme', 'comedie')">comédie</button>
-                <button class="filter-chip" data-filter="forme" data-value="drame" onclick="toggleFilter('forme', 'drame')">drame</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="forme" data-value="essai" onclick="toggleFilter('forme', 'essai')">essai</button>
-                <button class="filter-chip" data-filter="forme" data-value="maxime" onclick="toggleFilter('forme', 'maxime')">maxime</button>
-                <button class="filter-chip" data-filter="forme" data-value="aphorisme" onclick="toggleFilter('forme', 'aphorisme')">aphorisme</button>
-                <button class="filter-chip" data-filter="forme" data-value="discours" onclick="toggleFilter('forme', 'discours')">discours</button>
-                <button class="filter-chip" data-filter="forme" data-value="lettre" onclick="toggleFilter('forme', 'lettre')">lettre</button>
-                <button class="filter-chip" data-filter="forme" data-value="journal" onclick="toggleFilter('forme', 'journal')">journal</button>
-                <button class="filter-chip" data-filter="forme" data-value="memoires" onclick="toggleFilter('forme', 'memoires')">mémoires</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="discours" onclick="toggleFilter('forme', 'discours')">discours</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="lettre" onclick="toggleFilter('forme', 'lettre')">lettre</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="journal" onclick="toggleFilter('forme', 'journal')">journal</button>
+                <button class="filter-chip filter-child" data-filter="forme" data-value="memoires" onclick="toggleFilter('forme', 'memoires')">mémoires</button>
             </div>
         </div>
         
-        <!-- Ligne 2: Époque -->
+        <!-- Ligne 2: Époque (hiérarchique) -->
         <div class="filter-row" id="filterRowEpoque">
             <span class="filter-label">⏳ Époque</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="epoque" data-value="all" onclick="toggleFilter('epoque', 'all')">∞ tout</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="epoque" data-value="antiquite-grecque" onclick="toggleFilter('epoque', 'antiquite-grecque')">Grèce antique</button>
-                <button class="filter-chip" data-filter="epoque" data-value="antiquite-romaine" onclick="toggleFilter('epoque', 'antiquite-romaine')">Rome antique</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="epoque" data-value="medieval" onclick="toggleFilter('epoque', 'medieval')">Moyen Âge</button>
-                <button class="filter-chip" data-filter="epoque" data-value="renaissance" onclick="toggleFilter('epoque', 'renaissance')">Renaissance</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="epoque" data-value="baroque" onclick="toggleFilter('epoque', 'baroque')">Baroque</button>
-                <button class="filter-chip" data-filter="epoque" data-value="classique" onclick="toggleFilter('epoque', 'classique')">Classicisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="lumieres" onclick="toggleFilter('epoque', 'lumieres')">Lumières</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="epoque" data-value="romantisme" onclick="toggleFilter('epoque', 'romantisme')">Romantisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="realisme" onclick="toggleFilter('epoque', 'realisme')">Réalisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="naturalisme" onclick="toggleFilter('epoque', 'naturalisme')">Naturalisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="symbolisme" onclick="toggleFilter('epoque', 'symbolisme')">Symbolisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="decadentisme" onclick="toggleFilter('epoque', 'decadentisme')">Décadentisme</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="epoque" data-value="surrealisme" onclick="toggleFilter('epoque', 'surrealisme')">Surréalisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="existentialisme" onclick="toggleFilter('epoque', 'existentialisme')">Existentialisme</button>
-                <button class="filter-chip" data-filter="epoque" data-value="absurde" onclick="toggleFilter('epoque', 'absurde')">Absurde</button>
-                <button class="filter-chip" data-filter="epoque" data-value="nouveau-roman" onclick="toggleFilter('epoque', 'nouveau-roman')">Nouveau roman</button>
+                <!-- Catégories parentes -->
+                <button class="filter-chip filter-parent" data-filter="epoque" data-group="antiquite" onclick="toggleFilterGroup('epoque', 'antiquite')">Antiquité ▾</button>
+                <button class="filter-chip filter-parent" data-filter="epoque" data-group="medieval" onclick="toggleFilterGroup('epoque', 'medieval')">Moyen Âge ▾</button>
+                <button class="filter-chip filter-parent" data-filter="epoque" data-group="classique" onclick="toggleFilterGroup('epoque', 'classique')">XVIIe-XVIIIe ▾</button>
+                <button class="filter-chip filter-parent" data-filter="epoque" data-group="xixe" onclick="toggleFilterGroup('epoque', 'xixe')">XIXe siècle ▾</button>
+                <button class="filter-chip filter-parent" data-filter="epoque" data-group="xxe" onclick="toggleFilterGroup('epoque', 'xxe')">XXe siècle ▾</button>
+            </div>
+            <!-- Sous-catégories -->
+            <div class="filter-subchips" id="subchips-epoque-antiquite" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="antiquite-grecque" onclick="toggleFilter('epoque', 'antiquite-grecque')">Grèce antique</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="antiquite-romaine" onclick="toggleFilter('epoque', 'antiquite-romaine')">Rome antique</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-medieval" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="medieval" onclick="toggleFilter('epoque', 'medieval')">Moyen Âge</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="renaissance" onclick="toggleFilter('epoque', 'renaissance')">Renaissance</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-classique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="baroque" onclick="toggleFilter('epoque', 'baroque')">Baroque</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="classique" onclick="toggleFilter('epoque', 'classique')">Classicisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="lumieres" onclick="toggleFilter('epoque', 'lumieres')">Lumières</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-xixe" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="romantisme" onclick="toggleFilter('epoque', 'romantisme')">Romantisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="realisme" onclick="toggleFilter('epoque', 'realisme')">Réalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="naturalisme" onclick="toggleFilter('epoque', 'naturalisme')">Naturalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="symbolisme" onclick="toggleFilter('epoque', 'symbolisme')">Symbolisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="decadentisme" onclick="toggleFilter('epoque', 'decadentisme')">Décadentisme</button>
+            </div>
+            <div class="filter-subchips" id="subchips-epoque-xxe" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="surrealisme" onclick="toggleFilter('epoque', 'surrealisme')">Surréalisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="existentialisme" onclick="toggleFilter('epoque', 'existentialisme')">Existentialisme</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="absurde" onclick="toggleFilter('epoque', 'absurde')">Absurde</button>
+                <button class="filter-chip filter-child" data-filter="epoque" data-value="nouveau-roman" onclick="toggleFilter('epoque', 'nouveau-roman')">Nouveau roman</button>
             </div>
         </div>
         
-        <!-- Ligne 3: Tonalité / Registre -->
+        <!-- Ligne 3: Registre (hiérarchique) -->
         <div class="filter-row" id="filterRowTon">
             <span class="filter-label">🎭 Registre</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="ton" data-value="all" onclick="toggleFilter('ton', 'all')">∞ libre</button>
+                <!-- Catégories parentes -->
+                <button class="filter-chip filter-parent" data-filter="ton" data-group="emotion" onclick="toggleFilterGroup('ton', 'emotion')">Émotion ▾</button>
+                <button class="filter-chip filter-parent" data-filter="ton" data-group="heroisme" onclick="toggleFilterGroup('ton', 'heroisme')">Héroïsme ▾</button>
+                <button class="filter-chip filter-parent" data-filter="ton" data-group="imaginaire" onclick="toggleFilterGroup('ton', 'imaginaire')">Imaginaire ▾</button>
+                <button class="filter-chip filter-parent" data-filter="ton" data-group="comique" onclick="toggleFilterGroup('ton', 'comique')">Comique ▾</button>
+                <button class="filter-chip filter-parent" data-filter="ton" data-group="nature" onclick="toggleFilterGroup('ton', 'nature')">Nature ▾</button>
+            </div>
+            <!-- Sous-catégories -->
+            <div class="filter-subchips" id="subchips-ton-emotion" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="lyrique" onclick="toggleFilter('ton', 'lyrique')">lyrique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="elegiaque" onclick="toggleFilter('ton', 'elegiaque')">élégiaque</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="melancolique" onclick="toggleFilter('ton', 'melancolique')">mélancolique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="tragique" onclick="toggleFilter('ton', 'tragique')">tragique</button>
                 <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="lyrique" onclick="toggleFilter('ton', 'lyrique')">lyrique</button>
-                <button class="filter-chip" data-filter="ton" data-value="elegiaque" onclick="toggleFilter('ton', 'elegiaque')">élégiaque</button>
-                <button class="filter-chip" data-filter="ton" data-value="melancolique" onclick="toggleFilter('ton', 'melancolique')">mélancolique</button>
-                <button class="filter-chip" data-filter="ton" data-value="tragique" onclick="toggleFilter('ton', 'tragique')">tragique</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="epique" onclick="toggleFilter('ton', 'epique')">épique</button>
-                <button class="filter-chip" data-filter="ton" data-value="heroique" onclick="toggleFilter('ton', 'heroique')">héroïque</button>
-                <button class="filter-chip" data-filter="ton" data-value="chevaleresque" onclick="toggleFilter('ton', 'chevaleresque')">chevaleresque</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="gothique" onclick="toggleFilter('ton', 'gothique')">gothique</button>
-                <button class="filter-chip" data-filter="ton" data-value="fantastique" onclick="toggleFilter('ton', 'fantastique')">fantastique</button>
-                <button class="filter-chip" data-filter="ton" data-value="onirique" onclick="toggleFilter('ton', 'onirique')">onirique</button>
-                <button class="filter-chip" data-filter="ton" data-value="mystique" onclick="toggleFilter('ton', 'mystique')">mystique</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="satirique" onclick="toggleFilter('ton', 'satirique')">satirique</button>
-                <button class="filter-chip" data-filter="ton" data-value="ironique" onclick="toggleFilter('ton', 'ironique')">ironique</button>
-                <button class="filter-chip" data-filter="ton" data-value="burlesque" onclick="toggleFilter('ton', 'burlesque')">burlesque</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="pastoral" onclick="toggleFilter('ton', 'pastoral')">pastoral</button>
-                <button class="filter-chip" data-filter="ton" data-value="bucolique" onclick="toggleFilter('ton', 'bucolique')">bucolique</button>
-                <button class="filter-chip" data-filter="ton" data-value="contemplatif" onclick="toggleFilter('ton', 'contemplatif')">contemplatif</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="ton" data-value="erotique" onclick="toggleFilter('ton', 'erotique')">érotique</button>
-                <button class="filter-chip" data-filter="ton" data-value="libertin" onclick="toggleFilter('ton', 'libertin')">libertin</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="erotique" onclick="toggleFilter('ton', 'erotique')">érotique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="libertin" onclick="toggleFilter('ton', 'libertin')">libertin</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-heroisme" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="epique" onclick="toggleFilter('ton', 'epique')">épique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="heroique" onclick="toggleFilter('ton', 'heroique')">héroïque</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="chevaleresque" onclick="toggleFilter('ton', 'chevaleresque')">chevaleresque</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-imaginaire" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="gothique" onclick="toggleFilter('ton', 'gothique')">gothique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="fantastique" onclick="toggleFilter('ton', 'fantastique')">fantastique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="onirique" onclick="toggleFilter('ton', 'onirique')">onirique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="mystique" onclick="toggleFilter('ton', 'mystique')">mystique</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-comique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="satirique" onclick="toggleFilter('ton', 'satirique')">satirique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="ironique" onclick="toggleFilter('ton', 'ironique')">ironique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="burlesque" onclick="toggleFilter('ton', 'burlesque')">burlesque</button>
+            </div>
+            <div class="filter-subchips" id="subchips-ton-nature" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="ton" data-value="pastoral" onclick="toggleFilter('ton', 'pastoral')">pastoral</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="bucolique" onclick="toggleFilter('ton', 'bucolique')">bucolique</button>
+                <button class="filter-chip filter-child" data-filter="ton" data-value="contemplatif" onclick="toggleFilter('ton', 'contemplatif')">contemplatif</button>
             </div>
         </div>
         
-        <!-- Ligne 4: Pensée / Philosophie -->
+        <!-- Ligne 4: Pensée (hiérarchique) -->
         <div class="filter-row" id="filterRowPensee">
             <span class="filter-label">💭 Pensée</span>
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="pensee" data-value="all" onclick="toggleFilter('pensee', 'all')">∞ tout</button>
+                <!-- Catégories parentes -->
+                <button class="filter-chip filter-parent" data-filter="pensee" data-group="antique" onclick="toggleFilterGroup('pensee', 'antique')">Antique ▾</button>
+                <button class="filter-chip filter-parent" data-filter="pensee" data-group="moderne" onclick="toggleFilterGroup('pensee', 'moderne')">Moderne ▾</button>
+                <button class="filter-chip filter-parent" data-filter="pensee" data-group="ethique" onclick="toggleFilterGroup('pensee', 'ethique')">Éthique ▾</button>
+            </div>
+            <!-- Sous-catégories -->
+            <div class="filter-subchips" id="subchips-pensee-antique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="stoicisme" onclick="toggleFilter('pensee', 'stoicisme')">stoïcisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="epicurisme" onclick="toggleFilter('pensee', 'epicurisme')">épicurisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="platonisme" onclick="toggleFilter('pensee', 'platonisme')">platonisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="scepticisme" onclick="toggleFilter('pensee', 'scepticisme')">scepticisme</button>
+            </div>
+            <div class="filter-subchips" id="subchips-pensee-moderne" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="humanisme" onclick="toggleFilter('pensee', 'humanisme')">humanisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="rationalisme" onclick="toggleFilter('pensee', 'rationalisme')">rationalisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="empirisme" onclick="toggleFilter('pensee', 'empirisme')">empirisme</button>
                 <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="pensee" data-value="stoicisme" onclick="toggleFilter('pensee', 'stoicisme')">stoïcisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="epicurisme" onclick="toggleFilter('pensee', 'epicurisme')">épicurisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="platonisme" onclick="toggleFilter('pensee', 'platonisme')">platonisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="scepticisme" onclick="toggleFilter('pensee', 'scepticisme')">scepticisme</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="pensee" data-value="humanisme" onclick="toggleFilter('pensee', 'humanisme')">humanisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="rationalisme" onclick="toggleFilter('pensee', 'rationalisme')">rationalisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="empirisme" onclick="toggleFilter('pensee', 'empirisme')">empirisme</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="pensee" data-value="idealisme" onclick="toggleFilter('pensee', 'idealisme')">idéalisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="nihilisme" onclick="toggleFilter('pensee', 'nihilisme')">nihilisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="existentialisme-p" onclick="toggleFilter('pensee', 'existentialisme-p')">existentialisme</button>
-                <button class="filter-chip" data-filter="pensee" data-value="absurde-p" onclick="toggleFilter('pensee', 'absurde-p')">absurde</button>
-                <span class="filter-separator">│</span>
-                <button class="filter-chip" data-filter="pensee" data-value="moraliste" onclick="toggleFilter('pensee', 'moraliste')">moraliste</button>
-                <button class="filter-chip" data-filter="pensee" data-value="utopie" onclick="toggleFilter('pensee', 'utopie')">utopie</button>
-                <button class="filter-chip" data-filter="pensee" data-value="spiritualite" onclick="toggleFilter('pensee', 'spiritualite')">spiritualité</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="idealisme" onclick="toggleFilter('pensee', 'idealisme')">idéalisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="nihilisme" onclick="toggleFilter('pensee', 'nihilisme')">nihilisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="existentialisme-p" onclick="toggleFilter('pensee', 'existentialisme-p')">existentialisme</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="absurde-p" onclick="toggleFilter('pensee', 'absurde-p')">absurde</button>
+            </div>
+            <div class="filter-subchips" id="subchips-pensee-ethique" style="display:none;">
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="moraliste" onclick="toggleFilter('pensee', 'moraliste')">moraliste</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="utopie" onclick="toggleFilter('pensee', 'utopie')">utopie</button>
+                <button class="filter-chip filter-child" data-filter="pensee" data-value="spiritualite" onclick="toggleFilter('pensee', 'spiritualite')">spiritualité</button>
             </div>
         </div>
         
