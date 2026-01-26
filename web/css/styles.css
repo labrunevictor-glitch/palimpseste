@@ -1784,35 +1784,49 @@ display: flex;
 display: none !important;
 }
 
-/* Bouton pour déplier/replier */
+/* Bouton pour déplier/replier - barre horizontale en bas */
 .exploration-toggle {
-position: absolute;
-right: 1rem;
-top: 50%;
-transform: translateY(-50%);
-background: var(--bg-elevated);
-border: 1px solid var(--border);
-border-radius: 50%;
-width: 24px;
-height: 24px;
+position: relative;
+right: auto;
+top: auto;
+transform: none;
+background: linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.08));
+border: none;
+border-top: 1px dotted rgba(212, 165, 116, 0.25);
+border-radius: 0;
+width: 100%;
+height: 28px;
+margin-top: 0.3rem;
 display: flex;
 align-items: center;
 justify-content: center;
+gap: 0.3rem;
 cursor: pointer;
-font-size: 0.7rem;
-color: var(--text-secondary);
+font-size: 0.65rem;
+color: var(--accent);
+opacity: 0.7;
 transition: all 0.2s ease;
 z-index: 10;
 }
 
+.exploration-toggle::before {
+content: "replier";
+font-size: 0.65rem;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+
+.exploration-container.collapsed .exploration-toggle::before {
+content: "filtres";
+}
+
 .exploration-toggle:hover {
-background: var(--accent);
-color: white;
-border-color: var(--accent);
+background: rgba(212, 165, 116, 0.15);
+opacity: 1;
 }
 
 .exploration-container.collapsed .exploration-toggle {
-transform: translateY(-50%) rotate(180deg);
+transform: none;
 }
 
 /* Ligne de filtres */

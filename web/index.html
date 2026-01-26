@@ -368,8 +368,8 @@
          BARRE D'EXPLORATION - Kaléidoscope (filtres hiérarchiques)
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="exploration-container" id="explorationContainer">
-        <button class="exploration-toggle" onclick="toggleExplorationCollapse()" title="Replier/Déplier">▲</button>
         <!-- Ligne 1: Forme / Type de texte (hiérarchique) -->
+        <div class="filter-row" id="filterRowForme">
         <div class="filter-row" id="filterRowForme">
             <span class="filter-label">❧ Forme</span>
             <div class="filter-chips">
@@ -542,6 +542,9 @@
             <button class="filter-summary-random" onclick="randomizeFilters()" title="Mélanger au hasard">🎲</button>
             <button class="filter-summary-go" onclick="applyFilters()">Lancer →</button>
         </div>
+        
+        <!-- Bouton replier/déplier en bas -->
+        <button class="exploration-toggle" onclick="toggleExplorationCollapse()" title="Replier/Déplier les filtres"></button>
     </div>
     
     <!-- Intro d'ambiance (conservé pour compatibilité) -->
