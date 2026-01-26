@@ -274,10 +274,11 @@
     }
     
     .mobile-profile-stats {
-        display: flex !important;
-        justify-content: center !important;
-        gap: 24px !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
         margin-bottom: 20px !important;
+        padding: 0 10px !important;
     }
     
     .mobile-profile-stat {
@@ -285,7 +286,7 @@
         flex-direction: column !important;
         align-items: center !important;
         cursor: pointer !important;
-        padding: 8px 16px !important;
+        padding: 10px 8px !important;
         border-radius: 12px !important;
         background: var(--bg) !important;
         border: 1px solid var(--border) !important;
@@ -296,15 +297,16 @@
     }
     
     .mobile-profile-stat-num {
-        font-size: 1.5rem !important;
+        font-size: 1.25rem !important;
         font-weight: bold !important;
         color: var(--accent) !important;
     }
     
     .mobile-profile-stat-label {
-        font-size: 0.75rem !important;
+        font-size: 0.7rem !important;
         color: var(--text-secondary) !important;
         margin-top: 2px !important;
+        white-space: nowrap !important;
     }
     
     .mobile-profile-btn-primary {

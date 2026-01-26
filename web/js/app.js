@@ -122,6 +122,9 @@ async function loadUserStats() {
     const myFollowersEl = document.getElementById('myFollowersCount');
     if (myFollowersEl) myFollowersEl.textContent = followersCount || 0;
     
+    const mobileFollowers = document.getElementById('mobileProfileFollowers');
+    if (mobileFollowers) mobileFollowers.textContent = followersCount || 0;
+    
     // Compter les abonnements (personnes que je suis)
     const { count: followingCount } = await supabaseClient
         .from('follows')
@@ -130,6 +133,9 @@ async function loadUserStats() {
     
     const myFollowingEl = document.getElementById('myFollowingCount');
     if (myFollowingEl) myFollowingEl.textContent = followingCount || 0;
+    
+    const mobileFollowing = document.getElementById('mobileProfileFollowing');
+    if (mobileFollowing) mobileFollowing.textContent = followingCount || 0;
 }
 
 /**
