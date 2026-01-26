@@ -89,29 +89,8 @@ const ALT_SOURCES = {
         name: 'Gallica (BNF)',
         url: 'https://gallica.bnf.fr',
         lang: 'fr',
-        // Œuvres classiques avec extraits célèbres
-        works: [
-            { title: 'Les Fleurs du mal - Spleen', author: 'Charles Baudelaire',
-              excerpt: 'Quand le ciel bas et lourd pèse comme un couvercle\nSur l\'esprit gémissant en proie aux longs ennuis,\nEt que de l\'horizon embrassant tout le cercle\nIl nous verse un jour noir plus triste que les nuits.' },
-            { title: 'Le Bateau ivre', author: 'Arthur Rimbaud',
-              excerpt: 'Comme je descendais des Fleuves impassibles,\nJe ne me sentis plus guidé par les haleurs :\nDes Peaux-Rouges criards les avaient pris pour cibles,\nLes ayant cloués nus aux poteaux de couleurs.' },
-            { title: 'Chanson d\'automne', author: 'Paul Verlaine',
-              excerpt: 'Les sanglots longs\nDes violons\nDe l\'automne\nBlessent mon cœur\nD\'une langueur\nMonotone.' },
-            { title: 'Demain, dès l\'aube', author: 'Victor Hugo',
-              excerpt: 'Demain, dès l\'aube, à l\'heure où blanchit la campagne,\nJe partirai. Vois-tu, je sais que tu m\'attends.\nJ\'irai par la forêt, j\'irai par la montagne.\nJe ne puis demeurer loin de toi plus longtemps.' },
-            { title: 'L\'Azur', author: 'Stéphane Mallarmé',
-              excerpt: 'De l\'éternel azur la sereine ironie\nAccable, belle indolemment comme les fleurs,\nLe poëte impuissant qui maudit son génie\nÀ travers un désert stérile de Douleurs.' },
-            { title: 'El Desdichado', author: 'Gérard de Nerval',
-              excerpt: 'Je suis le Ténébreux, — le Veuf, — l\'Inconsolé,\nLe Prince d\'Aquitaine à la Tour abolie :\nMa seule Étoile est morte, — et mon luth constellé\nPorte le Soleil noir de la Mélancolie.' },
-            { title: 'Le Lac', author: 'Alphonse de Lamartine',
-              excerpt: 'Ô temps, suspends ton vol ! et vous, heures propices,\nSuspendez votre cours !\nLaissez-nous savourer les rapides délices\nDes plus beaux de nos jours !' },
-            { title: 'La Nuit de mai', author: 'Alfred de Musset',
-              excerpt: 'Poëte, prends ton luth et me donne un baiser ;\nLa fleur de l\'églantier sent ses bourgeons éclore.\nLe printemps naît ce soir ; les vents vont s\'embraser ;\nEt la bergeronnette, en attendant l\'aurore.' },
-            { title: 'Pensées', author: 'Blaise Pascal',
-              excerpt: 'Le silence éternel de ces espaces infinis m\'effraie.' },
-            { title: 'Maximes', author: 'La Rochefoucauld',
-              excerpt: 'Nos vertus ne sont, le plus souvent, que des vices déguisés.' }
-        ]
+        // Termes de recherche pour l'API SRU
+        searchTerms: ['poésie française', 'roman XIXe', 'fables', 'théâtre classique', 'contes', 'nouvelles', 'essais']
     },
     // ═══════════════════════════════════════════════════════════
     // 📖 ARCHIVE.ORG - Internet Archive
@@ -143,44 +122,11 @@ const ALT_SOURCES = {
     feedbooks: {
         name: 'Feedbooks',
         url: 'https://www.feedbooks.com',
-        // Livres gratuits du domaine public avec extraits célèbres
-        works: [
-            // Français - Classiques avec incipits/extraits
-            { id: 28, title: 'Le Père Goriot', author: 'Honoré de Balzac', lang: 'fr',
-              excerpt: 'Madame Vauquer, née de Conflans, est une vieille femme qui, depuis quarante ans, tient à Paris une pension bourgeoise établie rue Neuve-Sainte-Geneviève, entre le quartier latin et le faubourg Saint-Marceau.' },
-            { id: 27, title: 'Eugénie Grandet', author: 'Honoré de Balzac', lang: 'fr',
-              excerpt: 'Il se trouve dans certaines villes de province des maisons dont la vue inspire une mélancolie égale à celle que provoquent les cloîtres les plus sombres, les landes les plus ternes ou les ruines les plus tristes.' },
-            { id: 58, title: 'Bel-Ami', author: 'Guy de Maupassant', lang: 'fr',
-              excerpt: 'Quand la caissière lui eut rendu la monnaie de sa pièce de cent sous, Georges Duroy sortit du restaurant. Comme il portait beau par nature et par pose d\'ancien sous-officier, il cambra sa taille, frisa sa moustache d\'un geste militaire et familier.' },
-            { id: 59, title: 'Une Vie', author: 'Guy de Maupassant', lang: 'fr',
-              excerpt: 'Jeanne, ayant fini ses malles, s\'approcha de la fenêtre, mais la pluie ne cessait pas. L\'averse, toute la nuit, avait sonné contre les carreaux et les toits. Le ciel bas et chargé d\'eau semblait crevé.' },
-            { id: 38, title: 'Candide', author: 'Voltaire', lang: 'fr',
-              excerpt: 'Il y avait en Westphalie, dans le château de M. le baron de Thunder-ten-tronckh, un jeune garçon à qui la nature avait donné les mœurs les plus douces. Sa physionomie annonçait son âme.' },
-            { id: 39, title: 'Zadig', author: 'Voltaire', lang: 'fr',
-              excerpt: 'Du temps du roi Moabdar il y avait à Babylone un jeune homme nommé Zadig, né avec un beau naturel fortifié par l\'éducation. Quoique riche et jeune, il savait modérer ses passions.' },
-            { id: 143, title: 'Les Liaisons dangereuses', author: 'Pierre Choderlos de Laclos', lang: 'fr',
-              excerpt: 'Vous voyez, ma bonne amie, que je vous tiens parole, et que les bonnets et les pompons ne prennent pas tout mon temps ; il m\'en restera toujours pour vous.' },
-            { id: 49, title: 'La Princesse de Clèves', author: 'Madame de La Fayette', lang: 'fr',
-              excerpt: 'La magnificence et la galanterie n\'ont jamais paru en France avec tant d\'éclat que dans les dernières années du règne de Henri second.' },
-            { id: 2612, title: 'Le Horla', author: 'Guy de Maupassant', lang: 'fr',
-              excerpt: '8 mai. — Quelle journée admirable ! J\'ai passé toute la matinée étendu sur l\'herbe, devant ma maison, sous l\'énorme platane qui la couvre, l\'abrite et l\'ombrage tout entière.' },
-            // Poésie française
-            { id: 282, title: 'Les Fleurs du mal', author: 'Charles Baudelaire', lang: 'fr',
-              excerpt: 'Quand le ciel bas et lourd pèse comme un couvercle\nSur l\'esprit gémissant en proie aux longs ennuis,\nEt que de l\'horizon embrassant tout le cercle\nIl nous verse un jour noir plus triste que les nuits.' },
-            { id: 5618, title: 'Romances sans paroles', author: 'Paul Verlaine', lang: 'fr',
-              excerpt: 'Il pleure dans mon cœur\nComme il pleut sur la ville ;\nQuelle est cette langueur\nQui pénètre mon cœur ?' },
-            { id: 5664, title: 'Une Saison en enfer', author: 'Arthur Rimbaud', lang: 'fr',
-              excerpt: 'Jadis, si je me souviens bien, ma vie était un festin où s\'ouvraient tous les cœurs, où tous les vins coulaient. Un soir, j\'ai assis la Beauté sur mes genoux. — Et je l\'ai trouvée amère. — Et je l\'ai injuriée.' },
-            // Anglais
-            { id: 61, title: 'Frankenstein', author: 'Mary Shelley', lang: 'en',
-              excerpt: 'I am by birth a Genevese, and my family is one of the most distinguished of that republic. My ancestors had been for many years counsellors and syndics.' },
-            { id: 62, title: 'Dracula', author: 'Bram Stoker', lang: 'en',
-              excerpt: 'Left Munich at 8:35 P. M., on 1st May, arriving at Vienna early next morning; should have arrived at 6:46, but train was an hour late. Buda-Pesth seems a wonderful place.' },
-            { id: 5, title: 'The Picture of Dorian Gray', author: 'Oscar Wilde', lang: 'en',
-              excerpt: 'The studio was filled with the rich odour of roses, and when the light summer wind stirred amidst the trees of the garden, there came through the open door the heavy scent of the lilac.' },
-            { id: 8, title: 'The Strange Case of Dr Jekyll and Mr Hyde', author: 'Robert Louis Stevenson', lang: 'en',
-              excerpt: 'Mr. Utterson the lawyer was a man of a rugged countenance that was never lighted by a smile; cold, scanty and embarrassed in discourse; backward in sentiment; lean, long, dusty, dreary and yet somehow lovable.' }
-        ]
+        // IDs de livres du domaine public (sans extraits codés)
+        bookIds: {
+            fr: [28, 27, 58, 59, 38, 39, 143, 49, 2612, 282, 5618, 5664],
+            en: [61, 62, 5, 8, 23, 24, 254]
+        }
     }
 };
 
@@ -844,26 +790,62 @@ async function fetchPoetryDB() {
 async function fetchGallica() {
     if (selectedLang !== 'all' && selectedLang !== 'fr') return [];
     
-    const works = ALT_SOURCES.gallica.works;
-    const work = works[Math.floor(Math.random() * works.length)];
-    const cacheKey = `gallica:${work.title}`;
+    const searchTerms = ALT_SOURCES.gallica.searchTerms;
+    const term = searchTerms[Math.floor(Math.random() * searchTerms.length)];
+    const cacheKey = `gallica:${term}:${Date.now()}`;
     
-    // Éviter les doublons
-    if (state.shownPages.has(cacheKey)) return [];
-    
-    // Retourner l'extrait directement
-    if (work.excerpt) {
-        return [{
-            title: work.title,
-            author: work.author,
-            text: work.excerpt,
-            source: 'gallica',
-            sourceUrl: `https://gallica.bnf.fr/services/engine/search/sru?operation=searchRetrieve&query=dc.title%20all%20"${encodeURIComponent(work.title)}"`,
-            lang: 'fr',
-            isPreloaded: true
-        }];
+    try {
+        // Recherche via l'API SRU de Gallica (documents textuels)
+        const searchUrl = `https://gallica.bnf.fr/SRU?operation=searchRetrieve&version=1.2&query=dc.type%20all%20"texte"%20and%20dc.subject%20all%20"${encodeURIComponent(term)}"&maximumRecords=20&startRecord=1`;
+        
+        const res = await fetch(searchUrl);
+        const xmlText = await res.text();
+        
+        // Parser le XML pour extraire les infos
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, 'text/xml');
+        const records = xml.querySelectorAll('record');
+        
+        const results = [];
+        for (const record of records) {
+            const identifier = record.querySelector('identifier')?.textContent;
+            const title = record.querySelector('title')?.textContent;
+            const creator = record.querySelector('creator')?.textContent;
+            const description = record.querySelector('description')?.textContent;
+            
+            if (identifier && identifier.includes('ark:') && title) {
+                const arkId = identifier.match(/ark:\/\d+\/\w+/)?.[0];
+                if (arkId && !state.shownPages.has(`gallica:${arkId}`)) {
+                    results.push({
+                        title: title.split('/')[0].trim(),
+                        author: creator || 'Auteur inconnu',
+                        text: description || `Document de la collection Gallica`,
+                        arkId: arkId,
+                        source: 'gallica',
+                        lang: 'fr',
+                        sourceUrl: `https://gallica.bnf.fr/${arkId}`
+                    });
+                }
+            }
+        }
+        
+        // Retourner un résultat aléatoire
+        if (results.length > 0) {
+            const item = results[Math.floor(Math.random() * results.length)];
+            state.shownPages.add(`gallica:${item.arkId}`);
+            return [{
+                title: item.title,
+                author: item.author,
+                text: item.text,
+                source: 'gallica',
+                sourceUrl: item.sourceUrl,
+                lang: 'fr',
+                isPreloaded: true
+            }];
+        }
+    } catch (e) {
+        console.error('Gallica error:', e);
     }
-    
     return [];
 }
 
@@ -940,38 +922,52 @@ async function fetchArchiveOrg() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// 📱 FEEDBOOKS - Livres du domaine public (OPDS)
-// ═══════════════════════════════════════════════════════════
-// 📱 FEEDBOOKS - Livres du domaine public (avec extraits)
+// 📱 FEEDBOOKS - Livres du domaine public (OPDS API)
 // ═══════════════════════════════════════════════════════════
 async function fetchFeedbooks() {
-    const works = ALT_SOURCES.feedbooks.works;
+    const bookIds = ALT_SOURCES.feedbooks.bookIds;
     // Filtrer par langue si nécessaire
-    const filtered = selectedLang === 'all' 
-        ? works 
-        : works.filter(w => w.lang === selectedLang);
+    const ids = selectedLang === 'all' 
+        ? [...bookIds.fr, ...bookIds.en]
+        : (bookIds[selectedLang] || []);
     
-    if (filtered.length === 0) return [];
+    if (ids.length === 0) return [];
     
-    // Choisir une œuvre au hasard
-    const work = filtered[Math.floor(Math.random() * filtered.length)];
-    const cacheKey = `feedbooks:${work.id}`;
+    // Choisir un ID au hasard
+    const bookId = ids[Math.floor(Math.random() * ids.length)];
+    const cacheKey = `feedbooks:${bookId}`;
     
     // Éviter les doublons
     if (state.shownPages.has(cacheKey)) return [];
     
-    // Utiliser l'extrait intégré s'il existe
-    if (work.excerpt) {
-        return [{
-            title: work.title,
-            author: work.author,
-            text: work.excerpt,
-            source: 'feedbooks',
-            sourceUrl: `https://www.feedbooks.com/book/${work.id}`,
-            lang: work.lang,
-            feedbooksId: work.id,
-            isPreloaded: true
-        }];
+    try {
+        // Récupérer les métadonnées via l'API OPDS
+        const opdsUrl = `https://www.feedbooks.com/book/${bookId}.atom`;
+        const res = await fetch(opdsUrl);
+        const xmlText = await res.text();
+        
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(xmlText, 'application/xml');
+        
+        const title = xml.querySelector('title')?.textContent || 'Sans titre';
+        const author = xml.querySelector('author name')?.textContent || 'Auteur inconnu';
+        const summary = xml.querySelector('summary')?.textContent || xml.querySelector('content')?.textContent || '';
+        
+        if (title && summary) {
+            state.shownPages.add(cacheKey);
+            return [{
+                title: title,
+                author: author,
+                text: summary.trim(),
+                source: 'feedbooks',
+                sourceUrl: `https://www.feedbooks.com/book/${bookId}`,
+                lang: selectedLang === 'all' ? 'fr' : selectedLang,
+                feedbooksId: bookId,
+                isPreloaded: true
+            }];
+        }
+    } catch (e) {
+        console.error('Feedbooks error:', bookId, e);
     }
     
     return [];
