@@ -375,7 +375,14 @@ function getActiveFilterKeywords() {
     // Époque
     if (!activeFilters.epoque.includes('all')) {
         activeFilters.epoque.forEach(e => {
-            if (EPOQUES_FILTER[e]?.period) keywords.push(EPOQUES_FILTER[e].period);
+            const filter = EPOQUES_FILTER[e];
+            if (filter) {
+                if (filter.keywords && filter.keywords.length > 0) {
+                    keywords.push(...filter.keywords);
+                } else if (filter.period) {
+                    keywords.push(filter.period);
+                }
+            }
         });
     }
     
