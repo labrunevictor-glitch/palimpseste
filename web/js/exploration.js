@@ -578,9 +578,13 @@ async function applyFilters() {
     // 🚀 3. Lancement
     toast(`⚗️ Distillation : ${uniqueQueries.map(q => `"${q.term}"`).join(', ')}...`);
 
+    // Reset du contexte global pour permettre la dérive (scrolling infini aléatoire dans le filtre)
+    if (state) state.activeSearchTerm = null;
+
     for (const q of uniqueQueries) {
         // Petit délai pour l'effet dramatique (et l'API)
-        await exploreAuthor(q.term);
+        // False = ne pas verrouiller le contexte sur ce terme spécifique
+        await exploreAuthor(q.term, false);
     }
 }
 

@@ -1908,13 +1908,15 @@ function getAuthorsForGenre(genre, excludeAuthor) {
 }
 
 // Explorer un auteur spécifique (recherche ciblée) - charge les textes EN HAUT
-async function exploreAuthor(author) {
+async function exploreAuthor(author, setContext = true) {
     if (state.loading) return;
     state.loading = true;
     
     // Définir le contexte pour la navigation future (infinite scroll pertinent)
-    state.activeSearchTerm = author;
-    state.searchOffset = 0;
+    if (setContext) {
+        state.activeSearchTerm = author;
+        state.searchOffset = 0;
+    }
     
     toast(`🔍 Exploration de ${author}...`);
     state.discoveredConnections.add(author);
