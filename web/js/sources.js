@@ -837,6 +837,24 @@ async function fillPool() {
 
         if (state.activeSearchTerm) {
             searchTerm = state.activeSearchTerm;
+            
+            // SI UN FILTRE EST ACTIF (Exploration par thème/époque/genre)
+            // Alors on veut "dériver" : on ne reste pas bloqué sur le terme initial (ex: "Chrétien de Troyes")
+            // On re-pioche un nouveau mot-clé dans le filtre actif pour varier les plaisirs au scroll infinite
+            const activeKeywords = window.getActiveFilterKeywords ? window.getActiveFilterKeywords() : [];
+            const hasActiveFilters = activeKeywords.length > 0;
+            
+            if (hasActiveFilters && activeKeywords.includes(state.activeSearchTerm)) {
+                 // Le terme actif vient probablement des filtres... on le change pour un autre du même filtre !
+                 // C'est l'effet "relancer le dé" à chaque chargement de page
+                 searchTerm = activeKeywords[Math.floor(Math.random() * activeKeywords.length)];
+                 // On met à jour le state pour que l'offset reparte à 0 sur ce nouveau terme
+                 if (searchTerm !== state.activeSearchTerm) {
+                     state.activeSearchTerm = searchTerm;
+                     state.searchOffset = 0;
+                     console.log('🎲 Drift: switching to', searchTerm);
+                 }
+            }
         } else {
             // Mots-clés génériques par langue
             const GENERIC_TERMS = {
