@@ -428,7 +428,8 @@
     .stats-panel {
         position: fixed !important;
         top: 0 !important;
-        left: 0 !important;
+        right: 0 !important;
+        left: auto !important;
         bottom: 0 !important;
         width: 85vw !important;
         max-width: 320px !important;
@@ -436,9 +437,10 @@
         height: 100dvh !important;
         z-index: 200 !important;
         background: var(--bg-card) !important;
-        border-right: 2px solid var(--border) !important;
-        box-shadow: 4px 0 20px rgba(0,0,0,0.3) !important;
-        transform: translateX(-100%) !important;
+        border-left: 2px solid var(--border) !important;
+        border-right: none !important;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.3) !important;
+        transform: translateX(100%) !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
@@ -455,7 +457,7 @@
     }
     
     .stats-panel:not(.open) {
-        transform: translateX(-100%) !important;
+        transform: translateX(100%) !important;
     }
     
     /* --- BOUTON FERMER --- */
