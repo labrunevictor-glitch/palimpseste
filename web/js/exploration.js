@@ -30,6 +30,16 @@ const activeFilters = {
 };
 
 /**
+ * Groupe de sous-filtres ouverts par catégorie
+ */
+const openGroups = {
+    forme: null,
+    epoque: null,
+    ton: null,
+    pensee: null
+};
+
+/**
  * Mapping des formes vers des mots-clés de recherche et auteurs
  */
 const FORMES = {
@@ -158,24 +168,95 @@ function toggleFilter(category, value) {
     }
     
     const filters = activeFilters[category];
+
+    if (value === 'all') {
+        activeFilters[category] = ['all'];
+    } else {
+        let next = filters.filter(v => v !== 'all');
+        if (next.includes(value)) {
+            next = next.filter(v => v !== value);
+        } else {
+            next.push(value);
+        }
+        if (next.length === 0) {
+            next = ['all'];
+        }
+        activeFilters[category] = next;
+    }
+
+    updateFilterUI();
+    updateFilterSummary();
 }
 
-        const chips = document.querySelectorAll(`.filter-chip[data-filter="${category}"]`);
+/**
+ * Ouvre/ferme un groupe de sous-filtres
+ */
+function toggleFilterGroup(category, group) {
+    const subchips = document.getElementById(`subchips-${category}-${group}`);
+    const parentBtn = document.querySelector(`.filter-parent[data-filter="${category}"][data-group="${group}"]`);
+    if (!subchips) return;
+
+    if (openGroups[category] && openGroups[category] !== group) {
+        const prevSubchips = document.getElementById(`subchips-${category}-${openGroups[category]}`);
+        const prevParent = document.querySelector(`.filter-parent[data-filter="${category}"][data-group="${openGroups[category]}"]`);
+        if (prevSubchips) prevSubchips.style.display = 'none';
+        if (prevParent) prevParent.classList.remove('expanded');
+    }
+
+    const isOpen = openGroups[category] === group;
+    subchips.style.display = isOpen ? 'none' : 'flex';
+    if (parentBtn) parentBtn.classList.toggle('expanded', !isOpen);
+    openGroups[category] = isOpen ? null : group;
+}
+
+/**
+ * Met à jour l'état visuel des filtres
+ */
+function updateFilterUI() {
+    Object.keys(activeFilters).forEach(category => {
+        const chips = document.querySelectorAll(`.filter-chip[data-filter="${category}"][data-value]`);
         chips.forEach(chip => {
-        const parts = [];
-        if (!activeFilters.forme.includes('all')) {
-            parts.push(activeFilters.forme.join(' + '));
-        }
-        if (!activeFilters.epoque.includes('all')) {
-            const epochs = activeFilters.epoque.map(e => EPOQUES_FILTER[e]?.period || e);
-            parts.push(epochs.join(' + '));
-        }
-        if (!activeFilters.ton.includes('all')) {
-            parts.push(activeFilters.ton.join(' + '));
-        }
-        if (activeFilters.pensee && !activeFilters.pensee.includes('all')) {
-            parts.push(activeFilters.pensee.join(' + '));
-        }
+            const value = chip.getAttribute('data-value');
+            chip.classList.toggle('active', activeFilters[category]?.includes(value));
+        });
+
+        const parents = document.querySelectorAll(`.filter-parent[data-filter="${category}"]`);
+        parents.forEach(parent => {
+            const group = parent.getAttribute('data-group');
+            const children = document.querySelectorAll(`#subchips-${category}-${group} .filter-chip[data-value]`);
+            const anyActive = Array.from(children).some(child => {
+                const value = child.getAttribute('data-value');
+                return activeFilters[category]?.includes(value);
+            });
+            parent.classList.toggle('active', anyActive);
+        });
+    });
+}
+
+/**
+ * Met à jour le résumé des filtres actifs
+ */
+function updateFilterSummary() {
+    const summary = document.getElementById('filterSummary');
+    const summaryText = document.getElementById('filterSummaryText');
+    if (!summary || !summaryText) return;
+
+    const parts = [];
+    if (!activeFilters.forme.includes('all')) {
+        parts.push(activeFilters.forme.join(' + '));
+    }
+    if (!activeFilters.epoque.includes('all')) {
+        const epochs = activeFilters.epoque.map(e => EPOQUES_FILTER[e]?.period || e);
+        parts.push(epochs.join(' + '));
+    }
+    if (!activeFilters.ton.includes('all')) {
+        parts.push(activeFilters.ton.join(' + '));
+    }
+    if (activeFilters.pensee && !activeFilters.pensee.includes('all')) {
+        parts.push(activeFilters.pensee.join(' + '));
+    }
+
+    if (parts.length > 0) {
         summaryText.textContent = parts.join(' × ');
         summary.style.display = 'flex';
     } else {
