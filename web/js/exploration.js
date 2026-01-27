@@ -43,6 +43,12 @@ const openGroups = {
  * Mapping des formes vers des mots-clés de recherche et auteurs
  */
 const FORMES = {
+    // Catégories Générales (Recherche large)
+    'category-poesie': { keywords: ['poésie', 'poème', 'vers', 'rime', 'strophe', 'lyrique', 'chanter'] },
+    'category-recit': { keywords: ['récit', 'histoire', 'narration', 'fiction', 'roman', 'conte', 'légende'] },
+    'category-theatre': { keywords: ['théâtre', 'pièce', 'scène', 'dramatique', 'acte', 'dialogue'] },
+    'category-idees': { keywords: ['essai', 'pensée', 'réflexion', 'philosophie', 'mémoire', 'moraliste'] },
+
     // Poésie détaillée
     'sonnet': { keywords: ['sonnet', 'quatrain', 'tercet'] },
     'ode': { keywords: ['ode', 'strophe', 'chant'] },
@@ -77,6 +83,13 @@ const FORMES = {
  * Mapping des époques/courants (SANS AUTEURS - Recherche pure)
  */
 const EPOQUES_FILTER = {
+    // Périodes Générales
+    'category-antiquite': { period: 'Antiquité' },
+    'category-medieval': { period: 'Moyen Âge' },
+    'category-classique-group': { period: 'Siècle classique' },
+    'category-xixe': { period: 'XIXe siècle' },
+    'category-xxe': { period: 'XXe siècle' },
+
     // Antiquité détaillée
     'antiquite-grecque': { period: 'Grèce antique' },
     'antiquite-romaine': { period: 'Rome antique' },
@@ -105,6 +118,13 @@ const EPOQUES_FILTER = {
  * Mapping des registres/tonalités
  */
 const TONS = {
+    // Tonalités Générales
+    'category-emotion': { keywords: ['émotion', 'sentiment', 'sensibilité', 'passion', 'amour'] },
+    'category-heroisme': { keywords: ['héroïsme', 'héros', 'gloire', 'courage', 'épique'] },
+    'category-imaginaire': { keywords: ['imaginaire', 'fantastique', 'merveilleux', 'rêve', 'étrange'] },
+    'category-comique': { keywords: ['comique', 'rire', 'humour', 'plaisanterie', 'ironie'] },
+    'category-nature': { keywords: ['nature', 'paysage', 'campagne', 'monde', 'terre'] },
+
     // Lyrisme et émotion
     'lyrique': { keywords: ['amour', 'cœur', 'âme', 'sentiment', 'émotion', 'passion'] },
     'elegiaque': { keywords: ['élégie', 'plainte', 'regret', 'perte', 'deuil', 'larmes'] },
@@ -136,6 +156,11 @@ const TONS = {
  * Mapping des courants de pensée/philosophie
  */
 const PENSEES = {
+    // Pensées Générales
+    'category-antique': { keywords: ['philosophie antique', 'sagesse', 'grecs', 'romains'] },
+    'category-moderne': { keywords: ['philosophie moderne', 'raison', 'conscience', 'liberté'] },
+    'category-ethique': { keywords: ['éthique', 'morale', 'bien', 'mal', 'vertu', 'devoir'] },
+
     // Philosophie antique
     'stoicisme': { keywords: ['vertu', 'sagesse', 'raison', 'nature', 'destin', 'apathie'] },
     'epicurisme': { keywords: ['plaisir', 'bonheur', 'ataraxie', 'amitié', 'nature'] },
@@ -521,7 +546,7 @@ const EPOQUES = {
         icon: '☤',
         period: 'VIIIᵉ s. av. J.-C. – Vᵉ s.',
         description: '',
-        keywords: ['mythologie', 'olympe', 'tragédie', 'héros', 'oracle', 'destin', 'Homère', 'Platon', 'Virgile'],
+        keywords: ['mythologie', 'olympe', 'tragédie', 'héros', 'oracle', 'destin'],
         color: '#a67c52'
     },
     medieval: {
@@ -537,7 +562,7 @@ const EPOQUES = {
         icon: '✡',
         period: 'XVIᵉ siècle',
         description: '',
-        keywords: ['humanisme', 'éducation', 'sonnet', 'pléiade', 'amour', 'nature', 'Rabelais', 'Montaigne'],
+        keywords: ['humanisme', 'éducation', 'sonnet', 'pléiade', 'amour', 'nature'],
         color: '#a67c52'
     },
     classique: {
@@ -545,7 +570,7 @@ const EPOQUES = {
         icon: '✧',
         period: 'XVIIᵉ siècle',
         description: '',
-        keywords: ['honnête homme', 'bienséance', 'tragédie', 'comédie', 'fable', 'moraliste', 'Molière', 'Racine'],
+        keywords: ['honnête homme', 'bienséance', 'tragédie', 'comédie', 'fable', 'moraliste'],
         color: '#a67c52'
     },
     lumieres: {
@@ -553,7 +578,7 @@ const EPOQUES = {
         icon: '✶',
         period: 'XVIIIᵉ siècle',
         description: '',
-        keywords: ['raison', 'progrès', 'philosophie', 'encyclopédie', 'liberté', 'tolérance', 'Voltaire', 'Rousseau'],
+        keywords: ['raison', 'progrès', 'philosophie', 'encyclopédie', 'liberté', 'tolérance'],
         color: '#a67c52'
     },
     xixe: {
@@ -561,7 +586,7 @@ const EPOQUES = {
         icon: '⚗',
         period: '1800 – 1900',
         description: '',
-        keywords: ['révolution', 'passion', 'société', 'naturalisme', 'symbolisme', 'spleen', 'Hugo', 'Balzac'],
+        keywords: ['révolution', 'passion', 'société', 'naturalisme', 'symbolisme', 'spleen'],
         color: '#635d4e'
     },
     belleepoque: {
@@ -569,7 +594,7 @@ const EPOQUES = {
         icon: '❦',
         period: '1880 – 1914',
         description: '',
-        keywords: ['salon', 'mondain', 'décadence', 'symbolisme', 'impressionnisme', 'art nouveau', 'Proust'],
+        keywords: ['salon', 'mondain', 'décadence', 'symbolisme', 'impressionnisme', 'art nouveau'],
         color: '#5c5470'
     },
     xxe: {
@@ -577,7 +602,7 @@ const EPOQUES = {
         icon: '☢',
         period: '1900 – 2000',
         description: '',
-        keywords: ['absurde', 'existentialisme', 'surréalisme', 'engagement', 'modernité', 'guerre', 'Camus', 'Sartre'],
+        keywords: ['absurde', 'existentialisme', 'surréalisme', 'engagement', 'modernité', 'guerre'],
         color: '#6b3a3a'
     }
 };
@@ -596,7 +621,7 @@ const COURANTS = {
         icon: '❁',
         period: 'XVIᵉ siècle',
         description: '',
-        keywords: ['homme', 'éducation', 'sagesse', 'vertu', 'raison', 'antiquité', 'Montaigne', 'Rabelais'],
+        keywords: ['homme', 'éducation', 'sagesse', 'vertu', 'raison', 'antiquité'],
         color: '#7d8471'
     },
     baroque: {
@@ -620,7 +645,7 @@ const COURANTS = {
         icon: '❧',
         period: '1820 – 1850',
         description: '',
-        keywords: ['moi', 'passion', 'nature', 'mélancolie', 'liberté', 'génie', 'sublime', 'Hugo', 'Lamartine'],
+        keywords: ['moi', 'passion', 'nature', 'mélancolie', 'liberté', 'génie', 'sublime', 'poésie lyrique'],
         color: '#6b3a3a'
     },
     realisme: {
@@ -628,7 +653,7 @@ const COURANTS = {
         icon: '◉',
         period: '1850 – 1880',
         description: '',
-        keywords: ['société', 'observation', 'objectivité', 'bourgeoisie', 'argent', 'ambition', 'Balzac', 'Flaubert'],
+        keywords: ['société', 'observation', 'objectivité', 'bourgeoisie', 'argent', 'ambition', 'description'],
         color: '#635d4e'
     },
     naturalisme: {
@@ -636,7 +661,7 @@ const COURANTS = {
         icon: '⚗',
         period: '1870 – 1890',
         description: '',
-        keywords: ['hérédité', 'milieu', 'expérimental', 'ouvrier', 'misère', 'déterminisme', 'Zola'],
+        keywords: ['hérédité', 'milieu', 'expérimental', 'ouvrier', 'misère', 'déterminisme', 'science'],
         color: '#3d3d3d'
     },
     symbolisme: {
@@ -644,7 +669,7 @@ const COURANTS = {
         icon: '✶',
         period: '1880 – 1900',
         description: '',
-        keywords: ['symbole', 'suggestion', 'musique', 'synesthésie', 'idéal', 'mystère', 'Baudelaire', 'Mallarmé'],
+        keywords: ['symbole', 'suggestion', 'musique', 'synesthésie', 'idéal', 'mystère', 'vers libre'],
         color: '#5c5470'
     },
     surrealisme: {
@@ -652,7 +677,7 @@ const COURANTS = {
         icon: '◬',
         period: '1920 – 1960',
         description: '',
-        keywords: ['rêve', 'inconscient', 'automatisme', 'hasard', 'merveilleux', 'révolution', 'Breton'],
+        keywords: ['rêve', 'inconscient', 'automatisme', 'hasard', 'merveilleux', 'révolution'],
         color: '#a67c52'
     },
     existentialisme: {
@@ -660,7 +685,7 @@ const COURANTS = {
         icon: '⦿',
         period: '1940 – 1960',
         description: '',
-        keywords: ['existence', 'liberté', 'absurde', 'engagement', 'angoisse', 'autrui', 'Sartre', 'Camus'],
+        keywords: ['existence', 'liberté', 'absurde', 'engagement', 'angoisse', 'autrui'],
         color: '#212121'
     },
     absurde: {
@@ -668,7 +693,7 @@ const COURANTS = {
         icon: '⧖',
         period: '1950 – 1970',
         description: '',
-        keywords: ['absurde', 'attente', 'langage', 'vide', 'dérision', 'tragique', 'Beckett'],
+        keywords: ['absurde', 'attente', 'langage', 'vide', 'dérision', 'tragique'],
         color: '#424242'
     }
 };

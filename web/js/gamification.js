@@ -351,13 +351,13 @@ const ACHIEVEMENTS = {
     symbolist: { 
         icon: '☾', 
         name: 'Symboliste', 
-        desc: 'Découvrir Mallarmé et Verlaine',
+        desc: 'S\'imprégner du Symbolisme (5 textes)',
         category: 'litterature'
     },
     classique: { 
         icon: '⚜', 
         name: 'Classique', 
-        desc: 'Lire Molière, Racine ou Corneille',
+        desc: 'Explorer le Classicisme (5 textes)',
         category: 'litterature'
     },
     lumieres: { 
@@ -381,7 +381,7 @@ const ACHIEVEMENTS = {
     poete_maudit: { 
         icon: '♠', 
         name: 'Poète maudit', 
-        desc: 'Découvrir Lautréamont',
+        desc: 'Explorer le Mal du siècle',
         category: 'litterature'
     },
     mystique: { 
@@ -393,13 +393,13 @@ const ACHIEVEMENTS = {
     naturaliste: { 
         icon: '◆', 
         name: 'Naturaliste', 
-        desc: 'Lire Zola ou Maupassant',
+        desc: 'Explorer le Naturalisme (10 textes)',
         category: 'litterature'
     },
     surrealiste: { 
         icon: '∞', 
         name: 'Surréaliste', 
-        desc: 'Découvrir Breton ou Éluard',
+        desc: 'Plonger dans le surréalisme',
         category: 'litterature'
     },
 
@@ -604,14 +604,14 @@ function checkAchievements() {
         ['love_50', likeCount >= 50],
         ['love_100', likeCount >= 100],
         
-        // Littérature
+        // Littérature (Basé sur les tags/genres uniquement, pas d'auteurs spécifiques)
         ['mystique', (state.genreStats?.mystique || 0) >= 5],
-        ['poete_maudit', !!state.authorStats['Comte de Lautréamont'] || !!state.authorStats['Lautréamont']],
-        ['symbolist', state.authorStats['Stéphane Mallarmé'] && state.authorStats['Paul Verlaine']],
-        ['classique', state.authorStats['Molière'] || state.authorStats['Jean Racine'] || state.authorStats['Pierre Corneille']],
-        ['lumieres', state.authorStats['Voltaire'] || state.authorStats['Denis Diderot']],
-        ['naturaliste', state.authorStats['Émile Zola'] || state.authorStats['Guy de Maupassant']],
-        ['romantique', state.authorStats['Victor Hugo'] || state.authorStats['Alphonse de Lamartine']],
+        ['poete_maudit', (state.genreStats?.spleen || 0) >= 5],
+        ['symbolist', (state.genreStats?.symbolisme || 0) >= 5],
+        ['classique', (state.genreStats?.classique || state.genreStats?.theatre || 0) >= 5],
+        ['lumieres', (state.genreStats?.philosophie || state.genreStats?.lumieres || 0) >= 5],
+        ['naturaliste', (state.genreStats?.naturalisme || state.genreStats?.roman || 0) >= 10],
+        ['romantique', (state.genreStats?.romantisme || state.genreStats?.lyrique || 0) >= 10],
         
         // Prestige
         ['completionist', unlockedCount >= 25],
@@ -724,8 +724,8 @@ function renderAchievements() {
             // Littérature
             mystique: { current: Math.min(mystiqueCount, 5), target: 5 },
             symbolist: { 
-                current: (state.authorStats?.['Stéphane Mallarmé'] ? 1 : 0) + (state.authorStats?.['Paul Verlaine'] ? 1 : 0), 
-                target: 2 
+                current: Math.min((state.genreStats?.symbolisme || 0), 5), 
+                target: 5 
             },
             
             // Prestige
@@ -853,9 +853,9 @@ function showBadgeDetails(id) {
         love_10: "Cliquez sur ♥ pour sauvegarder vos textes préférés. 10 coups de cœur = 1 badge !",
         marathon: "Lisez 25 textes sans vous arrêter. Un vrai marathon littéraire !",
         mystique: "Explorez les textes aux thèmes mystiques, ésotériques ou spirituels.",
-        poete_maudit: "Recherchez 'Lautréamont' ou 'Maldoror' pour découvrir ce poète maudit légendaire.",
-        renaissance: "Recherchez des auteurs du XVIe siècle : Ronsard, Du Bellay, Rabelais...",
-        symbolist: "Les symbolistes Mallarmé et Verlaine vous attendent. Recherchez leurs noms !"
+        poete_maudit: "Explorez les thèmes du spleen et du mal être pour trouver la beauté sombre.",
+        renaissance: "Recherchez des textes de l'Humanisme et de la Pléiade (XVIe siècle).",
+        symbolist: "Explorez les thèmes du mystère, de l'idéal et de la suggestion poétique."
     };
     
     toast(`${ach.icon} ${ach.name}${unlocked ? ' (Débloqué !)' : ''} - ${hints[id] || ach.desc}`, 5000);

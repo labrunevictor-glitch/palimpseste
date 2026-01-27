@@ -14,6 +14,32 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a574' stroke-linecap='round'><rect width='24' height='24' fill='%230d0d0d'/><rect x='3' y='2' width='18' height='20' rx='2' stroke-width='1.2'/><line x1='6' y1='7' x2='16' y2='7' stroke-width='1.5'/><line x1='7' y1='9' x2='14' y2='9' stroke-width='0.8' opacity='0.2'/><line x1='6' y1='12' x2='14' y2='12' stroke-width='1.5'/><line x1='8' y1='14' x2='17' y2='14' stroke-width='0.6' opacity='0.15'/><line x1='6' y1='17' x2='11' y2='17' stroke-width='1.5'/><line x1='7' y1='19' x2='13' y2='19' stroke-width='0.5' opacity='0.1'/></svg>">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mobile.css">
+    <style>
+        /* Styles pour les boutons filtres scindés */
+        .filter-split-main {
+            background: rgba(212, 165, 116, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 500;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+            padding-right: 5px;
+        }
+        .filter-split-main:hover {
+            background: rgba(212, 165, 116, 0.2);
+        }
+        .filter-split-main.active {
+            background: var(--accent) !important;
+            color: white !important;
+            border-color: var(--accent) !important;
+        }
+        .filter-split-arrow {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding-left: 5px;
+        }
+    </style>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Supabase SDK -->
@@ -414,10 +440,21 @@
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="forme" data-value="all" onclick="toggleFilter('forme', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
-                <button class="filter-chip filter-parent" data-filter="forme" data-group="poesie" onclick="toggleFilterGroup('forme', 'poesie')">Poésie ▾</button>
-                <button class="filter-chip filter-parent" data-filter="forme" data-group="recit" onclick="toggleFilterGroup('forme', 'recit')">Récit ▾</button>
-                <button class="filter-chip filter-parent" data-filter="forme" data-group="theatre" onclick="toggleFilterGroup('forme', 'theatre')">Théâtre ▾</button>
-                <button class="filter-chip filter-parent" data-filter="forme" data-group="idees" onclick="toggleFilterGroup('forme', 'idees')">Prose d'idées ▾</button>
+                <!-- Poesie -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-poesie" onclick="toggleFilter('forme', 'category-poesie')">Poésie</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="poesie" onclick="toggleFilterGroup('forme', 'poesie')">▾</button>
+                
+                <!-- Recit -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-recit" onclick="toggleFilter('forme', 'category-recit')">Récit</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="recit" onclick="toggleFilterGroup('forme', 'recit')">▾</button>
+
+                <!-- Theatre -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-theatre" onclick="toggleFilter('forme', 'category-theatre')">Théâtre</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="theatre" onclick="toggleFilterGroup('forme', 'theatre')">▾</button>
+
+                <!-- Idees -->
+                <button class="filter-chip filter-split-main" data-filter="forme" data-value="category-idees" onclick="toggleFilter('forme', 'category-idees')">Prose d'idées</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="forme" data-group="idees" onclick="toggleFilterGroup('forme', 'idees')">▾</button>
             </div>
             <!-- Sous-catégories (cachées par défaut) -->
             <div class="filter-subchips" id="subchips-forme-poesie" style="display:none;">
@@ -460,11 +497,25 @@
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="epoque" data-value="all" onclick="toggleFilter('epoque', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
-                <button class="filter-chip filter-parent" data-filter="epoque" data-group="antiquite" onclick="toggleFilterGroup('epoque', 'antiquite')">Antiquité ▾</button>
-                <button class="filter-chip filter-parent" data-filter="epoque" data-group="medieval" onclick="toggleFilterGroup('epoque', 'medieval')">Moyen Âge ▾</button>
-                <button class="filter-chip filter-parent" data-filter="epoque" data-group="classique" onclick="toggleFilterGroup('epoque', 'classique')">XVIIe-XVIIIe ▾</button>
-                <button class="filter-chip filter-parent" data-filter="epoque" data-group="xixe" onclick="toggleFilterGroup('epoque', 'xixe')">XIXe siècle ▾</button>
-                <button class="filter-chip filter-parent" data-filter="epoque" data-group="xxe" onclick="toggleFilterGroup('epoque', 'xxe')">XXe siècle ▾</button>
+                <!-- Antiquite -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-antiquite" onclick="toggleFilter('epoque', 'category-antiquite')">Antiquité</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="antiquite" onclick="toggleFilterGroup('epoque', 'antiquite')">▾</button>
+
+                <!-- Medieval -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-medieval" onclick="toggleFilter('epoque', 'category-medieval')">Moyen Âge</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="medieval" onclick="toggleFilterGroup('epoque', 'medieval')">▾</button>
+
+                <!-- Classique -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-classique-group" onclick="toggleFilter('epoque', 'category-classique-group')">XVIIe-XVIIIe</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="classique" onclick="toggleFilterGroup('epoque', 'classique')">▾</button>
+
+                <!-- XIXe -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-xixe" onclick="toggleFilter('epoque', 'category-xixe')">XIXe siècle</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="xixe" onclick="toggleFilterGroup('epoque', 'xixe')">▾</button>
+
+                <!-- XXe -->
+                <button class="filter-chip filter-split-main" data-filter="epoque" data-value="category-xxe" onclick="toggleFilter('epoque', 'category-xxe')">XXe siècle</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="epoque" data-group="xxe" onclick="toggleFilterGroup('epoque', 'xxe')">▾</button>
             </div>
             <!-- Sous-catégories -->
             <div class="filter-subchips" id="subchips-epoque-antiquite" style="display:none;">
@@ -501,11 +552,25 @@
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="ton" data-value="all" onclick="toggleFilter('ton', 'all')">∞ libre</button>
                 <!-- Catégories parentes -->
-                <button class="filter-chip filter-parent" data-filter="ton" data-group="emotion" onclick="toggleFilterGroup('ton', 'emotion')">Émotion ▾</button>
-                <button class="filter-chip filter-parent" data-filter="ton" data-group="heroisme" onclick="toggleFilterGroup('ton', 'heroisme')">Héroïsme ▾</button>
-                <button class="filter-chip filter-parent" data-filter="ton" data-group="imaginaire" onclick="toggleFilterGroup('ton', 'imaginaire')">Imaginaire ▾</button>
-                <button class="filter-chip filter-parent" data-filter="ton" data-group="comique" onclick="toggleFilterGroup('ton', 'comique')">Comique ▾</button>
-                <button class="filter-chip filter-parent" data-filter="ton" data-group="nature" onclick="toggleFilterGroup('ton', 'nature')">Nature ▾</button>
+                <!-- Emotion -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-emotion" onclick="toggleFilter('ton', 'category-emotion')">Émotion</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="emotion" onclick="toggleFilterGroup('ton', 'emotion')">▾</button>
+
+                <!-- Heroisme -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-heroisme" onclick="toggleFilter('ton', 'category-heroisme')">Héroïsme</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="heroisme" onclick="toggleFilterGroup('ton', 'heroisme')">▾</button>
+
+                <!-- Imaginaire -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-imaginaire" onclick="toggleFilter('ton', 'category-imaginaire')">Imaginaire</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="imaginaire" onclick="toggleFilterGroup('ton', 'imaginaire')">▾</button>
+
+                <!-- Comique -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-comique" onclick="toggleFilter('ton', 'category-comique')">Comique</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="comique" onclick="toggleFilterGroup('ton', 'comique')">▾</button>
+
+                <!-- Nature -->
+                <button class="filter-chip filter-split-main" data-filter="ton" data-value="category-nature" onclick="toggleFilter('ton', 'category-nature')">Nature</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="ton" data-group="nature" onclick="toggleFilterGroup('ton', 'nature')">▾</button>
             </div>
             <!-- Sous-catégories -->
             <div class="filter-subchips" id="subchips-ton-emotion" style="display:none;">
@@ -546,9 +611,17 @@
             <div class="filter-chips">
                 <button class="filter-chip active" data-filter="pensee" data-value="all" onclick="toggleFilter('pensee', 'all')">∞ tout</button>
                 <!-- Catégories parentes -->
-                <button class="filter-chip filter-parent" data-filter="pensee" data-group="antique" onclick="toggleFilterGroup('pensee', 'antique')">Antique ▾</button>
-                <button class="filter-chip filter-parent" data-filter="pensee" data-group="moderne" onclick="toggleFilterGroup('pensee', 'moderne')">Moderne ▾</button>
-                <button class="filter-chip filter-parent" data-filter="pensee" data-group="ethique" onclick="toggleFilterGroup('pensee', 'ethique')">Éthique ▾</button>
+                <!-- Antique -->
+                <button class="filter-chip filter-split-main" data-filter="pensee" data-value="category-antique" onclick="toggleFilter('pensee', 'category-antique')">Antique</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="pensee" data-group="antique" onclick="toggleFilterGroup('pensee', 'antique')">▾</button>
+
+                <!-- Moderne -->
+                <button class="filter-chip filter-split-main" data-filter="pensee" data-value="category-moderne" onclick="toggleFilter('pensee', 'category-moderne')">Moderne</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="pensee" data-group="moderne" onclick="toggleFilterGroup('pensee', 'moderne')">▾</button>
+
+                <!-- Ethique -->
+                <button class="filter-chip filter-split-main" data-filter="pensee" data-value="category-ethique" onclick="toggleFilter('pensee', 'category-ethique')">Éthique</button>
+                <button class="filter-chip filter-parent filter-split-arrow" data-filter="pensee" data-group="ethique" onclick="toggleFilterGroup('pensee', 'ethique')">▾</button>
             </div>
             <!-- Sous-catégories -->
             <div class="filter-subchips" id="subchips-pensee-antique" style="display:none;">

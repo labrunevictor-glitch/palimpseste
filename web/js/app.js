@@ -18,7 +18,7 @@ let authorConnections = {};
 let state = {
     likes: new Set(), readCount: 0, loading: false, cache: new Map(),
     textPool: [], shownPages: new Set(), cardIdx: 0,
-    activeSearchTerm: null, // Le contexte courant de l'exploration (null = drift)
+    activeSearchTerm: null, searchOffset: 0, // Le contexte courant de l'exploration (null = drift)
     authorStats: {}, genreStats: {},
     // Stats basées sur les textes likés/partagés (vos vrais goûts)
     likedGenreStats: {}, likedAuthorStats: {},
@@ -805,20 +805,14 @@ function trackStats(author, tag) {
 // Détecter le tag probable depuis l'auteur (heuristique simple)
 function detectTagFromAuthor(author) {
     if (!author) return 'Prose';
-    const a = author.toLowerCase();
     
-    // Poètes connus
-    if (/baudelaire|rimbaud|verlaine|mallarmé|hugo|lamartine|musset|apollinaire|éluard|prévert|nerval/.test(a)) return 'Poésie';
-    // Dramaturges
-    if (/molière|racine|corneille|beaumarchais|marivaux|ionesco|beckett/.test(a)) return 'Théâtre';
-    // Philosophes
-    if (/descartes|pascal|montaigne|rousseau|voltaire|diderot|montesquieu|bergson|sartre|camus|simone|beauvoir/.test(a)) return 'Pensée';
-    // Romanciers réalistes/naturalistes
-    if (/balzac|zola|flaubert|maupassant|stendhal/.test(a)) return 'Prose';
-    // Auteurs classiques (souvent poètes)
-    if (/ronsard|du bellay|villon|marot|la fontaine/.test(a)) return 'Poésie';
+    // Essayer de déduire des informations contextuelles si disponible
+    // Si l'auteur contient "Poète" ou "Poesis"
+    if (/poè|poé|poet/i.test(author)) return 'Poésie';
     
-    return 'Prose'; // Par défaut
+    // Par défaut, nous considérons que c'est de la prose
+    // La classification se fera principalement par les métadonnées de la source
+    return 'Prose'; 
 }
 
 // Construire dynamiquement les connexions entre auteurs
@@ -866,7 +860,7 @@ async function shuffleFeed() {
     state.textPool = [];
     state.shownPages.clear();
     state.cardIdx = 0;
-    hideNewTextsBanner();
+    // hideNewTextsBanner(); // Removed
     toast('🔄 Nouveaux textes...');
     await fillPool();
     await loadMore();
@@ -954,7 +948,7 @@ async function loadNewTextsOnTop() {
         // PAS de scroll automatique ni de toast - l'utilisateur reste où il est sans être dérangé
     }
     
-    hideNewTextsBanner();
+    // hideNewTextsBanner(); // Removed
     } finally {
         state.loading = false;
         // Nettoyer l'indicateur si encore présent
@@ -1878,32 +1872,30 @@ function showRelatedAuthors(cardId) {
     toast(`${allRelated.length} auteur(s) à explorer`);
 }
 
-// Trouver des auteurs du même genre (classiques mondiaux + dynamique)
+// Trouver des auteurs du même genre (basé sur les découvertes dynamiques)
 function getAuthorsForGenre(genre, excludeAuthor) {
-    // Auteurs classiques par genre (mix mondial)
-    const genreMap = {
-        'poésie': ['Baudelaire', 'Rimbaud', 'Shakespeare', 'Goethe', 'Dante', 'Petrarca', 'Pushkin', 'Neruda'],
-        'poetry': ['Shakespeare', 'Keats', 'Byron', 'Wordsworth', 'Dickinson', 'Whitman', 'Poe'],
-        'théâtre': ['Molière', 'Shakespeare', 'Goethe', 'Calderón', 'Goldoni', 'Chekhov'],
-        'drama': ['Shakespeare', 'Marlowe', 'Ibsen', 'Chekhov', 'Wilde'],
-        'roman': ['Balzac', 'Dickens', 'Dostoevsky', 'Tolstoy', 'Cervantes', 'Mann'],
-        'novel': ['Dickens', 'Austen', 'Brontë', 'Twain', 'Melville', 'James'],
-        'conte': ['Perrault', 'Grimm', 'Andersen', 'Maupassant'],
-        'tale': ['Grimm', 'Andersen', 'Wilde', 'Poe'],
-        'fable': ['La Fontaine', 'Ésope', 'Aesop', 'Krylov'],
-        'texte': ['Hugo', 'Goethe', 'Dante', 'Cervantes'],
-        'text': ['Milton', 'Bunyan', 'Swift', 'Defoe']
-    };
+    // On se base uniquement sur ce que l'utilisateur a déjà découvert ou ce qui est en cache
+    // Plus de listes arbitraires : tout est dynamique !
     
-    // Ajouter les auteurs découverts dynamiquement pour ce genre
+    // 1. Récupérer les auteurs déjà vus qui pourraient correspondre
     const discovered = Object.keys(state.authorStats);
-    const baseList = genreMap[genre?.toLowerCase()] || [];
-    const combined = [...baseList, ...discovered];
     
-    return [...new Set(combined)]
-        .filter(a => a !== excludeAuthor && a !== 'Anonyme')
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 4);
+    // 2. Si on a des auteurs connectés dans le graphe
+    const localConnections = Object.keys(authorConnections).filter(a => {
+        // Filtrage heuristique simple si on a pas de métadonnées de genre
+        return a !== excludeAuthor;
+    });
+
+    const combined = [...discovered, ...localConnections];
+    const unique = [...new Set(combined)].filter(a => a !== excludeAuthor && a !== 'Anonyme');
+    
+    // Si on a assez de données locales, on renvoie une sélection aléatoire
+    if (unique.length > 0) {
+        return unique.sort(() => Math.random() - 0.5).slice(0, 4);
+    }
+    
+    // Sinon, aucune suggestion (l'UI affichera le bouton "Hasard")
+    return [];
 }
 
 // Explorer un auteur spécifique (recherche ciblée) - charge les textes EN HAUT
@@ -1913,6 +1905,7 @@ async function exploreAuthor(author) {
     
     // Définir le contexte pour la navigation future (infinite scroll pertinent)
     state.activeSearchTerm = author;
+    state.searchOffset = 0;
     
     toast(`🔍 Exploration de ${author}...`);
     state.discoveredConnections.add(author);

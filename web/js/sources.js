@@ -179,8 +179,8 @@ function getActiveWikisources() {
 // ═══════════════════════════════════════════════════════════
 
 // Recherche via l'API - supporte plusieurs Wikisources
-async function searchTexts(query, limit = 20, wikisource = currentWikisource) {
-    const url = `${wikisource.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=${limit}&srnamespace=0&format=json&origin=*`;
+async function searchTexts(query, limit = 20, wikisource = currentWikisource, offset = 0) {
+    const url = `${wikisource.url}/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=${limit}&sroffset=${offset}&srnamespace=0&format=json&origin=*`;
 
     try {
         const res = await fetch(url);
@@ -713,7 +713,8 @@ async function fillPool() {
                 
                 for (const page of randomPages) {
                     // On simule un objet "recherche" pour que le reste du flux l'accepte
-                    if (!state.shownPages.has(page.title)) {
+                    const titleToCheck = page.title;
+                    if (!state.shownPages.has(titleToCheck)) {
                         state.textPool.push({
                             title: page.title,
                             snippet: '...', 
@@ -733,8 +734,30 @@ async function fillPool() {
              
              try {
                 // On cherche plus de résultats pour avoir du choix
-                const results = await searchTexts(term, 10, ws);
+                // FIX: Gestion d'erreur renforcée pour éviter le blocage du scroll
+                let results = [];
+                try {
+                    // Utiliser l'offset si recherche active
+                    const offset = state.activeSearchTerm ? (state.searchOffset || 0) : 0;
+                    results = await searchTexts(term, 10, ws, offset);
+                    
+                    // Incrémenter l'offset pour la prochaine fois seulement si on a eu des résultats
+                    if (state.activeSearchTerm && results.length > 0) {
+                        state.searchOffset = (state.searchOffset || 0) + 10;
+                    }
+                } catch(searchErr) {
+                    console.warn(`Search failed for ${term} on ${ws.lang}`, searchErr);
+                    results = []; 
+                }
                 
+                // Si aucune réponse pour ce terme précis (ex: auteur inconnu dans cette langue)
+                // On ne fait PLUS de fallback pour respecter la demande utilisateur
+                // "je ne veux pas de gilet de sauvetage"
+                if (results.length === 0 && state.activeSearchTerm) {
+                    console.log(`No results for ${term} on ${ws.lang}`);
+                    // results reste vide []
+                }
+
                 // On ajoute plusieurs résultats au pool si c'est une recherche ciblée
                 if (results.length > 0) {
                     // Si recherche ciblée, on prend les meilleurs résultats
