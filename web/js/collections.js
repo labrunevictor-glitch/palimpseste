@@ -97,7 +97,7 @@ async function loadUserCollections() {
  * Charger les items d'une collection spécifique
  */
 async function loadCollectionItems(collectionId) {
-    if (!currentUser || !supabaseClient) return [];
+    if (!supabaseClient) return [];
     
     try {
         const { data, error } = await supabaseClient
@@ -277,6 +277,12 @@ async function addToCollection(collectionId, item) {
             insertData.extrait_id = item.extrait_id;
         } else if (item.source_like_id) {
             insertData.source_like_id = item.source_like_id;
+            // Snapshot local pour permettre l'affichage (y compris si la collection devient publique)
+            // NB: les règles RLS de source_likes ne permettent pas forcément aux autres de lire la ligne.
+            insertData.local_title = item.title || item.source_title || null;
+            insertData.local_author = item.author || item.source_author || null;
+            insertData.local_url = item.source_url || item.url || null;
+            insertData.local_preview = item.preview || item.texte || item.text?.substring(0, 200) || null;
         } else {
             // Item local (depuis exploration)
             insertData.local_title = item.title;

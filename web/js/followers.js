@@ -739,6 +739,7 @@ async function openUserProfile(userId, username, defaultTab = 'extraits') {
     const tabMap = {
         'extraits': 'tabProfileExtraits',
         'likes': 'tabProfileLikes',
+        'collections': 'tabProfileCollections',
         'followers': 'tabProfileFollowers',
         'following': 'tabProfileFollowing'
     };
@@ -764,6 +765,7 @@ async function switchProfileTab(tab) {
     const tabMap = {
         'extraits': 'tabProfileExtraits',
         'likes': 'tabProfileLikes',
+        'collections': 'tabProfileCollections',
         'followers': 'tabProfileFollowers',
         'following': 'tabProfileFollowing'
     };
@@ -780,6 +782,9 @@ async function switchProfileTab(tab) {
         case 'likes':
             await loadProfileLikes(currentProfileUserId);
             break;
+        case 'collections':
+            await loadProfileCollections(currentProfileUserId);
+            break;
         case 'followers':
             await loadProfileFollowersList(currentProfileUserId);
             break;
@@ -787,6 +792,188 @@ async function switchProfileTab(tab) {
             await loadProfileFollowingList(currentProfileUserId);
             break;
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 📚 COLLECTIONS PUBLIQUES (dans le profil)
+// ═══════════════════════════════════════════════════════════════════════════
+
+let profileCollectionsCache = new Map();
+
+async function loadProfileCollections(userId) {
+    const container = document.getElementById('profileContentArea');
+    if (!container || !supabaseClient) return;
+
+    try {
+        const { data: collections, error } = await supabaseClient
+            .from('collections')
+            .select('id, user_id, name, description, emoji, color, is_public, position, items_count, created_at')
+            .eq('user_id', userId)
+            .eq('is_public', true)
+            .order('position', { ascending: true });
+
+        if (error) throw error;
+
+        const publicCollections = collections || [];
+        profileCollectionsCache = new Map(publicCollections.map(c => [c.id, c]));
+
+        if (publicCollections.length === 0) {
+            container.innerHTML = `
+                <div class="profile-empty">
+                    <div class="profile-empty-icon">📚</div>
+                    <div class="profile-empty-text">Aucune collection publique</div>
+                </div>
+            `;
+            return;
+        }
+
+        // Calculer les counts si nécessaire (fallback)
+        const missingCounts = publicCollections.some(c => typeof c.items_count !== 'number');
+        if (missingCounts) {
+            const collectionIds = publicCollections.map(c => c.id);
+            const { data: items } = await supabaseClient
+                .from('collection_items')
+                .select('collection_id')
+                .in('collection_id', collectionIds);
+
+            const counts = new Map();
+            (items || []).forEach(it => counts.set(it.collection_id, (counts.get(it.collection_id) || 0) + 1));
+            publicCollections.forEach(c => {
+                if (typeof c.items_count !== 'number') c.items_count = counts.get(c.id) || 0;
+            });
+        }
+
+        container.innerHTML = `
+            <div class="collections-view">
+                <div class="collections-list" id="profileCollectionsList">
+                    ${publicCollections.map(c => `
+                        <div class="collection-card" onclick="openProfileCollection('${c.id}')">
+                            <div class="collection-card-emoji" style="background: ${(c.color || '#5a7a8a')}15; color: ${c.color || '#5a7a8a'}">${c.emoji || '📚'}</div>
+                            <div class="collection-card-info">
+                                <div class="collection-card-name">${escapeHtml(c.name || 'Sans titre')}</div>
+                                <div class="collection-card-count">${c.items_count || 0} texte${(c.items_count || 0) > 1 ? 's' : ''}</div>
+                                ${c.description ? `<div class="collection-card-desc">${escapeHtml(c.description)}</div>` : ''}
+                            </div>
+                            <div class="collection-card-actions">
+                                <button class="collection-card-action" onclick="event.stopPropagation(); openProfileCollection('${c.id}')" title="Ouvrir">↗</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } catch (err) {
+        console.error('Erreur chargement collections publiques:', err);
+        container.innerHTML = `<div class="profile-empty"><div class="profile-empty-text">Erreur de chargement</div></div>`;
+    }
+}
+
+async function openProfileCollection(collectionId) {
+    const container = document.getElementById('profileContentArea');
+    if (!container || !supabaseClient) return;
+
+    const collection = profileCollectionsCache.get(collectionId);
+    if (!collection) {
+        await loadProfileCollections(currentProfileUserId);
+        return;
+    }
+
+    container.innerHTML = '<div class="profile-empty"><div class="spinner"></div></div>';
+
+    let items = [];
+    try {
+        if (typeof loadCollectionItems === 'function') {
+            items = await loadCollectionItems(collectionId);
+        } else {
+            const { data } = await supabaseClient
+                .from('collection_items')
+                .select(`
+                    *,
+                    extraits(id, texte, source_title, source_author, source_url, created_at),
+                    source_likes(id, title, author, source_url, preview)
+                `)
+                .eq('collection_id', collectionId)
+                .order('position', { ascending: true });
+            items = data || [];
+        }
+    } catch (err) {
+        console.error('Erreur chargement items collection publique:', err);
+        items = [];
+    }
+
+    container.innerHTML = `
+        <div class="collection-view">
+            <div class="collection-view-header">
+                <button class="btn-back-collections" onclick="switchProfileTab('collections')">← Collections</button>
+                ${collection.description ? `<p class="collection-description">${escapeHtml(collection.description)}</p>` : ''}
+            </div>
+
+            <div class="collection-items" id="collectionItemsView">
+                ${items.length === 0
+                    ? `<div class="collection-empty">
+                        <div class="collection-empty-icon">○</div>
+                        <div class="collection-empty-title">Collection vide</div>
+                       </div>`
+                    : items.map(item => {
+                        let title, author, preview, url, fullText;
+                        if (item.extraits) {
+                            title = item.extraits.source_title;
+                            author = item.extraits.source_author;
+                            preview = item.extraits.texte;
+                            fullText = item.extraits.texte;
+                            url = item.extraits.source_url;
+                        } else if (item.source_likes) {
+                            title = item.source_likes.title;
+                            author = item.source_likes.author;
+                            preview = item.source_likes.preview;
+                            fullText = item.source_likes.preview;
+                            url = item.source_likes.source_url;
+                        } else if (item.local_title || item.local_url) {
+                            title = item.local_title;
+                            author = item.local_author;
+                            preview = item.local_preview;
+                            fullText = item.local_preview;
+                            url = item.local_url;
+                        } else {
+                            title = 'Élément indisponible';
+                            author = 'Accès privé';
+                            preview = 'Cet élément provient d\'une source non partageable (ou protégée par des règles d\'accès).';
+                            fullText = preview;
+                            url = '';
+                        }
+
+                        const itemId = item.id;
+                        const previewText = preview ? preview.substring(0, 300) : '';
+                        const hasMore = preview && preview.length > 300;
+                        const safeUrl = url ? encodeURIComponent(url) : '';
+                        const safeTitle = title ? encodeURIComponent(title) : '';
+                        const safeAuthor = author ? encodeURIComponent(author) : '';
+
+                        return `
+                            <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
+                                 data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
+                                <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}')">
+                                    <div class="collection-item-header">
+                                        <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
+                                        <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
+                                    </div>
+                                    <div class="collection-item-text-container">
+                                        <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
+                                        <div class="collection-item-full" id="full-${itemId}" style="display:none;">${escapeHtml(fullText || '')}</div>
+                                    </div>
+                                    ${hasMore ? `<button class="collection-item-expand" id="expand-btn-${itemId}">Lire la suite →</button>` : ''}
+                                    ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
+                                </div>
+                                <div class="collection-item-actions" onclick="event.stopPropagation()">
+                                    ${url ? `<button class="item-action" onclick="loadTextFromCollectionById('${itemId}')" title="Charger le texte complet">↻</button>` : ''}
+                                    ${url ? `<button class="item-action" onclick="window.open(decodeURIComponent('${safeUrl}'), '_blank')" title="Ouvrir la source">↗</button>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+            </div>
+        </div>
+    `;
 }
 
 /**

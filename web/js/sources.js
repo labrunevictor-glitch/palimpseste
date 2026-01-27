@@ -786,15 +786,26 @@ async function fetchArchiveOrg() {
         const metaRes = await fetch(`https://archive.org/metadata/${work.id}`);
         const metadata = await metaRes.json();
         
-        // Chercher un fichier texte (djvu.txt est souvent le seul disponible)
-        const textFile = metadata.files?.find(f => 
-            f.name.endsWith('.txt')
-        );
+        // Chercher un fichier texte (préférer djvu.txt quand présent)
+        const files = Array.isArray(metadata.files) ? metadata.files : [];
+        const textFile =
+            files.find(f => typeof f?.name === 'string' && f.name.endsWith('_djvu.txt')) ||
+            files.find(f => typeof f?.name === 'string' && f.name.endsWith('.txt'));
         
         if (textFile) {
-            const textUrl = `https://archive.org/download/${work.id}/${textFile.name}`;
-            const textRes = await fetch(textUrl);
-            let text = await textRes.text();
+            const safeFileName = encodeURIComponent(textFile.name);
+            const textUrl = `https://archive.org/download/${work.id}/${safeFileName}`;
+            let text = '';
+            try {
+                const textRes = await fetch(textUrl);
+                text = await textRes.text();
+            } catch (e) {
+                // Fallback si CORS bloque /download (cas fréquent en front pur)
+                // r.jina.ai renvoie le contenu en texte brut.
+                const proxied = `https://r.jina.ai/http://archive.org/download/${work.id}/${safeFileName}`;
+                const textRes = await fetch(proxied);
+                text = await textRes.text();
+            }
             
             // Nettoyer le texte OCR (djvu) des scories
             text = text
@@ -813,8 +824,8 @@ async function fetchArchiveOrg() {
                 !p.match(/^[A-Z\s]{20,}$/) // Pas les titres en majuscules
             );
             
-            if (paragraphs.length > 10) {
-                const startIdx = Math.floor(Math.random() * Math.max(1, paragraphs.length - 8)) + 5;
+            if (paragraphs.length > 3) {
+                const startIdx = Math.floor(Math.random() * Math.max(1, paragraphs.length - 4));
                 const excerpt = paragraphs.slice(startIdx, startIdx + 4).join('\n\n');
                 
                 return [{

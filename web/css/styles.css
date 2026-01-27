@@ -4636,6 +4636,7 @@ position: sticky;
 top: 0;
 background: var(--bg-card);
 z-index: 5;
+overflow-x: auto;
 }
 .profile-tab {
 flex: 1;
@@ -4648,6 +4649,7 @@ font-weight: 500;
 cursor: pointer;
 transition: all 0.2s;
 border-bottom: 2px solid transparent;
+min-width: 120px;
 }
 .profile-tab:hover {
 color: var(--text);
