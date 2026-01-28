@@ -112,7 +112,8 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
     const likeCount = likesCountMap.get(comment.id) || 0;
     const isLiked = userLikedMap.get(comment.id) || false;
 
-    const editedLabel = comment.edited_at ? `<span class="comment-edited">modifié ${formatHourMinute(comment.edited_at)}</span>` : '';
+    // Format WhatsApp-style: "Modifié" discret
+    const editedLabel = comment.edited_at ? `<span class="comment-edited-label" title="Modifié le ${new Date(comment.edited_at).toLocaleString()}"> • Modifié</span>` : '';
     
     return `
         <div class="comment-item" data-id="${comment.id}">
@@ -120,7 +121,7 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
             <div class="comment-content">
                 <div class="comment-header">
                     <span class="comment-username" onclick="openUserProfile('${comment.user_id}', '${escapeHtml(username)}')">${escapeHtml(username)}</span>
-                    <span class="comment-time">${timeAgo} ${editedLabel}</span>
+                    <span class="comment-time">${timeAgo}${editedLabel}</span>
                     ${canEdit ? `<button class="comment-edit" onclick="startEditComment('${comment.id}', '${extraitId}')">✎</button>` : ''}
                     ${canDelete ? `<button class="comment-delete" onclick="deleteComment('${comment.id}', '${extraitId}')">🗑️</button>` : ''}
                 </div>

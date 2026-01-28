@@ -274,7 +274,10 @@ async function loadMessages(otherUserId) {
                     : '<span class="msg-read-indicator" title="Envoyé">✓</span>';
             }
             
-            const editedLabel = msg.edited_at ? ` <span class="msg-edited" title="Modifié">modifié ${formatMessageTime(msg.edited_at)}</span>` : '';
+            // Format WhatsApp: Heure + "Modifié" si applicable
+            const timeHtml = `<span class="msg-time-text">${formatMessageTime(msg.created_at)}</span>`;
+            const editedHtml = msg.edited_at ? `<span class="msg-edited-label" title="Modifié à ${formatMessageTime(msg.edited_at)}">Modifié</span>` : '';
+            
             const reactionsHtml = renderMessageReactions(msg.id, reactionsByMessage, myReactionByMessage);
             const actionButtons = `
                 <div class="msg-actions">
@@ -287,7 +290,11 @@ async function loadMessages(otherUserId) {
                 <div class="msg-body">${escapeHtml(msg.content)}</div>
                 ${actionButtons}
                 ${reactionsHtml}
-                <div class="chat-message-time">${formatMessageTime(msg.created_at)}${editedLabel} ${readIndicator}</div>
+                <div class="chat-message-info">
+                    ${editedHtml}
+                    ${timeHtml}
+                    ${readIndicator}
+                </div>
             `;
             container.appendChild(msgEl);
         }
