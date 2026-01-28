@@ -821,7 +821,6 @@ async function loadProfileCollections(userId) {
         if (error) throw error;
 
         const publicCollections = collections || [];
-        profileCollectionsCache = new Map(publicCollections.map(c => [c.id, c]));
 
         if (publicCollections.length === 0) {
             container.innerHTML = `
@@ -833,9 +832,9 @@ async function loadProfileCollections(userId) {
             return;
         }
 
-        // Calculer les counts si nécessaire (fallback)
-        const missingCounts = publicCollections.some(c => typeof c.items_count !== 'number');
-        if (missingCounts) {
+        // Recalculer les counts pour le profil perso (évite compteurs périmés)
+        const shouldRecount = isOwnProfile || publicCollections.some(c => typeof c.items_count !== 'number');
+        if (shouldRecount) {
             const collectionIds = publicCollections.map(c => c.id);
             const { data: items } = await supabaseClient
                 .from('collection_items')
@@ -845,9 +844,11 @@ async function loadProfileCollections(userId) {
             const counts = new Map();
             (items || []).forEach(it => counts.set(it.collection_id, (counts.get(it.collection_id) || 0) + 1));
             publicCollections.forEach(c => {
-                if (typeof c.items_count !== 'number') c.items_count = counts.get(c.id) || 0;
+                c.items_count = counts.get(c.id) || 0;
             });
         }
+
+        profileCollectionsCache = new Map(publicCollections.map(c => [c.id, c]));
 
         container.innerHTML = `
             <div class="collections-view">
