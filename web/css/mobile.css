@@ -228,6 +228,14 @@
         opacity: 1 !important;
         transform: translate(-50%, -50%) scale(1) !important;
     }
+
+    /* Messagerie: afficher les actions sans hover */
+    .msg-actions { opacity: 1 !important; }
+    .msg-react-btn,
+    .msg-edit-btn {
+        padding: 6px 10px !important;
+        font-size: 14px !important;
+    }
     
     .mobile-profile-panel .drawer-close-btn {
         position: absolute !important;

@@ -272,26 +272,35 @@ async function loginWithEmail() {
     // Si ce n'est pas un email (pas de @), c'est un pseudo
     if (!identifier.includes('@')) {
         try {
-            // Chercher l'email associé au pseudo
-            const { data: profile, error: profileError } = await supabaseClient
-                .from('profiles')
-                .select('email')
-                .ilike('username', identifier)
-                .maybeSingle();
-            
-            if (profileError || !profile || !profile.email) {
+            const resp = await fetch(`/api/resolve-login?identifier=${encodeURIComponent(identifier)}`);
+            if (resp.ok) {
+                const payload = await resp.json();
+                if (payload?.email) {
+                    email = payload.email;
+                } else {
+                    document.getElementById('loginBtn').disabled = false;
+                    document.getElementById('loginBtn').textContent = 'Se connecter';
+                    showAuthError('login', 'Pseudo introuvable. Vérifiez votre saisie.');
+                    return;
+                }
+            } else if (resp.status === 404) {
                 document.getElementById('loginBtn').disabled = false;
                 document.getElementById('loginBtn').textContent = 'Se connecter';
                 showAuthError('login', 'Pseudo introuvable. Vérifiez votre saisie.');
                 return;
+            } else {
+                // En local (http.server), /api n'existe pas : fallback explicite
+                console.warn('API resolve-login indisponible:', resp.status);
+                document.getElementById('loginBtn').disabled = false;
+                document.getElementById('loginBtn').textContent = 'Se connecter';
+                showAuthError('login', 'Connexion par pseudo indisponible en local. Utilisez votre email, ou testez sur Vercel.');
+                return;
             }
-            
-            email = profile.email;
         } catch (e) {
-            console.error('Erreur recherche pseudo:', e);
+            console.error('Erreur resolve-login:', e);
             document.getElementById('loginBtn').disabled = false;
             document.getElementById('loginBtn').textContent = 'Se connecter';
-            showAuthError('login', 'Erreur lors de la recherche du pseudo.');
+            showAuthError('login', 'Connexion par pseudo indisponible (erreur réseau).');
             return;
         }
     }

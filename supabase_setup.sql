@@ -23,6 +23,17 @@ CREATE TABLE profiles (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Table privée de résolution pseudo -> email (utilisée côté serveur uniquement)
+-- NOTE: RLS activé sans policy => inaccessible côté client (sauf service role)
+CREATE TABLE IF NOT EXISTS auth_lookup (
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    username_lower TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE auth_lookup ENABLE ROW LEVEL SECURITY;
+
 -- Table des extraits partagés
 -- NOTE: texte contient maintenant un APERÇU (~150 chars), pas le texte complet
 -- Le texte complet est chargé à la volée depuis source_url (Wikisource)
@@ -209,8 +220,21 @@ CREATE TABLE messages (
     receiver_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
     read_at TIMESTAMP WITH TIME ZONE,
+    edited_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Réactions (likes/emojis) sur les messages
+CREATE TABLE IF NOT EXISTS message_reactions (
+    message_id UUID REFERENCES messages(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    emoji TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (message_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_message_reactions_message ON message_reactions(message_id);
+CREATE INDEX IF NOT EXISTS idx_message_reactions_user ON message_reactions(user_id);
 
 -- Index pour les performances
 CREATE INDEX idx_messages_sender ON messages(sender_id);
@@ -219,6 +243,8 @@ CREATE INDEX idx_messages_created ON messages(created_at DESC);
 
 -- RLS pour messages
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE message_reactions ENABLE ROW LEVEL SECURITY;
 
 -- Les utilisateurs peuvent voir les messages qu'ils ont envoyés ou reçus
 CREATE POLICY "Les utilisateurs voient leurs messages"
@@ -230,10 +256,41 @@ CREATE POLICY "Les utilisateurs peuvent envoyer des messages"
     ON messages FOR INSERT
     WITH CHECK (auth.uid() = sender_id);
 
--- Les utilisateurs peuvent marquer comme lu leurs messages reçus
-CREATE POLICY "Les utilisateurs peuvent marquer leurs messages comme lus"
-    ON messages FOR UPDATE
-    USING (auth.uid() = receiver_id);
+-- NOTE: pas de policy UPDATE directe sur messages.
+-- Les mises à jour (read_at / édition) se font via RPC SECURITY DEFINER.
+
+DROP POLICY IF EXISTS "Les utilisateurs peuvent marquer leurs messages comme lus" ON messages;
+
+-- Policies pour les réactions
+CREATE POLICY "Les utilisateurs voient les réactions de leurs conversations"
+    ON message_reactions FOR SELECT
+    USING (
+        EXISTS (
+            SELECT 1 FROM messages m
+            WHERE m.id = message_id
+              AND (auth.uid() = m.sender_id OR auth.uid() = m.receiver_id)
+        )
+    );
+
+CREATE POLICY "Les utilisateurs peuvent réagir dans leurs conversations"
+    ON message_reactions FOR INSERT
+    WITH CHECK (
+        auth.uid() = user_id
+        AND EXISTS (
+            SELECT 1 FROM messages m
+            WHERE m.id = message_id
+              AND (auth.uid() = m.sender_id OR auth.uid() = m.receiver_id)
+        )
+    );
+
+CREATE POLICY "Les utilisateurs peuvent modifier leurs réactions"
+    ON message_reactions FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs réactions"
+    ON message_reactions FOR DELETE
+    USING (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- � Table des commentaires sur les extraits
@@ -244,6 +301,7 @@ CREATE TABLE comments (
     extrait_id UUID REFERENCES extraits(id) ON DELETE CASCADE NOT NULL,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     content TEXT NOT NULL,
+    edited_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -269,6 +327,55 @@ CREATE POLICY "Les utilisateurs peuvent commenter"
 CREATE POLICY "Les utilisateurs peuvent supprimer leurs commentaires"
     ON comments FOR DELETE
     USING (auth.uid() = user_id);
+
+-- NOTE: pas de policy UPDATE directe sur comments.
+-- L'édition se fait via RPC SECURITY DEFINER.
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 🔧 RPC (SECURITY DEFINER) - Lecture / Édition
+-- ═══════════════════════════════════════════════════════════════════════════
+
+CREATE OR REPLACE FUNCTION mark_messages_read(p_from_user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE messages
+    SET read_at = NOW()
+    WHERE sender_id = p_from_user_id
+      AND receiver_id = auth.uid()
+      AND read_at IS NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE ALL ON FUNCTION mark_messages_read(UUID) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION mark_messages_read(UUID) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION edit_message(p_message_id UUID, p_content TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE messages
+    SET content = p_content,
+        edited_at = NOW()
+    WHERE id = p_message_id
+      AND sender_id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE ALL ON FUNCTION edit_message(UUID, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION edit_message(UUID, TEXT) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION edit_comment(p_comment_id UUID, p_content TEXT)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE comments
+    SET content = p_content,
+        edited_at = NOW()
+    WHERE id = p_comment_id
+      AND user_id = auth.uid();
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+REVOKE ALL ON FUNCTION edit_comment(UUID, TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION edit_comment(UUID, TEXT) TO anon, authenticated;
 
 -- Ajouter compteur de commentaires dans extraits
 ALTER TABLE extraits ADD COLUMN IF NOT EXISTS comments_count INTEGER DEFAULT 0;
@@ -347,6 +454,17 @@ BEGIN
         NEW.id,
         COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1))
     );
+
+    INSERT INTO auth_lookup (user_id, username_lower, email)
+    VALUES (
+        NEW.id,
+        lower(COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1))),
+        NEW.email
+    )
+    ON CONFLICT (user_id) DO UPDATE
+        SET username_lower = EXCLUDED.username_lower,
+            email = EXCLUDED.email;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -355,6 +473,35 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW
     EXECUTE FUNCTION handle_new_user();
+
+-- Sync username_lower si l'utilisateur change son username dans profiles
+CREATE OR REPLACE FUNCTION sync_auth_lookup_username()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.username IS DISTINCT FROM OLD.username THEN
+        UPDATE auth_lookup
+        SET username_lower = lower(NEW.username)
+        WHERE user_id = NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_profiles_username_updated ON profiles;
+CREATE TRIGGER on_profiles_username_updated
+    AFTER UPDATE OF username ON profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION sync_auth_lookup_username();
+
+-- Backfill auth_lookup pour les utilisateurs existants (si script exécuté après coup)
+INSERT INTO auth_lookup (user_id, username_lower, email)
+SELECT
+    u.id,
+    lower(COALESCE(p.username, split_part(u.email, '@', 1))),
+    u.email
+FROM auth.users u
+LEFT JOIN profiles p ON p.id = u.id
+ON CONFLICT (user_id) DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 💜 Table des likes sur les commentaires

@@ -8144,3 +8144,153 @@ transition: all 0.2s;
 
 /* Modal fix */
 #sourceSettingsModal.open { display: flex !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   💬 MESSAGERIE - Réactions & Édition
+   ═══════════════════════════════════════════════════════════ */
+
+.chat-message { position: relative; }
+
+.msg-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.chat-message:hover .msg-actions { opacity: 1; }
+
+.msg-react-btn,
+.msg-edit-btn {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.msg-react-btn:hover,
+.msg-edit-btn:hover { background: rgba(255,255,255,0.12); }
+
+.msg-reactions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.msg-reaction-pill {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.msg-reaction-pill.mine {
+    border-color: var(--accent);
+    background: rgba(212, 165, 116, 0.16);
+}
+
+.msg-reaction-picker {
+    position: absolute;
+    z-index: 99999;
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid var(--border);
+    background: rgba(20,20,20,0.96);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+
+.msg-reaction-emoji {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 6px;
+    border-radius: 10px;
+}
+
+.msg-reaction-emoji:hover { background: rgba(255,255,255,0.08); }
+
+.msg-edited { color: var(--text-secondary); font-size: 11px; }
+
+.chat-edit-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(212, 165, 116, 0.08);
+    color: var(--text);
+    font-size: 13px;
+}
+
+.chat-edit-cancel {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   💬 COMMENTAIRES - Édition
+   ═══════════════════════════════════════════════════════════ */
+
+.comment-edit {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.comment-edit:hover { opacity: 1; }
+
+.comment-edited {
+    margin-left: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
+.comment-edit-input {
+    width: 100%;
+    min-height: 56px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+}
+
+.comment-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.comment-edit-save,
+.comment-edit-cancel {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.comment-edit-save:hover,
+.comment-edit-cancel:hover { background: rgba(255,255,255,0.12); }

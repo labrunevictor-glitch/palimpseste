@@ -108,8 +108,11 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
     const avatarSymbol = getAvatarSymbol(username);
     const timeAgo = formatTimeAgo(new Date(comment.created_at));
     const canDelete = currentUser && comment.user_id === currentUser.id;
+    const canEdit = currentUser && comment.user_id === currentUser.id;
     const likeCount = likesCountMap.get(comment.id) || 0;
     const isLiked = userLikedMap.get(comment.id) || false;
+
+    const editedLabel = comment.edited_at ? `<span class="comment-edited">modifié ${formatHourMinute(comment.edited_at)}</span>` : '';
     
     return `
         <div class="comment-item" data-id="${comment.id}">
@@ -117,10 +120,11 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
             <div class="comment-content">
                 <div class="comment-header">
                     <span class="comment-username" onclick="openUserProfile('${comment.user_id}', '${escapeHtml(username)}')">${escapeHtml(username)}</span>
-                    <span class="comment-time">${timeAgo}</span>
+                    <span class="comment-time">${timeAgo} ${editedLabel}</span>
+                    ${canEdit ? `<button class="comment-edit" onclick="startEditComment('${comment.id}', '${extraitId}')">✎</button>` : ''}
                     ${canDelete ? `<button class="comment-delete" onclick="deleteComment('${comment.id}', '${extraitId}')">🗑️</button>` : ''}
                 </div>
-                <div class="comment-text">${escapeHtml(comment.content)}</div>
+                <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.content)}</div>
                 <div class="comment-actions">
                     <button class="comment-like-btn ${isLiked ? 'liked' : ''}" onclick="toggleCommentLike('${comment.id}', '${extraitId}')">
                         <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
@@ -130,6 +134,89 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
             </div>
         </div>
     `;
+}
+
+function formatHourMinute(dateString) {
+    try {
+        const d = new Date(dateString);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+        return '';
+    }
+}
+
+function startEditComment(commentId, extraitId) {
+    const textEl = document.getElementById(`commentText-${commentId}`);
+    if (!textEl) return;
+
+    const original = textEl.textContent || '';
+    textEl.dataset.original = original;
+
+    // Construire en DOM pour éviter l'escaping visible dans le textarea
+    textEl.innerHTML = '';
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'comment-edit-input';
+    textarea.id = `commentEditInput-${commentId}`;
+    textarea.value = original;
+
+    const actions = document.createElement('div');
+    actions.className = 'comment-edit-actions';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'comment-edit-save';
+    saveBtn.textContent = 'Enregistrer';
+    saveBtn.onclick = () => saveEditComment(commentId, extraitId);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'comment-edit-cancel';
+    cancelBtn.textContent = 'Annuler';
+    cancelBtn.onclick = () => cancelEditComment(commentId);
+
+    actions.appendChild(saveBtn);
+    actions.appendChild(cancelBtn);
+
+    textEl.appendChild(textarea);
+    textEl.appendChild(actions);
+
+    textarea.focus();
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+}
+
+function cancelEditComment(commentId) {
+    const textEl = document.getElementById(`commentText-${commentId}`);
+    if (!textEl) return;
+    const original = textEl.dataset.original || '';
+    textEl.textContent = original;
+}
+
+async function saveEditComment(commentId, extraitId) {
+    if (!currentUser) {
+        openAuthModal('login');
+        toast('📝 Connectez-vous pour modifier');
+        return;
+    }
+    if (!supabaseClient) return;
+
+    const input = document.getElementById(`commentEditInput-${commentId}`);
+    const newContent = input?.value?.trim();
+    if (!newContent) {
+        toast('Le commentaire ne peut pas être vide');
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.rpc('edit_comment', {
+            p_comment_id: commentId,
+            p_content: newContent
+        });
+        if (error) throw error;
+        toast('✅ Commentaire modifié');
+        await loadComments(extraitId);
+    } catch (err) {
+        console.error('Erreur edit_comment:', err);
+        toast('Erreur modification');
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

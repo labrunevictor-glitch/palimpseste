@@ -12,6 +12,13 @@
 let currentConversationUserId = null;
 let messagesSubscription = null;
 
+// Édition de message (1 à la fois)
+let editingMessageId = null;
+
+// Picker réactions (un seul ouvert)
+let activeReactionPicker = null;
+const MESSAGE_REACTION_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 🚪 OUVERTURE/FERMETURE DE LA MESSAGERIE
 // ═══════════════════════════════════════════════════════════════════════════
@@ -233,10 +240,31 @@ async function loadMessages(otherUserId) {
             return;
         }
         
+        // Charger les réactions associées
+        const messageIds = messages.map(m => m.id);
+        const reactionsByMessage = new Map();
+        const myReactionByMessage = new Map();
+        if (messageIds.length > 0) {
+            const { data: reactions } = await supabaseClient
+                .from('message_reactions')
+                .select('message_id, user_id, emoji')
+                .in('message_id', messageIds);
+
+            (reactions || []).forEach(r => {
+                if (!reactionsByMessage.has(r.message_id)) reactionsByMessage.set(r.message_id, new Map());
+                const emojiCounts = reactionsByMessage.get(r.message_id);
+                emojiCounts.set(r.emoji, (emojiCounts.get(r.emoji) || 0) + 1);
+                if (currentUser && r.user_id === currentUser.id) {
+                    myReactionByMessage.set(r.message_id, r.emoji);
+                }
+            });
+        }
+
         for (const msg of messages) {
             const isSent = msg.sender_id === currentUser.id;
             const msgEl = document.createElement('div');
             msgEl.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+            msgEl.dataset.messageId = msg.id;
             
             // Indicateur de lecture pour les messages envoyés
             let readIndicator = '';
@@ -246,9 +274,20 @@ async function loadMessages(otherUserId) {
                     : '<span class="msg-read-indicator" title="Envoyé">✓</span>';
             }
             
+            const editedLabel = msg.edited_at ? ` <span class="msg-edited" title="Modifié">modifié ${formatMessageTime(msg.edited_at)}</span>` : '';
+            const reactionsHtml = renderMessageReactions(msg.id, reactionsByMessage, myReactionByMessage);
+            const actionButtons = `
+                <div class="msg-actions">
+                    <button class="msg-react-btn" title="Réagir" onclick="openMessageReactionPicker('${msg.id}', this)">😊</button>
+                    ${isSent ? `<button class="msg-edit-btn" title="Modifier" onclick="startEditMessage('${msg.id}')">✎</button>` : ''}
+                </div>
+            `;
+
             msgEl.innerHTML = `
-                ${escapeHtml(msg.content)}
-                <div class="chat-message-time">${formatMessageTime(msg.created_at)} ${readIndicator}</div>
+                <div class="msg-body">${escapeHtml(msg.content)}</div>
+                ${actionButtons}
+                ${reactionsHtml}
+                <div class="chat-message-time">${formatMessageTime(msg.created_at)}${editedLabel} ${readIndicator}</div>
             `;
             container.appendChild(msgEl);
         }
@@ -272,19 +311,33 @@ async function sendMessage() {
     
     if (!content) return;
     
-    input.value = '';
+    // Si on édite, on ne vide qu'après succès
     
     try {
-        const { error } = await supabaseClient
-            .from('messages')
-            .insert({
-                sender_id: currentUser.id,
-                receiver_id: currentConversationUserId,
-                content: content,
-                created_at: new Date().toISOString()
-            });
+        if (editingMessageId) {
+            const { error } = await supabaseClient
+                .rpc('edit_message', {
+                    p_message_id: editingMessageId,
+                    p_content: content
+                });
+
+            if (error) throw error;
+
+            cancelEditMessage();
+            input.value = '';
+        } else {
+            const { error } = await supabaseClient
+                .from('messages')
+                .insert({
+                    sender_id: currentUser.id,
+                    receiver_id: currentConversationUserId,
+                    content: content,
+                    created_at: new Date().toISOString()
+                });
         
-        if (error) throw error;
+            if (error) throw error;
+            input.value = '';
+        }
         
         // Rafraîchir les messages
         await loadMessages(currentConversationUserId);
@@ -307,12 +360,7 @@ async function markMessagesAsRead(fromUserId) {
     if (!supabaseClient || !currentUser) return;
     
     try {
-        await supabaseClient
-            .from('messages')
-            .update({ read_at: new Date().toISOString() })
-            .eq('sender_id', fromUserId)
-            .eq('receiver_id', currentUser.id)
-            .is('read_at', null);
+        await supabaseClient.rpc('mark_messages_read', { p_from_user_id: fromUserId });
         
         updateUnreadBadge();
     } catch (err) {
@@ -375,7 +423,154 @@ function subscribeToMessages() {
                 }
             }
         )
+        .on('postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'messages' },
+            (payload) => {
+                const msg = payload.new;
+                if (msg.receiver_id === currentUser.id || msg.sender_id === currentUser.id) {
+                    if (currentConversationUserId === msg.sender_id || currentConversationUserId === msg.receiver_id) {
+                        loadMessages(currentConversationUserId);
+                    }
+                    loadConversations();
+                    updateUnreadBadge();
+                }
+            }
+        )
+        .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'message_reactions' },
+            (payload) => {
+                const r = payload.new || payload.old;
+                if (!r?.message_id || !currentConversationUserId) return;
+                // Simple: recharger si une conversation est ouverte
+                loadMessages(currentConversationUserId);
+            }
+        )
         .subscribe();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 😊 RÉACTIONS (LIKES/EMOJIS)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderMessageReactions(messageId, reactionsByMessage, myReactionByMessage) {
+    const emojiCounts = reactionsByMessage.get(messageId);
+    if (!emojiCounts || emojiCounts.size === 0) return '';
+
+    const myEmoji = myReactionByMessage.get(messageId);
+    const pills = Array.from(emojiCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([emoji, count]) => {
+            const mine = myEmoji === emoji ? ' mine' : '';
+            const label = count > 1 ? `${emoji} ${count}` : `${emoji}`;
+            return `<button class="msg-reaction-pill${mine}" onclick="setMessageReaction('${messageId}', '${emoji}')" title="Réagir ${emoji}">${label}</button>`;
+        })
+        .join('');
+
+    return `<div class="msg-reactions" aria-label="Réactions">${pills}</div>`;
+}
+
+function closeReactionPicker() {
+    if (activeReactionPicker) {
+        activeReactionPicker.remove();
+        activeReactionPicker = null;
+    }
+}
+
+function openMessageReactionPicker(messageId, anchorEl) {
+    closeReactionPicker();
+
+    const picker = document.createElement('div');
+    picker.className = 'msg-reaction-picker';
+    picker.innerHTML = MESSAGE_REACTION_EMOJIS.map(e => `<button class="msg-reaction-emoji" onclick="setMessageReaction('${messageId}', '${e}')">${e}</button>`).join('');
+    document.body.appendChild(picker);
+
+    // Positionner près du bouton
+    const rect = anchorEl.getBoundingClientRect();
+    const top = Math.max(8, rect.top - 44);
+    const left = Math.max(8, rect.left - 10);
+    picker.style.top = `${top + window.scrollY}px`;
+    picker.style.left = `${left + window.scrollX}px`;
+
+    activeReactionPicker = picker;
+
+    // Fermer au clic extérieur
+    setTimeout(() => {
+        const handler = (ev) => {
+            if (!picker.contains(ev.target)) {
+                closeReactionPicker();
+                document.removeEventListener('click', handler);
+            }
+        };
+        document.addEventListener('click', handler);
+    }, 0);
+}
+
+async function setMessageReaction(messageId, emoji) {
+    if (!currentUser) {
+        openAuthModal('login');
+        toast('😊 Connectez-vous pour réagir');
+        return;
+    }
+    if (!supabaseClient) return;
+
+    try {
+        // Upsert (1 réaction par user/message)
+        const { error } = await supabaseClient
+            .from('message_reactions')
+            .upsert({
+                message_id: messageId,
+                user_id: currentUser.id,
+                emoji,
+                created_at: new Date().toISOString()
+            }, { onConflict: 'message_id,user_id' });
+
+        if (error) throw error;
+        closeReactionPicker();
+        if (currentConversationUserId) await loadMessages(currentConversationUserId);
+    } catch (err) {
+        console.error('Erreur réaction message:', err);
+        toast('Erreur réaction');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ✎ ÉDITION
+// ═══════════════════════════════════════════════════════════════════════════
+
+function startEditMessage(messageId) {
+    const msgEl = document.querySelector(`.chat-message[data-message-id="${messageId}"] .msg-body`);
+    if (!msgEl) return;
+
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    const content = msgEl.textContent || '';
+
+    editingMessageId = messageId;
+    input.value = content;
+    input.focus();
+    if (sendBtn) sendBtn.textContent = '✓';
+
+    // Afficher un bandeau simple “édition”
+    let banner = document.getElementById('chatEditBanner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'chatEditBanner';
+        banner.className = 'chat-edit-banner';
+        banner.innerHTML = `Modification du message <button class="chat-edit-cancel" onclick="cancelEditMessage()">Annuler</button>`;
+        const chatArea = document.getElementById('chatArea');
+        const inputArea = chatArea?.querySelector('.chat-input-area');
+        if (inputArea) {
+            inputArea.parentNode.insertBefore(banner, inputArea);
+        }
+    }
+}
+
+function cancelEditMessage() {
+    editingMessageId = null;
+    const sendBtn = document.getElementById('chatSendBtn');
+    if (sendBtn) sendBtn.textContent = '➤';
+    const banner = document.getElementById('chatEditBanner');
+    if (banner) banner.remove();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
