@@ -286,17 +286,36 @@ async function loginWithEmail() {
                     return;
                 }
             } else if (resp.status === 404 && !isJson) {
-                // Erreur 404 HTML (page non trouvée) -> Nous sommes probablement en local sans l'API
-                console.warn('API resolve-login introuvable (404 HTML). Mode local ?');
+                // 404 HTML (Vercel/serveur n'a pas trouvé la Function)
+                console.warn('API resolve-login introuvable (404 HTML).');
                 document.getElementById('loginBtn').disabled = false;
                 document.getElementById('loginBtn').textContent = 'Se connecter';
-                showAuthError('login', 'Connexion par pseudo impossible en local (API absente). Utilisez votre email.');
+
+                const host = (window.location && window.location.hostname) ? window.location.hostname : '';
+                const isLocalHost = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host.endsWith('.local');
+
+                if (isLocalHost) {
+                    showAuthError('login', 'Connexion par pseudo impossible en local (API absente). Utilisez votre email, ou testez sur Vercel.');
+                } else {
+                    showAuthError('login', 'Connexion par pseudo indisponible : API /api/resolve-login introuvable (déploiement Vercel).');
+                }
                 return;
             } else if (resp.status === 404) {
                 // Erreur 404 JSON (réponse de l'API) -> Pseudo non trouvé
                 document.getElementById('loginBtn').disabled = false;
                 document.getElementById('loginBtn').textContent = 'Se connecter';
                 showAuthError('login', 'Pseudo introuvable. Vérifiez votre saisie.');
+                return;
+            } else if (resp.status === 500 && isJson) {
+                // Exemple: { error: 'Server not configured' }
+                const payload = await resp.json().catch(() => null);
+                document.getElementById('loginBtn').disabled = false;
+                document.getElementById('loginBtn').textContent = 'Se connecter';
+                if (payload?.error === 'Server not configured') {
+                    showAuthError('login', 'Connexion par pseudo indisponible : serveur non configuré (env vars Vercel manquantes).');
+                } else {
+                    showAuthError('login', 'Connexion par pseudo indisponible (erreur serveur).');
+                }
                 return;
             } else {
                 // En local (http.server), /api n'existe pas : fallback explicite

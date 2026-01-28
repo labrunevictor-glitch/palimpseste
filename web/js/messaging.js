@@ -19,6 +19,24 @@ let editingMessageId = null;
 let activeReactionPicker = null;
 const MESSAGE_REACTION_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
 
+// Long-press (mobile)
+let longPressTimer = null;
+let longPressTargetEl = null;
+let messageGlobalHandlersInstalled = false;
+
+function ensureMessageGlobalHandlersInstalled() {
+    if (messageGlobalHandlersInstalled) return;
+    messageGlobalHandlersInstalled = true;
+
+    document.addEventListener('click', (e) => {
+        const clickedInsideMessage = e.target && (e.target.closest?.('.chat-message') || e.target.closest?.('.msg-reaction-picker'));
+        if (!clickedInsideMessage) {
+            clearAllMessageActions();
+            closeReactionPicker();
+        }
+    });
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 🚪 OUVERTURE/FERMETURE DE LA MESSAGERIE
 // ═══════════════════════════════════════════════════════════════════════════
@@ -274,7 +292,7 @@ async function loadMessages(otherUserId) {
                     : '<span class="msg-read-indicator" title="Envoyé">✓</span>';
             }
             
-            // Format WhatsApp: Heure + "Modifié" si applicable
+            // Format WhatsApp: heure + "Modifié" si applicable
             const timeHtml = `<span class="msg-time-text">${formatMessageTime(msg.created_at)}</span>`;
             const editedHtml = msg.edited_at ? `<span class="msg-edited-label" title="Modifié à ${formatMessageTime(msg.edited_at)}">Modifié</span>` : '';
             
@@ -290,13 +308,15 @@ async function loadMessages(otherUserId) {
                 <div class="msg-body">${escapeHtml(msg.content)}</div>
                 ${actionButtons}
                 ${reactionsHtml}
-                <div class="chat-message-info">
+                <div class="chat-message-time">
                     ${editedHtml}
                     ${timeHtml}
                     ${readIndicator}
                 </div>
             `;
             container.appendChild(msgEl);
+
+            attachMessageInteractions(msgEl, msg.id, isSent);
         }
         
         // Scroll en bas
@@ -489,27 +509,87 @@ function openMessageReactionPicker(messageId, anchorEl) {
     const picker = document.createElement('div');
     picker.className = 'msg-reaction-picker';
     picker.innerHTML = MESSAGE_REACTION_EMOJIS.map(e => `<button class="msg-reaction-emoji" onclick="setMessageReaction('${messageId}', '${e}')">${e}</button>`).join('');
+    picker.style.visibility = 'hidden';
     document.body.appendChild(picker);
 
-    // Positionner près du bouton
+    // Positionner près de l'ancre (fixé viewport, clamp dans l'écran)
     const rect = anchorEl.getBoundingClientRect();
-    const top = Math.max(8, rect.top - 44);
-    const left = Math.max(8, rect.left - 10);
-    picker.style.top = `${top + window.scrollY}px`;
-    picker.style.left = `${left + window.scrollX}px`;
+    const pickerRect = picker.getBoundingClientRect();
+    const margin = 8;
+
+    let top = rect.top - pickerRect.height - margin;
+    if (top < margin) top = rect.bottom + margin;
+
+    let left = rect.left + (rect.width / 2) - (pickerRect.width / 2);
+    left = Math.max(margin, Math.min(left, window.innerWidth - pickerRect.width - margin));
+
+    picker.style.top = `${top}px`;
+    picker.style.left = `${left}px`;
+    picker.style.visibility = '';
 
     activeReactionPicker = picker;
 
-    // Fermer au clic extérieur
+    // Fermer au clic extérieur + scroll/resize
     setTimeout(() => {
-        const handler = (ev) => {
+        const onDocClick = (ev) => {
             if (!picker.contains(ev.target)) {
                 closeReactionPicker();
-                document.removeEventListener('click', handler);
+                document.removeEventListener('click', onDocClick);
+                window.removeEventListener('scroll', onViewportChange, true);
+                window.removeEventListener('resize', onViewportChange);
             }
         };
-        document.addEventListener('click', handler);
+        const onViewportChange = () => {
+            closeReactionPicker();
+            document.removeEventListener('click', onDocClick);
+            window.removeEventListener('scroll', onViewportChange, true);
+            window.removeEventListener('resize', onViewportChange);
+        };
+        document.addEventListener('click', onDocClick);
+        window.addEventListener('scroll', onViewportChange, true);
+        window.addEventListener('resize', onViewportChange);
     }, 0);
+}
+
+function clearAllMessageActions() {
+    document.querySelectorAll('.chat-message.show-actions').forEach(el => el.classList.remove('show-actions'));
+}
+
+function attachMessageInteractions(msgContainerEl, messageId, isSent) {
+    // Desktop: hover handled by CSS
+    // Mobile: long-press to show actions (and keep them visible briefly)
+    const supportsHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (supportsHover) return;
+
+    ensureMessageGlobalHandlersInstalled();
+
+    const start = (ev) => {
+        if (ev.type === 'mousedown' && ev.button !== 0) return;
+
+        clearTimeout(longPressTimer);
+        longPressTargetEl = msgContainerEl;
+
+        longPressTimer = setTimeout(() => {
+            clearAllMessageActions();
+            msgContainerEl.classList.add('show-actions');
+            // (Optionnel) ouvrir directement le picker au long-press
+            // openMessageReactionPicker(messageId, msgContainerEl);
+        }, 450);
+    };
+
+    const cancel = () => {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        longPressTargetEl = null;
+    };
+
+    msgContainerEl.addEventListener('touchstart', start, { passive: true });
+    msgContainerEl.addEventListener('touchend', cancel, { passive: true });
+    msgContainerEl.addEventListener('touchmove', cancel, { passive: true });
+    msgContainerEl.addEventListener('mousedown', start);
+    msgContainerEl.addEventListener('mouseup', cancel);
+    msgContainerEl.addEventListener('mouseleave', cancel);
+
 }
 
 async function setMessageReaction(messageId, emoji) {
