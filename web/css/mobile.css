@@ -211,16 +211,16 @@
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) scale(0.9) !important;
-        width: 90vw !important;
-        max-width: 400px !important;
-        max-height: 85vh !important;
+        width: 88vw !important;
+        max-width: 360px !important;
+        max-height: 82vh !important;
         overflow-y: auto !important;
         z-index: 250 !important;
         background: var(--bg-card) !important;
         border: 2px solid var(--border) !important;
-        border-radius: 20px !important;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
-        padding: 20px 20px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.35) !important;
+        padding: 14px 16px !important;
         opacity: 0 !important;
         transition: opacity 0.25s, transform 0.25s !important;
     }
@@ -239,9 +239,20 @@
     }
     
     .mobile-profile-panel .drawer-close-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         position: absolute !important;
-        top: 12px !important;
-        right: 12px !important;
+        top: 8px !important;
+        right: 8px !important;
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 0.8rem !important;
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-secondary) !important;
+        opacity: 0.7 !important;
+        box-shadow: none !important;
     }
     
     .mobile-profile-content {
@@ -249,15 +260,15 @@
     }
     
     .mobile-profile-avatar-big {
-        width: 50px !important;
-        height: 50px !important;
-        margin: 0 auto 10px !important;
+        width: 44px !important;
+        height: 44px !important;
+        margin: 0 auto 8px !important;
         border-radius: 50% !important;
         background: linear-gradient(135deg, var(--accent), var(--accent-purple)) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 1.5rem !important;
+        font-size: 1.3rem !important;
         border: 2px solid var(--border) !important;
         color: white !important;
     }
@@ -270,10 +281,10 @@
     }
     
     .mobile-profile-name {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
         font-weight: 600 !important;
         color: var(--text) !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 8px !important;
     }
     
     .mobile-profile-subtitle {
@@ -285,8 +296,8 @@
     .mobile-profile-stats {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        margin-bottom: 16px !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
         padding: 0 !important;
     }
     
@@ -296,8 +307,8 @@
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        padding: 10px 8px !important;
-        min-height: 60px !important;
+        padding: 8px 6px !important;
+        min-height: 52px !important;
         border-radius: 8px !important;
         background: var(--bg) !important;
         border: 1px solid var(--border) !important;
@@ -308,15 +319,15 @@
     }
     
     .mobile-profile-stat-num {
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
         font-weight: bold !important;
         color: var(--accent) !important;
     }
     
     .mobile-profile-stat-label {
-        font-size: 0.7rem !important;
+        font-size: 0.65rem !important;
         color: var(--text-secondary) !important;
-        margin-top: 3px !important;
+        margin-top: 2px !important;
         white-space: nowrap !important;
     }
     
@@ -359,8 +370,8 @@
     /* Boutons d'action principaux (Collections, Communauté) */
     .mobile-profile-actions {
         display: flex !important;
-        gap: 8px !important;
-        margin-bottom: 12px !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
     }
     
     .mobile-profile-action-btn {

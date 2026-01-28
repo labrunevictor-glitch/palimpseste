@@ -5374,13 +5374,27 @@ color: white;
 background: var(--accent-tertiary);
 }
 .btn-close-profile {
-display: none;
-background: var(--bg-elevated);
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 28px;
+height: 28px;
+padding: 0;
+background: transparent;
 color: var(--text-secondary);
 border: 1px solid var(--border) !important;
+border-radius: 50%;
+font-size: 0;
+line-height: 1;
+opacity: 0.7;
+}
+.btn-close-profile::after {
+content: '✕';
+font-size: 0.85rem;
 }
 .btn-close-profile:hover {
 color: var(--text);
+opacity: 1;
 }
 
 /* Bouton fermer flottant dans modal profil */
@@ -5461,6 +5475,24 @@ border-bottom-color: var(--accent);
     }
     .profile-tab::after {
         font-size: 1.5rem;
+    }
+}
+
+@media screen and (min-width: 521px) {
+    .profile-tab {
+        flex: 1 1 20%;
+        font-size: 0 !important;
+        padding: 0.75rem 0.4rem;
+        line-height: 1;
+    }
+    /* Masquer le texte, garder uniquement les émojis */
+    #tabProfileExtraits::after { content: '📝'; }
+    #tabProfileLikes::after { content: '❤️'; }
+    #tabProfileCollections::after { content: '📚'; }
+    #tabProfileFollowers::after { content: '👥'; }
+    #tabProfileFollowing::after { content: '📤'; }
+    .profile-tab::after {
+        font-size: 1.25rem;
     }
 }
 /* Profile Content */
