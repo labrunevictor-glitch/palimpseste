@@ -974,7 +974,7 @@ async function openProfileCollection(collectionId) {
                                     </div>
                                     <div class="collection-item-text-container">
                                         <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
-                                        <div class="collection-item-full" id="full-${itemId}" style="display:none;">${escapeHtml(fullText || '')}</div>
+                                        <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                     </div>
                                     ${hasMore ? `<button class="collection-item-expand" id="expand-btn-${itemId}">Lire la suite →</button>` : ''}
                                     ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}

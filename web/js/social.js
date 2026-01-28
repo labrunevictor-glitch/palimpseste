@@ -485,6 +485,42 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
     const btnEl = document.getElementById(`voirPlus-${extraitId}`);
     
     if (!textEl || !sourceUrl) return;
+
+    const scrollEl = textEl.closest('.favorites-overlay') || document.scrollingElement;
+    const scrollTop = scrollEl ? scrollEl.scrollTop : window.scrollY;
+
+    // Si déjà chargé, basculer sans recharger
+    if (textEl.dataset.fullText) {
+        const isExpanded = textEl.dataset.expanded === 'true';
+        if (isExpanded) {
+            const previewText = textEl.dataset.previewText || '';
+            textEl.innerHTML = '';
+            textEl.textContent = previewText;
+            textEl.dataset.expanded = 'false';
+            if (btnEl) {
+                btnEl.innerHTML = '📖 Voir le texte complet';
+                btnEl.classList.remove('exhausted');
+            }
+        } else {
+            const fullText = textEl.dataset.fullText;
+            textEl.innerHTML = '';
+            const chunkEl = document.createElement('div');
+            chunkEl.className = 'text-chunk';
+            chunkEl.style.animation = 'fadeIn 0.4s ease';
+            chunkEl.textContent = fullText;
+            textEl.appendChild(chunkEl);
+            textEl.dataset.expanded = 'true';
+            if (btnEl) {
+                btnEl.innerHTML = '▲ Réduire';
+                btnEl.classList.remove('exhausted');
+            }
+        }
+        requestAnimationFrame(() => {
+            if (scrollEl) scrollEl.scrollTop = scrollTop;
+            else window.scrollTo(0, scrollTop);
+        });
+        return;
+    }
     
     // Afficher le chargement
     if (btnEl) btnEl.innerHTML = '⏳ Chargement depuis Wikisource...';
@@ -511,6 +547,11 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
             origin: '*'
         });
         
+        // Sauvegarder l'extrait actuel pour permettre le repli
+        if (!textEl.dataset.previewText) {
+            textEl.dataset.previewText = textEl.textContent || '';
+        }
+
         const response = await fetch(apiUrl);
         const data = await response.json();
         
@@ -534,14 +575,54 @@ async function loadFullTextFromSource(extraitId, sourceUrl, sourceTitle) {
                 fullText = tempDiv.textContent.trim();
             }
             
+            // Aligner le début avec l'extrait déjà affiché
+            const previewText = textEl.dataset.previewText || textEl.textContent || '';
+            const normalize = (s) => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+            const normPreview = normalize(previewText);
+            if (normPreview) {
+                const normFull = normalize(fullText);
+                if (!normFull.startsWith(normPreview)) {
+                    const lowerFull = (fullText || '').toLowerCase();
+                    const lowerPreview = previewText.toLowerCase();
+                    const idx = lowerFull.indexOf(lowerPreview);
+                    if (idx >= 0) {
+                        fullText = fullText.substring(idx);
+                    } else {
+                        fullText = previewText + '\n\n' + fullText;
+                    }
+                }
+            }
+
             // Limiter à 2000 caractères pour l'affichage
             if (fullText.length > 2000) {
                 fullText = fullText.substring(0, 2000) + '…';
             }
             
-            // Afficher le texte complet
-            textEl.innerHTML = `<div class="full-text-loaded">${escapeHtml(fullText)}</div>`;
-            if (btnEl) btnEl.remove();
+            // Étendre le texte existant (pas de duplication)
+            const cardEl = textEl.closest('.extrait-card') || textEl.parentElement;
+            if (cardEl) {
+                const existingFull = cardEl.querySelector('.text-full');
+                if (existingFull) existingFull.remove();
+            }
+
+            textEl.innerHTML = '';
+            const chunkEl = document.createElement('div');
+            chunkEl.className = 'text-chunk';
+            chunkEl.style.animation = 'fadeIn 0.4s ease';
+            chunkEl.textContent = fullText;
+            textEl.appendChild(chunkEl);
+            textEl.dataset.fullText = fullText;
+            textEl.dataset.expanded = 'true';
+
+            if (btnEl) {
+                btnEl.innerHTML = '▲ Réduire';
+                btnEl.classList.remove('exhausted');
+            }
+
+            requestAnimationFrame(() => {
+                if (scrollEl) scrollEl.scrollTop = scrollTop;
+                else window.scrollTo(0, scrollTop);
+            });
             
             toast('✨ Texte chargé depuis Wikisource');
         } else {

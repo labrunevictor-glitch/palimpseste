@@ -1356,6 +1356,46 @@
         border-color: var(--accent) !important;
         color: #fff !important;
     }
+
+    /* ══════════════════════════════════════════
+       FEED COMMUNAUTAIRE + COLLECTIONS
+       ══════════════════════════════════════════ */
+    .extrait-card {
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+    .extrait-text {
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+    }
+    .extrait-source {
+        font-size: 0.75rem !important;
+    }
+    .extrait-commentary {
+        font-size: 0.85rem !important;
+        line-height: 1.6 !important;
+    }
+    .collection-card {
+        padding: 0.9rem 1rem !important;
+    }
+    .collection-card-name {
+        font-size: 0.95rem !important;
+    }
+    .collection-item-card {
+        padding: 1rem !important;
+        border-radius: 8px !important;
+    }
+    .collection-item-title {
+        font-size: 0.95rem !important;
+    }
+    .collection-item-preview,
+    .collection-item-full {
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+    }
+    .collection-item-content:active {
+        transform: none !important;
+    }
     
     /* ══════════════════════════════════════════
        MASQUER SIDEBAR DESKTOP
