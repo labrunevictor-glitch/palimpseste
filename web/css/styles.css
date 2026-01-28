@@ -4350,7 +4350,7 @@ min-width: 0;
 }
 .comment-header {
 display: flex;
-align-items: baseline;
+align-items: center;
 gap: 0.5rem;
 margin-bottom: 0.2rem;
 }
@@ -4433,21 +4433,18 @@ min-width: 12px;
 .comment-actions-menu {
     display: flex;
     gap: 6px;
-    opacity: 0;
-    pointer-events: none;
+    opacity: 0.6;
+    pointer-events: auto;
     transition: opacity 0.15s ease;
 }
 
-.comment-item.show-actions .comment-actions-menu {
-    opacity: 1;
-    pointer-events: auto;
+@media (hover: hover) {
+    .comment-item:hover .comment-actions-menu { opacity: 1; }
 }
 
+.comment-item.show-actions .comment-actions-menu { opacity: 1; }
+
 @media (hover: hover) {
-    .comment-item:hover .comment-actions-menu {
-        opacity: 1;
-        pointer-events: auto;
-    }
     .comment-actions-toggle { display: none; }
 }
 
@@ -5178,7 +5175,15 @@ cursor: not-allowed;
 
 .chat-message {
     position: relative;
-    padding-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0.25rem;
+}
+
+.msg-body {
+    display: block;
+    margin-bottom: 2px;
+    white-space: pre-wrap;
 }
 
 .msg-actions {
@@ -5271,11 +5276,14 @@ cursor: not-allowed;
 }
 
 .msg-footer {
-    margin-top: 6px;
+    margin-top: 8px;
+    padding-top: 4px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
 .msg-footer .chat-message-time {
@@ -5296,6 +5304,10 @@ cursor: not-allowed;
     justify-content: center;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+.chat-message.show-actions .msg-menu-btn {
+    opacity: 0.35;
 }
 
 @media (hover: none) {
