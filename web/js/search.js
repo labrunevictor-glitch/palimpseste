@@ -819,8 +819,11 @@ async function openSearchResult(idx, tab) {
     toast('Chargement...');
 
     if (tab === 'texts' || result._kind === 'texts') {
+        if (typeof openSocialFeed === 'function') {
+            openSocialFeed();
+        }
         if (typeof viewExtraitById === 'function') {
-            await viewExtraitById(result.id);
+            setTimeout(() => viewExtraitById(result.id), 300);
         } else {
             toast("Impossible d'ouvrir ce texte");
         }
@@ -841,15 +844,43 @@ async function openSearchResult(idx, tab) {
     // Externe (bases)
     const kind = result._kind || tab;
     if (kind === 'wikisource' || result.source === 'wikisource') {
-        const text = await fetchText(result.title, 0, result.wikisource);
-        if (text) {
+        const renderSearchTextCard = (rawText, authorOverride = null) => {
+            if (!rawText) return false;
             document.getElementById('feed').innerHTML = '';
             state.cardIdx = 0;
-            renderCard(text, result.title, result.wikisource);
+            renderCard({
+                title: result.title,
+                text: rawText,
+                author: authorOverride || null,
+                source: 'wikisource'
+            }, result.title, result.wikisource, true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            toast('Impossible de charger ce texte');
+            return true;
+        };
+
+        const text = await fetchText(result.title, 0, result.wikisource);
+        if (text?.text) {
+            if (renderSearchTextCard(text.text, text.author || null)) return;
         }
+
+        // Fallback: chargement direct sans filtres stricts
+        try {
+            const rawUrl = `${result.wikisource.url}/w/api.php?action=parse&page=${encodeURIComponent(result.title)}&prop=text|displaytitle&format=json&origin=*&redirects=true`;
+            const res = await fetch(rawUrl);
+            const data = await res.json();
+            const html = data.parse?.text?.['*'] || '';
+            if (html) {
+                const analysis = typeof analyzeHtml === 'function' ? analyzeHtml(html) : null;
+                const rawText = analysis?.text || '';
+                if (rawText && rawText.length > 20) {
+                    if (renderSearchTextCard(rawText, analysis?.authorFromHtml || null)) return;
+                }
+            }
+        } catch (e) {
+            // ignore fallback errors
+        }
+
+        toast('Impossible de charger ce texte');
         return;
     }
 

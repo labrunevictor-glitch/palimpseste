@@ -119,6 +119,59 @@ function escapeRegex(string) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// 🧩 EXTRACT KEYING (commentaires/extraits)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Normalise un texte d'extrait pour génération de clé stable
+ * @param {string} text - Texte brut
+ * @returns {string} Texte normalisé
+ */
+function normalizeExcerptText(text) {
+    return (text || '').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Hash simple et déterministe d'un texte (non cryptographique)
+ * @param {string} text - Texte à hasher
+ * @returns {string} Hash hexadécimal
+ */
+function computeTextHash(text) {
+    const normalized = normalizeExcerptText(text).toLowerCase();
+    if (!normalized) return '';
+    let hash = 5381;
+    for (let i = 0; i < normalized.length; i++) {
+        hash = ((hash << 5) + hash) + normalized.charCodeAt(i);
+        hash = hash & hash;
+    }
+    return Math.abs(hash).toString(16);
+}
+
+/**
+ * Construit les champs de clé stable pour un extrait
+ * @param {string} text - Texte utilisé pour l'identification
+ * @param {string} sourceTitle - Titre
+ * @param {string} sourceAuthor - Auteur
+ * @param {string} sourceUrl - URL source
+ * @returns {{textHash:string, textLength:number, sourceTitle:string, sourceAuthor:string, sourceUrl:string}}
+ */
+function buildExtraitKey(text, sourceTitle, sourceAuthor, sourceUrl) {
+    const normalizedText = normalizeExcerptText(text);
+    return {
+        textHash: computeTextHash(normalizedText),
+        textLength: normalizedText.length,
+        sourceTitle: (sourceTitle || '').trim(),
+        sourceAuthor: (sourceAuthor || '').trim(),
+        sourceUrl: (sourceUrl || '').trim()
+    };
+}
+
+// Exposer les helpers globalement (utilisés dans app.js/share.js)
+window.normalizeExcerptText = normalizeExcerptText;
+window.computeTextHash = computeTextHash;
+window.buildExtraitKey = buildExtraitKey;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // 📦 STOCKAGE LOCAL
 // ═══════════════════════════════════════════════════════════════════════════
 

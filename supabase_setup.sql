@@ -51,6 +51,10 @@ CREATE TABLE extraits (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Sécuriser l'ajout des colonnes si la table existe déjà sans ces champs
+ALTER TABLE extraits ADD COLUMN IF NOT EXISTS text_hash TEXT;
+ALTER TABLE extraits ADD COLUMN IF NOT EXISTS text_length INTEGER;
+
 -- Table des likes
 CREATE TABLE likes (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -64,6 +68,9 @@ CREATE TABLE likes (
 CREATE INDEX idx_extraits_user_id ON extraits(user_id);
 CREATE INDEX idx_extraits_created_at ON extraits(created_at DESC);
 CREATE INDEX idx_extraits_likes_count ON extraits(likes_count DESC);
+CREATE INDEX IF NOT EXISTS idx_extraits_text_hash ON extraits(text_hash);
+CREATE INDEX IF NOT EXISTS idx_extraits_user_text_hash ON extraits(user_id, text_hash);
+CREATE INDEX IF NOT EXISTS idx_extraits_source_hash ON extraits(source_url, text_hash);
 CREATE INDEX idx_likes_user_id ON likes(user_id);
 CREATE INDEX idx_likes_extrait_id ON likes(extrait_id);
 

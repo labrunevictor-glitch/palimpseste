@@ -19,6 +19,7 @@ const COMMENT_REACTION_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🙏
  */
 async function toggleComments(extraitId) {
     const container = document.getElementById(`comments-${extraitId}`);
+    if (!container) return;
     const isOpen = container.classList.contains('open');
     
     if (isOpen) {

@@ -1182,10 +1182,21 @@
     }
     
     .exploration-toggle::before {
-        content: "▲ Replier les filtres" !important;
+        content: "Replier les filtres" !important;
         font-size: 0.65rem !important;
         text-transform: none !important;
         letter-spacing: 0.03em !important;
+    }
+
+    .exploration-toggle::after {
+        content: "" !important;
+        display: inline-block !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-left: 5px solid transparent !important;
+        border-right: 5px solid transparent !important;
+        border-bottom: 7px solid currentColor !important;
+        transform: translateY(-1px) !important;
     }
     
     .exploration-container.collapsed .exploration-toggle {
@@ -1197,7 +1208,13 @@
     }
     
     .exploration-container.collapsed .exploration-toggle::before {
-        content: "▼ Afficher les filtres" !important;
+        content: "Afficher les filtres" !important;
+    }
+
+    .exploration-container.collapsed .exploration-toggle::after {
+        border-bottom: 0 !important;
+        border-top: 7px solid currentColor !important;
+        transform: translateY(1px) !important;
     }
     
     .exploration-toggle:active {

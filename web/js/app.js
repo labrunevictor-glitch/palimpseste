@@ -255,16 +255,41 @@ async function quickShareAndComment(cardId) {
     // Récupérer la sélection ou le teaser
     const selection = window.getSelection().toString().trim();
     const textToShare = selection.length >= 20 ? selection : text.substring(0, 500);
+    const { textHash, textLength } = buildExtraitKey(textToShare, title, author, sourceUrl);
     
     // Vérifier si cet extrait existe déjà (même texte, même source)
     if (supabaseClient) {
-        const { data: existing } = await supabaseClient
+        let existing = null;
+        let existingQuery = supabaseClient
             .from('extraits')
             .select('id')
-            .eq('texte', textToShare)
             .eq('source_title', title)
-            .eq('user_id', currentUser.id)
+            .eq('source_author', author);
+
+        if (sourceUrl) existingQuery = existingQuery.eq('source_url', sourceUrl);
+        if (textHash) existingQuery = existingQuery.eq('text_hash', textHash);
+
+        const { data: existingByHash } = await existingQuery
+            .order('created_at', { ascending: false })
+            .limit(1)
             .maybeSingle();
+
+        existing = existingByHash || null;
+
+        if (!existing) {
+            let existingFallbackQuery = supabaseClient
+                .from('extraits')
+                .select('id')
+                .eq('source_title', title)
+                .eq('source_author', author);
+            if (sourceUrl) existingFallbackQuery = existingFallbackQuery.eq('source_url', sourceUrl);
+
+            const { data: existingFallback } = await existingFallbackQuery
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+            existing = existingFallback || null;
+        }
         
         if (existing) {
             // Ouvrir le feed social et afficher cet extrait
@@ -287,6 +312,8 @@ async function quickShareAndComment(cardId) {
                 source_title: title,
                 source_author: author,
                 source_url: sourceUrl,
+                text_hash: textHash || null,
+                text_length: textLength || null,
                 commentary: '',
                 created_at: new Date().toISOString()
             })
@@ -1084,7 +1111,7 @@ async function loadMore() {
 }
 
 // Crée un élément de carte sans l'ajouter au DOM (pour insertion flexible)
-function createCardElement(result, origTitle, wikisource = getCurrentWikisource()) {
+function createCardElement(result, origTitle, wikisource = getCurrentWikisource(), allowInvalidTitle = false) {
     let title = result.title || origTitle;
     // Nettoyage agressif du titre
     title = title
@@ -1096,7 +1123,7 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
         .replace(/\s+/g, ' ')
         .trim();
     
-    if (!isValidTitle(title)) return null;
+    if (!allowInvalidTitle && !isValidTitle(title)) return null;
     
     const text = result.text;
     const lang = wikisource?.lang || 'fr';
@@ -1158,7 +1185,9 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
             <div class="actions">
                 <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="Ajouter aux favoris">♥ <span class="btn-text">J'aime</span></button>
                 <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span></button>
-                <button class="btn btn-comment" onclick="showInlineComment('${cardId}')" title="Commenter">💬 <span class="btn-text">Commenter</span></button>
+                <button class="btn btn-comment" onclick="showInlineComment('${cardId}')" title="Commenter">
+                    💬 <span id="commentCount-${cardId}" class="comment-count" style="display:none;">0</span> <span class="btn-text">commentaire<span class="comment-plural">s</span></span>
+                </button>
                 <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">+ <span class="btn-text">Collection</span></button>
                 <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
                 <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
@@ -1183,10 +1212,120 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
     updateStats();
     saveState();
     
+    // Charger le nombre de commentaires existants de façon asynchrone
+    loadCardCommentCount(cardId, title, author, url);
+    
     return card;
 }
 
-function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
+async function loadCardCommentCount(cardId, title, author, url) {
+    if (!supabaseClient) return;
+    
+    try {
+        let extraits = null;
+        let error = null;
+
+        const card = document.getElementById(cardId);
+        const cardText = card?.dataset?.text || '';
+        const teaserText = cardText.substring(0, 500);
+        const { textHash } = buildExtraitKey(teaserText, title, author, url);
+
+        let byKeyQuery = supabaseClient
+            .from('extraits')
+            .select('id')
+            .eq('source_title', title)
+            .eq('source_author', author);
+
+        if (url) byKeyQuery = byKeyQuery.eq('source_url', url);
+        if (textHash) byKeyQuery = byKeyQuery.eq('text_hash', textHash);
+
+        const byKey = await byKeyQuery
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        extraits = byKey.data;
+        error = byKey.error;
+
+        // Fallback: sans text_hash si aucun résultat
+        if (!error && (!extraits || extraits.length === 0)) {
+            let fallbackQuery = supabaseClient
+                .from('extraits')
+                .select('id')
+                .eq('source_title', title)
+                .eq('source_author', author);
+            if (url) fallbackQuery = fallbackQuery.eq('source_url', url);
+
+            const fallback = await fallbackQuery
+                .order('created_at', { ascending: false })
+                .limit(1);
+            extraits = fallback.data;
+            error = fallback.error;
+        }
+
+        // Fallback: chercher par URL source si aucun résultat
+        if ((!extraits || extraits.length === 0) && url) {
+            let byUrlQuery = supabaseClient
+                .from('extraits')
+                .select('id')
+                .eq('source_url', url);
+            const byUrl = await byUrlQuery.order('created_at', { ascending: false }).limit(1);
+            extraits = byUrl.data;
+            error = byUrl.error;
+        }
+
+        if (error) {
+            console.log(`Erreur chargement compteur pour "${title}":`, error);
+            return;
+        }
+
+        if (extraits && extraits.length > 0) {
+            const extrait = extraits[0];
+
+            const { count, error: countError } = await supabaseClient
+                .from('comments')
+                .select('*', { count: 'exact', head: true })
+                .eq('extrait_id', extrait.id);
+
+            if (countError) {
+                console.log(`Erreur comptage commentaires pour "${title}":`, countError);
+                return;
+            }
+
+            // Stocker l'ID pour usage ultérieur
+            if (card) card.dataset.extraitId = extrait.id;
+
+            // Mettre à jour le compteur
+            updateCardCommentCount(cardId, count || 0);
+        }
+    } catch (err) {
+        console.log('Impossible de charger le nombre de commentaires:', err);
+    }
+}
+
+function updateCardCommentCount(cardId, count) {
+    const countEl = document.getElementById(`commentCount-${cardId}`);
+    if (!countEl) return;
+    
+    countEl.textContent = count;
+    
+    // Afficher le compteur seulement si count > 0
+    if (count > 0) {
+        countEl.style.display = 'inline';
+    } else {
+        countEl.style.display = 'none';
+    }
+    
+    // Gérer le pluriel
+    const btn = countEl.closest('.btn-comment');
+    if (btn) {
+        const pluralEl = btn.querySelector('.comment-plural');
+        if (pluralEl) {
+            pluralEl.style.display = count === 1 ? 'none' : 'inline';
+        }
+    }
+}
+
+function renderCard(result, origTitle, wikisource = getCurrentWikisource(), allowInvalidTitle = false) {
     let title = result.title || origTitle;
     // Nettoyage agressif du titre
     title = title
@@ -1199,7 +1338,7 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
         .trim();
     
     // Si le titre est invalide, ne pas afficher cette carte
-    if (!isValidTitle(title)) return;
+    if (!allowInvalidTitle && !isValidTitle(title)) return;
     
     const text = result.text;
     const lang = wikisource?.lang || 'fr';
@@ -1270,7 +1409,9 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
             <div class="actions">
                 <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="Ajouter aux favoris">♥ <span class="btn-text">J'aime</span></button>
                 <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span></button>
-                <button class="btn btn-comment" onclick="showInlineComment('${cardId}')" title="Commenter">💬 <span class="btn-text">Commenter</span></button>
+                <button class="btn btn-comment" onclick="showInlineComment('${cardId}')" title="Commenter">
+                    💬 <span id="commentCount-${cardId}" class="comment-count" style="display:none;">0</span> <span class="btn-text">commentaire<span class="comment-plural">s</span></span>
+                </button>
                 <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">+ <span class="btn-text">Collection</span></button>
                 <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
                 <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
@@ -1288,6 +1429,9 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource()) {
     card.dataset.chunkSize = CHUNK_LENGTH;
     document.getElementById('feed').appendChild(card);
     setTimeout(() => card.classList.add('show'), 50);
+    
+    // Charger le nombre de commentaires existants de façon asynchrone
+    loadCardCommentCount(cardId, title, author, url);
     
     // Tracker ce texte comme lu
     state.readCount++;

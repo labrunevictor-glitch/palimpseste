@@ -611,6 +611,12 @@
         display: none !important;
     }
     
+    /* Garder le compteur de commentaires visible sur mobile */
+    .btn-comment .comment-count {
+        display: inline !important;
+        margin-left: 2px;
+    }
+    
     /* Boutons pixel style */
     .btn, .btn-suite {
         border-radius: 0 !important;
@@ -1834,9 +1840,20 @@ z-index: 10;
 }
 
 .exploration-toggle::before {
-content: "▲ Replier les filtres";
+content: "Replier les filtres";
 font-size: 0.75rem;
 letter-spacing: 0.03em;
+}
+
+.exploration-toggle::after {
+content: "";
+display: inline-block;
+width: 0;
+height: 0;
+border-left: 5px solid transparent;
+border-right: 5px solid transparent;
+border-bottom: 7px solid currentColor;
+transform: translateY(-1px);
 }
 
 .exploration-toggle:hover {
@@ -1852,7 +1869,13 @@ border-top: none;
 }
 
 .exploration-container.collapsed .exploration-toggle::before {
-content: "▼ Afficher les filtres";
+content: "Afficher les filtres";
+}
+
+.exploration-container.collapsed .exploration-toggle::after {
+border-bottom: 0;
+border-top: 7px solid currentColor;
+transform: translateY(1px);
 }
 
 .exploration-container.collapsed .exploration-toggle:hover {

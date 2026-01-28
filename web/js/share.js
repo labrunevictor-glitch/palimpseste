@@ -115,6 +115,7 @@ async function publishExtrait() {
     // Ne stocker qu'un APERÇU (150 chars) + métadonnées pour récupérer depuis Wikisource
     const fullText = pendingShare.text || '';
     const preview = fullText.substring(0, 150) + (fullText.length > 150 ? '…' : '');
+    const { textHash, textLength } = buildExtraitKey(fullText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
     
     try {
         const { data, error } = await supabaseClient.from('extraits').insert({
@@ -123,6 +124,8 @@ async function publishExtrait() {
             source_title: pendingShare.title,
             source_author: pendingShare.author,
             source_url: pendingShare.sourceUrl || '',
+            text_hash: textHash || null,
+            text_length: textLength || null,
             commentary: commentary || null,
             likes_count: 0,
             created_at: new Date().toISOString()
@@ -194,17 +197,42 @@ async function loadInlineComments(cardId) {
     
     const title = card.dataset.title;
     const author = card.dataset.author;
+    const sourceUrl = card.dataset.url || '';
+    const text = card.dataset.text || '';
+    const teaserText = text.substring(0, 500);
+    const { textHash } = buildExtraitKey(teaserText, title, author, sourceUrl);
     const listEl = card.querySelector('.inline-comments-list');
     if (!listEl) return;
     
     try {
         // Chercher l'extrait
-        const { data: extraits } = await supabaseClient
+        let query = supabaseClient
             .from('extraits')
             .select('id')
             .eq('source_title', title)
-            .eq('source_author', author)
+            .eq('source_author', author);
+        if (sourceUrl) query = query.eq('source_url', sourceUrl);
+        if (textHash) query = query.eq('text_hash', textHash);
+
+        let extraits = null;
+
+        const byHash = await query
+            .order('created_at', { ascending: false })
             .limit(1);
+        extraits = byHash.data;
+
+        if (!extraits || extraits.length === 0) {
+            let fallbackQuery = supabaseClient
+                .from('extraits')
+                .select('id')
+                .eq('source_title', title)
+                .eq('source_author', author);
+            if (sourceUrl) fallbackQuery = fallbackQuery.eq('source_url', sourceUrl);
+            const fallback = await fallbackQuery
+                .order('created_at', { ascending: false })
+                .limit(1);
+            extraits = fallback.data;
+        }
         
         if (!extraits || extraits.length === 0) return;
         
@@ -254,30 +282,64 @@ async function sendInlineComment(cardId, inputEl) {
     
     try {
         let extraitId = card.dataset.extraitId;
+        const sourceUrl = card.dataset.url || '';
+        const text = card.dataset.text || '';
+        const author = card.dataset.author || 'Inconnu';
+        const title = card.dataset.title || 'Sans titre';
+        const lang = card.dataset.lang || 'fr';
+        const textToStore = text.substring(0, 500);
+        const { textHash, textLength } = buildExtraitKey(textToStore, title, author, sourceUrl);
         
         // Créer l'extrait si nécessaire
         if (!extraitId) {
-            const text = card.dataset.text || '';
-            const author = card.dataset.author || 'Inconnu';
-            const title = card.dataset.title || 'Sans titre';
-            const lang = card.dataset.lang || 'fr';
-            
-            const { data: newExtrait, error } = await supabaseClient
+            let existing = null;
+            let existingQuery = supabaseClient
                 .from('extraits')
-                .insert({
-                    user_id: currentUser.id,
-                    texte: text.substring(0, 500),
-                    source_title: title,
-                    source_author: author,
-                    source_url: `https://${lang}.wikisource.org/wiki/${encodeURIComponent(title)}`,
-                    likes_count: 0
-                })
-                .select()
-                .single();
+                .select('id')
+                .eq('source_title', title)
+                .eq('source_author', author);
+            if (sourceUrl) existingQuery = existingQuery.eq('source_url', sourceUrl);
+            if (textHash) existingQuery = existingQuery.eq('text_hash', textHash);
+            const { data: existingByHash } = await existingQuery.order('created_at', { ascending: false }).maybeSingle();
+            existing = existingByHash || null;
+
+            if (!existing) {
+                let existingFallbackQuery = supabaseClient
+                    .from('extraits')
+                    .select('id')
+                    .eq('source_title', title)
+                    .eq('source_author', author);
+                if (sourceUrl) existingFallbackQuery = existingFallbackQuery.eq('source_url', sourceUrl);
+                const { data: existingFallback } = await existingFallbackQuery
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                existing = existingFallback || null;
+            }
             
-            if (error) throw error;
-            extraitId = newExtrait.id;
-            card.dataset.extraitId = extraitId;
+            if (existing?.id) {
+                extraitId = existing.id;
+                card.dataset.extraitId = extraitId;
+            } else {
+                const { data: newExtrait, error } = await supabaseClient
+                    .from('extraits')
+                    .insert({
+                        user_id: currentUser.id,
+                        texte: textToStore,
+                        source_title: title,
+                        source_author: author,
+                        source_url: sourceUrl || `https://${lang}.wikisource.org/wiki/${encodeURIComponent(title)}`,
+                        text_hash: textHash || null,
+                        text_length: textLength || null,
+                        likes_count: 0
+                    })
+                    .select()
+                    .single();
+                
+                if (error) throw error;
+                extraitId = newExtrait.id;
+                card.dataset.extraitId = extraitId;
+            }
         }
         
         // Ajouter le commentaire
@@ -286,6 +348,13 @@ async function sendInlineComment(cardId, inputEl) {
             user_id: currentUser.id,
             content: comment
         });
+
+        // Incrémenter le compteur côté extraits (RPC si disponible)
+        try {
+            await supabaseClient.rpc('increment_comments', { p_extrait_id: extraitId });
+        } catch (e) {
+            // Silencieux si RPC non disponible
+        }
         
         inputEl.value = '';
         toast('💬 Commentaire ajouté !');
@@ -302,6 +371,17 @@ async function sendInlineComment(cardId, inputEl) {
             `;
             listEl.prepend(el);
             setTimeout(() => el.classList.remove('new'), 300);
+        }
+        
+        // Mettre à jour le compteur de commentaires sur la carte
+        const countEl = document.getElementById(`commentCount-${cardId}`);
+        if (countEl) {
+            const currentCount = parseInt(countEl.textContent) || 0;
+            if (typeof updateCardCommentCount === 'function') {
+                updateCardCommentCount(cardId, currentCount + 1);
+            } else {
+                countEl.textContent = currentCount + 1;
+            }
         }
         
     } catch (err) {
