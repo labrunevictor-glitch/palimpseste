@@ -220,7 +220,7 @@
         border: 2px solid var(--border) !important;
         border-radius: 20px !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.4) !important;
-        padding: 32px 24px !important;
+        padding: 20px 20px !important;
         opacity: 0 !important;
         transition: opacity 0.25s, transform 0.25s !important;
     }
@@ -249,16 +249,16 @@
     }
     
     .mobile-profile-avatar-big {
-        width: 80px !important;
-        height: 80px !important;
-        margin: 0 auto 20px !important;
+        width: 50px !important;
+        height: 50px !important;
+        margin: 0 auto 10px !important;
         border-radius: 50% !important;
         background: linear-gradient(135deg, var(--accent), var(--accent-purple)) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 2.5rem !important;
-        border: 3px solid var(--border) !important;
+        font-size: 1.5rem !important;
+        border: 2px solid var(--border) !important;
         color: white !important;
     }
     
@@ -270,10 +270,10 @@
     }
     
     .mobile-profile-name {
-        font-size: 1.3rem !important;
+        font-size: 1.1rem !important;
         font-weight: 600 !important;
         color: var(--text) !important;
-        margin-bottom: 24px !important;
+        margin-bottom: 12px !important;
     }
     
     .mobile-profile-subtitle {
@@ -285,8 +285,8 @@
     .mobile-profile-stats {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 16px !important;
-        margin-bottom: 28px !important;
+        gap: 8px !important;
+        margin-bottom: 16px !important;
         padding: 0 !important;
     }
     
@@ -296,9 +296,9 @@
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        padding: 16px 12px !important;
-        min-height: 80px !important;
-        border-radius: 12px !important;
+        padding: 10px 8px !important;
+        min-height: 60px !important;
+        border-radius: 8px !important;
         background: var(--bg) !important;
         border: 1px solid var(--border) !important;
     }
@@ -308,15 +308,15 @@
     }
     
     .mobile-profile-stat-num {
-        font-size: 1.25rem !important;
+        font-size: 1.1rem !important;
         font-weight: bold !important;
         color: var(--accent) !important;
     }
     
     .mobile-profile-stat-label {
-        font-size: 0.75rem !important;
+        font-size: 0.7rem !important;
         color: var(--text-secondary) !important;
-        margin-top: 6px !important;
+        margin-top: 3px !important;
         white-space: nowrap !important;
     }
     
@@ -359,8 +359,8 @@
     /* Boutons d'action principaux (Collections, Communauté) */
     .mobile-profile-actions {
         display: flex !important;
-        gap: 12px !important;
-        margin-bottom: 20px !important;
+        gap: 8px !important;
+        margin-bottom: 12px !important;
     }
     
     .mobile-profile-action-btn {
