@@ -608,15 +608,15 @@ async function createNewCollectionFromPicker() {
 /**
  * Ouvrir la vue des collections
  */
-async function openCollectionsView() {
+async function openCollectionsView(forceReload = false) {
     if (!currentUser) {
         toast('📝 Connectez-vous pour voir vos collections');
         return;
     }
     
     // Charger les collections si nécessaire
-    if (!collectionsLoaded) {
-        await loadUserCollections();
+    if (!collectionsLoaded || forceReload) {
+        await loadUserCollections(forceReload);
     }
     
     // Utiliser l'overlay des favoris existant

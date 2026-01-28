@@ -53,7 +53,7 @@ function closeAllDrawers() {
 function openCollectionsFromProfile() {
     closeAllDrawers();
     if (typeof openCollectionsView === 'function') {
-        setTimeout(() => openCollectionsView(), 50);
+        setTimeout(() => openCollectionsView(true), 50);
     }
 }
 
