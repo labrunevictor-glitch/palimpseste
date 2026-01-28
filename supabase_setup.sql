@@ -73,6 +73,7 @@ CREATE INDEX IF NOT EXISTS idx_extraits_user_text_hash ON extraits(user_id, text
 CREATE INDEX IF NOT EXISTS idx_extraits_source_hash ON extraits(source_url, text_hash);
 CREATE INDEX idx_likes_user_id ON likes(user_id);
 CREATE INDEX idx_likes_extrait_id ON likes(extrait_id);
+CREATE INDEX IF NOT EXISTS idx_likes_extrait_created ON likes(extrait_id, created_at DESC);
 
 -- Fonction pour incrémenter les likes
 CREATE OR REPLACE FUNCTION increment_likes(extrait_id UUID)
