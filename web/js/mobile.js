@@ -50,6 +50,13 @@ function closeAllDrawers() {
     closeProfilePanel();
 }
 
+function openCollectionsFromProfile() {
+    closeAllDrawers();
+    if (typeof openCollectionsView === 'function') {
+        setTimeout(() => openCollectionsView(), 50);
+    }
+}
+
 // Avatar = Ouvrir le profil complet si connecté, sinon panneau connexion
 function handleAvatarClick() {
     if (typeof currentUser !== 'undefined' && currentUser) {
@@ -292,6 +299,7 @@ window.closeMobileDrawer = closeMobileDrawer;
 window.openProfilePanel = openProfilePanel;
 window.closeProfilePanel = closeProfilePanel;
 window.closeAllDrawers = closeAllDrawers;
+window.openCollectionsFromProfile = openCollectionsFromProfile;
 window.handleAvatarClick = handleAvatarClick;
 window.mobileNavTo = mobileNavTo;
 window.updateMobileAvatar = updateMobileAvatar;
