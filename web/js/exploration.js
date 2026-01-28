@@ -420,13 +420,6 @@ function updateFilterSummary() {
         return label || value;
     };
 
-    const addTag = (text) => {
-        const tag = document.createElement('span');
-        tag.className = 'filter-tag';
-        tag.textContent = text;
-        summaryText.appendChild(tag);
-    };
-
     const addRemovableTag = (text, onRemove, ariaLabel = 'Retirer') => {
         const tag = document.createElement('span');
         tag.className = 'filter-tag filter-tag-removable';
@@ -463,21 +456,45 @@ function updateFilterSummary() {
         addRemovableTag(label, clearActiveSearchContext, 'Retirer le filtre de recherche');
     }
 
-    // Tags Forme
+    // Tags Forme (supprimables)
     if (!activeFilters.forme.includes('all')) {
-        activeFilters.forme.forEach(v => addTag(getChipLabel('forme', v)));
+        activeFilters.forme.forEach(v => {
+            addRemovableTag(
+                getChipLabel('forme', v),
+                () => toggleFilter('forme', v),
+                'Retirer le filtre de forme'
+            );
+        });
     }
-    // Tags Époque
+    // Tags Époque (supprimables)
     if (!activeFilters.epoque.includes('all')) {
-        activeFilters.epoque.forEach(v => addTag(getChipLabel('epoque', v)));
+        activeFilters.epoque.forEach(v => {
+            addRemovableTag(
+                getChipLabel('epoque', v),
+                () => toggleFilter('epoque', v),
+                'Retirer le filtre d\'époque'
+            );
+        });
     }
-    // Tags Registre
+    // Tags Registre (supprimables)
     if (!activeFilters.ton.includes('all')) {
-        activeFilters.ton.forEach(v => addTag(getChipLabel('ton', v)));
+        activeFilters.ton.forEach(v => {
+            addRemovableTag(
+                getChipLabel('ton', v),
+                () => toggleFilter('ton', v),
+                'Retirer le filtre de tonalité'
+            );
+        });
     }
-    // Tags Pensée (si actif dans l'état)
+    // Tags Pensée (supprimables)
     if (activeFilters.pensee && !activeFilters.pensee.includes('all')) {
-        activeFilters.pensee.forEach(v => addTag(getChipLabel('pensee', v)));
+        activeFilters.pensee.forEach(v => {
+            addRemovableTag(
+                getChipLabel('pensee', v),
+                () => toggleFilter('pensee', v),
+                'Retirer le filtre de pensée'
+            );
+        });
     }
 
     // Toujours visible pour permettre la saisie libre
