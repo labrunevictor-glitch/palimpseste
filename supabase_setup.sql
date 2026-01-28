@@ -305,6 +305,18 @@ CREATE TABLE comments (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Réactions (emojis) sur les commentaires
+CREATE TABLE IF NOT EXISTS comment_reactions (
+    comment_id UUID REFERENCES comments(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    emoji TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (comment_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_comment_reactions_comment ON comment_reactions(comment_id);
+CREATE INDEX IF NOT EXISTS idx_comment_reactions_user ON comment_reactions(user_id);
+
 -- Index pour les performances
 CREATE INDEX idx_comments_extrait ON comments(extrait_id);
 CREATE INDEX idx_comments_user ON comments(user_id);
@@ -312,6 +324,8 @@ CREATE INDEX idx_comments_created ON comments(created_at DESC);
 
 -- RLS pour comments
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE comment_reactions ENABLE ROW LEVEL SECURITY;
 
 -- Les commentaires sont visibles par tous
 CREATE POLICY "Les commentaires sont visibles par tous"
@@ -330,6 +344,24 @@ CREATE POLICY "Les utilisateurs peuvent supprimer leurs commentaires"
 
 -- NOTE: pas de policy UPDATE directe sur comments.
 -- L'édition se fait via RPC SECURITY DEFINER.
+
+-- Policies pour les réactions de commentaires
+CREATE POLICY "Les réactions de commentaires sont visibles par tous"
+    ON comment_reactions FOR SELECT
+    USING (true);
+
+CREATE POLICY "Les utilisateurs peuvent réagir aux commentaires"
+    ON comment_reactions FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent modifier leurs réactions de commentaires"
+    ON comment_reactions FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Les utilisateurs peuvent supprimer leurs réactions de commentaires"
+    ON comment_reactions FOR DELETE
+    USING (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 🔧 RPC (SECURITY DEFINER) - Lecture / Édition

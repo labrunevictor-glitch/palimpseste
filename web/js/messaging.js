@@ -298,11 +298,13 @@ async function loadMessages(otherUserId) {
             
             const reactionsHtml = renderMessageReactions(msg.id, reactionsByMessage, myReactionByMessage);
             const actionButtons = `
-                <div class="msg-actions">
-                    <button class="msg-action-btn msg-react-btn" title="Réagir" onclick="openMessageReactionPicker('${msg.id}', this)">😊</button>
-                    ${isSent ? `<button class="msg-action-btn msg-edit-btn" title="Modifier" onclick="startEditMessage('${msg.id}')">✎</button>` : ''}
+                <div class="msg-footer-actions">
+                    <div class="msg-actions">
+                        <button class="msg-action-btn msg-react-btn" title="Réagir" onclick="openMessageReactionPicker('${msg.id}', this)">😊</button>
+                        ${isSent ? `<button class="msg-action-btn msg-edit-btn" title="Modifier" onclick="startEditMessage('${msg.id}')">✎</button>` : ''}
+                    </div>
+                    <button class="msg-menu-btn" title="Actions" onclick="toggleMessageActions('${msg.id}')">⋯</button>
                 </div>
-                <button class="msg-menu-btn" title="Actions" onclick="toggleMessageActions('${msg.id}')">⋯</button>
             `;
 
             msgEl.innerHTML = `

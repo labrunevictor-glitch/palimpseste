@@ -9,6 +9,10 @@
 // 💬 AFFICHAGE DES COMMENTAIRES
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Réactions emoji commentaires
+let activeCommentReactionPicker = null;
+const COMMENT_REACTION_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🙏'];
+
 /**
  * Afficher/masquer les commentaires d'un extrait
  * @param {string} extraitId - ID de l'extrait
@@ -67,25 +71,33 @@ async function loadComments(extraitId) {
             .in('id', userIds);
         const profileMap = new Map((profiles || []).map(p => [p.id, p]));
         
-        // Récupérer les likes de tous les commentaires
+        // Réactions emoji sur les commentaires
         const commentIds = comments.map(c => c.id);
-        const { data: commentLikes } = await supabaseClient
-            .from('comment_likes')
-            .select('comment_id, user_id')
-            .in('comment_id', commentIds);
-        
-        // Compter les likes par commentaire et vérifier si l'utilisateur a liké
-        const likesCountMap = new Map();
-        const userLikedMap = new Map();
-        (commentLikes || []).forEach(like => {
-            likesCountMap.set(like.comment_id, (likesCountMap.get(like.comment_id) || 0) + 1);
-            if (currentUser && like.user_id === currentUser.id) {
-                userLikedMap.set(like.comment_id, true);
+        const reactionsByComment = new Map();
+        const myReactionByComment = new Map();
+
+        if (commentIds.length > 0) {
+            const { data: reactions, error: reactionsError } = await supabaseClient
+                .from('comment_reactions')
+                .select('comment_id, user_id, emoji')
+                .in('comment_id', commentIds);
+
+            if (reactionsError) {
+                console.warn('Réactions commentaires indisponibles:', reactionsError.message || reactionsError);
+            } else {
+                (reactions || []).forEach(r => {
+                    if (!reactionsByComment.has(r.comment_id)) reactionsByComment.set(r.comment_id, new Map());
+                    const emojiCounts = reactionsByComment.get(r.comment_id);
+                    emojiCounts.set(r.emoji, (emojiCounts.get(r.emoji) || 0) + 1);
+                    if (currentUser && r.user_id === currentUser.id) {
+                        myReactionByComment.set(r.comment_id, r.emoji);
+                    }
+                });
             }
-        });
+        }
         
         container.innerHTML = comments.map(comment => 
-            renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, extraitId)
+            renderCommentItem(comment, profileMap, reactionsByComment, myReactionByComment, extraitId)
         ).join('');
         
         // Mettre à jour le compteur
@@ -102,21 +114,20 @@ async function loadComments(extraitId) {
  * Générer le HTML d'un commentaire
  * @private
  */
-function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, extraitId) {
+function renderCommentItem(comment, profileMap, reactionsByComment, myReactionByComment, extraitId) {
     const profile = profileMap.get(comment.user_id);
     const username = profile?.username || 'Anonyme';
     const avatarSymbol = getAvatarSymbol(username);
     const timeAgo = formatTimeAgo(new Date(comment.created_at));
     const canDelete = currentUser && comment.user_id === currentUser.id;
     const canEdit = currentUser && comment.user_id === currentUser.id;
-    const likeCount = likesCountMap.get(comment.id) || 0;
-    const isLiked = userLikedMap.get(comment.id) || false;
 
     // Format WhatsApp-style: "Modifié" discret
     const editedLabel = comment.edited_at ? `<span class="comment-edited-label" title="Modifié le ${new Date(comment.edited_at).toLocaleString()}"> • Modifié</span>` : '';
+    const reactionsHtml = renderCommentReactions(comment.id, reactionsByComment, myReactionByComment);
     
     return `
-        <div class="comment-item" data-id="${comment.id}">
+        <div class="comment-item" data-id="${comment.id}" data-extrait-id="${extraitId}">
             <div class="comment-avatar" onclick="openUserProfile('${comment.user_id}', '${escapeHtml(username)}')" style="cursor:pointer">${avatarSymbol}</div>
             <div class="comment-content">
                 <div class="comment-header">
@@ -124,18 +135,16 @@ function renderCommentItem(comment, profileMap, likesCountMap, userLikedMap, ext
                     <span class="comment-time">${timeAgo}${editedLabel}</span>
                     <div class="comment-actions-inline">
                         <button class="comment-actions-toggle" title="Actions" onclick="toggleCommentActions('${comment.id}')">⋯</button>
-                        <div class="comment-actions-menu">
-                            ${canEdit ? `<button class="comment-edit" onclick="startEditComment('${comment.id}', '${extraitId}')">✎</button>` : ''}
-                            ${canDelete ? `<button class="comment-delete" onclick="deleteComment('${comment.id}', '${extraitId}')">🗑️</button>` : ''}
-                        </div>
                     </div>
                 </div>
                 <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.content)}</div>
-                <div class="comment-actions">
-                    <button class="comment-like-btn ${isLiked ? 'liked' : ''}" onclick="toggleCommentLike('${comment.id}', '${extraitId}')">
-                        <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                        <span class="comment-like-count">${likeCount > 0 ? likeCount : ''}</span>
-                    </button>
+                ${reactionsHtml}
+                <div class="comment-footer">
+                    <div class="comment-footer-actions">
+                        ${canEdit ? `<button class="comment-edit" title="Modifier" onclick="startEditComment('${comment.id}', '${extraitId}')">✎</button>` : ''}
+                        ${canDelete ? `<button class="comment-delete" title="Supprimer" onclick="deleteComment('${comment.id}', '${extraitId}')">🗑️</button>` : ''}
+                        <button class="comment-react-btn" title="Réagir" onclick="openCommentReactionPicker('${comment.id}', this)">😊</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -147,8 +156,11 @@ function ensureCommentActionsInstalled() {
     if (commentActionsInstalled) return;
     commentActionsInstalled = true;
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.comment-item')) {
+        const clickedInsideComment = e.target.closest('.comment-item');
+        const clickedInsidePicker = e.target.closest('.comment-reaction-picker');
+        if (!clickedInsideComment && !clickedInsidePicker) {
             document.querySelectorAll('.comment-item.show-actions').forEach(el => el.classList.remove('show-actions'));
+            closeCommentReactionPicker();
         }
     });
 }
@@ -250,6 +262,136 @@ async function saveEditComment(commentId, extraitId) {
     } catch (err) {
         console.error('Erreur edit_comment:', err);
         toast('Erreur modification');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 😊 RÉACTIONS (EMOJIS) SUR COMMENTAIRES
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderCommentReactions(commentId, reactionsByComment, myReactionByComment) {
+    const emojiCounts = reactionsByComment.get(commentId);
+    if (!emojiCounts || emojiCounts.size === 0) return '';
+
+    const myEmoji = myReactionByComment.get(commentId);
+    const pills = Array.from(emojiCounts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([emoji, count]) => {
+            const mine = myEmoji === emoji ? ' mine' : '';
+            const label = count > 1 ? `${emoji} ${count}` : `${emoji}`;
+            return `<button class="comment-reaction-pill${mine}" onclick="setCommentReaction('${commentId}', '${emoji}')" title="Réagir ${emoji}">${label}</button>`;
+        })
+        .join('');
+
+    return `<div class="comment-reactions" aria-label="Réactions">${pills}</div>`;
+}
+
+function closeCommentReactionPicker() {
+    if (activeCommentReactionPicker) {
+        activeCommentReactionPicker.remove();
+        activeCommentReactionPicker = null;
+    }
+}
+
+function openCommentReactionPicker(commentId, anchorEl) {
+    ensureCommentActionsInstalled();
+    closeCommentReactionPicker();
+
+    const picker = document.createElement('div');
+    picker.className = 'comment-reaction-picker';
+    picker.innerHTML = COMMENT_REACTION_EMOJIS
+        .map(e => `<button class="comment-reaction-emoji" onclick="setCommentReaction('${commentId}', '${e}')">${e}</button>`)
+        .join('');
+    picker.style.visibility = 'hidden';
+    document.body.appendChild(picker);
+
+    const rect = anchorEl.getBoundingClientRect();
+    const pickerRect = picker.getBoundingClientRect();
+    const margin = 8;
+
+    let top = rect.bottom + margin;
+    if (top + pickerRect.height > window.innerHeight - margin) {
+        top = rect.top - pickerRect.height - margin;
+    }
+
+    let left = rect.left + (rect.width / 2) - (pickerRect.width / 2);
+    left = Math.max(margin, Math.min(left, window.innerWidth - pickerRect.width - margin));
+
+    picker.style.top = `${top}px`;
+    picker.style.left = `${left}px`;
+    picker.style.visibility = '';
+
+    activeCommentReactionPicker = picker;
+
+    setTimeout(() => {
+        const onDocClick = (ev) => {
+            if (!picker.contains(ev.target)) {
+                closeCommentReactionPicker();
+                document.removeEventListener('click', onDocClick);
+                window.removeEventListener('scroll', onViewportChange, true);
+                window.removeEventListener('resize', onViewportChange);
+            }
+        };
+        const onViewportChange = () => {
+            closeCommentReactionPicker();
+            document.removeEventListener('click', onDocClick);
+            window.removeEventListener('scroll', onViewportChange, true);
+            window.removeEventListener('resize', onViewportChange);
+        };
+        document.addEventListener('click', onDocClick);
+        window.addEventListener('scroll', onViewportChange, true);
+        window.addEventListener('resize', onViewportChange);
+    }, 0);
+}
+
+async function setCommentReaction(commentId, emoji) {
+    if (!currentUser) {
+        openAuthModal('login');
+        toast('😊 Connectez-vous pour réagir');
+        return;
+    }
+    if (!supabaseClient) return;
+
+    try {
+        const { data: existing } = await supabaseClient
+            .from('comment_reactions')
+            .select('emoji')
+            .eq('comment_id', commentId)
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+
+        if (existing?.emoji === emoji) {
+            const { error } = await supabaseClient
+                .from('comment_reactions')
+                .delete()
+                .eq('comment_id', commentId)
+                .eq('user_id', currentUser.id);
+            if (error) throw error;
+        } else {
+            const { error } = await supabaseClient
+                .from('comment_reactions')
+                .upsert({
+                    comment_id: commentId,
+                    user_id: currentUser.id,
+                    emoji,
+                    created_at: new Date().toISOString()
+                }, { onConflict: 'comment_id,user_id' });
+            if (error) throw error;
+        }
+
+        closeCommentReactionPicker();
+
+        const item = document.querySelector(`.comment-item[data-id="${commentId}"]`);
+        const extraitId = item?.dataset?.extraitId;
+        if (extraitId) await loadComments(extraitId);
+    } catch (err) {
+        console.error('Erreur réaction commentaire:', err);
+        const msg = (err && (err.message || err.details)) || '';
+        if (msg.includes('comment_reactions') || msg.includes('does not exist') || err?.code === '42P01') {
+            toast('Réactions indisponibles: créez la table comment_reactions dans Supabase');
+        } else {
+            toast('Erreur réaction');
+        }
     }
 }
 
