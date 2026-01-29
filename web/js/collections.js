@@ -1072,21 +1072,24 @@ async function openCollectionById(collectionId) {
                            </div>`
                         : items.map(item => {
                             // Déterminer les données de l'item
-                            let itemTitle, itemAuthor, preview, url;
+                            let itemTitle, itemAuthor, preview, url, fullText;
                             if (item.extraits) {
                                 itemTitle = item.extraits.source_title;
                                 itemAuthor = item.extraits.source_author;
                                 preview = item.extraits.texte;
+                                fullText = item.extraits.texte;
                                 url = item.extraits.source_url;
                             } else if (item.source_likes) {
                                 itemTitle = item.source_likes.title;
                                 itemAuthor = item.source_likes.author;
                                 preview = item.source_likes.preview;
+                                fullText = item.source_likes.preview;
                                 url = item.source_likes.source_url;
                             } else {
                                 itemTitle = item.local_title;
                                 itemAuthor = item.local_author;
                                 preview = item.local_preview;
+                                fullText = item.local_preview;
                                 url = item.local_url;
                             }
 
@@ -1104,15 +1107,17 @@ async function openCollectionById(collectionId) {
 
                             return `
                                 <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
-                                     data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
+                                     data-preview-truncated="${hasMore ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
                                     <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}', this, event)">
                                         <div class="collection-item-header">
                                             <div class="collection-item-title">${escapeHtml(itemTitle || 'Sans titre')}</div>
                                             <div class="collection-item-author">${escapeHtml(itemAuthor || 'Auteur inconnu')}</div>
                                         </div>
-                                        <div class="collection-item-text" id="coll-text-${itemId}">
-                                            ${escapeHtml(previewText)}${hasMore ? '...' : ''}
+                                        <div class="collection-item-text-container">
+                                            <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
+                                            <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                         </div>
+                                        <button class="collection-item-expand${hasMore ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
                                     </div>
                                     ${extraitId ? `
                                         <div class="extrait-actions" onclick="event.stopPropagation()">
@@ -1132,8 +1137,12 @@ async function openCollectionById(collectionId) {
                                             </button>
                                         </div>
                                     ` : ''}
-                                    <div class="collection-item-actions">
-                                        ${url ? `<button class="btn-collection-open" onclick="event.stopPropagation(); openCollectionItemReader('${itemId}', '${safeTitle}', '${safeAuthor}', '${safeUrl}')">📖 Lire</button>` : ''}
+                                    <div class="collection-item-actions" onclick="event.stopPropagation()">
+                                        ${url ? `<button class="item-action action-load" onclick="loadTextFromCollectionById('${itemId}')" title="Charger le texte complet" aria-label="Charger le texte complet">
+                                            <span class="icon">↻</span>
+                                            <span class="label">Texte complet</span>
+                                        </button>` : ''}
+                                        ${url ? `<button class="item-action action-open" onclick="window.open(decodeURIComponent('${safeUrl}'), '_blank')" title="Ouvrir la source">↗</button>` : ''}
                                     </div>
                                 </div>
                             `;
@@ -1144,6 +1153,7 @@ async function openCollectionById(collectionId) {
         `;
 
         overlay.classList.add('open');
+        scheduleCollectionExpandCheck(grid);
 
         const extraitIdsInCollection = items.filter(i => i.extraits?.id).map(i => i.extraits.id);
         if (typeof hydrateExtraitLikesUI === 'function') {

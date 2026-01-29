@@ -159,7 +159,7 @@
         padding: 8px 4px !important;
         background: none !important;
         border: none !important;
-        color: var(--text-muted) !important;
+        color: var(--muted) !important;
         cursor: pointer !important;
         -webkit-tap-highlight-color: transparent !important;
         transition: color 0.2s !important;
