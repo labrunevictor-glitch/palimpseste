@@ -958,16 +958,19 @@ async function openProfileCollection(collectionId) {
                         }
 
                         const itemId = item.id;
+                        const extraitId = item.extraits?.id || null;
                         const previewText = preview ? preview.substring(0, 300) : '';
                         const hasMore = preview && preview.length > 300;
+                        const isLiked = extraitId && typeof isExtraitLiked === 'function' ? isExtraitLiked(extraitId) : false;
+                        const likeCount = extraitId && typeof getLikeCount === 'function' ? getLikeCount(extraitId) : 0;
                         const safeUrl = url ? encodeURIComponent(url) : '';
                         const safeTitle = title ? encodeURIComponent(title) : '';
                         const safeAuthor = author ? encodeURIComponent(author) : '';
 
                         return `
-                            <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
+                            <div class="collection-item-card" id="coll-item-${itemId}"
                                  data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
-                                <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}')">
+                                <div class="collection-item-content">
                                     <div class="collection-item-header">
                                         <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
                                         <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
@@ -976,11 +979,31 @@ async function openProfileCollection(collectionId) {
                                         <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
                                         <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                     </div>
-                                    ${hasMore ? `<button class="collection-item-expand" id="expand-btn-${itemId}">Lire la suite →</button>` : ''}
                                     ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
                                 </div>
+                                ${extraitId ? `
+                                    <div class="extrait-actions" onclick="event.stopPropagation()">
+                                        <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extraitId}" onclick="event.stopPropagation(); toggleLikeExtrait('${extraitId}')" data-extrait-id="${extraitId}">
+                                            <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                                            <span class="like-count clickable" id="likeCount-${extraitId}" onclick="event.stopPropagation(); showLikers('${extraitId}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                                        </button>
+                                        <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${extraitId}')">
+                                            <span class="icon">↗︎</span>
+                                            <span>Partager</span>
+                                            <span class="share-count" id="shareCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extraitId}')">0</span>
+                                        </button>
+                                        <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${extraitId}')">
+                                            <span class="icon">▦</span>
+                                            <span>Collections</span>
+                                            <span class="collections-count" id="collectionsCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extraitId}')">0</span>
+                                        </button>
+                                    </div>
+                                ` : ''}
                                 <div class="collection-item-actions" onclick="event.stopPropagation()">
-                                    ${url ? `<button class="item-action" onclick="loadTextFromCollectionById('${itemId}')" title="Charger le texte complet">↻</button>` : ''}
+                                    ${url ? `<button class="item-action action-load" onclick="loadProfileCollectionText('${itemId}')" title="Charger le texte complet" aria-label="Charger le texte complet">
+                                        <span class="icon">↻</span>
+                                        <span class="label">Texte complet</span>
+                                    </button>` : ''}
                                     ${url ? `<button class="item-action" onclick="window.open(decodeURIComponent('${safeUrl}'), '_blank')" title="Ouvrir la source">↗</button>` : ''}
                                 </div>
                             </div>
@@ -989,6 +1012,41 @@ async function openProfileCollection(collectionId) {
             </div>
         </div>
     `;
+
+    const extraitIdsInCollection = items.filter(i => i.extraits?.id).map(i => i.extraits.id);
+    if (extraitIdsInCollection.length > 0) {
+        if (typeof hydrateExtraitLikesUI === 'function') {
+            hydrateExtraitLikesUI(extraitIdsInCollection);
+        }
+        if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+            loadExtraitCollectionsInfoBatch(extraitIdsInCollection);
+        }
+        if (typeof loadExtraitShareInfoBatch === 'function') {
+            loadExtraitShareInfoBatch(extraitIdsInCollection);
+        }
+    }
+}
+
+function loadProfileCollectionText(itemId) {
+    const card = document.getElementById(`coll-item-${itemId}`);
+    if (!card) {
+        toast('Erreur: élément introuvable');
+        return;
+    }
+
+    if (card.dataset.fullText) {
+        card.dataset.expanded = 'true';
+        card.classList.add('expanded');
+        return;
+    }
+
+    const url = card.dataset.url ? decodeURIComponent(card.dataset.url) : '';
+    const title = card.dataset.title ? decodeURIComponent(card.dataset.title) : '';
+    const author = card.dataset.author ? decodeURIComponent(card.dataset.author) : '';
+
+    if (typeof loadTextFromCollection === 'function') {
+        loadTextFromCollection(itemId, title, author, url);
+    }
 }
 
 /**

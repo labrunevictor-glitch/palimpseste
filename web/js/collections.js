@@ -976,7 +976,7 @@ async function openCollection(collectionId) {
                                         <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                         <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                     </div>
-                                    <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
+                                    <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
                                     ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
                                 </div>
                                 ${extraitId ? `
@@ -1127,7 +1127,7 @@ async function openCollectionById(collectionId) {
                                             <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                             <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                         </div>
-                                        <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
+                                        <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
                                     </div>
                                     ${extraitId ? `
                                         <div class="extrait-actions" onclick="event.stopPropagation()">
@@ -1489,7 +1489,7 @@ function updateCollectionExpandButton(expandBtn, isExpanded) {
     const icon = isExpanded ? '▴' : '▾';
     expandBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
     expandBtn.setAttribute('aria-label', label);
-    expandBtn.innerHTML = `<span class="expand-icon">${icon}</span><span class="expand-label">${label}</span>`;
+    expandBtn.innerHTML = `<span class="expand-icon">${icon}</span>`;
 }
 
 function stabilizeCollectionsScroll(scrollEl, scrollTop) {
