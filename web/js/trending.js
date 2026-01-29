@@ -123,28 +123,33 @@ async function loadTrendingFeed() {
                         ` : ''}
                     </div>
                     <div class="trending-card-footer">
-                        <div class="trending-stats">
-                            <div class="trending-stat ${isHot ? 'hot' : ''} clickable" onclick="event.stopPropagation(); showLikers('${extrait.id}')">
-                                <span>${isHot ? '🔥' : '❤️'}</span>
-                                <span>${likesCount}</span>
-                            </div>
-                            <div class="trending-stat">
-                                <span>💬</span>
-                                <span>${commentsCount}</span>
-                            </div>
-                        </div>
-                        <div class="trending-actions">
-                            <button class="trending-action-btn ${isLiked ? 'liked' : ''}" onclick="event.stopPropagation(); toggleLikeTrending('${extrait.id}', this)">
-                                ${isLiked ? '❤️' : '🤍'} Like
+                        <div class="extrait-actions" onclick="event.stopPropagation()">
+                            <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="event.stopPropagation(); toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
+                                <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                                <span class="like-count clickable" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')" style="display:${likesCount > 0 ? 'inline-flex' : 'none'};">${likesCount}</span>
                             </button>
-                            <button class="trending-action-btn" onclick="event.stopPropagation(); viewTrendingComments('${extrait.id}')">
-                                💬 Commenter
+                            <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${extrait.id}')">
+                                <span class="icon">↗︎</span>
+                                <span>Partager</span>
+                                <span class="share-count" id="shareCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extrait.id}')">0</span>
+                            </button>
+                            <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${extrait.id}')">
+                                <span class="icon">▦</span>
+                                <span>Collections</span>
+                                <span class="collections-count" id="collectionsCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extrait.id}')">0</span>
                             </button>
                         </div>
                     </div>
                 </div>
             `;
         }).join('');
+
+        if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+            loadExtraitCollectionsInfoBatch(extraitIds);
+        }
+        if (typeof loadExtraitShareInfoBatch === 'function') {
+            loadExtraitShareInfoBatch(extraitIds);
+        }
         
     } catch (err) {
         console.error('Erreur chargement tendances:', err);
@@ -184,10 +189,10 @@ async function toggleLikeTrending(extraitId, btn) {
         // Mise à jour optimiste de l'UI
         if (wasLiked) {
             btn.classList.remove('liked');
-            btn.innerHTML = '🤍 Like';
+            btn.innerHTML = '♡ Like';
         } else {
             btn.classList.add('liked');
-            btn.innerHTML = '❤️ Like';
+            btn.innerHTML = '♥ Like';
         }
         if (countEl) countEl.textContent = newCount;
         
@@ -240,10 +245,10 @@ async function toggleLikeTrending(extraitId, btn) {
         // Rollback - restaurer l'UI à l'état précédent
         if (btn.classList.contains('liked')) {
             btn.classList.remove('liked');
-            btn.innerHTML = '🤍 Like';
+            btn.innerHTML = '♡ Like';
         } else {
             btn.classList.add('liked');
-            btn.innerHTML = '❤️ Like';
+            btn.innerHTML = '♥ Like';
         }
         if (countEl) countEl.textContent = currentCount;
         toast('Erreur');

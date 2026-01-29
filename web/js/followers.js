@@ -1069,12 +1069,18 @@ async function loadProfileExtraits(userId) {
                     ${e.commentary ? `<div class="extrait-commentary">${esc(e.commentary)}</div>` : ''}
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
-                            <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
+                            <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                            <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
                         </button>
-                        <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
-                        <button class="extrait-action" onclick="copyExtrait('${e.id}')">
-                            <span class="icon">📋</span>
-                            <span>Copier</span>
+                        <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${e.id}')">
+                            <span class="icon">↗︎</span>
+                            <span>Partager</span>
+                            <span class="share-count" id="shareCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${e.id}')">0</span>
+                        </button>
+                        <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${e.id}')">
+                            <span class="icon">▦</span>
+                            <span>Collections</span>
+                            <span class="collections-count" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">0</span>
                         </button>
                     </div>
                     <div class="comments-section">
@@ -1095,6 +1101,13 @@ async function loadProfileExtraits(userId) {
             `}).join('')}
         </div>
     `;
+
+    if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+        loadExtraitCollectionsInfoBatch(extraitIds);
+    }
+    if (typeof loadExtraitShareInfoBatch === 'function') {
+        loadExtraitShareInfoBatch(extraitIds);
+    }
 }
 
 /**
@@ -1211,12 +1224,18 @@ async function loadProfileLikes(userId) {
                     ${e.commentary ? `<div class="extrait-commentary">${esc(e.commentary)}</div>` : ''}
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
-                            <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
+                            <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                            <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
                         </button>
-                        <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
-                        <button class="extrait-action" onclick="copyExtrait('${e.id}')">
-                            <span class="icon">📋</span>
-                            <span>Copier</span>
+                        <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${e.id}')">
+                            <span class="icon">↗︎</span>
+                            <span>Partager</span>
+                            <span class="share-count" id="shareCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${e.id}')">0</span>
+                        </button>
+                        <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${e.id}')">
+                            <span class="icon">▦</span>
+                            <span>Collections</span>
+                            <span class="collections-count" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">0</span>
                         </button>
                     </div>
                     <div class="comments-section">
@@ -1238,6 +1257,13 @@ async function loadProfileLikes(userId) {
             }).join('')}
         </div>
     `;
+
+    if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+        loadExtraitCollectionsInfoBatch(extraitIds);
+    }
+    if (typeof loadExtraitShareInfoBatch === 'function') {
+        loadExtraitShareInfoBatch(extraitIds);
+    }
 }
 
 /**

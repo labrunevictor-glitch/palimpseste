@@ -538,6 +538,20 @@ function switchSearchTab(tab) {
     renderSearchResults(tab);
 }
 
+function hydrateSearchExtraitActions(extraitIds) {
+    if (!extraitIds || extraitIds.length === 0) return;
+
+    if (typeof hydrateExtraitLikesUI === 'function') {
+        hydrateExtraitLikesUI(extraitIds);
+    }
+    if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+        loadExtraitCollectionsInfoBatch(extraitIds);
+    }
+    if (typeof loadExtraitShareInfoBatch === 'function') {
+        loadExtraitShareInfoBatch(extraitIds);
+    }
+}
+
 /**
  * Affiche les résultats de recherche
  */
@@ -662,6 +676,8 @@ function renderSearchResults(tab) {
             if (author) bylineParts.push(escapeHtml(author));
             if (r.sharedBy) bylineParts.push(`partagé par ${escapeHtml(r.sharedBy)}`);
             const byline = bylineParts.length ? bylineParts.join(' • ') : 'Extrait partagé';
+            const isLiked = typeof isExtraitLiked === 'function' ? isExtraitLiked(r.id) : false;
+            const likeCount = typeof getLikeCount === 'function' ? getLikeCount(r.id) : 0;
 
             let snippet = r.preview || '';
             snippet = escapeHtml(snippet).replace(queryRegex, '<mark>$1</mark>');
@@ -674,9 +690,30 @@ function renderSearchResults(tab) {
                     <div class="search-result-meta">
                         <span class="search-result-source">¶ Extraits partagés</span>
                     </div>
+                    <div class="extrait-actions" onclick="event.stopPropagation()">
+                        <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${r.id}" onclick="event.stopPropagation(); toggleLikeExtrait('${r.id}')" data-extrait-id="${r.id}">
+                            <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                            <span class="like-count clickable" id="likeCount-${r.id}" onclick="event.stopPropagation(); showLikers('${r.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                        </button>
+                        <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${r.id}')">
+                            <span class="icon">↗︎</span>
+                            <span>Partager</span>
+                            <span class="share-count" id="shareCount-${r.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${r.id}')">0</span>
+                        </button>
+                        <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${r.id}')">
+                            <span class="icon">▦</span>
+                            <span>Collections</span>
+                            <span class="collections-count" id="collectionsCount-${r.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${r.id}')">0</span>
+                        </button>
+                    </div>
                 </div>
             `;
         }).join('');
+
+        const extraitIds = results
+            .filter(r => (r._kind || r.source) === 'texts')
+            .map(r => r.id);
+        hydrateSearchExtraitActions(extraitIds);
         return;
     }
     
@@ -743,6 +780,8 @@ function renderSearchResults(tab) {
         if (author) bylineParts.push(escapeHtml(author));
         if (r.sharedBy) bylineParts.push(`partagé par ${escapeHtml(r.sharedBy)}`);
         const byline = bylineParts.length ? bylineParts.join(' • ') : 'Extrait partagé';
+        const isLiked = typeof isExtraitLiked === 'function' ? isExtraitLiked(r.id) : false;
+        const likeCount = typeof getLikeCount === 'function' ? getLikeCount(r.id) : 0;
         let snippet = r.preview || '';
 
         // Highlight query dans le snippet
@@ -757,9 +796,28 @@ function renderSearchResults(tab) {
                 <div class="search-result-meta">
                     <span class="search-result-source">¶ Extraits partagés</span>
                 </div>
+                <div class="extrait-actions" onclick="event.stopPropagation()">
+                    <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${r.id}" onclick="event.stopPropagation(); toggleLikeExtrait('${r.id}')" data-extrait-id="${r.id}">
+                        <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                        <span class="like-count clickable" id="likeCount-${r.id}" onclick="event.stopPropagation(); showLikers('${r.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                    </button>
+                    <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${r.id}')">
+                        <span class="icon">↗︎</span>
+                        <span>Partager</span>
+                        <span class="share-count" id="shareCount-${r.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${r.id}')">0</span>
+                    </button>
+                    <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${r.id}')">
+                        <span class="icon">▦</span>
+                        <span>Collections</span>
+                        <span class="collections-count" id="collectionsCount-${r.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${r.id}')">0</span>
+                    </button>
+                </div>
             </div>
         `;
     }).join('');
+
+    const extraitIds = results.map(r => r.id);
+    hydrateSearchExtraitActions(extraitIds);
 }
 
 // ═══════════════════════════════════════════════════════════

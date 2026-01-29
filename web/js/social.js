@@ -15,6 +15,7 @@ var userLikesCache = new Set(); // Cache des IDs d'extraits likés par l'utilisa
 var likesCountCache = {};       // Cache des compteurs de likes par extrait
 var likesLoaded = false;        // Flag pour savoir si les likes ont été chargés
 var pendingLikeOperations = {}; // Opérations de like en cours (évite les doubles clics)
+var extraitDataCache = new Map(); // Cache des données d'extraits
 
 // Charger tous les likes de l'utilisateur connecté
 async function loadUserLikesCache() {
@@ -277,6 +278,16 @@ async function renderSocialFeed() {
         await loadUserFollowing();
     }
     
+    // Charger les infos de partages
+    if (typeof loadExtraitShareInfoBatch === 'function') {
+        await loadExtraitShareInfoBatch(extraitIds);
+    }
+    
+    // Charger les infos de collections
+    if (typeof loadExtraitCollectionsInfoBatch === 'function') {
+        await loadExtraitCollectionsInfoBatch(extraitIds);
+    }
+    
     container.innerHTML = socialExtraits.map(extrait => {
         const username = extrait.profiles?.username || 'Anonyme';
         const avatarSymbol = getAvatarSymbol(username);
@@ -284,6 +295,7 @@ async function renderSocialFeed() {
         const isLiked = isExtraitLiked(extrait.id);
         const likeCount = getLikeCount(extrait.id);
         const isFollowing = typeof userFollowing !== 'undefined' && userFollowing.has(extrait.user_id);
+        extraitDataCache.set(extrait.id, extrait);
         
         return `
             <div class="extrait-card" data-id="${extrait.id}">
@@ -308,12 +320,18 @@ async function renderSocialFeed() {
                 ${extrait.commentary ? `<div class="extrait-commentary">${escapeHtml(extrait.commentary)}</div>` : ''}
                 <div class="extrait-actions">
                     <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
-                        <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
-                        <span class="like-count clickable" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                        <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
+                        <span class="like-count" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'}; cursor: pointer;">${likeCount}</span>
                     </button>
-                    <button class="extrait-action" onclick="copyExtrait('${extrait.id}')">
-                        <span class="icon">📋</span>
-                        <span>Copier</span>
+                    <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${extrait.id}')">
+                        <span class="icon">↗︎</span>
+                        <span>Partager</span>
+                        <span class="share-count" id="shareCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extrait.id}')">0</span>
+                    </button>
+                    <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${extrait.id}')">
+                        <span class="icon">▦</span>
+                        <span>Collections</span>
+                        <span class="collections-count" id="collectionsCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extrait.id}')">0</span>
                     </button>
                 </div>
                 <div class="comments-section">
@@ -333,6 +351,17 @@ async function renderSocialFeed() {
             </div>
         `;
     }).join('');
+    
+    // Charger les commentaires pour ces extraits
+    await loadCommentsForExtraits();
+    
+    // Mettre à jour les compteurs de partages et collections
+    if (typeof updateExtraitShareButtons === 'function') {
+        updateExtraitShareButtons(extraitIds);
+    }
+    if (typeof updateExtraitCollectionsButtons === 'function') {
+        updateExtraitCollectionsButtons(extraitIds);
+    }
 }
 
 async function toggleLikeExtrait(extraitId) {
@@ -388,7 +417,7 @@ async function toggleLikeExtrait(extraitId) {
             setTimeout(() => likeBtn.classList.remove('like-animating'), 300);
         }
         if (likeIcon) {
-            likeIcon.textContent = wasLiked ? '🤍' : '❤️';
+            likeIcon.textContent = wasLiked ? '♡' : '♥';
         }
         if (likeCountEl) {
             likeCountEl.textContent = newCount;
@@ -457,7 +486,7 @@ async function toggleLikeExtrait(extraitId) {
             likeBtn.classList.toggle('liked', isNowLiked);
         }
         if (likeIcon) {
-            likeIcon.textContent = isNowLiked ? '❤️' : '🤍';
+            likeIcon.textContent = isNowLiked ? '♥' : '♡';
         }
         if (likeCountEl) {
             likeCountEl.textContent = realCount;
@@ -477,6 +506,79 @@ function copyExtrait(extraitId) {
     const text = `"${extrait.texte}"\n— ${extrait.source_author}, ${extrait.source_title}`;
     navigator.clipboard.writeText(text);
     toast('📋 Extrait copié !');
+}
+
+/**
+ * Récupérer les données complètes d'un extrait (cache + Supabase)
+ */
+async function getExtraitData(extraitId) {
+    if (!extraitId) return null;
+
+    if (extraitDataCache.has(extraitId)) {
+        return extraitDataCache.get(extraitId);
+    }
+
+    const local = socialExtraits.find(e => e.id === extraitId);
+    if (local) {
+        extraitDataCache.set(extraitId, local);
+        return local;
+    }
+
+    if (!supabaseClient) return null;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('extraits')
+            .select(`
+                *,
+                profiles:user_id (username, avatar_url)
+            `)
+            .eq('id', extraitId)
+            .single();
+
+        if (error) throw error;
+
+        if (data) {
+            extraitDataCache.set(extraitId, data);
+        }
+
+        return data || null;
+    } catch (err) {
+        console.error('Erreur récupération extrait:', err);
+        return null;
+    }
+}
+
+/**
+ * Hydrater les likes + UI pour une liste d'extraits
+ */
+async function hydrateExtraitLikesUI(extraitIds) {
+    if (!extraitIds || extraitIds.length === 0) return;
+
+    await loadLikesCountForExtraits(extraitIds);
+
+    if (currentUser && !likesLoaded) {
+        await loadUserLikesCache();
+    }
+
+    extraitIds.forEach(id => {
+        const likeBtn = document.getElementById(`likeBtn-${id}`);
+        const likeIcon = likeBtn?.querySelector('.like-icon');
+        const likeCountEl = document.getElementById(`likeCount-${id}`);
+        const liked = isExtraitLiked(id);
+        const count = getLikeCount(id);
+
+        if (likeBtn) {
+            likeBtn.classList.toggle('liked', liked);
+        }
+        if (likeIcon) {
+            likeIcon.textContent = liked ? '♥' : '♡';
+        }
+        if (likeCountEl) {
+            likeCountEl.textContent = count;
+            likeCountEl.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+    });
 }
 
 // Charger le texte complet depuis Wikisource (évite de stocker en base)
@@ -737,7 +839,7 @@ async function showLikers(extraitId) {
         modal.innerHTML = `
             <div class="likers-content">
                 <div class="likers-header">
-                    <h3>❤️ Aimé par</h3>
+                    <h3>♥ Aimé par</h3>
                     <button class="likers-close" onclick="closeLikersModal()">✕</button>
                 </div>
                 <div class="likers-list" id="likersList">
@@ -867,6 +969,8 @@ window.renderSocialFeed = renderSocialFeed;
 window.toggleLikeExtrait = toggleLikeExtrait;
 window.loadFullTextFromSource = loadFullTextFromSource;
 window.copyExtrait = copyExtrait;
+window.getExtraitData = getExtraitData;
+window.hydrateExtraitLikesUI = hydrateExtraitLikesUI;
 window.showMyExtraits = showMyExtraits;
 window.showMyLikes = showMyLikes;
 

@@ -8,6 +8,238 @@
 var pendingShare = null;
 var shareTooltip = null;
 var originalShareText = '';
+var extraitSharesCache = new Map();
+var extraitSharesInFlight = new Map();
+
+/**
+ * Partager un extrait depuis n'importe quel contexte
+ * Ouvre le modal de partage avec possibilité d'ajouter un commentaire
+ */
+async function shareExtraitFromCard(extraitId) {
+    if (!currentUser) {
+        if (typeof openAuthModal === 'function') openAuthModal('login');
+        toast('📝 Connectez-vous pour partager');
+        return;
+    }
+
+    if (typeof getExtraitData !== 'function') {
+        toast('❌ Impossible de charger cet extrait');
+        return;
+    }
+
+    const extrait = await getExtraitData(extraitId);
+    if (!extrait) {
+        toast('❌ Extrait introuvable');
+        return;
+    }
+
+    openShareModal(
+        extrait.texte || '',
+        extrait.source_author || '',
+        extrait.source_title || '',
+        extrait.source_url || '',
+        extrait.id || null
+    );
+}
+
+/**
+ * Récupérer la liste des partages d'un extrait
+ */
+async function getExtraitSharesInfo(extraitId) {
+    if (!supabaseClient || !extraitId) return { hasShares: false, count: 0, shares: [] };
+
+    if (extraitSharesCache.has(extraitId)) {
+        return extraitSharesCache.get(extraitId);
+    }
+
+    if (typeof getExtraitData !== 'function') {
+        return { hasShares: false, count: 0, shares: [] };
+    }
+
+    const extrait = await getExtraitData(extraitId);
+    if (!extrait) return { hasShares: false, count: 0, shares: [] };
+
+    try {
+        let query = supabaseClient
+            .from('extraits')
+            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)');
+
+        if (extrait.text_hash) {
+            query = query.eq('text_hash', extrait.text_hash);
+            if (extrait.source_url) {
+                query = query.eq('source_url', extrait.source_url);
+            } else {
+                query = query.eq('source_title', extrait.source_title || '').eq('source_author', extrait.source_author || '');
+            }
+        } else {
+            if (extrait.source_url) {
+                query = query.eq('source_url', extrait.source_url);
+            } else {
+                query = query.eq('source_title', extrait.source_title || '').eq('source_author', extrait.source_author || '');
+            }
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) throw error;
+
+        const shares = data || [];
+        const info = { hasShares: shares.length > 0, count: shares.length, shares };
+        extraitSharesCache.set(extraitId, info);
+        return info;
+    } catch (err) {
+        console.error('Erreur chargement partages:', err);
+        return { hasShares: false, count: 0, shares: [] };
+    }
+}
+
+/**
+ * Charger les partages pour une liste d'extraits (batch)
+ */
+async function loadExtraitShareInfoBatch(extraitIds) {
+    if (!supabaseClient || !extraitIds || extraitIds.length === 0) return;
+    if (typeof getExtraitData !== 'function') return;
+
+    const uniqueIds = [...new Set(extraitIds.filter(Boolean))];
+    const missingIds = uniqueIds.filter(id => !extraitSharesCache.has(id));
+    const idsToFetch = missingIds.filter(id => !extraitSharesInFlight.has(id));
+    if (missingIds.length === 0 || idsToFetch.length === 0) {
+        updateExtraitShareButtons(uniqueIds);
+        return;
+    }
+
+    idsToFetch.forEach(id => extraitSharesInFlight.set(id, true));
+
+    let extraits = [];
+    try {
+        extraits = await Promise.all(idsToFetch.map(id => getExtraitData(id)));
+    } finally {
+        idsToFetch.forEach(id => extraitSharesInFlight.delete(id));
+    }
+    const validExtraits = extraits.filter(Boolean);
+    const hashGroups = validExtraits.filter(e => e.text_hash).reduce((acc, e) => {
+        acc[e.text_hash] = acc[e.text_hash] || [];
+        acc[e.text_hash].push(e);
+        return acc;
+    }, {});
+
+    const hashes = Object.keys(hashGroups);
+    let sharesByHash = [];
+    if (hashes.length > 0) {
+        const { data } = await supabaseClient
+            .from('extraits')
+            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)')
+            .in('text_hash', hashes)
+            .order('created_at', { ascending: false });
+        sharesByHash = data || [];
+    }
+
+    for (const extrait of validExtraits) {
+        if (extraitSharesCache.has(extrait.id)) continue;
+
+        let shares = [];
+        if (extrait.text_hash) {
+            shares = sharesByHash.filter(s => {
+                if (s.text_hash !== extrait.text_hash) return false;
+                if (extrait.source_url) return s.source_url === extrait.source_url;
+                return (s.source_title || '') === (extrait.source_title || '')
+                    && (s.source_author || '') === (extrait.source_author || '');
+            });
+        } else {
+            let query = supabaseClient
+                .from('extraits')
+                .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)');
+            if (extrait.source_url) {
+                query = query.eq('source_url', extrait.source_url);
+            } else {
+                query = query.eq('source_title', extrait.source_title || '').eq('source_author', extrait.source_author || '');
+            }
+            const { data } = await query.order('created_at', { ascending: false });
+            shares = data || [];
+        }
+
+        const info = { hasShares: shares.length > 0, count: shares.length, shares };
+        extraitSharesCache.set(extrait.id, info);
+    }
+    
+    updateExtraitShareButtons(uniqueIds);
+}
+
+/**
+ * Mettre à jour l'affichage des compteurs de partage
+ */
+function updateExtraitShareButtons(extraitIds) {
+    if (!extraitIds || extraitIds.length === 0) return;
+
+    extraitIds.forEach(id => {
+        const info = extraitSharesCache.get(id);
+        const countEl = document.getElementById(`shareCount-${id}`);
+        if (!countEl) return;
+
+        const count = info?.count || 0;
+        countEl.textContent = count;
+        countEl.style.display = 'inline-flex';
+        countEl.classList.toggle('is-zero', count === 0);
+    });
+}
+
+/**
+ * Afficher la liste des utilisateurs qui ont partagé un extrait
+ */
+async function showSharers(extraitId) {
+    if (!supabaseClient) return;
+
+    let modal = document.getElementById('sharersModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'sharersModal';
+        modal.className = 'likers-modal';
+        modal.innerHTML = `
+            <div class="likers-content">
+                <div class="likers-header">
+                    <h3>↗︎ Partagé par</h3>
+                    <button class="likers-close" onclick="closeSharersModal()">✕</button>
+                </div>
+                <div class="likers-list" id="sharersList">
+                    <div class="likers-loading">Chargement...</div>
+                </div>
+            </div>
+        `;
+        modal.onclick = (e) => { if (e.target === modal) closeSharersModal(); };
+        document.body.appendChild(modal);
+    }
+
+    modal.classList.add('open');
+    const listContainer = document.getElementById('sharersList');
+    listContainer.innerHTML = '<div class="likers-loading">Chargement...</div>';
+
+    const info = await getExtraitSharesInfo(extraitId);
+    if (!info.shares || info.shares.length === 0) {
+        listContainer.innerHTML = '<div class="likers-empty">Aucun partage pour le moment</div>';
+        return;
+    }
+
+    listContainer.innerHTML = info.shares.map(share => {
+        const profile = share.profiles || {};
+        const username = profile.username || 'Anonyme';
+        const avatarSymbol = getAvatarSymbol(username);
+        const timeAgo = formatTimeAgo(new Date(share.created_at));
+
+        return `
+            <div class="liker-item">
+                <div class="liker-avatar" onclick="openUserProfile('${share.user_id}', '${escapeHtml(username)}'); closeSharersModal();">${avatarSymbol}</div>
+                <div class="liker-info" onclick="openUserProfile('${share.user_id}', '${escapeHtml(username)}'); closeSharersModal();">
+                    <div class="liker-name">${escapeHtml(username)}</div>
+                    <div class="liker-time">${timeAgo}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function closeSharersModal() {
+    const modal = document.getElementById('sharersModal');
+    if (modal) modal.classList.remove('open');
+}
 
 /**
  * Ouvrir le modal de partage avec le texte COMPLET
@@ -136,6 +368,13 @@ async function publishExtrait() {
         closeShareModal();
         toast('🐦 Extrait publié !');
         if (typeof loadUserStats === 'function') loadUserStats();
+
+        if (pendingShare?.cardId) {
+            extraitSharesCache.delete(pendingShare.cardId);
+            if (typeof loadExtraitShareInfoBatch === 'function') {
+                loadExtraitShareInfoBatch([pendingShare.cardId]);
+            }
+        }
         
     } catch (err) {
         toast('Erreur : ' + (err.message || err));
@@ -566,7 +805,7 @@ function showShareTooltip(text, author, title, sourceUrl) {
     shareTooltip.className = 'share-tooltip';
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = '📤 Partager';
+    btn.textContent = '↗︎ Partager';
     btn.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -599,3 +838,9 @@ window.showInlineComment = showInlineComment;
 window.sendInlineComment = sendInlineComment;
 window.openCardComments = openCardComments;
 window.syncCardCommentCountId = syncCardCommentCountId;
+window.shareExtraitFromCard = shareExtraitFromCard;
+window.getExtraitSharesInfo = getExtraitSharesInfo;
+window.loadExtraitShareInfoBatch = loadExtraitShareInfoBatch;
+window.updateExtraitShareButtons = updateExtraitShareButtons;
+window.showSharers = showSharers;
+window.closeSharersModal = closeSharersModal;
