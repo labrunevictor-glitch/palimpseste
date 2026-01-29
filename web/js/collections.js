@@ -950,7 +950,12 @@ async function openCollection(collectionId) {
                         const itemId = item.id;
                         const extraitId = item.extraits?.id || null;
                         const previewText = preview ? preview.substring(0, 300) : '';
-                        const hasMore = preview && preview.length > 300;
+                        const previewTruncated = preview && preview.length > 300;
+                        const hasRemoteSource = !!(url && url.trim() !== '');
+                        const normPreview = normalizeCollectionText(previewText);
+                        const normFull = normalizeCollectionText(fullText || '');
+                        const hasFullMore = normFull.length > normPreview.length + 20;
+                        const shouldShowExpand = previewTruncated || hasFullMore || hasRemoteSource;
                         const isLiked = extraitId && typeof isExtraitLiked === 'function' ? isExtraitLiked(extraitId) : false;
                         const likeCount = extraitId && typeof getLikeCount === 'function' ? getLikeCount(extraitId) : 0;
                         
@@ -961,17 +966,17 @@ async function openCollection(collectionId) {
                         
                         return `
                                <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
-                                   data-preview-truncated="${hasMore ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
+                                   data-preview-truncated="${previewTruncated ? 'true' : 'false'}" data-can-expand="${shouldShowExpand ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
                                   <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}', this, event)">
                                     <div class="collection-item-header">
                                         <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
                                         <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
                                     </div>
                                     <div class="collection-item-text-container">
-                                        <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
+                                        <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                         <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                     </div>
-                                    <button class="collection-item-expand${hasMore ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
+                                    <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
                                     ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
                                 </div>
                                 ${extraitId ? `
@@ -1096,7 +1101,12 @@ async function openCollectionById(collectionId) {
                             const itemId = item.id;
                             const extraitId = item.extraits?.id || null;
                             const previewText = preview ? preview.substring(0, 300) : '';
-                            const hasMore = preview && preview.length > 300;
+                            const previewTruncated = preview && preview.length > 300;
+                            const hasRemoteSource = !!(url && url.trim() !== '');
+                            const normPreview = normalizeCollectionText(previewText);
+                            const normFull = normalizeCollectionText(fullText || '');
+                            const hasFullMore = normFull.length > normPreview.length + 20;
+                            const shouldShowExpand = previewTruncated || hasFullMore || hasRemoteSource;
                             const isLiked = extraitId && typeof isExtraitLiked === 'function' ? isExtraitLiked(extraitId) : false;
                             const likeCount = extraitId && typeof getLikeCount === 'function' ? getLikeCount(extraitId) : 0;
 
@@ -1106,18 +1116,18 @@ async function openCollectionById(collectionId) {
                             const safeAuthor = itemAuthor ? encodeURIComponent(itemAuthor) : '';
 
                             return `
-                                <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
-                                     data-preview-truncated="${hasMore ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
+                                  <div class="collection-item-card" id="coll-item-${itemId}" data-expanded="false"
+                                      data-preview-truncated="${previewTruncated ? 'true' : 'false'}" data-can-expand="${shouldShowExpand ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
                                     <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}', this, event)">
                                         <div class="collection-item-header">
                                             <div class="collection-item-title">${escapeHtml(itemTitle || 'Sans titre')}</div>
                                             <div class="collection-item-author">${escapeHtml(itemAuthor || 'Auteur inconnu')}</div>
                                         </div>
                                         <div class="collection-item-text-container">
-                                            <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${hasMore ? '...' : ''}</div>
+                                            <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                             <div class="collection-item-full" id="full-${itemId}">${escapeHtml(fullText || '')}</div>
                                         </div>
-                                        <button class="collection-item-expand${hasMore ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
+                                        <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span><span class="expand-label">Afficher le texte complet</span></button>
                                     </div>
                                     ${extraitId ? `
                                         <div class="extrait-actions" onclick="event.stopPropagation()">
@@ -1431,12 +1441,13 @@ function updateCollectionExpandAvailability(card) {
 
     if (!preview || !expandBtn) return;
 
-    const previewText = (preview.textContent || '').trim();
+    const previewText = (preview.textContent || '').replace(/(\u2026|\.{3})\s*$/, '').trim();
     if (!card.dataset.previewText) {
         card.dataset.previewText = previewText;
     }
 
     const fullText = card.dataset.fullText || (full ? full.textContent : '') || '';
+    const hasRemoteSource = !!(card.dataset.url && card.dataset.url.trim() !== '');
     const hasPreviewTruncation = card.dataset.previewTruncated === 'true';
     const hasOverflow = preview.scrollHeight > preview.clientHeight + 1;
 
@@ -1447,7 +1458,8 @@ function updateCollectionExpandAvailability(card) {
         hasFullMore = normFull.length > normPreview.length + 20;
     }
 
-    const shouldShow = hasPreviewTruncation || hasOverflow || hasFullMore;
+    const canLoadFullText = hasRemoteSource && !card.dataset.fullText;
+    const shouldShow = hasPreviewTruncation || hasOverflow || hasFullMore || canLoadFullText;
     expandBtn.classList.toggle('is-hidden', !shouldShow);
     card.dataset.canExpand = shouldShow ? 'true' : 'false';
 
