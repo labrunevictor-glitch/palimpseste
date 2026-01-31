@@ -9754,4 +9754,24 @@ transition: all 0.2s;
 .collection-item .collection-name {
     font-weight: 500;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MENTIONS @pseudo
+   ═══════════════════════════════════════════════════════════ */
+
+.mention {
+    color: var(--accent);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+.mention:hover {
+    color: var(--accent-secondary);
+    background: rgba(90, 122, 138, 0.15);
+    text-decoration: underline;
+}
+
 /* Fin du fichier */

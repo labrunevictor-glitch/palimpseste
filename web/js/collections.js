@@ -328,6 +328,24 @@ async function addToCollection(collectionId, item) {
             const newCount = Math.max(0, (cached?.count || 0) + 1);
             extraitCollectionsCache.set(item.extrait_id, { hasCollections: newCount > 0, count: newCount });
             updateExtraitCollectionsButtons([item.extrait_id]);
+            
+            // Notifier l'auteur de l'extrait (si ce n'est pas nous)
+            if (typeof createNotification === 'function') {
+                try {
+                    const { data: extrait } = await supabaseClient
+                        .from('extraits')
+                        .select('user_id')
+                        .eq('id', item.extrait_id)
+                        .single();
+                    
+                    if (extrait && extrait.user_id !== currentUser.id) {
+                        await createNotification(extrait.user_id, 'collection_add', item.extrait_id, collection?.name || 'collection');
+                        console.log('📣 Notification collection envoyée à l\'auteur');
+                    }
+                } catch (e) {
+                    console.warn('Erreur notif collection:', e);
+                }
+            }
         }
         
         return true;

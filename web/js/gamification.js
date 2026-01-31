@@ -435,8 +435,137 @@ const ACHIEVEMENTS = {
         name: 'Mécène', 
         desc: 'Soutenir le projet',
         category: 'prestige'
+    },
+    ragondin: {
+        icon: '🦫',
+        name: 'Ragondin',
+        desc: 'Cet utilisateur est peut-être un ragondin',
+        category: 'prestige'
     }
 };
+
+// ═══════════════════════════════════════════════════════════
+// 🧩 HELPERS - Achievements state & notifications
+// ═══════════════════════════════════════════════════════════
+
+let achievementPopupQueue = [];
+let achievementPopupActive = false;
+let achievementPopupHideTimer = null;
+let lastAchievementSave = 0;
+
+/**
+ * Normalise et déduplique les badges
+ * Gère les badges privés et force la persistance
+ */
+function normalizeAchievementsState() {
+    if (!Array.isArray(state.achievements)) state.achievements = [];
+    
+    // Déduplication
+    let unique = [...new Set(state.achievements)];
+    
+    // Filtrer les badges invalides (qui n'existent plus)
+    const validIds = Object.keys(ACHIEVEMENTS);
+    unique = unique.filter(id => validIds.includes(id));
+    
+    // Retirer les badges privés si l'utilisateur n'est pas concerné
+    if (!isRagonUser() && unique.includes('ragondin')) {
+        const idx = unique.indexOf('ragondin');
+        if (idx !== -1) unique.splice(idx, 1);
+    }
+    
+    // Vérifier si changements
+    const hasChanged = unique.length !== state.achievements.length ||
+        unique.some((id, i) => state.achievements[i] !== id);
+    
+    if (hasChanged) {
+        state.achievements = unique;
+        forceSaveAchievements();
+    }
+}
+
+/**
+ * Force la sauvegarde des badges avec debounce
+ */
+function forceSaveAchievements() {
+    const now = Date.now();
+    // Debounce de 500ms pour éviter les sauvegardes multiples
+    if (now - lastAchievementSave < 500) return;
+    lastAchievementSave = now;
+    
+    try {
+        if (typeof saveState === 'function') {
+            saveState();
+        }
+        console.log('🏆 Badges sauvegardés:', state.achievements.length);
+    } catch (e) {
+        console.error('❌ Erreur sauvegarde badges:', e);
+    }
+}
+
+function hasAchievement(id) {
+    return Array.isArray(state.achievements) && state.achievements.includes(id);
+}
+
+function getVisibleAchievementEntries() {
+    return Object.entries(ACHIEVEMENTS).filter(([id]) => id !== 'ragondin' || isRagonUser());
+}
+
+function getVisibleAchievementIds() {
+    return getVisibleAchievementEntries().map(([id]) => id);
+}
+
+function getCurrentUsername() {
+    if (typeof currentUser === 'undefined' || !currentUser) return '';
+    const profile = currentUser.user_metadata || {};
+    const username = profile.username || profile.full_name || currentUser.email?.split('@')[0] || '';
+    return String(username).trim();
+}
+
+function isRagonUser() {
+    return getCurrentUsername().toLowerCase() === 'ragon';
+}
+
+function enqueueAchievementPopup(id) {
+    if (!ACHIEVEMENTS[id]) return;
+    if (achievementPopupQueue.includes(id)) return;
+    achievementPopupQueue.push(id);
+    showNextAchievementPopup();
+}
+
+function showNextAchievementPopup() {
+    if (achievementPopupActive || achievementPopupQueue.length === 0) return;
+    const id = achievementPopupQueue.shift();
+    const ach = ACHIEVEMENTS[id];
+    if (!ach) return showNextAchievementPopup();
+
+    achievementPopupActive = true;
+
+    const notif = document.createElement('div');
+    notif.className = 'achievement-popup subtle';
+    notif.setAttribute('role', 'status');
+    notif.setAttribute('aria-live', 'polite');
+    notif.innerHTML = `
+        <span class="achievement-icon">${ach.icon}</span>
+        <span class="achievement-name">${ach.name}</span>
+    `;
+    document.body.appendChild(notif);
+
+    const closePopup = () => {
+        notif.classList.remove('show');
+        setTimeout(() => {
+            notif.remove();
+            achievementPopupActive = false;
+            showNextAchievementPopup();
+        }, 300);
+    };
+
+    notif.addEventListener('click', closePopup);
+
+    requestAnimationFrame(() => notif.classList.add('show'));
+
+    if (achievementPopupHideTimer) clearTimeout(achievementPopupHideTimer);
+    achievementPopupHideTimer = setTimeout(closePopup, 2200);
+}
 
 // ═══════════════════════════════════════════════════════════
 // 🎲 SAUT ALÉATOIRE PUR (sans thématique)
@@ -556,6 +685,7 @@ function updateFunStat() {
  * À appeler après chaque action significative (lecture, like, etc.)
  */
 function checkAchievements() {
+    normalizeAchievementsState();
     const authorCount = Object.keys(state.authorStats).length;
     const readCount = state.readCount || 0;
     const likeCount = state.likes?.size || likedSourceUrls?.size || 0;
@@ -565,8 +695,13 @@ function checkAchievements() {
     const hour = new Date().getHours();
     const day = new Date().getDay();
     const unlockedCount = state.achievements?.length || 0;
+    const totalBadges = getVisibleAchievementIds().length;
+    const legendTarget = Math.max(0, totalBadges - 1);
     
     const checks = [
+        // Badges spécifiques utilisateurs
+        ['ragondin', isRagonUser()],
+
         // Lecture
         ['first_read', readCount >= 1],
         ['reader_10', readCount >= 10],
@@ -616,11 +751,11 @@ function checkAchievements() {
         // Prestige
         ['completionist', unlockedCount >= 25],
         ['master', unlockedCount >= 40],
-        ['legend', unlockedCount >= 49]
+        ['legend', unlockedCount >= legendTarget]
     ];
     
     for (const [id, condition] of checks) {
-        if (condition && !state.achievements.includes(id)) {
+        if (condition && !hasAchievement(id)) {
             unlockAchievement(id);
         }
     }
@@ -634,27 +769,52 @@ function checkAchievements() {
  * Anime et enregistre le déblocage d'un achievement
  * @param {string} id - Identifiant du badge (ex: 'first_read')
  */
+/**
+ * Débloque un badge de manière sécurisée
+ * Avec vérifications anti-doublon et sauvegarde garantie
+ */
 function unlockAchievement(id) {
     const ach = ACHIEVEMENTS[id];
-    if (!ach) return;
+    if (!ach) {
+        console.warn('⚠️ Badge inconnu:', id);
+        return;
+    }
+
+    normalizeAchievementsState();
     
+    // Double vérification anti-doublon
+    if (hasAchievement(id)) {
+        console.log('ℹ️ Badge déjà acquis:', id);
+        return;
+    }
+    
+    // Ajouter le badge
     state.achievements.push(id);
-    saveState();
     
-    // Notification discrète style toast
-    const notif = document.createElement('div');
-    notif.className = 'achievement-popup subtle';
-    notif.innerHTML = `
-        <span class="achievement-icon">${ach.icon}</span>
-        <span class="achievement-name">${ach.name}</span>
-    `;
-    document.body.appendChild(notif);
+    // Sauvegarde immédiate avec retry
+    let saved = false;
+    for (let i = 0; i < 3 && !saved; i++) {
+        try {
+            saveState();
+            saved = true;
+            console.log('🏆 Badge débloqué:', id, ach.name);
+        } catch (e) {
+            console.error('❌ Erreur sauvegarde badge (tentative', i+1, '):', e);
+        }
+    }
     
-    setTimeout(() => notif.classList.add('show'), 100);
+    // Vérifier que la sauvegarde a fonctionné
     setTimeout(() => {
-        notif.classList.remove('show');
-        setTimeout(() => notif.remove(), 300);
-    }, 2000);
+        const stored = JSON.parse(localStorage.getItem('palimpseste') || '{}');
+        if (!stored.achievements?.includes(id)) {
+            console.warn('⚠️ Badge non persisté, nouvelle tentative...');
+            state.achievements = [...new Set([...state.achievements, id])];
+            saveState();
+        }
+    }, 100);
+
+    // Notification discrète style toast (anti-spam + auto-dismiss)
+    enqueueAchievementPopup(id);
     
     renderAchievements();
 }
@@ -670,6 +830,8 @@ function unlockAchievement(id) {
 function renderAchievements() {
     const container = document.getElementById('achievementList');
     if (!container) return;
+
+    normalizeAchievementsState();
     
     const authorCount = Object.keys(state.authorStats).length;
     const readCount = state.readCount || 0;
@@ -680,6 +842,8 @@ function renderAchievements() {
     const mystiqueCount = state.genreStats?.mystique || 0;
     const genreCount = Object.keys(state.genreStats || {}).length;
     const unlockedCount = state.achievements?.length || 0;
+    const totalBadges = getVisibleAchievementIds().length;
+    const legendTarget = Math.max(0, totalBadges - 1);
     
     // Calculer la progression pour chaque badge
     const getProgress = (id) => {
@@ -731,13 +895,12 @@ function renderAchievements() {
             // Prestige
             completionist: { current: Math.min(unlockedCount, 25), target: 25 },
             master: { current: Math.min(unlockedCount, 40), target: 40 },
-            legend: { current: Math.min(unlockedCount, 49), target: 49 }
+            legend: { current: Math.min(unlockedCount, legendTarget), target: legendTarget },
+            ragondin: { current: hasAchievement('ragondin') ? 1 : 0, target: 1, special: true }
         };
         
         return { ...defaults, ...progressMap[id] };
     };
-    
-    const totalBadges = Object.keys(ACHIEVEMENTS).length;
     
     // Mettre à jour le compteur
     const unlockedEl = document.getElementById('unlockedCount');
@@ -758,7 +921,7 @@ function renderAchievements() {
     };
     
     const groupedBadges = {};
-    for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
+    for (const [id, ach] of getVisibleAchievementEntries()) {
         const cat = ach.category || 'autre';
         if (!groupedBadges[cat]) groupedBadges[cat] = [];
         groupedBadges[cat].push({ id, ...ach });
@@ -768,7 +931,7 @@ function renderAchievements() {
         const badges = groupedBadges[catId] || [];
         if (badges.length === 0) return '';
         
-        const unlockedInCat = badges.filter(b => state.achievements?.includes(b.id)).length;
+        const unlockedInCat = badges.filter(b => hasAchievement(b.id)).length;
         
         return `
             <div class="badge-category">
@@ -779,7 +942,7 @@ function renderAchievements() {
                 </div>
                 <div class="badge-category-grid">
                     ${badges.map(badge => {
-                        const unlocked = state.achievements?.includes(badge.id);
+                        const unlocked = hasAchievement(badge.id);
                         const progress = getProgress(badge.id);
                         const percent = Math.min(100, Math.round((progress.current / progress.target) * 100));
                         
@@ -839,7 +1002,7 @@ function showBadgeDetails(id) {
     const ach = ACHIEVEMENTS[id];
     if (!ach) return;
     
-    const unlocked = state.achievements.includes(id);
+    const unlocked = hasAchievement(id);
     
     // Indices pour aider le joueur
     const hints = {

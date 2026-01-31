@@ -4,6 +4,43 @@
 
 var notificationsSubscription = null;
 
+/**
+ * Diagnostiquer le système de notifications
+ * Appeler diagNotifications() dans la console pour vérifier
+ */
+function diagNotifications() {
+    console.group('🔔 Diagnostic Notifications');
+    
+    console.log('1. supabaseClient:', typeof supabaseClient !== 'undefined' ? '✅ Défini' : '❌ Non défini');
+    console.log('2. currentUser:', typeof currentUser !== 'undefined' && currentUser ? `✅ Connecté (${currentUser.id?.substring(0, 8)}...)` : '❌ Non connecté');
+    
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        console.log('3. URL Supabase:', supabaseClient.supabaseUrl || '?');
+    }
+    
+    // Test de connexion à la table notifications
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        supabaseClient.from('notifications').select('count', { count: 'exact', head: true }).then(({ count, error }) => {
+            if (error) {
+                console.log('4. Table notifications:', '❌ Erreur -', error.message);
+                if (error.message?.includes('does not exist')) {
+                    console.log('   💡 La table "notifications" n\'existe pas. Exécutez le SQL de setup.');
+                }
+            } else {
+                console.log('4. Table notifications:', '✅ Accessible');
+            }
+        });
+    }
+    
+    console.log('5. createNotification:', typeof createNotification === 'function' ? '✅ Disponible' : '❌ Non disponible');
+    console.log('6. notifyMentions:', typeof notifyMentions === 'function' ? '✅ Disponible' : '❌ Non disponible');
+    
+    console.groupEnd();
+    
+    console.log('💡 Pour tester: await createNotification("USER_ID", "like", "EXTRAIT_ID")');
+}
+window.diagNotifications = diagNotifications;
+
 // Afficher/masquer les notifications
 function toggleNotifications() {
     // Sur mobile, ouvrir le drawer et afficher les notifications
@@ -178,6 +215,13 @@ async function loadNotifications(containerId = 'notifList') {
             } else if (notif.type === 'comment') {
                 icon = '💬';
                 text = `<strong>${escapeHtml(fromName)}</strong> a commenté votre extrait`;
+            } else if (notif.type === 'mention') {
+                icon = '@';
+                const preview = notif.content ? ` : "${escapeHtml(notif.content.substring(0, 50))}${notif.content.length > 50 ? '…' : ''}"` : '';
+                text = `<strong>${escapeHtml(fromName)}</strong> vous a mentionné${preview}`;
+            } else if (notif.type === 'reply') {
+                icon = '↩️';
+                text = `<strong>${escapeHtml(fromName)}</strong> a répondu à votre commentaire`;
             } else if (notif.type === 'follow') {
                 icon = '👤';
                 text = `<strong>${escapeHtml(fromName)}</strong> vous suit`;
@@ -188,6 +232,12 @@ async function loadNotifications(containerId = 'notifList') {
             } else if (notif.type === 'reaction') {
                 icon = notif.content || '😊';
                 text = `<strong>${escapeHtml(fromName)}</strong> a réagi ${notif.content || ''} à votre contenu`;
+            } else if (notif.type === 'collection_add') {
+                icon = '📁';
+                text = `<strong>${escapeHtml(fromName)}</strong> a ajouté votre extrait à une collection`;
+            } else if (notif.type === 'share') {
+                icon = '↗️';
+                text = `<strong>${escapeHtml(fromName)}</strong> a partagé votre extrait`;
             }
             
             return `
@@ -222,13 +272,17 @@ async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) 
     document.getElementById('notifDropdown').classList.remove('open');
     
     // Action selon le type
-    if (type === 'like' || type === 'comment' || type === 'comment_like') {
+    if (type === 'like' || type === 'comment' || type === 'comment_like' || type === 'mention' || type === 'reply' || type === 'reaction') {
         if (extraitId && typeof viewExtraitById === 'function') {
             viewExtraitById(extraitId);
         }
     } else if (type === 'follow') {
         if (typeof openUserProfile === 'function') {
             openUserProfile(fromUserId, fromName);
+        }
+    } else if (type === 'message') {
+        if (typeof openMessaging === 'function') {
+            openMessaging();
         }
     }
     
@@ -287,11 +341,25 @@ async function updateNotifBadge() {
 
 // Créer une notification
 async function createNotification(userId, type, extraitId = null, content = null) {
-    if (!supabaseClient || !currentUser) {
-        console.warn('createNotification: pas de supabaseClient ou currentUser');
-        return;
+    console.log('🔔 createNotification appelée:', { userId, type, extraitId, content: content?.substring(0, 50) });
+    
+    if (!supabaseClient) {
+        console.warn('❌ createNotification: supabaseClient non initialisé');
+        console.warn('   Vérifiez que vous êtes connecté à Internet et que Supabase est configuré');
+        return false;
     }
-    if (userId === currentUser.id) return; // Pas de notif pour soi-même
+    if (!currentUser) {
+        console.warn('❌ createNotification: currentUser non défini (pas connecté)');
+        return false;
+    }
+    if (!userId) {
+        console.warn('❌ createNotification: userId manquant');
+        return false;
+    }
+    if (userId === currentUser.id) {
+        console.log('ℹ️ Notification ignorée (même utilisateur)');
+        return false; // Pas de notif pour soi-même
+    }
     
     console.log(`📩 Création notification: type=${type}, pour user=${userId}, extrait=${extraitId}`);
     
@@ -310,12 +378,18 @@ async function createNotification(userId, type, extraitId = null, content = null
         
         if (error) {
             console.error('❌ Erreur création notification:', error.message, error);
-            return;
+            // Si table n'existe pas, informer
+            if (error.message?.includes('does not exist') || error.code === '42P01') {
+                console.error('💡 La table "notifications" n\'existe pas dans Supabase');
+            }
+            return false;
         }
         
-        console.log('✅ Notification créée:', data);
+        console.log('✅ Notification créée avec succès:', data?.[0]?.id);
+        return true;
     } catch (err) {
         console.error('❌ Exception notification:', err);
+        return false;
     }
 }
 
@@ -345,3 +419,123 @@ window.markAllNotifsRead = markAllNotifsRead;
 window.updateNotifBadge = updateNotifBadge;
 window.createNotification = createNotification;
 window.subscribeToNotifications = subscribeToNotifications;
+
+// ═══════════════════════════════════════════════════════════
+// 📣 SYSTÈME DE MENTIONS @pseudo
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Extrait les @mentions d'un texte
+ * @param {string} text - Le texte contenant des mentions
+ * @returns {string[]} - Liste des pseudos mentionnés (sans @)
+ */
+function extractMentions(text) {
+    if (!text) return [];
+    // Match @pseudo (lettres, chiffres, tirets, underscores)
+    const regex = /@([a-zA-Z0-9_-]+)/g;
+    const mentions = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        const username = match[1];
+        if (!mentions.includes(username.toLowerCase())) {
+            mentions.push(username.toLowerCase());
+        }
+    }
+    return mentions;
+}
+
+/**
+ * Résout les @mentions vers les IDs utilisateurs
+ * @param {string[]} usernames - Liste des pseudos
+ * @returns {Promise<Map<string, string>>} - Map pseudo -> userId
+ */
+async function resolveMentions(usernames) {
+    if (!supabaseClient || !usernames.length) return new Map();
+    
+    try {
+        // Recherche case-insensitive
+        const { data: profiles, error } = await supabaseClient
+            .from('profiles')
+            .select('id, username')
+            .in('username', usernames);
+        
+        if (error) {
+            console.warn('Erreur résolution mentions:', error);
+            return new Map();
+        }
+        
+        const map = new Map();
+        (profiles || []).forEach(p => {
+            map.set(p.username.toLowerCase(), p.id);
+        });
+        return map;
+    } catch (e) {
+        console.error('Exception résolution mentions:', e);
+        return new Map();
+    }
+}
+
+/**
+ * Crée des notifications pour toutes les mentions dans un texte
+ * @param {string} text - Texte contenant les mentions
+ * @param {string} extraitId - ID de l'extrait concerné
+ * @param {string} [contentPreview] - Aperçu du contenu pour la notification
+ */
+async function notifyMentions(text, extraitId, contentPreview = null) {
+    if (!currentUser || !supabaseClient) return;
+    
+    const mentions = extractMentions(text);
+    if (!mentions.length) return;
+    
+    console.log('📣 Mentions trouvées:', mentions);
+    
+    const userMap = await resolveMentions(mentions);
+    
+    for (const [username, userId] of userMap) {
+        if (userId !== currentUser.id) {
+            await createNotification(userId, 'mention', extraitId, contentPreview || text.substring(0, 100));
+            console.log('📣 Notification mention envoyée à:', username);
+        }
+    }
+}
+
+/**
+ * Formatte un texte en rendant les @mentions cliquables
+ * @param {string} text - Texte brut
+ * @returns {string} - HTML avec liens vers les profils
+ */
+function formatMentions(text) {
+    if (!text) return '';
+    return text.replace(/@([a-zA-Z0-9_-]+)/g, '<span class="mention" onclick="searchAndOpenProfile(\'$1\')">@$1</span>');
+}
+
+/**
+ * Recherche et ouvre le profil d'un utilisateur par pseudo
+ * @param {string} username - Pseudo de l'utilisateur
+ */
+async function searchAndOpenProfile(username) {
+    if (!supabaseClient) return;
+    
+    try {
+        const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('id, username')
+            .ilike('username', username)
+            .maybeSingle();
+        
+        if (profile && typeof openUserProfile === 'function') {
+            openUserProfile(profile.id, profile.username);
+        } else {
+            toast('Utilisateur non trouvé');
+        }
+    } catch (e) {
+        console.error('Erreur recherche profil:', e);
+    }
+}
+
+// Exposer les fonctions de mentions
+window.extractMentions = extractMentions;
+window.resolveMentions = resolveMentions;
+window.notifyMentions = notifyMentions;
+window.formatMentions = formatMentions;
+window.searchAndOpenProfile = searchAndOpenProfile;

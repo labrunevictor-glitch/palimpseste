@@ -130,6 +130,11 @@ function renderCommentItem(comment, profileMap, reactionsByComment, myReactionBy
     const editedLabel = comment.edited_at ? `<span class="comment-edited-label" title="Modifié le ${new Date(comment.edited_at).toLocaleString()}"> • Modifié</span>` : '';
     const reactionsHtml = renderCommentReactions(comment.id, reactionsByComment, myReactionByComment);
     
+    // Formater le contenu avec les mentions cliquables
+    const formattedContent = typeof formatMentions === 'function' 
+        ? formatMentions(escapeHtml(comment.content))
+        : escapeHtml(comment.content);
+    
     return `
         <div class="comment-item" data-id="${comment.id}" data-extrait-id="${extraitId}">
             <div class="comment-avatar" onclick="openUserProfile('${comment.user_id}', '${escapeHtml(username)}')" style="cursor:pointer">${avatarSymbol}</div>
@@ -141,7 +146,7 @@ function renderCommentItem(comment, profileMap, reactionsByComment, myReactionBy
                         <button class="comment-actions-toggle" title="Actions" onclick="toggleCommentActions('${comment.id}')">⋯</button>
                     </div>
                 </div>
-                <div class="comment-text" id="commentText-${comment.id}">${escapeHtml(comment.content)}</div>
+                <div class="comment-text" id="commentText-${comment.id}">${formattedContent}</div>
                 ${reactionsHtml}
                 <div class="comment-footer">
                     <div class="comment-footer-actions">
@@ -466,6 +471,11 @@ async function postComment(extraitId) {
         const extrait = socialExtraits.find(e => e.id === extraitId);
         if (extrait && extrait.user_id !== currentUser.id) {
             await createNotification(extrait.user_id, 'comment', extraitId, content.substring(0, 100));
+        }
+        
+        // Notifier les utilisateurs mentionnés
+        if (typeof notifyMentions === 'function') {
+            await notifyMentions(content, extraitId, content.substring(0, 100));
         }
         
         // Recharger les commentaires

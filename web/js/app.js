@@ -375,7 +375,19 @@ async function init() {
     
     updateStats();
     updateConnections();
+    
+    // Vérifier l'intégrité des badges au démarrage
+    if (typeof normalizeAchievementsState === 'function') {
+        normalizeAchievementsState();
+    }
+    
     renderAchievements();
+    
+    // Vérifier les badges après chargement complet des stats
+    if (typeof checkAchievements === 'function') {
+        setTimeout(() => checkAchievements(), 500);
+    }
+    
     renderReadingPath();
     renderFavorites();
     updateFavCount();

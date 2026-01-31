@@ -384,6 +384,9 @@ async function publishExtrait() {
     const preview = fullText.substring(0, 150) + (fullText.length > 150 ? '…' : '');
     const { textHash, textLength } = buildExtraitKey(fullText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
     
+    // Garder trace de l'ID de l'extrait original si c'est un repartage
+    const originalExtraitId = pendingShare.cardId;
+    
     try {
         const { data, error } = await supabaseClient.from('extraits').insert({
             user_id: currentUser.id,
@@ -396,12 +399,31 @@ async function publishExtrait() {
             commentary: commentary || null,
             likes_count: 0,
             created_at: new Date().toISOString()
-        });
+        }).select().single();
         
         if (error) throw error;
         
         closeShareModal();
         toast('🐦 Extrait publié !');
+        
+        // Notifier l'auteur de l'extrait original (si c'est un repartage)
+        if (originalExtraitId && typeof createNotification === 'function') {
+            try {
+                const { data: originalExtrait } = await supabaseClient
+                    .from('extraits')
+                    .select('user_id')
+                    .eq('id', originalExtraitId)
+                    .single();
+                
+                if (originalExtrait && originalExtrait.user_id !== currentUser.id) {
+                    await createNotification(originalExtrait.user_id, 'share', data?.id || originalExtraitId, preview.substring(0, 100));
+                    console.log('📣 Notification de partage envoyée à l\'auteur original');
+                }
+            } catch (e) {
+                console.warn('Erreur notif auteur original:', e);
+            }
+        }
+        
         if (typeof loadUserStats === 'function') loadUserStats();
 
         if (pendingShare?.cardId) {
@@ -856,15 +878,40 @@ async function sendInlineComment(cardId, inputEl) {
         inputEl.value = '';
         toast('💬 Commentaire ajouté !');
         
+        // Notifier l'auteur de l'extrait
+        if (extraitId && typeof createNotification === 'function') {
+            try {
+                const { data: extrait } = await supabaseClient
+                    .from('extraits')
+                    .select('user_id')
+                    .eq('id', extraitId)
+                    .single();
+                
+                if (extrait && extrait.user_id !== currentUser.id) {
+                    await createNotification(extrait.user_id, 'comment', extraitId, comment.substring(0, 100));
+                }
+            } catch (e) {
+                console.warn('Erreur notif auteur extrait:', e);
+            }
+        }
+        
+        // Notifier les utilisateurs mentionnés
+        if (typeof notifyMentions === 'function') {
+            await notifyMentions(comment, extraitId, comment.substring(0, 100));
+        }
+        
         // Afficher localement
         const username = currentUser?.user_metadata?.username || 'Moi';
         const listEl = card.querySelector('.inline-comments-list');
         if (listEl) {
+            const formattedComment = typeof formatMentions === 'function' 
+                ? formatMentions(escapeHtmlShare(comment))
+                : escapeHtmlShare(comment);
             const el = document.createElement('div');
             el.className = 'inline-comment-item new';
             el.innerHTML = `
                 <span class="inline-comment-avatar">${getAvatarSymbol(username)}</span>
-                <span class="inline-comment-content"><strong>${escapeHtmlShare(username)}</strong> ${escapeHtmlShare(comment)}</span>
+                <span class="inline-comment-content"><strong>${escapeHtmlShare(username)}</strong> ${formattedComment}</span>
             `;
             listEl.prepend(el);
             setTimeout(() => el.classList.remove('new'), 300);
