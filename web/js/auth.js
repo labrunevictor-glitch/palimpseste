@@ -675,9 +675,44 @@ function onUserLoggedOut() {
         mobileAvatar.textContent = '👤';
     }
     
+    // ═══════════════════════════════════════════════════════════════════
+    // 🔄 RÉINITIALISER LE STATE LOCAL À LA DÉCONNEXION
+    // Pour éviter que les badges d'un utilisateur restent visibles
+    // ═══════════════════════════════════════════════════════════════════
+    if (typeof state !== 'undefined') {
+        state.achievements = [];
+        state.readCount = 0;
+        state.authorStats = {};
+        state.genreStats = {};
+        state.likedGenreStats = {};
+        state.likedAuthorStats = {};
+        state.likedAuthors = new Set();
+        state.likes = new Set();
+        state.favorites = [];
+        state.readingPath = [];
+        state.readingStats = {
+            totalWordsRead: 0,
+            totalReadingTime: 0,
+            streak: 0,
+            lastReadDate: null,
+            sessionsToday: 0,
+            bestStreak: 0,
+            dailyWords: {}
+        };
+        // Sauvegarder le state vide
+        if (typeof saveState === 'function') saveState();
+    }
+    
+    // Effacer le dernier utilisateur mémorisé
+    localStorage.removeItem('palimpseste_last_user');
+    
     // Réinitialiser le cache des likes
     if (typeof resetLikesCache === 'function') resetLikesCache();
     if (typeof updateLikeCount === 'function') updateLikeCount();
+    
+    // Mettre à jour l'affichage des badges (maintenant vides)
+    if (typeof renderAchievements === 'function') renderAchievements();
+    if (typeof updateStats === 'function') updateStats();
     
     // Mettre à jour le panneau profil mobile
     if (typeof updateMobileProfilePanel === 'function') updateMobileProfilePanel();
