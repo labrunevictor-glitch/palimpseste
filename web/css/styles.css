@@ -9774,4 +9774,28 @@ transition: all 0.2s;
     text-decoration: underline;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+                              NOTIFICATION HIGHLIGHT
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes notification-highlight {
+    0% { 
+        box-shadow: 0 0 0 3px var(--accent), var(--glow);
+        transform: scale(1.01);
+    }
+    50% { 
+        box-shadow: 0 0 15px 5px rgba(90, 122, 138, 0.4), var(--glow);
+        transform: scale(1.02);
+    }
+    100% { 
+        box-shadow: var(--glow);
+        transform: scale(1);
+    }
+}
+
+.extrait-card.highlight-notification {
+    animation: notification-highlight 2s ease-out;
+    position: relative;
+    z-index: 10;
+}
+
 /* Fin du fichier */

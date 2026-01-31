@@ -260,6 +260,8 @@ async function loadNotifications(containerId = 'notifList') {
 
 // Gérer le clic sur une notification
 async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) {
+    console.log('🔔 handleNotifClick:', { notifId, type, extraitId, fromUserId, fromName });
+    
     // Marquer comme lue
     if (supabaseClient && currentUser) {
         await supabaseClient
@@ -272,21 +274,29 @@ async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) 
     document.getElementById('notifDropdown')?.classList.remove('open');
     closeMobileNotifications();
     
+    // Normaliser extraitId (string vide → null)
+    const normalizedExtraitId = extraitId && extraitId !== '' && extraitId !== 'null' && extraitId !== 'undefined' ? extraitId : null;
+    
     // Action selon le type
     if (type === 'like' || type === 'comment' || type === 'comment_like' || type === 'mention' || type === 'reply' || type === 'reaction' || type === 'collection_add' || type === 'share') {
         // Ouvrir l'extrait concerné
-        if (extraitId && typeof viewExtraitById === 'function') {
-            await viewExtraitById(extraitId);
-            // Si c'est un commentaire ou mention, ouvrir aussi les commentaires
-            if (type === 'comment' || type === 'mention' || type === 'reply' || type === 'comment_like') {
-                setTimeout(() => {
-                    if (typeof toggleComments === 'function') {
-                        toggleComments(extraitId);
-                    }
-                }, 300);
+        if (normalizedExtraitId) {
+            const success = await openExtraitFromNotification(normalizedExtraitId);
+            if (success) {
+                // Si c'est un commentaire ou mention, ouvrir aussi les commentaires
+                if (type === 'comment' || type === 'mention' || type === 'reply' || type === 'comment_like') {
+                    setTimeout(() => {
+                        if (typeof toggleComments === 'function') {
+                            toggleComments(normalizedExtraitId);
+                        }
+                    }, 500);
+                }
+            } else {
+                toast('❌ Extrait introuvable');
             }
         } else {
-            toast('Extrait introuvable');
+            console.warn('⚠️ Notification sans extrait_id:', notifId);
+            toast('Extrait non disponible');
         }
     } else if (type === 'follow') {
         if (typeof openUserProfile === 'function') {
@@ -306,6 +316,73 @@ async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) 
     // Mettre à jour le badge
     updateNotifBadge();
 }
+
+/**
+ * Ouvrir un extrait depuis une notification
+ * Gère le switch d'onglet et l'affichage robuste
+ */
+async function openExtraitFromNotification(extraitId) {
+    if (!supabaseClient || !extraitId) return false;
+    
+    console.log('📖 Ouverture extrait depuis notification:', extraitId);
+    
+    try {
+        // Charger l'extrait
+        const { data: extrait, error } = await supabaseClient
+            .from('extraits')
+            .select('*')
+            .eq('id', extraitId)
+            .single();
+        
+        if (error || !extrait) {
+            console.error('❌ Extrait non trouvé:', error?.message || 'null');
+            return false;
+        }
+        
+        // Charger le profil de l'auteur
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap([extrait.user_id]);
+            extrait.profiles = profileMap.get(extrait.user_id) || null;
+        }
+        
+        // Ouvrir le feed social (overlay)
+        if (typeof openSocialFeed === 'function') {
+            openSocialFeed();
+        }
+        
+        // Afficher l'extrait dans le feed
+        if (typeof socialExtraits !== 'undefined') {
+            socialExtraits = [extrait];
+        }
+        if (typeof renderSocialFeed === 'function') {
+            await renderSocialFeed();
+        }
+        
+        // Scroll vers le haut pour voir l'extrait
+        const socialFeed = document.getElementById('socialFeed');
+        if (socialFeed) {
+            socialFeed.scrollTop = 0;
+        }
+        
+        // Highlight temporaire de la carte
+        setTimeout(() => {
+            const card = document.querySelector(`.extrait-card[data-id="${extraitId}"]`);
+            if (card) {
+                card.classList.add('highlight-notification');
+                setTimeout(() => card.classList.remove('highlight-notification'), 2000);
+            }
+        }, 300);
+        
+        console.log('✅ Extrait affiché:', extrait.id);
+        return true;
+        
+    } catch (err) {
+        console.error('❌ Erreur ouverture extrait:', err);
+        return false;
+    }
+}
+
+window.openExtraitFromNotification = openExtraitFromNotification;
 
 // Marquer toutes les notifications comme lues
 async function markAllNotifsRead() {
