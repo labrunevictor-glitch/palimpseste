@@ -108,6 +108,57 @@
         display: none !important;
     }
     
+    /* Bouton notifications mobile */
+    .mobile-notif-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        margin: 0 4px !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        order: 4 !important;
+        color: var(--text) !important;
+    }
+    
+    .mobile-notif-btn i,
+    .mobile-notif-btn svg {
+        width: 22px !important;
+        height: 22px !important;
+        stroke-width: 1.5 !important;
+    }
+    
+    .mobile-notif-btn:active {
+        opacity: 0.7 !important;
+    }
+    
+    .mobile-notif-badge {
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        min-width: 14px !important;
+        height: 14px !important;
+        padding: 0 3px !important;
+        background: var(--accent) !important;
+        color: white !important;
+        font-size: 0.55rem !important;
+        font-weight: bold !important;
+        border-radius: 7px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .mobile-notif-badge:empty,
+    .mobile-notif-badge[style*="display: none"] {
+        display: none !important;
+    }
+    
     /* Recherche prend l'espace restant */
     .search-container {
         flex: 1 !important;
@@ -449,7 +500,7 @@
         right: 0 !important;
         bottom: 0 !important;
         background: rgba(0, 0, 0, 0.6) !important;
-        z-index: 2400 !important;
+        z-index: 1100 !important;
         opacity: 0 !important;
         visibility: hidden !important;
         transition: opacity 0.3s, visibility 0.3s !important;

@@ -357,11 +357,12 @@
         flex-shrink: 0 !important;
     }
     
-    /* Masquer ?l?ments mobile sur desktop */
+    /* Masquer éléments mobile sur desktop */
     .mobile-profile-btn,
     .mobile-logo,
     .mobile-bottom-nav,
-    .mobile-drawer-overlay {
+    .mobile-drawer-overlay,
+    .mobile-notif-btn {
         display: none !important;
     }
 }
