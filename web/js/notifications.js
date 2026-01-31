@@ -181,6 +181,13 @@ async function loadNotifications(containerId = 'notifList') {
             } else if (notif.type === 'follow') {
                 icon = '👤';
                 text = `<strong>${escapeHtml(fromName)}</strong> vous suit`;
+            } else if (notif.type === 'message') {
+                icon = '✉️';
+                const preview = notif.content ? ` : "${escapeHtml(notif.content.substring(0, 50))}${notif.content.length > 50 ? '…' : ''}"` : '';
+                text = `<strong>${escapeHtml(fromName)}</strong> vous a envoyé un message${preview}`;
+            } else if (notif.type === 'reaction') {
+                icon = notif.content || '😊';
+                text = `<strong>${escapeHtml(fromName)}</strong> a réagi ${notif.content || ''} à votre contenu`;
             }
             
             return `

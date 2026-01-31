@@ -378,6 +378,18 @@ async function setCommentReaction(commentId, emoji) {
                     created_at: new Date().toISOString()
                 }, { onConflict: 'comment_id,user_id' });
             if (error) throw error;
+
+            // Notifier l'auteur du commentaire
+            if (typeof createNotification === 'function') {
+                const { data: comment } = await supabaseClient
+                    .from('comments')
+                    .select('user_id, extrait_id')
+                    .eq('id', commentId)
+                    .maybeSingle();
+                if (comment && comment.user_id !== currentUser.id) {
+                    await createNotification(comment.user_id, 'reaction', comment.extrait_id, emoji);
+                }
+            }
         }
 
         closeCommentReactionPicker();

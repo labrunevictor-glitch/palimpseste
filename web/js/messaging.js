@@ -366,9 +366,14 @@ async function sendMessage() {
                     content: content,
                     created_at: new Date().toISOString()
                 });
-        
+
             if (error) throw error;
             input.value = '';
+
+            // Notifier le destinataire
+            if (typeof createNotification === 'function') {
+                await createNotification(currentConversationUserId, 'message', null, content.substring(0, 100));
+            }
         }
         
         // Rafraîchir les messages
@@ -638,6 +643,18 @@ async function setMessageReaction(messageId, emoji) {
                     created_at: new Date().toISOString()
                 }, { onConflict: 'message_id,user_id' });
             if (error) throw error;
+
+            // Notifier l'auteur du message
+            if (typeof createNotification === 'function') {
+                const { data: msg } = await supabaseClient
+                    .from('messages')
+                    .select('sender_id')
+                    .eq('id', messageId)
+                    .maybeSingle();
+                if (msg && msg.sender_id !== currentUser.id) {
+                    await createNotification(msg.sender_id, 'reaction', null, emoji);
+                }
+            }
         }
 
         closeReactionPicker();
