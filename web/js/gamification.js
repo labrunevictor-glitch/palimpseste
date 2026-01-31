@@ -817,6 +817,11 @@ function unlockAchievement(id) {
     enqueueAchievementPopup(id);
     
     renderAchievements();
+    
+    // Synchroniser avec le cloud (debounced)
+    if (window.supabaseClient && window.currentUser) {
+        setTimeout(() => syncProgressWithCloud(), 1000);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1065,6 +1070,146 @@ function renderReadingPath() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// ☁️ SYNCHRONISATION CLOUD DES BADGES
+// ═══════════════════════════════════════════════════════════
+
+let syncInProgress = false;
+let lastSyncTime = 0;
+const SYNC_DEBOUNCE = 5000; // 5 secondes entre chaque sync
+
+/**
+ * Synchronise la progression avec Supabase
+ * Fusionne les données locales et cloud (prend le maximum)
+ * @returns {Promise<boolean>} true si sync réussie
+ */
+async function syncProgressWithCloud() {
+    // Vérifier si connecté
+    if (!window.supabaseClient || !window.currentUser) {
+        console.log('☁️ Sync ignorée : non connecté');
+        return false;
+    }
+    
+    // Debounce pour éviter trop de requêtes
+    const now = Date.now();
+    if (syncInProgress || (now - lastSyncTime < SYNC_DEBOUNCE)) {
+        console.log('☁️ Sync ignorée : debounce');
+        return false;
+    }
+    
+    syncInProgress = true;
+    lastSyncTime = now;
+    
+    try {
+        console.log('☁️ Synchronisation progression en cours...');
+        
+        // Préparer les données locales
+        const localData = {
+            achievements: state.achievements || [],
+            readCount: state.readCount || 0,
+            authorStats: state.authorStats || {},
+            genreStats: state.genreStats || {},
+            likedGenreStats: state.likedGenreStats || {},
+            likedAuthorStats: state.likedAuthorStats || {},
+            likedAuthors: [...(state.likedAuthors || [])],
+            readingStats: state.readingStats || {},
+            readingPath: state.readingPath || []
+        };
+        
+        // Appeler la fonction RPC de fusion
+        const { data, error } = await window.supabaseClient.rpc('sync_user_progress', {
+            p_achievements: localData.achievements,
+            p_read_count: localData.readCount,
+            p_author_stats: localData.authorStats,
+            p_genre_stats: localData.genreStats,
+            p_liked_genre_stats: localData.likedGenreStats,
+            p_liked_author_stats: localData.likedAuthorStats,
+            p_liked_authors: localData.likedAuthors,
+            p_reading_stats: localData.readingStats,
+            p_reading_path: localData.readingPath
+        });
+        
+        if (error) {
+            console.error('❌ Erreur sync cloud:', error);
+            syncInProgress = false;
+            return false;
+        }
+        
+        // Appliquer les données fusionnées localement
+        if (data) {
+            const merged = data;
+            
+            // Mettre à jour le state local avec les données fusionnées
+            state.achievements = merged.achievements || state.achievements;
+            state.readCount = merged.readCount || state.readCount;
+            state.authorStats = merged.authorStats || state.authorStats;
+            state.genreStats = merged.genreStats || state.genreStats;
+            state.likedGenreStats = merged.likedGenreStats || state.likedGenreStats;
+            state.likedAuthorStats = merged.likedAuthorStats || state.likedAuthorStats;
+            state.likedAuthors = new Set(merged.likedAuthors || []);
+            state.readingStats = merged.readingStats || state.readingStats;
+            state.readingPath = merged.readingPath || state.readingPath;
+            
+            // Sauvegarder localement
+            saveState();
+            
+            // Mettre à jour l'UI
+            renderAchievements();
+            updateFunStat();
+            if (typeof updateStats === 'function') updateStats();
+            if (typeof updateReadingStatsUI === 'function') updateReadingStatsUI();
+            
+            console.log('✅ Sync cloud réussie ! Badges:', state.achievements.length);
+        }
+        
+        syncInProgress = false;
+        return true;
+        
+    } catch (e) {
+        console.error('❌ Exception sync cloud:', e);
+        syncInProgress = false;
+        return false;
+    }
+}
+
+/**
+ * Charge la progression depuis le cloud (sans fusion, juste lecture)
+ * Utilisé au premier chargement pour récupérer les données existantes
+ * @returns {Promise<Object|null>} Données cloud ou null
+ */
+async function loadProgressFromCloud() {
+    if (!window.supabaseClient || !window.currentUser) {
+        return null;
+    }
+    
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('user_progress')
+            .select('*')
+            .eq('user_id', window.currentUser.id)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') { // PGRST116 = not found
+            console.error('❌ Erreur chargement cloud:', error);
+            return null;
+        }
+        
+        return data;
+    } catch (e) {
+        console.error('❌ Exception chargement cloud:', e);
+        return null;
+    }
+}
+
+/**
+ * Force une sauvegarde immédiate vers le cloud
+ * Utilisé après un nouveau badge important
+ */
+async function forceSyncToCloud() {
+    lastSyncTime = 0; // Reset debounce
+    await syncProgressWithCloud();
+}
+
+// ═══════════════════════════════════════════════════════════
 // 📤 EXPORTS GLOBAUX
 // ═══════════════════════════════════════════════════════════
 
@@ -1084,3 +1229,8 @@ window.toggleBadgesView = toggleBadgesView;
 window.showBadgeDetails = showBadgeDetails;
 window.addToReadingPath = addToReadingPath;
 window.renderReadingPath = renderReadingPath;
+
+// Fonctions de synchronisation cloud
+window.syncProgressWithCloud = syncProgressWithCloud;
+window.loadProgressFromCloud = loadProgressFromCloud;
+window.forceSyncToCloud = forceSyncToCloud;

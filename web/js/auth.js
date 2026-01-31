@@ -592,6 +592,13 @@ async function onUserLoggedIn() {
     // Charger et synchroniser les likes locaux/Supabase (impacte les badges)
     if (typeof loadLikedSources === 'function') await loadLikedSources();
     
+    // ☁️ SYNCHRONISATION DES BADGES ET PROGRESSION
+    // Fusionne les données locales et cloud (prend le maximum de chaque)
+    if (typeof syncProgressWithCloud === 'function') {
+        console.log('☁️ Synchronisation des badges en cours...');
+        await syncProgressWithCloud();
+    }
+    
     // Rafraîchir les badges après connexion/sync
     if (typeof checkAchievements === 'function') checkAchievements();
     if (typeof renderAchievements === 'function') renderAchievements();
