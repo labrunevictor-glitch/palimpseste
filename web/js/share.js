@@ -213,7 +213,6 @@ function updateExtraitShareButtons(extraitIds) {
 
         const count = info?.count || 0;
         countEl.textContent = count;
-        countEl.style.display = 'inline-flex';
         countEl.classList.toggle('is-zero', count === 0);
     });
 }

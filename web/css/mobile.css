@@ -994,13 +994,6 @@
         justify-content: center !important;
     }
     
-    /* Masquer le texte des boutons sur mobile */
-    .card-actions .btn span:not(:first-child),
-    .card-actions .btn-like span:not(:first-child),
-    .card-actions .btn-share span:not(:first-child) {
-        display: none !important;
-    }
-    
     /* ══════════════════════════════════════════
        EXPLORATION - KALÉIDOSCOPE (filtres croisés)
        ══════════════════════════════════════════ */
@@ -1469,13 +1462,10 @@
         padding: 0.35rem 0.6rem !important;
         font-size: 0.8rem !important;
     }
-    .extrait-action span:not(.like-icon):not(.icon):not(.like-count):not(.share-count):not(.collections-count) {
-        display: none !important;
-    }
     .extrait-action .share-count,
     .extrait-action .collections-count,
-    .extrait-action .like-count {
-        display: inline-flex !important;
+    .extrait-action .like-count,
+    .extrait-action .comment-count {
         font-size: 0.75rem !important;
     }
     

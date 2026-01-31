@@ -103,7 +103,10 @@ async function loadComments(extraitId) {
         
         // Mettre à jour le compteur
         const countEl = document.getElementById(`commentCount-${extraitId}`);
-        if (countEl) countEl.textContent = comments.length;
+        if (countEl) {
+            countEl.textContent = comments.length;
+            countEl.classList.toggle('is-zero', comments.length === 0);
+        }
         
     } catch (err) {
         console.error('Erreur chargement commentaires:', err);
@@ -157,9 +160,11 @@ function ensureCommentActionsInstalled() {
     if (commentActionsInstalled) return;
     commentActionsInstalled = true;
     document.addEventListener('click', (e) => {
-        const clickedInsideComment = e.target.closest('.comment-item');
+        const clickedToggle = e.target.closest('.comment-actions-toggle');
+        const clickedFooterActions = e.target.closest('.comment-footer-actions');
         const clickedInsidePicker = e.target.closest('.comment-reaction-picker');
-        if (!clickedInsideComment && !clickedInsidePicker) {
+        // Ne fermer que si on clique en dehors du toggle, des actions et du picker
+        if (!clickedToggle && !clickedFooterActions && !clickedInsidePicker) {
             document.querySelectorAll('.comment-item.show-actions').forEach(el => el.classList.remove('show-actions'));
             closeCommentReactionPicker();
         }
@@ -378,6 +383,18 @@ async function setCommentReaction(commentId, emoji) {
                     created_at: new Date().toISOString()
                 }, { onConflict: 'comment_id,user_id' });
             if (error) throw error;
+
+            // Notifier l'auteur du commentaire
+            if (typeof createNotification === 'function') {
+                const { data: comment } = await supabaseClient
+                    .from('comments')
+                    .select('user_id, extrait_id')
+                    .eq('id', commentId)
+                    .maybeSingle();
+                if (comment && comment.user_id !== currentUser.id) {
+                    await createNotification(comment.user_id, 'reaction', comment.extrait_id, emoji);
+                }
+            }
         }
 
         closeCommentReactionPicker();

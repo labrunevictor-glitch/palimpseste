@@ -1277,19 +1277,17 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
         <div class="card-foot">
             <div class="card-keywords">${keywordsHtml}</div>
             <div class="actions">
-                <div class="like-with-count">
-                    <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="J'aime">
-                        <span class="like-icon">♥</span>
-                        <span class="like-count clickable" id="likeCount-${cardId}" data-card-id="${cardId}" onclick="event.stopPropagation(); showCardLikers('${cardId}')">0</span>
-                    </button>
-                </div>
-                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span> <span class="share-count is-zero" id="shareCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardSharers('${cardId}')">0</span></button>
-                <button class="btn btn-comment" onclick="openCardComments('${cardId}')" title="Commenter">
-                    💬 <span id="commentCount-${cardId}" class="comment-count" style="display:none;">0</span> <span class="btn-text">commentaire<span class="comment-plural">s</span></span>
+                <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="J'aime">
+                    <span class="like-icon">♥</span>
+                    <span class="like-count is-zero clickable" id="likeCount-${cardId}" data-card-id="${cardId}" onclick="event.stopPropagation(); showCardLikers('${cardId}')">0</span>
                 </button>
-                <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">+ <span class="btn-text">Collection</span> <span class="collections-count is-zero" id="collectionsCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardCollections('${cardId}')">0</span></button>
-                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
-                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
+                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="share-count is-zero" id="shareCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardSharers('${cardId}')">0</span></button>
+                <button class="btn btn-comment" onclick="openCardComments('${cardId}')" title="Commenter">
+                    💬 <span id="commentCount-${cardId}" class="comment-count is-zero">0</span>
+                </button>
+                <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">▦ <span class="collections-count is-zero" id="collectionsCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardCollections('${cardId}')">0</span></button>
+                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗</button>
+                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗</a>
             </div>
         </div>
     `;
@@ -1302,7 +1300,7 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
     card.dataset.tag = tag;
     card.dataset.lang = lang;
     card.dataset.chunkSize = CHUNK_LENGTH;
-    
+
     // Tracker ce texte comme lu
     state.readCount++;
     const teaserWords = teaser.split(/\s+/).filter(w => w.length > 0).length;
@@ -1373,22 +1371,7 @@ function updateCardCommentCount(cardId, count) {
     if (!countEl) return;
     
     countEl.textContent = count;
-    
-    // Afficher le compteur seulement si count > 0
-    if (count > 0) {
-        countEl.style.display = 'inline';
-    } else {
-        countEl.style.display = 'none';
-    }
-    
-    // Gérer le pluriel
-    const btn = countEl.closest('.btn-comment');
-    if (btn) {
-        const pluralEl = btn.querySelector('.comment-plural');
-        if (pluralEl) {
-            pluralEl.style.display = count === 1 ? 'none' : 'inline';
-        }
-    }
+    countEl.classList.toggle('is-zero', count === 0);
 }
 
 function syncCardLikeCountId(card, extraitId) {
@@ -1627,19 +1610,17 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource(), allo
         <div class="card-foot">
             <div class="card-keywords">${keywordsHtml}</div>
             <div class="actions">
-                <div class="like-with-count">
-                    <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="J'aime">
-                        <span class="like-icon">♥</span>
-                        <span class="like-count clickable" id="likeCount-${cardId}" data-card-id="${cardId}" onclick="event.stopPropagation(); showCardLikers('${cardId}')">0</span>
-                    </button>
-                </div>
-                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="btn-text">Partager</span> <span class="share-count is-zero" id="shareCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardSharers('${cardId}')">0</span></button>
-                <button class="btn btn-comment" onclick="openCardComments('${cardId}')" title="Commenter">
-                    💬 <span id="commentCount-${cardId}" class="comment-count" style="display:none;">0</span> <span class="btn-text">commentaire<span class="comment-plural">s</span></span>
+                <button class="btn btn-like" onclick="toggleLike('${cardId}',this)" title="J'aime">
+                    <span class="like-icon">♥</span>
+                    <span class="like-count is-zero clickable" id="likeCount-${cardId}" data-card-id="${cardId}" onclick="event.stopPropagation(); showCardLikers('${cardId}')">0</span>
                 </button>
-                <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">+ <span class="btn-text">Collection</span> <span class="collections-count is-zero" id="collectionsCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardCollections('${cardId}')">0</span></button>
-                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗 <span class="btn-text">Explorer</span></button>
-                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗ <span class="btn-text">Source</span></a>
+                <button class="btn btn-share" onclick="shareCardExtrait('${cardId}')" title="Partager">📤 <span class="share-count is-zero" id="shareCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardSharers('${cardId}')">0</span></button>
+                <button class="btn btn-comment" onclick="openCardComments('${cardId}')" title="Commenter">
+                    💬 <span id="commentCount-${cardId}" class="comment-count is-zero">0</span>
+                </button>
+                <button class="btn btn-collection card-btn-collection" onclick="openCollectionPickerFromCard('${cardId}')" title="Ajouter à une collection">▦ <span class="collections-count is-zero" id="collectionsCount-${cardId}" onclick="event.stopPropagation(); event.preventDefault(); showCardCollections('${cardId}')">0</span></button>
+                <button class="btn btn-explore" onclick="showRelatedAuthors('${cardId}')" title="Découvrir">🔗</button>
+                <a class="btn btn-source" href="${url}" target="_blank" title="Source">↗</a>
             </div>
         </div>
     `;

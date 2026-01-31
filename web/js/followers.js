@@ -998,17 +998,15 @@ async function openProfileCollection(collectionId) {
                                     <div class="extrait-actions" onclick="event.stopPropagation()">
                                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extraitId}" onclick="event.stopPropagation(); toggleLikeExtrait('${extraitId}')" data-extrait-id="${extraitId}">
                                             <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                                            <span class="like-count clickable" id="likeCount-${extraitId}" onclick="event.stopPropagation(); showLikers('${extraitId}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                                            <span class="like-count ${likeCount === 0 ? 'is-zero' : ''}" id="likeCount-${extraitId}" onclick="event.stopPropagation(); showLikers('${extraitId}')">${likeCount}</span>
                                         </button>
                                         <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${extraitId}')">
                                             <span class="icon">↗︎</span>
-                                            <span>Partager</span>
-                                            <span class="share-count" id="shareCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extraitId}')">0</span>
+                                            <span class="share-count is-zero" id="shareCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extraitId}')">0</span>
                                         </button>
                                         <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${extraitId}')">
                                             <span class="icon">▦</span>
-                                            <span>Collections</span>
-                                            <span class="collections-count" id="collectionsCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extraitId}')">0</span>
+                                            <span class="collections-count is-zero" id="collectionsCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extraitId}')">0</span>
                                         </button>
                                     </div>
                                 ` : ''}
@@ -1160,22 +1158,19 @@ async function loadProfileExtraits(userId) {
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
                             <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                            <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                            <span class="like-count ${likeCount === 0 ? 'is-zero' : ''}" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
                         </button>
                         <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${e.id}')">
                             <span class="icon">↗︎</span>
-                            <span>Partager</span>
                             <span class="share-count ${shareCount === 0 ? 'is-zero' : ''}" id="shareCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${e.id}')">${shareCount}</span>
                         </button>
                         ${currentUser && e.user_id === currentUser.id ? `
                             <button class="extrait-action unshare-btn" id="unshareBtn-${e.id}" onclick="event.stopPropagation(); cancelShareExtrait('${e.id}')">
                                 <span class="icon">✕</span>
-                                <span>Annuler</span>
                             </button>
                         ` : ''}
                         <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${e.id}')">
                             <span class="icon">▦</span>
-                            <span>Collections</span>
                             <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">${collCount}</span>
                         </button>
                     </div>
@@ -1333,16 +1328,14 @@ async function loadProfileLikes(userId) {
                     <div class="extrait-actions">
                         <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${e.id}" onclick="toggleLikeExtrait('${e.id}')" data-extrait-id="${e.id}">
                             <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                            <span class="like-count clickable" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'};">${likeCount}</span>
+                            <span class="like-count ${likeCount === 0 ? 'is-zero' : ''}" id="likeCount-${e.id}" onclick="event.stopPropagation(); showLikers('${e.id}')">${likeCount}</span>
                         </button>
                         <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${e.id}')">
                             <span class="icon">↗︎</span>
-                            <span>Partager</span>
                             <span class="share-count ${shareCount === 0 ? 'is-zero' : ''}" id="shareCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${e.id}')">${shareCount}</span>
                         </button>
                         <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${e.id}')">
                             <span class="icon">▦</span>
-                            <span>Collections</span>
                             <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">${collCount}</span>
                         </button>
                     </div>

@@ -142,16 +142,14 @@ async function loadTrendingFeed() {
                         <div class="extrait-actions" onclick="event.stopPropagation()">
                             <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="event.stopPropagation(); toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
                                 <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                                <span class="like-count clickable" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')" style="display:${likesCount > 0 ? 'inline-flex' : 'none'};">${likesCount}</span>
+                                <span class="like-count ${likesCount === 0 ? 'is-zero' : ''}" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')">${likesCount}</span>
                             </button>
                             <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${extrait.id}')">
                                 <span class="icon">↗︎</span>
-                                <span>Partager</span>
                                 <span class="share-count ${shareCount === 0 ? 'is-zero' : ''}" id="shareCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extrait.id}')">${shareCount}</span>
                             </button>
                             <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${extrait.id}')">
                                 <span class="icon">▦</span>
-                                <span>Collections</span>
                                 <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extrait.id}')">${collCount}</span>
                             </button>
                         </div>

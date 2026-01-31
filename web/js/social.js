@@ -334,22 +334,19 @@ async function renderSocialFeed() {
                 <div class="extrait-actions">
                     <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
                         <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                        <span class="like-count" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')" style="display:${likeCount > 0 ? 'inline-flex' : 'none'}; cursor: pointer;">${likeCount}</span>
+                        <span class="like-count ${likeCount === 0 ? 'is-zero' : ''}" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')">${likeCount}</span>
                     </button>
                     <button class="extrait-action share-btn" onclick="shareExtraitFromCard('${extrait.id}')">
                         <span class="icon">↗︎</span>
-                        <span>Partager</span>
                         <span class="share-count ${shareCount === 0 ? 'is-zero' : ''}" id="shareCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showSharers('${extrait.id}')">${shareCount}</span>
                     </button>
                     ${currentUser && extrait.user_id === currentUser.id ? `
                         <button class="extrait-action unshare-btn" id="unshareBtn-${extrait.id}" onclick="event.stopPropagation(); cancelShareExtrait('${extrait.id}')">
                             <span class="icon">✕</span>
-                            <span>Annuler</span>
                         </button>
                     ` : ''}
                     <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${extrait.id}')">
                         <span class="icon">▦</span>
-                        <span>Collections</span>
                         <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${extrait.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extrait.id}')">${collCount}</span>
                     </button>
                 </div>
@@ -442,7 +439,7 @@ async function toggleLikeExtrait(extraitId) {
         }
         if (likeCountEl) {
             likeCountEl.textContent = newCount;
-            likeCountEl.style.display = newCount > 0 ? 'inline-flex' : 'none';
+            likeCountEl.classList.toggle('is-zero', newCount === 0);
         }
         
         // ═══════════════════════════════════════════════════════════
@@ -599,7 +596,7 @@ async function hydrateExtraitLikesUI(extraitIds) {
         }
         if (likeCountEl) {
             likeCountEl.textContent = count;
-            likeCountEl.style.display = count > 0 ? 'inline-flex' : 'none';
+            likeCountEl.classList.toggle('is-zero', count === 0);
         }
     });
 }
