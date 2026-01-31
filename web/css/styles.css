@@ -6154,6 +6154,14 @@ cursor: not-allowed;
     pointer-events: auto;
 }
 
+/* Sur mobile (pas de hover), toujours afficher les actions */
+@media (hover: none) {
+    .msg-actions {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+}
+
 .msg-action-btn {
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.06);
@@ -6205,7 +6213,7 @@ cursor: not-allowed;
 
 .msg-reaction-picker {
     position: fixed;
-    z-index: var(--z-modal);
+    z-index: 3000;
     display: flex;
     gap: 6px;
     padding: 6px;
@@ -9488,8 +9496,8 @@ transition: all 0.2s;
 }
 
 .msg-reaction-picker {
-    position: absolute;
-    z-index: var(--z-modal);
+    position: fixed;
+    z-index: 3000;
     display: flex;
     gap: 6px;
     padding: 6px;

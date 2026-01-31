@@ -734,3 +734,19 @@ function startConversation(userId) {
         openConversation(userId, username);
     }, 300);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 🌐 EXPOSITION GLOBALE DES FONCTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+window.openMessaging = openMessaging;
+window.closeMessaging = closeMessaging;
+window.backToConversations = backToConversations;
+window.openConversation = openConversation;
+window.sendMessage = sendMessage;
+window.startConversation = startConversation;
+window.openMessageReactionPicker = openMessageReactionPicker;
+window.setMessageReaction = setMessageReaction;
+window.toggleMessageActions = toggleMessageActions;
+window.startEditMessage = startEditMessage;
+window.cancelEditMessage = cancelEditMessage;
