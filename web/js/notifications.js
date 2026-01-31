@@ -362,7 +362,6 @@ async function createNotification(userId, type, extraitId = null, content = null
     
     if (!supabaseClient) {
         console.warn('❌ createNotification: supabaseClient non initialisé');
-        console.warn('   Vérifiez que vous êtes connecté à Internet et que Supabase est configuré');
         return false;
     }
     if (!currentUser) {
@@ -375,31 +374,40 @@ async function createNotification(userId, type, extraitId = null, content = null
     }
     if (userId === currentUser.id) {
         console.log('ℹ️ Notification ignorée (même utilisateur)');
-        return false; // Pas de notif pour soi-même
+        return false;
     }
     
     console.log(`📩 Création notification: type=${type}, pour user=${userId}, extrait=${extraitId}`);
 
-    // Vérifier la session pour s'assurer que auth.uid() est disponible côté RLS
     try {
-        const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
-        if (sessionError) {
-            console.warn('⚠️ Erreur récupération session:', sessionError.message || sessionError);
-        }
-        if (!sessionData?.session?.user) {
-            const { data: refreshData, error: refreshError } = await supabaseClient.auth.refreshSession();
-            if (refreshError) {
-                console.warn('⚠️ Erreur refresh session:', refreshError.message || refreshError);
+        // Utiliser la fonction RPC qui bypasse RLS de manière sécurisée
+        const { data, error } = await supabaseClient.rpc('create_notification', {
+            p_user_id: userId,
+            p_type: type,
+            p_extrait_id: extraitId,
+            p_content: content
+        });
+        
+        if (error) {
+            // Fallback sur insert direct si RPC n'existe pas
+            if (error.message?.includes('function') || error.code === '42883') {
+                console.log('⚠️ RPC create_notification non disponible, fallback insert direct');
+                return await createNotificationDirect(userId, type, extraitId, content);
             }
-            if (!refreshData?.session?.user) {
-                console.warn('❌ Session Supabase absente, insert bloqué par RLS');
-                return false;
-            }
+            console.error('❌ Erreur création notification:', error.message, error);
+            return false;
         }
-    } catch (e) {
-        console.warn('⚠️ Exception check session:', e);
+        
+        console.log('✅ Notification créée via RPC:', data);
+        return true;
+    } catch (err) {
+        console.error('❌ Exception notification:', err);
+        return false;
     }
-    
+}
+
+// Fallback: insert direct (pour compatibilité si RPC pas créée)
+async function createNotificationDirect(userId, type, extraitId, content) {
     try {
         const { data, error } = await supabaseClient
             .from('notifications')
@@ -414,18 +422,14 @@ async function createNotification(userId, type, extraitId = null, content = null
             .select();
         
         if (error) {
-            console.error('❌ Erreur création notification:', error.message, error);
-            // Si table n'existe pas, informer
-            if (error.message?.includes('does not exist') || error.code === '42P01') {
-                console.error('💡 La table "notifications" n\'existe pas dans Supabase');
-            }
+            console.error('❌ Erreur insert direct notification:', error.message, error);
             return false;
         }
         
-        console.log('✅ Notification créée avec succès:', data?.[0]?.id);
+        console.log('✅ Notification créée (direct):', data?.[0]?.id);
         return true;
     } catch (err) {
-        console.error('❌ Exception notification:', err);
+        console.error('❌ Exception insert direct:', err);
         return false;
     }
 }
