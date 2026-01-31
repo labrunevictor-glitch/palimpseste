@@ -676,9 +676,15 @@ function onUserLoggedOut() {
     }
     
     // ═══════════════════════════════════════════════════════════════════
-    // 🔄 RÉINITIALISER LE STATE LOCAL À LA DÉCONNEXION
+    // 🔄 RÉINITIALISER COMPLÈTEMENT LE STATE LOCAL À LA DÉCONNEXION
     // Pour éviter que les badges d'un utilisateur restent visibles
     // ═══════════════════════════════════════════════════════════════════
+    
+    // Effacer tout le localStorage Palimpseste
+    localStorage.removeItem('palimpseste');
+    localStorage.removeItem('palimpseste_last_user');
+    
+    // Réinitialiser le state en mémoire
     if (typeof state !== 'undefined') {
         state.achievements = [];
         state.readCount = 0;
@@ -699,20 +705,16 @@ function onUserLoggedOut() {
             bestStreak: 0,
             dailyWords: {}
         };
-        // Sauvegarder le state vide
-        if (typeof saveState === 'function') saveState();
     }
-    
-    // Effacer le dernier utilisateur mémorisé
-    localStorage.removeItem('palimpseste_last_user');
     
     // Réinitialiser le cache des likes
     if (typeof resetLikesCache === 'function') resetLikesCache();
     if (typeof updateLikeCount === 'function') updateLikeCount();
     
-    // Mettre à jour l'affichage des badges (maintenant vides)
+    // Mettre à jour l'affichage des badges (maintenant vides) SANS recalculer
     if (typeof renderAchievements === 'function') renderAchievements();
     if (typeof updateStats === 'function') updateStats();
+    if (typeof updateFunStat === 'function') updateFunStat();
     
     // Mettre à jour le panneau profil mobile
     if (typeof updateMobileProfilePanel === 'function') updateMobileProfilePanel();
