@@ -447,33 +447,25 @@ async function toggleLikeExtrait(extraitId) {
         // SYNCHRONISATION AVEC LA BASE DE DONNÉES
         // ═══════════════════════════════════════════════════════════
         if (wasLiked) {
-            // Supprimer le like
+            // Supprimer le like (le trigger met à jour likes_count)
             const { error } = await supabaseClient
                 .from('likes')
                 .delete()
                 .eq('user_id', currentUser.id)
                 .eq('extrait_id', extraitId);
-            
+
             if (error) throw error;
-            
-            // Décrémenter le compteur likes_count dans la table extraits
-            const { error: rpcError } = await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
-            if (rpcError) console.warn('RPC decrement_likes échoué:', rpcError);
-            
+
         } else {
-            // Ajouter le like
+            // Ajouter le like (le trigger met à jour likes_count)
             const { error } = await supabaseClient
                 .from('likes')
                 .insert({
                     user_id: currentUser.id,
                     extrait_id: extraitId
                 });
-            
+
             if (error) throw error;
-            
-            // Incrémenter le compteur likes_count dans la table extraits
-            const { error: rpcError } = await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
-            if (rpcError) console.warn('RPC increment_likes échoué:', rpcError);
             
             // Notifier l'auteur de l'extrait
             const extrait = socialExtraits.find(e => e.id === extraitId);

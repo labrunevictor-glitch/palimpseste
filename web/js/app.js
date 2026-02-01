@@ -1935,21 +1935,19 @@ async function toggleLike(cardId, btn, forceLike = false) {
         }
 
         if (wasLiked) {
+            // Supprimer le like (le trigger met à jour likes_count)
             const { error } = await supabaseClient
                 .from('likes')
                 .delete()
                 .eq('user_id', currentUser.id)
                 .eq('extrait_id', extraitId);
             if (error) throw error;
-            const { error: rpcError } = await supabaseClient.rpc('decrement_likes', { extrait_id: extraitId });
-            if (rpcError) console.warn('RPC decrement_likes échoué:', rpcError);
         } else {
+            // Ajouter le like (le trigger met à jour likes_count)
             const { error } = await supabaseClient
                 .from('likes')
                 .insert({ user_id: currentUser.id, extrait_id: extraitId });
             if (error) throw error;
-            const { error: rpcError } = await supabaseClient.rpc('increment_likes', { extrait_id: extraitId });
-            if (rpcError) console.warn('RPC increment_likes échoué:', rpcError);
 
             const extrait = socialExtraits?.find?.(e => e.id === extraitId);
             if (extrait && extrait.user_id !== currentUser.id && typeof createNotification === 'function') {

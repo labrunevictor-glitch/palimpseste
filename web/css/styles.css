@@ -616,9 +616,9 @@
     }
 
     .like-with-count .btn-like {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-secondary);
+        background: rgba(230, 57, 70, 0.06);
+        border: 1px solid rgba(230, 57, 70, 0.25);
+        color: var(--text);
         padding: 0 1rem;
         border-radius: 0;
         font-size: 0.65rem;
@@ -634,7 +634,7 @@
         line-height: 1;
         display: inline-flex;
         align-items: center;
-        color: currentColor;
+        color: var(--accent);
         text-shadow:
             1px 0 var(--border),
             -1px 0 var(--border),
@@ -661,11 +661,12 @@
         min-width: 22px;
         padding: 0.15rem 0.5rem;
         border-radius: 999px;
-        border: 1px solid var(--border);
+        border: 1px solid rgba(230, 57, 70, 0.2);
         font-size: 0.8rem;
+        font-weight: 600;
         line-height: 1;
-        color: var(--text-secondary);
-        background: rgba(255,255,255,0.03);
+        color: var(--text);
+        background: rgba(230, 57, 70, 0.06);
     }
 
     .like-with-count .btn-like .like-count.clickable:hover {
@@ -2621,7 +2622,7 @@ z-index: 5; /* Toujours au-dessus pour être cliquable */
     line-height: 1;
     display: inline-flex;
     align-items: center;
-    color: currentColor;
+    color: var(--accent);
     text-shadow:
         1px 0 var(--border),
         -1px 0 var(--border),
@@ -2667,7 +2668,7 @@ z-index: 5; /* Toujours au-dessus pour être cliquable */
 .btn {
 background: transparent;
 border: 1px solid var(--border);
-color: var(--muted);
+color: var(--text-secondary);
 padding: 0 1rem;
 height: 2.4rem;
 border-radius: 0;
@@ -2684,10 +2685,10 @@ align-items: center;
 gap: 0.4rem;
 }
 .btn:hover { border-color: var(--text); color: var(--text); }
-.btn.active { 
-background: var(--accent); 
-border-color: var(--accent); 
-color: var(--bg); 
+.btn.active {
+background: var(--accent);
+border-color: var(--accent);
+color: white;
 }
 
 .feed-loading {
@@ -4759,7 +4760,7 @@ flex-wrap: wrap;
 .extrait-action.like-btn {
 background: transparent;
 border: 1px solid var(--border);
-color: var(--muted);
+color: var(--text-secondary);
 padding: 0.2rem 0.5rem;
 border-radius: 999px;
 cursor: pointer;
@@ -4809,7 +4810,7 @@ align-items: center;
 justify-content: center;
 font-size: 0.78rem;
 font-weight: 600;
-color: var(--text-muted);
+color: var(--text-secondary);
 padding: 0.08rem 0.4rem;
 border-radius: 6px;
 background: transparent;
@@ -4827,9 +4828,10 @@ z-index: 10;
     display: inline-block;
     width: 1px;
     height: 0.85em;
-    background: var(--border);
+    background: var(--muted);
     margin-right: 0.35rem;
     flex-shrink: 0;
+    opacity: 0.5;
 }
 
 /* Masquer le compteur quand il vaut 0 */

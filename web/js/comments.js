@@ -458,13 +458,7 @@ async function postComment(extraitId) {
             return;
         }
         
-        // Incrémenter le compteur (ignorer les erreurs si la fonction n'existe pas)
-        try {
-            await supabaseClient.rpc('increment_comments', { p_extrait_id: extraitId });
-        } catch (rpcErr) {
-            console.warn('RPC increment_comments non disponible:', rpcErr);
-        }
-        
+        // Le trigger met à jour comments_count automatiquement
         toast('💬 Commentaire ajouté !');
         
         // Notifier l'auteur de l'extrait
@@ -505,13 +499,7 @@ async function deleteComment(commentId, extraitId) {
         
         if (error) throw error;
         
-        // Décrémenter le compteur
-        try {
-            await supabaseClient.rpc('decrement_comments', { p_extrait_id: extraitId });
-        } catch (rpcErr) {
-            console.warn('RPC decrement_comments non disponible:', rpcErr);
-        }
-        
+        // Le trigger met à jour comments_count automatiquement
         toast('🗑️ Commentaire supprimé');
         
         // Recharger les commentaires
