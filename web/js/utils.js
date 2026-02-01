@@ -119,6 +119,36 @@ function escapeRegex(string) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// 👤 PROFILS - Chargement et cache
+// ═══════════════════════════════════════════════════════════════════════════
+
+const profilesCache = new Map();
+
+/**
+ * Charge un mapping id -> profil depuis Supabase (avec cache)
+ * @param {string[]} userIds - Liste d'IDs utilisateur
+ * @returns {Promise<Map<string, any>>} Map des profils
+ */
+async function loadProfilesMap(userIds) {
+    if (!supabaseClient) return new Map();
+    const uniqueIds = [...new Set((userIds || []).filter(Boolean))];
+    if (uniqueIds.length === 0) return new Map();
+
+    const missingIds = uniqueIds.filter(id => !profilesCache.has(id));
+    if (missingIds.length > 0) {
+        const { data } = await supabaseClient
+            .from('profiles')
+            .select('id, username, avatar_url')
+            .in('id', missingIds);
+        (data || []).forEach(profile => profilesCache.set(profile.id, profile));
+    }
+
+    return new Map(uniqueIds.map(id => [id, profilesCache.get(id)]));
+}
+
+window.loadProfilesMap = loadProfilesMap;
+
+// ═══════════════════════════════════════════════════════════════════════════
 // 🧩 EXTRACT KEYING (commentaires/extraits)
 // ═══════════════════════════════════════════════════════════════════════════
 

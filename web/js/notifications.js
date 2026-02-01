@@ -4,6 +4,43 @@
 
 var notificationsSubscription = null;
 
+/**
+ * Diagnostiquer le système de notifications
+ * Appeler diagNotifications() dans la console pour vérifier
+ */
+function diagNotifications() {
+    console.group('🔔 Diagnostic Notifications');
+    
+    console.log('1. supabaseClient:', typeof supabaseClient !== 'undefined' ? '✅ Défini' : '❌ Non défini');
+    console.log('2. currentUser:', typeof currentUser !== 'undefined' && currentUser ? `✅ Connecté (${currentUser.id?.substring(0, 8)}...)` : '❌ Non connecté');
+    
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        console.log('3. URL Supabase:', supabaseClient.supabaseUrl || '?');
+    }
+    
+    // Test de connexion à la table notifications
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        supabaseClient.from('notifications').select('count', { count: 'exact', head: true }).then(({ count, error }) => {
+            if (error) {
+                console.log('4. Table notifications:', '❌ Erreur -', error.message);
+                if (error.message?.includes('does not exist')) {
+                    console.log('   💡 La table "notifications" n\'existe pas. Exécutez le SQL de setup.');
+                }
+            } else {
+                console.log('4. Table notifications:', '✅ Accessible');
+            }
+        });
+    }
+    
+    console.log('5. createNotification:', typeof createNotification === 'function' ? '✅ Disponible' : '❌ Non disponible');
+    console.log('6. notifyMentions:', typeof notifyMentions === 'function' ? '✅ Disponible' : '❌ Non disponible');
+    
+    console.groupEnd();
+    
+    console.log('💡 Pour tester: await createNotification("USER_ID", "like", "EXTRAIT_ID")');
+}
+window.diagNotifications = diagNotifications;
+
 // Afficher/masquer les notifications
 function toggleNotifications() {
     // Sur mobile, ouvrir le drawer et afficher les notifications
@@ -178,6 +215,13 @@ async function loadNotifications(containerId = 'notifList') {
             } else if (notif.type === 'comment') {
                 icon = '💬';
                 text = `<strong>${escapeHtml(fromName)}</strong> a commenté votre extrait`;
+            } else if (notif.type === 'mention') {
+                icon = '@';
+                const preview = notif.content ? ` : "${escapeHtml(notif.content.substring(0, 50))}${notif.content.length > 50 ? '…' : ''}"` : '';
+                text = `<strong>${escapeHtml(fromName)}</strong> vous a mentionné${preview}`;
+            } else if (notif.type === 'reply') {
+                icon = '↩️';
+                text = `<strong>${escapeHtml(fromName)}</strong> a répondu à votre commentaire`;
             } else if (notif.type === 'follow') {
                 icon = '👤';
                 text = `<strong>${escapeHtml(fromName)}</strong> vous suit`;
@@ -188,6 +232,12 @@ async function loadNotifications(containerId = 'notifList') {
             } else if (notif.type === 'reaction') {
                 icon = notif.content || '😊';
                 text = `<strong>${escapeHtml(fromName)}</strong> a réagi ${notif.content || ''} à votre contenu`;
+            } else if (notif.type === 'collection_add') {
+                icon = '📁';
+                text = `<strong>${escapeHtml(fromName)}</strong> a ajouté votre extrait à une collection`;
+            } else if (notif.type === 'share') {
+                icon = '↗️';
+                text = `<strong>${escapeHtml(fromName)}</strong> a partagé votre extrait`;
             }
             
             return `
@@ -210,6 +260,8 @@ async function loadNotifications(containerId = 'notifList') {
 
 // Gérer le clic sur une notification
 async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) {
+    console.log('🔔 handleNotifClick:', { notifId, type, extraitId, fromUserId, fromName });
+    
     // Marquer comme lue
     if (supabaseClient && currentUser) {
         await supabaseClient
@@ -218,23 +270,123 @@ async function handleNotifClick(notifId, type, extraitId, fromUserId, fromName) 
             .eq('id', notifId);
     }
     
-    // Fermer le dropdown
-    document.getElementById('notifDropdown').classList.remove('open');
+    // Fermer le dropdown et la modal mobile
+    document.getElementById('notifDropdown')?.classList.remove('open');
+    closeMobileNotifications();
+    
+    // Normaliser extraitId (string vide → null)
+    const normalizedExtraitId = extraitId && extraitId !== '' && extraitId !== 'null' && extraitId !== 'undefined' ? extraitId : null;
     
     // Action selon le type
-    if (type === 'like' || type === 'comment' || type === 'comment_like') {
-        if (extraitId && typeof viewExtraitById === 'function') {
-            viewExtraitById(extraitId);
+    if (type === 'like' || type === 'comment' || type === 'comment_like' || type === 'mention' || type === 'reply' || type === 'reaction' || type === 'collection_add' || type === 'share') {
+        // Ouvrir l'extrait concerné
+        if (normalizedExtraitId) {
+            const success = await openExtraitFromNotification(normalizedExtraitId);
+            if (success) {
+                // Si c'est un commentaire ou mention, ouvrir aussi les commentaires
+                if (type === 'comment' || type === 'mention' || type === 'reply' || type === 'comment_like') {
+                    setTimeout(() => {
+                        if (typeof toggleComments === 'function') {
+                            toggleComments(normalizedExtraitId);
+                        }
+                    }, 500);
+                }
+            } else {
+                toast('❌ Extrait introuvable');
+            }
+        } else {
+            console.warn('⚠️ Notification sans extrait_id:', notifId);
+            toast('Extrait non disponible');
         }
     } else if (type === 'follow') {
         if (typeof openUserProfile === 'function') {
             openUserProfile(fromUserId, fromName);
+        }
+    } else if (type === 'message') {
+        // Ouvrir la messagerie et la conversation avec cet utilisateur
+        if (typeof openMessaging === 'function') {
+            await openMessaging();
+            // Ouvrir la conversation avec l'expéditeur
+            if (typeof openConversation === 'function') {
+                setTimeout(() => openConversation(fromUserId, fromName), 300);
+            }
         }
     }
     
     // Mettre à jour le badge
     updateNotifBadge();
 }
+
+/**
+ * Ouvrir un extrait depuis une notification
+ * Gère l'ouverture de l'overlay et l'affichage de l'extrait spécifique
+ */
+async function openExtraitFromNotification(extraitId) {
+    if (!supabaseClient || !extraitId) return false;
+    
+    console.log('📖 Ouverture extrait depuis notification:', extraitId);
+    
+    try {
+        // Charger l'extrait
+        const { data: extrait, error } = await supabaseClient
+            .from('extraits')
+            .select('*')
+            .eq('id', extraitId)
+            .single();
+        
+        if (error || !extrait) {
+            console.error('❌ Extrait non trouvé:', error?.message || 'null');
+            return false;
+        }
+        
+        // Charger le profil de l'auteur
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap([extrait.user_id]);
+            extrait.profiles = profileMap.get(extrait.user_id) || null;
+        }
+        
+        // IMPORTANT: Mettre l'extrait AVANT d'ouvrir l'overlay
+        // pour éviter que loadSocialFeed() ne l'écrase
+        if (typeof window.socialExtraits !== 'undefined') {
+            window.socialExtraits = [extrait];
+        }
+        
+        // Ouvrir l'overlay social SANS recharger le feed
+        const overlay = document.getElementById('socialOverlay');
+        if (overlay) {
+            overlay.classList.add('open');
+        }
+        
+        // Afficher l'extrait unique
+        if (typeof renderSocialFeed === 'function') {
+            await renderSocialFeed();
+        }
+        
+        // Scroll vers le haut pour voir l'extrait
+        const socialFeed = document.getElementById('socialFeed');
+        if (socialFeed) {
+            socialFeed.scrollTop = 0;
+        }
+        
+        // Highlight temporaire de la carte
+        setTimeout(() => {
+            const card = document.querySelector(`.extrait-card[data-id="${extraitId}"]`);
+            if (card) {
+                card.classList.add('highlight-notification');
+                setTimeout(() => card.classList.remove('highlight-notification'), 2000);
+            }
+        }, 300);
+        
+        console.log('✅ Extrait affiché:', extrait.id);
+        return true;
+        
+    } catch (err) {
+        console.error('❌ Erreur ouverture extrait:', err);
+        return false;
+    }
+}
+
+window.openExtraitFromNotification = openExtraitFromNotification;
 
 // Marquer toutes les notifications comme lues
 async function markAllNotifsRead() {
@@ -287,14 +439,56 @@ async function updateNotifBadge() {
 
 // Créer une notification
 async function createNotification(userId, type, extraitId = null, content = null) {
-    if (!supabaseClient || !currentUser) {
-        console.warn('createNotification: pas de supabaseClient ou currentUser');
-        return;
+    console.log('🔔 createNotification appelée:', { userId, type, extraitId, content: content?.substring(0, 50) });
+    
+    if (!supabaseClient) {
+        console.warn('❌ createNotification: supabaseClient non initialisé');
+        return false;
     }
-    if (userId === currentUser.id) return; // Pas de notif pour soi-même
+    if (!currentUser) {
+        console.warn('❌ createNotification: currentUser non défini (pas connecté)');
+        return false;
+    }
+    if (!userId) {
+        console.warn('❌ createNotification: userId manquant');
+        return false;
+    }
+    if (userId === currentUser.id) {
+        console.log('ℹ️ Notification ignorée (même utilisateur)');
+        return false;
+    }
     
     console.log(`📩 Création notification: type=${type}, pour user=${userId}, extrait=${extraitId}`);
-    
+
+    try {
+        // Utiliser la fonction RPC qui bypasse RLS de manière sécurisée
+        const { data, error } = await supabaseClient.rpc('create_notification', {
+            p_user_id: userId,
+            p_type: type,
+            p_extrait_id: extraitId,
+            p_content: content
+        });
+        
+        if (error) {
+            // Fallback sur insert direct si RPC n'existe pas
+            if (error.message?.includes('function') || error.code === '42883') {
+                console.log('⚠️ RPC create_notification non disponible, fallback insert direct');
+                return await createNotificationDirect(userId, type, extraitId, content);
+            }
+            console.error('❌ Erreur création notification:', error.message, error);
+            return false;
+        }
+        
+        console.log('✅ Notification créée via RPC:', data);
+        return true;
+    } catch (err) {
+        console.error('❌ Exception notification:', err);
+        return false;
+    }
+}
+
+// Fallback: insert direct (pour compatibilité si RPC pas créée)
+async function createNotificationDirect(userId, type, extraitId, content) {
     try {
         const { data, error } = await supabaseClient
             .from('notifications')
@@ -309,13 +503,15 @@ async function createNotification(userId, type, extraitId = null, content = null
             .select();
         
         if (error) {
-            console.error('❌ Erreur création notification:', error.message, error);
-            return;
+            console.error('❌ Erreur insert direct notification:', error.message, error);
+            return false;
         }
         
-        console.log('✅ Notification créée:', data);
+        console.log('✅ Notification créée (direct):', data?.[0]?.id);
+        return true;
     } catch (err) {
-        console.error('❌ Exception notification:', err);
+        console.error('❌ Exception insert direct:', err);
+        return false;
     }
 }
 
@@ -345,3 +541,123 @@ window.markAllNotifsRead = markAllNotifsRead;
 window.updateNotifBadge = updateNotifBadge;
 window.createNotification = createNotification;
 window.subscribeToNotifications = subscribeToNotifications;
+
+// ═══════════════════════════════════════════════════════════
+// 📣 SYSTÈME DE MENTIONS @pseudo
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Extrait les @mentions d'un texte
+ * @param {string} text - Le texte contenant des mentions
+ * @returns {string[]} - Liste des pseudos mentionnés (sans @)
+ */
+function extractMentions(text) {
+    if (!text) return [];
+    // Match @pseudo (lettres, chiffres, tirets, underscores)
+    const regex = /@([a-zA-Z0-9_-]+)/g;
+    const mentions = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        const username = match[1];
+        if (!mentions.includes(username.toLowerCase())) {
+            mentions.push(username.toLowerCase());
+        }
+    }
+    return mentions;
+}
+
+/**
+ * Résout les @mentions vers les IDs utilisateurs
+ * @param {string[]} usernames - Liste des pseudos
+ * @returns {Promise<Map<string, string>>} - Map pseudo -> userId
+ */
+async function resolveMentions(usernames) {
+    if (!supabaseClient || !usernames.length) return new Map();
+    
+    try {
+        // Recherche case-insensitive
+        const { data: profiles, error } = await supabaseClient
+            .from('profiles')
+            .select('id, username')
+            .in('username', usernames);
+        
+        if (error) {
+            console.warn('Erreur résolution mentions:', error);
+            return new Map();
+        }
+        
+        const map = new Map();
+        (profiles || []).forEach(p => {
+            map.set(p.username.toLowerCase(), p.id);
+        });
+        return map;
+    } catch (e) {
+        console.error('Exception résolution mentions:', e);
+        return new Map();
+    }
+}
+
+/**
+ * Crée des notifications pour toutes les mentions dans un texte
+ * @param {string} text - Texte contenant les mentions
+ * @param {string} extraitId - ID de l'extrait concerné
+ * @param {string} [contentPreview] - Aperçu du contenu pour la notification
+ */
+async function notifyMentions(text, extraitId, contentPreview = null) {
+    if (!currentUser || !supabaseClient) return;
+    
+    const mentions = extractMentions(text);
+    if (!mentions.length) return;
+    
+    console.log('📣 Mentions trouvées:', mentions);
+    
+    const userMap = await resolveMentions(mentions);
+    
+    for (const [username, userId] of userMap) {
+        if (userId !== currentUser.id) {
+            await createNotification(userId, 'mention', extraitId, contentPreview || text.substring(0, 100));
+            console.log('📣 Notification mention envoyée à:', username);
+        }
+    }
+}
+
+/**
+ * Formatte un texte en rendant les @mentions cliquables
+ * @param {string} text - Texte brut
+ * @returns {string} - HTML avec liens vers les profils
+ */
+function formatMentions(text) {
+    if (!text) return '';
+    return text.replace(/@([a-zA-Z0-9_-]+)/g, '<span class="mention" onclick="searchAndOpenProfile(\'$1\')">@$1</span>');
+}
+
+/**
+ * Recherche et ouvre le profil d'un utilisateur par pseudo
+ * @param {string} username - Pseudo de l'utilisateur
+ */
+async function searchAndOpenProfile(username) {
+    if (!supabaseClient) return;
+    
+    try {
+        const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('id, username')
+            .ilike('username', username)
+            .maybeSingle();
+        
+        if (profile && typeof openUserProfile === 'function') {
+            openUserProfile(profile.id, profile.username);
+        } else {
+            toast('Utilisateur non trouvé');
+        }
+    } catch (e) {
+        console.error('Erreur recherche profil:', e);
+    }
+}
+
+// Exposer les fonctions de mentions
+window.extractMentions = extractMentions;
+window.resolveMentions = resolveMentions;
+window.notifyMentions = notifyMentions;
+window.formatMentions = formatMentions;
+window.searchAndOpenProfile = searchAndOpenProfile;

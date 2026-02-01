@@ -36,10 +36,7 @@ async function loadTrendingFeed() {
         // Charger les extraits les plus likés et commentés récemment
         const { data: extraits, error } = await supabaseClient
             .from('extraits')
-            .select(`
-                *,
-                profiles:user_id (username, avatar_url)
-            `)
+            .select('*')
             .order('likes_count', { ascending: false })
             .order('comments_count', { ascending: false })
             .order('created_at', { ascending: false })
@@ -56,6 +53,13 @@ async function loadTrendingFeed() {
                 </div>
             `;
             return;
+        }
+
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap(extraits.map(e => e.user_id));
+            extraits.forEach(extrait => {
+                extrait.profiles = profileMap.get(extrait.user_id) || null;
+            });
         }
         
         // Stocker les extraits pour les notifications

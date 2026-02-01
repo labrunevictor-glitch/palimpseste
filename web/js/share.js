@@ -62,7 +62,7 @@ async function getExtraitSharesInfo(extraitId) {
     try {
         let query = supabaseClient
             .from('extraits')
-            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)');
+            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author');
 
         if (extrait.text_hash) {
             query = query.eq('text_hash', extrait.text_hash);
@@ -83,6 +83,12 @@ async function getExtraitSharesInfo(extraitId) {
         if (error) throw error;
 
         const shares = data || [];
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap(shares.map(s => s.user_id));
+            shares.forEach(share => {
+                share.profiles = profileMap.get(share.user_id) || null;
+            });
+        }
         const info = { hasShares: shares.length > 0, count: shares.length, shares };
         extraitSharesCache.set(extraitId, info);
         return info;
@@ -145,10 +151,16 @@ async function loadExtraitShareInfoBatch(extraitIds) {
     if (hashes.length > 0) {
         const { data } = await supabaseClient
             .from('extraits')
-            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)')
+            .select('id, user_id, created_at, text_hash, source_url, source_title, source_author')
             .in('text_hash', hashes)
             .order('created_at', { ascending: false });
         sharesByHash = data || [];
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap(sharesByHash.map(s => s.user_id));
+            sharesByHash.forEach(share => {
+                share.profiles = profileMap.get(share.user_id) || null;
+            });
+        }
     }
 
     for (const extrait of validExtraits) {
@@ -166,7 +178,7 @@ async function loadExtraitShareInfoBatch(extraitIds) {
         } else {
             let query = supabaseClient
                 .from('extraits')
-                .select('id, user_id, created_at, text_hash, source_url, source_title, source_author, profiles:user_id (username, avatar_url)');
+                .select('id, user_id, created_at, text_hash, source_url, source_title, source_author');
             if (extrait.source_url) {
                 query = query.eq('source_url', extrait.source_url);
             } else {
@@ -174,6 +186,12 @@ async function loadExtraitShareInfoBatch(extraitIds) {
             }
             const { data } = await query.order('created_at', { ascending: false });
             shares = (data || []).filter(s => s.id !== extrait.id);
+            if (typeof loadProfilesMap === 'function') {
+                const profileMap = await loadProfilesMap(shares.map(s => s.user_id));
+                shares.forEach(share => {
+                    share.profiles = profileMap.get(share.user_id) || null;
+                });
+            }
         }
 
         const info = { hasShares: shares.length > 0, count: shares.length, shares };
@@ -367,6 +385,9 @@ async function publishExtrait() {
     const preview = fullText.substring(0, 150) + (fullText.length > 150 ? '…' : '');
     const { textHash, textLength } = buildExtraitKey(fullText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
     
+    // Garder trace de l'ID de l'extrait original si c'est un repartage
+    const originalExtraitId = pendingShare.cardId;
+    
     try {
         const { data, error } = await supabaseClient.from('extraits').insert({
             user_id: currentUser.id,
@@ -379,12 +400,31 @@ async function publishExtrait() {
             commentary: commentary || null,
             likes_count: 0,
             created_at: new Date().toISOString()
-        });
+        }).select().single();
         
         if (error) throw error;
         
         closeShareModal();
         toast('🐦 Extrait publié !');
+        
+        // Notifier l'auteur de l'extrait original (si c'est un repartage)
+        if (originalExtraitId && typeof createNotification === 'function') {
+            try {
+                const { data: originalExtrait } = await supabaseClient
+                    .from('extraits')
+                    .select('user_id')
+                    .eq('id', originalExtraitId)
+                    .single();
+                
+                if (originalExtrait && originalExtrait.user_id !== currentUser.id) {
+                    await createNotification(originalExtrait.user_id, 'share', data?.id || originalExtraitId, preview.substring(0, 100));
+                    console.log('📣 Notification de partage envoyée à l\'auteur original');
+                }
+            } catch (e) {
+                console.warn('Erreur notif auteur original:', e);
+            }
+        }
+        
         if (typeof loadUserStats === 'function') loadUserStats();
 
         if (pendingShare?.cardId) {
@@ -715,10 +755,17 @@ async function loadInlineComments(cardId) {
         // Charger les commentaires
         const { data: comments } = await supabaseClient
             .from('comments')
-            .select('*, profiles:user_id(username)')
+            .select('*')
             .eq('extrait_id', extraitId)
             .order('created_at', { ascending: false })
             .limit(5);
+
+        if (comments && comments.length > 0 && typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap(comments.map(c => c.user_id));
+            comments.forEach(c => {
+                c.profiles = profileMap.get(c.user_id) || null;
+            });
+        }
         
         if (comments && comments.length > 0) {
             listEl.innerHTML = comments.map(c => {
@@ -832,15 +879,40 @@ async function sendInlineComment(cardId, inputEl) {
         inputEl.value = '';
         toast('💬 Commentaire ajouté !');
         
+        // Notifier l'auteur de l'extrait
+        if (extraitId && typeof createNotification === 'function') {
+            try {
+                const { data: extrait } = await supabaseClient
+                    .from('extraits')
+                    .select('user_id')
+                    .eq('id', extraitId)
+                    .single();
+                
+                if (extrait && extrait.user_id !== currentUser.id) {
+                    await createNotification(extrait.user_id, 'comment', extraitId, comment.substring(0, 100));
+                }
+            } catch (e) {
+                console.warn('Erreur notif auteur extrait:', e);
+            }
+        }
+        
+        // Notifier les utilisateurs mentionnés
+        if (typeof notifyMentions === 'function') {
+            await notifyMentions(comment, extraitId, comment.substring(0, 100));
+        }
+        
         // Afficher localement
         const username = currentUser?.user_metadata?.username || 'Moi';
         const listEl = card.querySelector('.inline-comments-list');
         if (listEl) {
+            const formattedComment = typeof formatMentions === 'function' 
+                ? formatMentions(escapeHtmlShare(comment))
+                : escapeHtmlShare(comment);
             const el = document.createElement('div');
             el.className = 'inline-comment-item new';
             el.innerHTML = `
                 <span class="inline-comment-avatar">${getAvatarSymbol(username)}</span>
-                <span class="inline-comment-content"><strong>${escapeHtmlShare(username)}</strong> ${escapeHtmlShare(comment)}</span>
+                <span class="inline-comment-content"><strong>${escapeHtmlShare(username)}</strong> ${formattedComment}</span>
             `;
             listEl.prepend(el);
             setTimeout(() => el.classList.remove('new'), 300);

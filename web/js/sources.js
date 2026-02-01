@@ -756,6 +756,151 @@ async function fetchPoetryDB() {
 // ═══════════════════════════════════════════════════════════
 //  ARCHIVE.ORG - Internet Archive (API Recherche Dynamique)
 // ═══════════════════════════════════════════════════════════
+const ARCHIVE_TIMEOUT_MS = 8000;
+const ARCHIVE_RETRIES = 1;
+
+function archiveProxyUrl(url) {
+    return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+}
+
+function localArchiveProxyUrl(url) {
+    try {
+        return `${window.location.origin}/api/archive-proxy?url=${encodeURIComponent(url)}`;
+    } catch (e) {
+        return null;
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = ARCHIVE_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(url, {
+            redirect: 'follow',
+            cache: 'no-store',
+            ...options,
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+async function fetchWithRetry(url, options = {}, retries = ARCHIVE_RETRIES, timeoutMs = ARCHIVE_TIMEOUT_MS) {
+    let lastError;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const res = await fetchWithTimeout(url, options, timeoutMs);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res;
+        } catch (err) {
+            lastError = err;
+            if (attempt < retries) await sleep(350 * (attempt + 1));
+        }
+    }
+    throw lastError;
+}
+
+async function fetchArchiveJson(url) {
+    try {
+        const localProxy = localArchiveProxyUrl(url);
+        if (localProxy) {
+            try {
+                const res = await fetchWithRetry(localProxy);
+                return await res.json();
+            } catch (err) {
+                return null;
+            }
+        }
+        const res = await fetchWithRetry(url);
+        return await res.json();
+    } catch (err) {
+        try {
+            const res = await fetchWithRetry(archiveProxyUrl(url), {}, ARCHIVE_RETRIES, ARCHIVE_TIMEOUT_MS + 2000);
+            return await res.json();
+        } catch (proxyErr) {
+            console.warn('Archive.org JSON fetch failed', proxyErr);
+            return null;
+        }
+    }
+}
+
+async function fetchArchiveText(url) {
+    try {
+        const localProxy = localArchiveProxyUrl(url);
+        if (localProxy) {
+            try {
+                const res = await fetchWithRetry(localProxy);
+                return await res.text();
+            } catch (err) {
+                return null;
+            }
+        }
+        const res = await fetchWithRetry(url);
+        return await res.text();
+    } catch (err) {
+        try {
+            const res = await fetchWithRetry(archiveProxyUrl(url), {}, ARCHIVE_RETRIES, ARCHIVE_TIMEOUT_MS + 2000);
+            return await res.text();
+        } catch (proxyErr) {
+            return null;
+        }
+    }
+}
+
+async function fetchArchiveMetadata(identifier) {
+    const url = `https://archive.org/metadata/${encodeURIComponent(identifier)}`;
+    return await fetchArchiveJson(url);
+}
+
+async function fetchArchiveTextByIdentifier(identifier) {
+    if (!identifier) return null;
+    const metadata = await fetchArchiveMetadata(identifier);
+    const meta = metadata?.metadata || {};
+    const accessRestricted = (meta['access-restricted'] ?? meta.access_restricted ?? meta.accessRestricted);
+    if (accessRestricted === true || accessRestricted === 1 || `${accessRestricted}`.toLowerCase() === 'true' || `${accessRestricted}` === '1') {
+        return null;
+    }
+    const files = Array.isArray(metadata?.files) ? metadata.files : [];
+
+    const preferredFiles = files
+        .filter(f => f?.name && typeof f.name === 'string')
+        .filter(f => {
+            const name = f.name.toString().toLowerCase();
+            if (!name.endsWith('.txt')) return false;
+            if (f.private === true || `${f.private}`.toLowerCase() === 'true') return false;
+            const fmt = (f.format || '').toString().toLowerCase();
+            if (fmt.includes('pdf')) return false;
+            return fmt.includes('djvutxt') || fmt.includes('text') || fmt.includes('plain');
+        })
+        .map(f => f.name);
+
+    const uniqueNames = Array.from(new Set(preferredFiles));
+    const candidates = [...uniqueNames].filter(Boolean);
+
+    for (const name of candidates) {
+        const safeName = encodeURIComponent(name).replace(/%2F/g, '/');
+        const serveUrl = `https://archive.org/serve/${identifier}/${safeName}`;
+        const streamUrl = `https://archive.org/stream/${identifier}/${safeName}`;
+        const downloadUrl = `https://archive.org/download/${identifier}/${safeName}`;
+
+        const textFromServe = await fetchArchiveText(serveUrl);
+        if (textFromServe && textFromServe.length > 200) return textFromServe;
+
+        const textFromStream = await fetchArchiveText(streamUrl);
+        if (textFromStream && textFromStream.length > 200) return textFromStream;
+
+        const textFromDownload = await fetchArchiveText(downloadUrl);
+        if (textFromDownload && textFromDownload.length > 200) return textFromDownload;
+    }
+
+    return null;
+}
+
 async function fetchArchiveOrg() {
     try {
         // 1. Déterminer la langue (Archive.org)
@@ -779,22 +924,18 @@ async function fetchArchiveOrg() {
         // URL de l'API (supporte CORS)
         const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&fl=${fields}&rows=3&page=${page}&output=json&sort=random`;
         
-        const res = await fetch(url);
-        const data = await res.json();
-        const docs = data.response?.docs || [];
+        const data = await fetchArchiveJson(url);
+        const docs = data?.response?.docs || [];
 
         const results = [];
         
         // 3. Récupérer le contenu textuel brut pour chaque résultat
         for (const doc of docs) {
+            if (!doc?.identifier) continue;
             // URL du fichier texte brut (format classique Archive.org : identifier_djvu.txt)
-            const textUrl = `https://archive.org/download/${doc.identifier}/${doc.identifier}_djvu.txt`;
-            
             try {
-                // On tente de récupérer le texte
-                const textRes = await fetch(textUrl);
-                if (textRes.ok) {
-                    let fullText = await textRes.text();
+                const fullText = await fetchArchiveTextByIdentifier(doc.identifier);
+                if (fullText) {
                     
                     // 4. Nettoyage et découpage (l'OCR brut est souvent sale)
                     // On saute le début (souvent des métadonnées) et on prend un gros extrait
@@ -802,8 +943,8 @@ async function fetchArchiveOrg() {
                         // Chercher un début de paragraphe propre après le header
                         const start = Math.floor(Math.random() * (fullText.length / 4));
                         const cleanStart = fullText.indexOf('\n\n', start);
-                        
-                        let excerpt = fullText.substring(cleanStart > -1 ? cleanStart : start, start + 2500);
+                        const excerptStart = cleanStart > -1 ? cleanStart : start;
+                        let excerpt = fullText.substring(excerptStart, excerptStart + 2500);
                         
                         // Nettoyage basique des artefacts OCR
                         excerpt = excerpt.replace(/_/g, ' ')
@@ -856,23 +997,22 @@ async function searchArchiveOrg(queryTerm) {
         // Priorité aux résultats les plus pertinents (pas random)
         const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(q)}&fl=${fields}&rows=5&page=1&output=json`;
         
-        const res = await fetch(url);
-        const data = await res.json();
-        const docs = data.response?.docs || [];
+        const data = await fetchArchiveJson(url);
+        const docs = data?.response?.docs || [];
         const results = [];
 
         for (const doc of docs) {
-             const textUrl = `https://archive.org/download/${doc.identifier}/${doc.identifier}_djvu.txt`;
+             if (!doc?.identifier) continue;
              try {
-                const textRes = await fetch(textUrl);
-                if (textRes.ok) {
-                    let fullText = await textRes.text();
+            const fullText = await fetchArchiveTextByIdentifier(doc.identifier);
+            if (fullText) {
                     
                     if (fullText.length > 500) {
                         // Pour Archive.org, le texte brut est souvent très long et sale au début
                         // On essaie de trouver un morceau potable
                         const start = fullText.indexOf('\n\n', 500); // Sauter le header
-                        let excerpt = fullText.substring(start > -1 ? start : 0, start + 3000);
+                        const excerptStart = start > -1 ? start : 0;
+                        let excerpt = fullText.substring(excerptStart, excerptStart + 3000);
                         
                         // Nettoyage
                         excerpt = excerpt.replace(/_/g, ' ')

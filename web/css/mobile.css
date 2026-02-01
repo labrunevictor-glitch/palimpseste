@@ -108,6 +108,57 @@
         display: none !important;
     }
     
+    /* Bouton notifications mobile */
+    .mobile-notif-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        margin: 0 4px !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        position: relative !important;
+        order: 4 !important;
+        color: var(--text) !important;
+    }
+    
+    .mobile-notif-btn i,
+    .mobile-notif-btn svg {
+        width: 22px !important;
+        height: 22px !important;
+        stroke-width: 1.5 !important;
+    }
+    
+    .mobile-notif-btn:active {
+        opacity: 0.7 !important;
+    }
+    
+    .mobile-notif-badge {
+        position: absolute !important;
+        top: 2px !important;
+        right: 2px !important;
+        min-width: 14px !important;
+        height: 14px !important;
+        padding: 0 3px !important;
+        background: var(--accent) !important;
+        color: white !important;
+        font-size: 0.55rem !important;
+        font-weight: bold !important;
+        border-radius: 7px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .mobile-notif-badge:empty,
+    .mobile-notif-badge[style*="display: none"] {
+        display: none !important;
+    }
+    
     /* Recherche prend l'espace restant */
     .search-container {
         flex: 1 !important;
@@ -218,7 +269,7 @@
         max-width: 360px !important;
         max-height: 82vh !important;
         overflow-y: auto !important;
-        z-index: 250 !important;
+        z-index: 2500 !important;
         background: var(--bg-card) !important;
         border: 2px solid var(--border) !important;
         border-radius: 16px !important;
@@ -226,12 +277,14 @@
         padding: 14px 16px !important;
         opacity: 0 !important;
         transition: opacity 0.25s, transform 0.25s !important;
+        pointer-events: auto !important;
     }
     
     .mobile-profile-panel.open {
         display: block !important;
         opacity: 1 !important;
         transform: translate(-50%, -50%) scale(1) !important;
+        pointer-events: auto !important;
     }
 
     /* Messagerie: actions via menu ⋯ sur mobile */
@@ -348,6 +401,10 @@
         font-weight: 600 !important;
         cursor: pointer !important;
         box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3) !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
+        opacity: 1 !important;
     }
     
     .mobile-profile-btn-primary:active {
@@ -365,6 +422,10 @@
         color: var(--text) !important;
         font-size: 0.9rem !important;
         cursor: pointer !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
+        opacity: 1 !important;
     }
     
     .mobile-profile-btn-secondary:active {
@@ -439,7 +500,7 @@
         right: 0 !important;
         bottom: 0 !important;
         background: rgba(0, 0, 0, 0.6) !important;
-        z-index: 1199 !important;
+        z-index: 1100 !important;
         opacity: 0 !important;
         visibility: hidden !important;
         transition: opacity 0.3s, visibility 0.3s !important;
@@ -549,6 +610,22 @@
         width: 20px !important;
         height: 20px !important;
         margin-bottom: 2px !important;
+    }
+
+    /* Style spécifique pour le bouton déconnexion mobile - pleine largeur, hauteur réduite */
+    .drawer-logout-mobile {
+        grid-column: span 2 !important;
+        flex-direction: row !important;
+        min-height: 48px !important;
+        padding: 10px 12px !important;
+        background: rgba(239, 68, 68, 0.1) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        color: #ef4444 !important;
+    }
+
+    .drawer-logout-mobile:hover,
+    .drawer-logout-mobile:active {
+        background: rgba(239, 68, 68, 0.2) !important;
     }
 
     /* Style spécifique pour la ligne préférences (langue / settings) */

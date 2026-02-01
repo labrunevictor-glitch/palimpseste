@@ -375,7 +375,19 @@ async function init() {
     
     updateStats();
     updateConnections();
+    
+    // Vérifier l'intégrité des badges au démarrage
+    if (typeof normalizeAchievementsState === 'function') {
+        normalizeAchievementsState();
+    }
+    
     renderAchievements();
+    
+    // Vérifier les badges après chargement complet des stats
+    if (typeof checkAchievements === 'function') {
+        setTimeout(() => checkAchievements(), 500);
+    }
+    
     renderReadingPath();
     renderFavorites();
     updateFavCount();
@@ -389,6 +401,23 @@ async function init() {
     // Mise à jour périodique du fun stat
     var _funStatInterval = setInterval(updateFunStat, 15000);
     window.addEventListener('beforeunload', function() { clearInterval(_funStatInterval); });
+    
+    // ☁️ SYNCHRONISATION CLOUD PÉRIODIQUE DES BADGES
+    // Sync toutes les 2 minutes si l'utilisateur est connecté
+    var _cloudSyncInterval = setInterval(() => {
+        if (window.currentUser && typeof syncProgressWithCloud === 'function') {
+            syncProgressWithCloud();
+        }
+    }, 2 * 60 * 1000);
+    
+    // Sync avant de quitter la page
+    window.addEventListener('beforeunload', function() { 
+        clearInterval(_cloudSyncInterval);
+        // Sync finale (sync rapide, ne bloque pas la fermeture)
+        if (window.currentUser && typeof forceSyncToCloud === 'function') {
+            forceSyncToCloud();
+        }
+    });
     
     // Créer le bouton scroll to top
     createScrollTopButton();

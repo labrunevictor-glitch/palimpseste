@@ -650,9 +650,14 @@ async function viewExtraitById(extraitId) {
     
     const { data: extrait } = await supabaseClient
         .from('extraits')
-        .select('*, profiles(username)')
+        .select('*')
         .eq('id', extraitId)
         .single();
+
+    if (extrait && typeof loadProfilesMap === 'function') {
+        const profileMap = await loadProfilesMap([extrait.user_id]);
+        extrait.profiles = profileMap.get(extrait.user_id) || null;
+    }
     
     if (extrait) {
         socialExtraits = [extrait];
@@ -1063,7 +1068,7 @@ async function loadProfileExtraits(userId) {
     
     const { data: extraits, error } = await supabaseClient
         .from('extraits')
-        .select('*, profiles:user_id(username)')
+        .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(30);
@@ -1082,6 +1087,13 @@ async function loadProfileExtraits(userId) {
             </div>
         `;
         return;
+    }
+
+    if (typeof loadProfilesMap === 'function') {
+        const profileMap = await loadProfilesMap(extraits.map(e => e.user_id));
+        extraits.forEach(extrait => {
+            extrait.profiles = profileMap.get(extrait.user_id) || null;
+        });
     }
     
     // S'assurer que le cache des likes est chargé
@@ -1231,7 +1243,7 @@ async function loadProfileLikes(userId) {
     const extraitIds = likes.map(l => l.extrait_id);
     const { data: extraits } = await supabaseClient
         .from('extraits')
-        .select('*, profiles:user_id(username)')
+        .select('*')
         .in('id', extraitIds);
     
     if (!extraits || extraits.length === 0) {
@@ -1242,6 +1254,13 @@ async function loadProfileLikes(userId) {
             </div>
         `;
         return;
+    }
+
+    if (typeof loadProfilesMap === 'function') {
+        const profileMap = await loadProfilesMap(extraits.map(e => e.user_id));
+        extraits.forEach(extrait => {
+            extrait.profiles = profileMap.get(extrait.user_id) || null;
+        });
     }
     
     // S'assurer que le cache des likes est chargé

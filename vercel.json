@@ -43,7 +43,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' unpkg.com cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://*.wikimedia.org https://*.wikipedia.org https://*.wikisource.org https://*.gutenberg.org https://poetrydb.org https://corsproxy.io https://archive.org; font-src 'self' https:; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wikimedia.org https://*.wikipedia.org https://*.wikisource.org https://*.gutenberg.org https://gutendex.com https://poetrydb.org https://corsproxy.io https://archive.org https://*.archive.org https://unpkg.com https://cdn.jsdelivr.net https://*.jsdelivr.net https://r.jina.ai; font-src 'self' https:; frame-ancestors 'none';"
         }
       ]
     }

@@ -186,7 +186,7 @@ async function loadSocialFeed() {
     
     let query = supabaseClient
         .from('extraits')
-        .select('*, profiles(username)')
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
     
@@ -197,7 +197,7 @@ async function loadSocialFeed() {
     } else if (currentSocialTab === 'mine' && currentUser) {
         query = supabaseClient
             .from('extraits')
-            .select('*, profiles(username)')
+            .select('*')
             .eq('user_id', currentUser.id)
             .order('created_at', { ascending: false });
     } else if (currentSocialTab === 'friends' && currentUser) {
@@ -220,7 +220,7 @@ async function loadSocialFeed() {
         
         query = supabaseClient
             .from('extraits')
-            .select('*, profiles(username)')
+            .select('*')
             .in('user_id', Array.from(userFollowing))
             .order('created_at', { ascending: false })
             .limit(50);
@@ -255,6 +255,13 @@ async function loadSocialFeed() {
             </div>
         `;
         return;
+    }
+
+    if (typeof loadProfilesMap === 'function') {
+        const profileMap = await loadProfilesMap(data.map(e => e.user_id));
+        data.forEach(extrait => {
+            extrait.profiles = profileMap.get(extrait.user_id) || null;
+        });
     }
     
     socialExtraits = data;
@@ -541,14 +548,16 @@ async function getExtraitData(extraitId) {
     try {
         const { data, error } = await supabaseClient
             .from('extraits')
-            .select(`
-                *,
-                profiles:user_id (username, avatar_url)
-            `)
+            .select('*')
             .eq('id', extraitId)
             .single();
 
         if (error) throw error;
+
+        if (data && typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap([data.user_id]);
+            data.profiles = profileMap.get(data.user_id) || null;
+        }
 
         if (data) {
             extraitDataCache.set(extraitId, data);
@@ -795,7 +804,7 @@ async function showMyLikes() {
         // Récupérer les extraits likés
         const { data: extraits } = await supabaseClient
             .from('extraits')
-            .select('*, profiles(username)')
+            .select('*')
             .in('id', likedIds)
             .order('created_at', { ascending: false });
         
@@ -804,6 +813,13 @@ async function showMyLikes() {
             return;
         }
         
+        if (typeof loadProfilesMap === 'function') {
+            const profileMap = await loadProfilesMap((extraits || []).map(e => e.user_id));
+            (extraits || []).forEach(extrait => {
+                extrait.profiles = profileMap.get(extrait.user_id) || null;
+            });
+        }
+
         socialExtraits = extraits;
         
         // Marquer l'onglet actif

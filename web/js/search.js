@@ -221,7 +221,7 @@ async function searchPalimpsesteTexts(query, requestId) {
     try {
         const { data, error } = await supabaseClient
             .from('extraits')
-            .select('id, texte, source_title, source_author, source_url, created_at, user_id, profiles(username)')
+            .select('id, texte, source_title, source_author, source_url, created_at, user_id')
             .or(`texte.ilike.%${safeQuery}%,source_title.ilike.%${safeQuery}%,source_author.ilike.%${safeQuery}%`)
             .order('created_at', { ascending: false })
             .limit(30);
@@ -230,6 +230,11 @@ async function searchPalimpsesteTexts(query, requestId) {
 
         if (requestId !== searchRequestId) return;
 
+        let profileMap = new Map();
+        if (typeof loadProfilesMap === 'function') {
+            profileMap = await loadProfilesMap((data || []).map(e => e.user_id));
+        }
+
         searchResults.texts = (data || []).map(e => ({
             id: e.id,
             preview: e.texte,
@@ -237,7 +242,7 @@ async function searchPalimpsesteTexts(query, requestId) {
             author: e.source_author,
             url: e.source_url,
             created_at: e.created_at,
-            sharedBy: e.profiles?.username || null,
+            sharedBy: profileMap.get(e.user_id)?.username || null,
             source: 'palimpseste_text'
         }));
     } catch (e) {

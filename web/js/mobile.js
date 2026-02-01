@@ -149,7 +149,12 @@ function updateMobileAvatar() {
 function updateMobileNotifBadge(count) {
     const badge = document.getElementById('mobileNotifBadge');
     if (badge) {
-        badge.textContent = count > 0 ? (count > 9 ? '9+' : count) : '';
+        if (count && count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 }
 

@@ -35,7 +35,13 @@ function initSupabase() {
             setTimeout(initSupabase, 500 * _supabaseInitRetries);
             return false;
         }
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        });
         // Supabase prêt
         
         // Écouter les changements d'auth
@@ -545,6 +551,42 @@ async function onUserLoggedIn() {
     // S'assurer que le profil existe dans la table profiles
     await ensureProfileExists();
 
+    // ═══════════════════════════════════════════════════════════════════
+    // 🔄 VÉRIFIER SI C'EST UN CHANGEMENT D'UTILISATEUR
+    // Si oui, réinitialiser le state local pour éviter de mélanger les badges
+    // ═══════════════════════════════════════════════════════════════════
+    const lastUserId = localStorage.getItem('palimpseste_last_user');
+    const isNewUser = lastUserId && lastUserId !== currentUser.id;
+    
+    if (isNewUser) {
+        console.log('👤 Changement d\'utilisateur détecté, réinitialisation du state local...');
+        // Réinitialiser le state local (les badges seront chargés depuis le cloud)
+        if (typeof state !== 'undefined') {
+            state.achievements = [];
+            state.readCount = 0;
+            state.authorStats = {};
+            state.genreStats = {};
+            state.likedGenreStats = {};
+            state.likedAuthorStats = {};
+            state.likedAuthors = new Set();
+            state.readingPath = [];
+            state.readingStats = {
+                totalWordsRead: 0,
+                totalReadingTime: 0,
+                streak: 0,
+                lastReadDate: null,
+                sessionsToday: 0,
+                bestStreak: 0,
+                dailyWords: {}
+            };
+            // Sauvegarder le state vide
+            if (typeof saveState === 'function') saveState();
+        }
+    }
+    
+    // Mémoriser l'utilisateur courant
+    localStorage.setItem('palimpseste_last_user', currentUser.id);
+
     // Mettre à jour last_seen
     updateLastSeen();
 
@@ -586,6 +628,13 @@ async function onUserLoggedIn() {
     // Charger et synchroniser les likes locaux/Supabase (impacte les badges)
     if (typeof loadLikedSources === 'function') await loadLikedSources();
     
+    // ☁️ SYNCHRONISATION DES BADGES ET PROGRESSION
+    // Fusionne les données locales et cloud (prend le maximum de chaque)
+    if (typeof syncProgressWithCloud === 'function') {
+        console.log('☁️ Synchronisation des badges en cours...');
+        await syncProgressWithCloud();
+    }
+    
     // Rafraîchir les badges après connexion/sync
     if (typeof checkAchievements === 'function') checkAchievements();
     if (typeof renderAchievements === 'function') renderAchievements();
@@ -599,6 +648,10 @@ async function onUserLoggedIn() {
     
     // Mettre à jour le panneau profil mobile
     if (typeof updateMobileProfilePanel === 'function') updateMobileProfilePanel();
+    
+    // Afficher le bouton déconnexion mobile
+    const drawerLogoutBtn = document.getElementById('drawerLogoutBtn');
+    if (drawerLogoutBtn) drawerLogoutBtn.style.display = '';
 }
 
 function onUserLoggedOut() {
@@ -612,15 +665,56 @@ function onUserLoggedOut() {
     document.getElementById('profileLoggedOut').style.display = 'block';
     document.getElementById('profileLoggedIn').style.display = 'none';
     
+    // Cacher le bouton déconnexion mobile
+    const drawerLogoutBtn = document.getElementById('drawerLogoutBtn');
+    if (drawerLogoutBtn) drawerLogoutBtn.style.display = 'none';
+    
     // Reset mobile avatar
     const mobileAvatar = document.getElementById('mobileAvatar');
     if (mobileAvatar) {
         mobileAvatar.textContent = '👤';
     }
     
+    // ═══════════════════════════════════════════════════════════════════
+    // 🔄 RÉINITIALISER COMPLÈTEMENT LE STATE LOCAL À LA DÉCONNEXION
+    // Pour éviter que les badges d'un utilisateur restent visibles
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Effacer tout le localStorage Palimpseste
+    localStorage.removeItem('palimpseste');
+    localStorage.removeItem('palimpseste_last_user');
+    
+    // Réinitialiser le state en mémoire
+    if (typeof state !== 'undefined') {
+        state.achievements = [];
+        state.readCount = 0;
+        state.authorStats = {};
+        state.genreStats = {};
+        state.likedGenreStats = {};
+        state.likedAuthorStats = {};
+        state.likedAuthors = new Set();
+        state.likes = new Set();
+        state.favorites = [];
+        state.readingPath = [];
+        state.readingStats = {
+            totalWordsRead: 0,
+            totalReadingTime: 0,
+            streak: 0,
+            lastReadDate: null,
+            sessionsToday: 0,
+            bestStreak: 0,
+            dailyWords: {}
+        };
+    }
+    
     // Réinitialiser le cache des likes
     if (typeof resetLikesCache === 'function') resetLikesCache();
     if (typeof updateLikeCount === 'function') updateLikeCount();
+    
+    // Mettre à jour l'affichage des badges (maintenant vides) SANS recalculer
+    if (typeof renderAchievements === 'function') renderAchievements();
+    if (typeof updateStats === 'function') updateStats();
+    if (typeof updateFunStat === 'function') updateFunStat();
     
     // Mettre à jour le panneau profil mobile
     if (typeof updateMobileProfilePanel === 'function') updateMobileProfilePanel();

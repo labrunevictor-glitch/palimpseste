@@ -1,7 +1,3 @@
-    /* ?? Import des fichiers modulaires */
-@import 'variables.css';
-@import 'base.css';
-
 /* --- CABINET DE CURIOSIT?S --- Palette moderne & ?trange */
 :root {
 /* Fonds - ivoire sombre, comme un vieux parchemin dans l'obscurit? */
@@ -277,6 +273,18 @@
     box-shadow: 0 0 0 var(--pixel-shadow);
 }
 
+/* Bouton déconnexion mobile - style distinct */
+.drawer-logout-mobile {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    margin-top: 0.5rem;
+}
+
+.drawer-logout-mobile:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
 .drawer-action-btn span {
     font-size: 1.1rem;
 }
@@ -361,11 +369,12 @@
         flex-shrink: 0 !important;
     }
     
-    /* Masquer ?l?ments mobile sur desktop */
+    /* Masquer éléments mobile sur desktop */
     .mobile-profile-btn,
     .mobile-logo,
     .mobile-bottom-nav,
-    .mobile-drawer-overlay {
+    .mobile-drawer-overlay,
+    .mobile-notif-btn {
         display: none !important;
     }
 }
@@ -1577,22 +1586,22 @@ margin-left: 260px;
 max-width: 720px;
 margin-right: auto;
 margin-left: calc(260px + (100% - 260px - 720px) / 2);
-padding: 130px 2rem 4rem 2rem;
+padding: 160px 2rem 4rem 2rem;
 transition: padding-top 0.3s ease;
 }
 
 /* Ajuster le padding quand les filtres sont repli?s */
 body.filters-collapsed main {
-padding-top: 60px;
+padding-top: 70px;
 }
 
 /* Desktop padding adaptatif v2 - 26/01/2026 */
 @media (min-width: 901px) {
     main {
-        padding-top: 120px !important;
+        padding-top: 160px !important;
     }
     body.filters-collapsed main {
-        padding-top: 0px !important;
+        padding-top: 70px !important;
     }
 }
 
@@ -1836,7 +1845,7 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
    ----------------------------------------------------------- */
 .exploration-container {
 position: fixed;
-top: 54px;
+top: 64px;
 left: 260px;
 right: 0;
 z-index: 90;
@@ -2719,7 +2728,7 @@ margin-right: 0.5rem;
    --------------------------------------------------------------------------- */
 .new-texts-banner {
 position: fixed;
-top: 80px;
+    top: 60px;
 left: 50%;
 transform: translateX(-50%) translateY(-100px);
 background: linear-gradient(135deg, var(--accent), var(--accent-purple));
@@ -2888,7 +2897,7 @@ padding: 0.9rem 1.75rem;
 border-radius: 12px;
 font-size: 0.85rem;
 font-weight: 500;
-z-index: 300;
+z-index: 9999;
 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
@@ -5475,7 +5484,7 @@ background: var(--overlay-bg);
 display: flex;
 align-items: center;
 justify-content: center;
-z-index: 2000;
+z-index: var(--z-modal);
 opacity: 0;
 visibility: hidden;
 transition: all 0.3s;
@@ -6157,6 +6166,14 @@ cursor: not-allowed;
     pointer-events: auto;
 }
 
+/* Sur mobile (pas de hover), toujours afficher les actions */
+@media (hover: none) {
+    .msg-actions {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+}
+
 .msg-action-btn {
     border: 1px solid var(--border);
     background: rgba(255,255,255,0.06);
@@ -6208,7 +6225,7 @@ cursor: not-allowed;
 
 .msg-reaction-picker {
     position: fixed;
-    z-index: var(--z-modal);
+    z-index: 3000;
     display: flex;
     gap: 6px;
     padding: 6px;
@@ -6292,8 +6309,9 @@ cursor: not-allowed;
     opacity: 0.35;
 }
 
+/* Sur mobile, cacher le menu ⋯ car les actions sont toujours visibles */
 @media (hover: none) {
-    .msg-menu-btn { display: flex; }
+    .msg-menu-btn { display: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -9491,8 +9509,8 @@ transition: all 0.2s;
 }
 
 .msg-reaction-picker {
-    position: absolute;
-    z-index: var(--z-modal);
+    position: fixed;
+    z-index: 3000;
     display: flex;
     gap: 6px;
     padding: 6px;
@@ -9758,4 +9776,48 @@ transition: all 0.2s;
 .collection-item .collection-name {
     font-weight: 500;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MENTIONS @pseudo
+   ═══════════════════════════════════════════════════════════ */
+
+.mention {
+    color: var(--accent);
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+.mention:hover {
+    color: var(--accent-secondary);
+    background: rgba(90, 122, 138, 0.15);
+    text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+                              NOTIFICATION HIGHLIGHT
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes notification-highlight {
+    0% { 
+        box-shadow: 0 0 0 3px var(--accent), var(--glow);
+        transform: scale(1.01);
+    }
+    50% { 
+        box-shadow: 0 0 15px 5px rgba(90, 122, 138, 0.4), var(--glow);
+        transform: scale(1.02);
+    }
+    100% { 
+        box-shadow: var(--glow);
+        transform: scale(1);
+    }
+}
+
+.extrait-card.highlight-notification {
+    animation: notification-highlight 2s ease-out;
+    position: relative;
+    z-index: 10;
+}
+
 /* Fin du fichier */
