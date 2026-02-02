@@ -486,8 +486,8 @@ async function init() {
         
         const pullDistance = currentY - pullStartY;
         
-        // Seuils réduits pour déclenchement facile (40px affiche, 100px déclenche)
-        if (pullDistance > 40 && !state.loading) {
+        // Seuils réduits pour déclenchement facile (30px affiche, 70px déclenche)
+        if (pullDistance > 30 && !state.loading) {
             // Afficher indicateur de pull
             if (!pullIndicator) {
                 pullIndicator = document.createElement('div');
@@ -495,8 +495,8 @@ async function init() {
                 pullIndicator.innerHTML = '↓ Tirer pour rafraîchir';
                 document.body.appendChild(pullIndicator);
             }
-            pullIndicator.style.opacity = Math.min(1, (pullDistance - 40) / 60);
-            pullIndicator.textContent = pullDistance > 100 ? '↻ Relâcher pour charger' : '↓ Tirer pour rafraîchir';
+            pullIndicator.style.opacity = Math.min(1, (pullDistance - 30) / 40);
+            pullIndicator.textContent = pullDistance > 70 ? '↻ Relâcher pour charger' : '↓ Tirer pour rafraîchir';
         } else if (pullIndicator && pullDistance < 30) {
             // Cacher si on revient en arrière
             pullIndicator.remove();
@@ -536,17 +536,17 @@ async function init() {
         if (window.scrollY <= 5 && e.deltaY < 0 && !state.loading) {
             wheelUpCount++;
 
-            // Charger après 4 scrolls vers le haut
-            if (wheelUpCount >= 4) {
+            // Charger après 2 scrolls vers le haut (plus réactif)
+            if (wheelUpCount >= 2) {
                 wheelUpCount = 0;
                 await loadNewTextsOnTop();
             }
             
-            // Reset le compteur après 800ms d'inactivité
+            // Reset le compteur après 600ms d'inactivité
             clearTimeout(wheelUpTimer);
             wheelUpTimer = setTimeout(() => {
                 wheelUpCount = 0;
-            }, 800);
+            }, 600);
         }
     }, { passive: true });
     
@@ -1307,6 +1307,24 @@ async function loadMore() {
     } finally {
         document.getElementById('loading').style.display = 'none';
         state.loading = false;
+        // Nettoyer les anciennes cartes si trop nombreuses (garder max 50)
+        cleanupOldCards();
+    }
+}
+
+// Nettoyer les cartes anciennes pour éviter l'accumulation en mémoire
+const MAX_CARDS = 50;
+function cleanupOldCards() {
+    const feed = document.getElementById('feed');
+    if (!feed) return;
+    const cards = feed.querySelectorAll('.card');
+    if (cards.length > MAX_CARDS) {
+        // Supprimer les cartes les plus anciennes (en bas)
+        const toRemove = cards.length - MAX_CARDS;
+        for (let i = cards.length - 1; i >= cards.length - toRemove; i--) {
+            cards[i].remove();
+        }
+        console.log(`🧹 Nettoyage: ${toRemove} cartes supprimées (${MAX_CARDS} max)`);
     }
 }
 
