@@ -1247,14 +1247,14 @@ function getContextualLoadingMessage() {
     if (hasFilters) {
         // Avec filtres: TOUJOURS en mode recherche (jamais "Chargement..." random)
         const driftTerm = term || activeKeywords[Math.floor(Math.random() * activeKeywords.length)];
-        return `Recherche de "${driftTerm}"...`;
+        return typeof t === 'function' ? t('searching').replace('{term}', driftTerm) : `Searching "${driftTerm}"...`;
     }
 
     if (term) {
-        return `Recherche de "${term}"...`;
+        return typeof t === 'function' ? t('searching').replace('{term}', term) : `Searching "${term}"...`;
     }
 
-    return 'Chargement...';
+    return typeof t === 'function' ? t('loading') : 'Loading...';
 }
 
 async function loadMore() {
@@ -2257,7 +2257,7 @@ async function loadSourceByUrl(url) {
         ws = WIKISOURCES.find(w => w.lang === lang) || ws;
     }
     
-    toast('Chargement...');
+    toast(typeof t === 'function' ? t('loading') : 'Loading...');
     
     try {
         const result = await fetchText(pageTitle, 0, ws);
@@ -2494,12 +2494,12 @@ async function exploreAuthor(author, setContext = true, contextType = 'author') 
         state.activeSearchContextType = contextType || 'author';
         state.searchOffset = 0;
         if (Array.isArray(state.textPool)) state.textPool = [];
-        state.loadingMessage = `Recherche de "${author}"...`;
+        state.loadingMessage = typeof t === 'function' ? t('searching').replace('{term}', author) : `Searching "${author}"...`;
         if (window.setMainLoadingMessage) window.setMainLoadingMessage(state.loadingMessage);
         if (window.updateFilterSummary) window.updateFilterSummary();
     }
     
-    toast(`Recherche de "${author}"...`);
+    toast(typeof t === 'function' ? t('searching').replace('{term}', author) : `Searching "${author}"...`);
     state.discoveredConnections.add(author);
     saveState();
 

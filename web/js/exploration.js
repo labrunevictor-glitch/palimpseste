@@ -557,8 +557,8 @@ function clearActiveSearchContext() {
     window.state.activeSearchContextType = null;
     window.state.searchOffset = 0;
     window.state.lastSearchTerm = null;
-    window.state.loadingMessage = 'Chargement...';
-    if (window.setMainLoadingMessage) window.setMainLoadingMessage('Chargement...');
+    window.state.loadingMessage = typeof t === 'function' ? t('loading') : 'Loading...';
+    if (window.setMainLoadingMessage) window.setMainLoadingMessage(window.state.loadingMessage);
     if (Array.isArray(window.state.textPool)) window.state.textPool = [];
 
     if (typeof window.fillPool === 'function') window.fillPool();
@@ -583,8 +583,8 @@ function clearAllFilters() {
         window.state.searchOffset = 0;
         window.state.lastSearchTerm = null;
         window.state.filterFreeTerm = null;
-        window.state.loadingMessage = 'Chargement...';
-        if (window.setMainLoadingMessage) window.setMainLoadingMessage('Chargement...');
+        window.state.loadingMessage = typeof t === 'function' ? t('loading') : 'Loading...';
+        if (window.setMainLoadingMessage) window.setMainLoadingMessage(window.state.loadingMessage);
         if (Array.isArray(window.state.textPool)) window.state.textPool = [];
     }
 
@@ -747,9 +747,10 @@ async function applyFilters() {
 
     // 🚀 3. Lancement
     if (uniqueQueries.length === 1 && uniqueQueries[0].type === 'free') {
-        toast(`Recherche de "${uniqueQueries[0].term}"...`);
+        toast(typeof t === 'function' ? t('searching').replace('{term}', uniqueQueries[0].term) : `Searching "${uniqueQueries[0].term}"...`);
     } else {
-        toast(`Recherche de ${uniqueQueries.map(q => `"${q.term}"`).join(', ')}...`);
+        const termsStr = uniqueQueries.map(q => `"${q.term}"`).join(', ');
+        toast(typeof t === 'function' ? t('searching').replace('{term}', termsStr) : `Searching ${termsStr}...`);
     }
 
     // Contexte pour le scroll infini:
@@ -769,7 +770,7 @@ async function applyFilters() {
             state.activeSearchTerm = freeTerm;
             state.activeSearchContextType = 'free';
             state.searchOffset = 0;
-            state.loadingMessage = `Recherche de "${freeTerm}"...`;
+            state.loadingMessage = typeof t === 'function' ? t('searching').replace('{term}', freeTerm) : `Searching "${freeTerm}"...`;
             if (window.setMainLoadingMessage) window.setMainLoadingMessage(state.loadingMessage);
         } else {
             state.activeSearchTerm = null;
