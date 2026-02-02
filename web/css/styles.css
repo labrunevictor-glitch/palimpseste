@@ -4023,7 +4023,7 @@ color: var(--muted);
 position: fixed;
 bottom: 2rem;
 right: 2rem;
-background: rgba(30,30,32,0.95);
+background: var(--bg-elevated);
 border: 1px solid var(--border);
 border-radius: 8px;
 padding: 0.75rem 1rem;
@@ -4045,7 +4045,7 @@ bottom: 5rem;
 right: 1rem;
 padding: 0.5rem 0.75rem;
 font-size: 0.85rem;
-background: rgba(40,40,45,0.9);
+background: var(--bg-card);
 }
 .achievement-popup.subtle .achievement-icon { font-size: 1.2rem; }
 .achievement-popup.subtle .achievement-name { font-size: 0.8rem; color: var(--text-secondary); }
