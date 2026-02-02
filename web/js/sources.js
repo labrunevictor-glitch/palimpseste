@@ -1974,7 +1974,7 @@ async function fillPool() {
             }
 
             // Message de chargement cohérent pendant le scroll
-            state.loadingMessage = `Recherche de "${searchTerm}"...`;
+            state.loadingMessage = typeof t === 'function' ? t('searching').replace('{term}', searchTerm) : `Searching "${searchTerm}"...`;
             state.lastSearchTerm = searchTerm;
             if (window.setMainLoadingMessage) window.setMainLoadingMessage(state.loadingMessage);
         } else {
@@ -2008,7 +2008,7 @@ async function fillPool() {
         }
             
         if (useRandom) {
-             state.loadingMessage = 'Chargement...';
+             state.loadingMessage = typeof t === 'function' ? t('loading') : 'Loading...';
                state.lastSearchTerm = null;
              if (window.setMainLoadingMessage) window.setMainLoadingMessage(state.loadingMessage);
              // --- MODE RANDOM (Découverte pure) ---
@@ -2039,7 +2039,7 @@ async function fillPool() {
              // --- MODE RECHERCHE CIBLÉE OU GÉNÉRIQUE ---
              // Si on a un searchTerm (défini par le contexte ou fallback), on l'utilise
              const term = searchTerm || 'Poésie'; // Fallback ultime
-               state.loadingMessage = `Recherche de "${term}"...`;
+               state.loadingMessage = typeof t === 'function' ? t('searching').replace('{term}', term) : `Searching "${term}"...`;
                          state.lastSearchTerm = term;
              if (window.setMainLoadingMessage) window.setMainLoadingMessage(state.loadingMessage);
              
@@ -2230,7 +2230,7 @@ async function fetchCategoryData(categoryName, wikisource) {
         
     } catch (e) {
         console.error('Category error:', e);
-        document.getElementById('catSubcategories').innerHTML = '<div style="color:var(--accent)">Erreur de chargement</div>';
+        document.getElementById('catSubcategories').innerHTML = `<div style="color:var(--accent)">${typeof t === 'function' ? t('loading_error') : 'Loading error'}</div>`;
     }
 }
 

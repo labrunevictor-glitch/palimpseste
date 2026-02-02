@@ -178,6 +178,9 @@ const translations = {
         // Lecteur
         'full_text': 'Texte complet',
         'loading': 'Chargement...',
+        'searching': 'Recherche de "{term}"...',
+        'loading_trends': '🔥 Chargement des tendances...',
+        'loading_error': 'Erreur de chargement',
         
         // Favoris
         'my_liked': '♥ MES LIKÉS',
@@ -198,6 +201,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Aimé par',
+        'shared_by': '⤴ Partagé par',
+        'no_likes_yet': 'Aucun like pour le moment',
+        'no_shares_yet': 'Aucun partage pour le moment',
         
         // Sources
         'libraries': '📚 Bibliothèques',
@@ -462,6 +468,9 @@ const translations = {
         // Lecteur
         'full_text': 'Full text',
         'loading': 'Loading...',
+        'searching': 'Searching "{term}"...',
+        'loading_trends': '🔥 Loading trends...',
+        'loading_error': 'Loading error',
         
         // Favoris
         'my_liked': '♥ MY LIKES',
@@ -482,6 +491,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Liked by',
+        'shared_by': '⤴ Shared by',
+        'no_likes_yet': 'No likes yet',
+        'no_shares_yet': 'No shares yet',
         
         // Sources
         'libraries': '📚 Libraries',
@@ -746,6 +758,9 @@ const translations = {
         // Lecteur
         'full_text': 'Volltext',
         'loading': 'Laden...',
+        'searching': 'Suche nach "{term}"...',
+        'loading_trends': '🔥 Trends laden...',
+        'loading_error': 'Ladefehler',
         
         // Favoris
         'my_liked': '♥ MEINE LIKES',
@@ -766,6 +781,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Geliked von',
+        'shared_by': '⤴ Geteilt von',
+        'no_likes_yet': 'Noch keine Likes',
+        'no_shares_yet': 'Noch keine Shares',
         
         // Sources
         'libraries': '📚 Bibliotheken',
@@ -958,6 +976,9 @@ const translations = {
         // Lecteur
         'full_text': 'Texto completo',
         'loading': 'Cargando...',
+        'searching': 'Buscando "{term}"...',
+        'loading_trends': '🔥 Cargando tendencias...',
+        'loading_error': 'Error de carga',
         
         // Favoris
         'my_liked': '♥ MIS FAVORITOS',
@@ -978,6 +999,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Le gusta a',
+        'shared_by': '⤴ Compartido por',
+        'no_likes_yet': 'Ningún like aún',
+        'no_shares_yet': 'Ningún compartido aún',
         
         // Sources
         'libraries': '📚 Bibliotecas',
@@ -1170,6 +1194,9 @@ const translations = {
         // Lecteur
         'full_text': 'Testo completo',
         'loading': 'Caricamento...',
+        'searching': 'Ricerca di "{term}"...',
+        'loading_trends': '🔥 Caricamento tendenze...',
+        'loading_error': 'Errore di caricamento',
         
         // Favoris
         'my_liked': '♥ I MIEI PREFERITI',
@@ -1190,6 +1217,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Piaciuto a',
+        'shared_by': '⤴ Condiviso da',
+        'no_likes_yet': 'Nessun like ancora',
+        'no_shares_yet': 'Nessuna condivisione ancora',
         
         // Sources
         'libraries': '📚 Biblioteche',
@@ -1382,6 +1412,9 @@ const translations = {
         // Lecteur
         'full_text': 'Texto completo',
         'loading': 'Carregando...',
+        'searching': 'Pesquisando "{term}"...',
+        'loading_trends': '🔥 Carregando tendências...',
+        'loading_error': 'Erro de carregamento',
         
         // Favoris
         'my_liked': '♥ MEUS FAVORITOS',
@@ -1402,6 +1435,9 @@ const translations = {
         
         // Modal Likers
         'liked_by': '❤️ Curtido por',
+        'shared_by': '⤴ Compartilhado por',
+        'no_likes_yet': 'Nenhuma curtida ainda',
+        'no_shares_yet': 'Nenhum compartilhamento ainda',
         
         // Sources
         'libraries': '📚 Bibliotecas',

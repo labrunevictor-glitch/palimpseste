@@ -243,11 +243,11 @@ async function showSharers(extraitId) {
         modal.innerHTML = `
             <div class="likers-content">
                 <div class="likers-header">
-                    <h3>⤴ Partagé par</h3>
+                    <h3>${typeof t === 'function' ? t('shared_by') : '⤴ Shared by'}</h3>
                     <button class="likers-close" onclick="closeSharersModal()">✕</button>
                 </div>
                 <div class="likers-list" id="sharersList">
-                    <div class="likers-loading">Chargement...</div>
+                    <div class="likers-loading">${typeof t === 'function' ? t('loading') : 'Loading...'}</div>
                 </div>
             </div>
         `;
@@ -257,14 +257,14 @@ async function showSharers(extraitId) {
 
     modal.classList.add('open');
     const listContainer = document.getElementById('sharersList');
-    listContainer.innerHTML = '<div class="likers-loading">Chargement...</div>';
+    listContainer.innerHTML = `<div class="likers-loading">${typeof t === 'function' ? t('loading') : 'Loading...'}</div>`;
 
     // Forcer le rechargement depuis la DB (vider le cache pour cet extrait)
     extraitSharesCache.delete(extraitId);
     
     const info = await getExtraitSharesInfo(extraitId);
     if (!info.shares || info.shares.length === 0) {
-        listContainer.innerHTML = '<div class="likers-empty">Aucun partage pour le moment</div>';
+        listContainer.innerHTML = `<div class="likers-empty">${typeof t === 'function' ? t('no_shares_yet') : 'No shares yet'}</div>`;
         return;
     }
 

@@ -233,7 +233,7 @@ async function loadSocialFeed() {
         return;
     }
     
-    container.innerHTML = '<div class="feed-loading"><div class="spinner"></div><span>Chargement...</span></div>';
+    container.innerHTML = `<div class="feed-loading"><div class="spinner"></div><span>${typeof t === 'function' ? t('loading') : 'Loading...'}</span></div>`;
     
     let query = supabaseClient
         .from('extraits')
@@ -719,7 +719,7 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
     }
     
     // Afficher le chargement
-    if (btnEl) btnEl.innerHTML = '⏳ Chargement...';
+    if (btnEl) btnEl.innerHTML = `⏳ ${typeof t === 'function' ? t('loading') : 'Loading...'}`;
     
     try {
         let fullText = '';
@@ -982,7 +982,7 @@ async function showMyLikes() {
     const container = document.getElementById('socialFeed');
     if (!container) return;
     
-    container.innerHTML = '<div class="loading-spinner">⏳ Chargement des likes...</div>';
+    container.innerHTML = `<div class="loading-spinner">⏳ ${typeof t === 'function' ? t('loading') : 'Loading...'}</div>`;
     
     try {
         // Utiliser le cache si disponible, sinon charger
@@ -1063,11 +1063,11 @@ async function showLikers(extraitId) {
         modal.innerHTML = `
             <div class="likers-content">
                 <div class="likers-header">
-                    <h3>♥ Aimé par</h3>
+                    <h3>${typeof t === 'function' ? t('liked_by') : '❤️ Liked by'}</h3>
                     <button class="likers-close" onclick="closeLikersModal()">✕</button>
                 </div>
                 <div class="likers-list" id="likersList">
-                    <div class="likers-loading">Chargement...</div>
+                    <div class="likers-loading">${typeof t === 'function' ? t('loading') : 'Loading...'}</div>
                 </div>
             </div>
         `;
@@ -1083,7 +1083,7 @@ async function showLikers(extraitId) {
     console.log('🔴 Style computed display:', window.getComputedStyle(modal).display);
     
     const listContainer = document.getElementById('likersList');
-    listContainer.innerHTML = '<div class="likers-loading">Chargement...</div>';
+    listContainer.innerHTML = `<div class="likers-loading">${typeof t === 'function' ? t('loading') : 'Loading...'}</div>`;
     
     try {
         // Charger les likes avec les profils
@@ -1096,7 +1096,7 @@ async function showLikers(extraitId) {
         if (error) throw error;
         
         if (!likes || likes.length === 0) {
-            listContainer.innerHTML = '<div class="likers-empty">Aucun like pour le moment</div>';
+            listContainer.innerHTML = `<div class="likers-empty">${typeof t === 'function' ? t('no_likes_yet') : 'No likes yet'}</div>`;
             return;
         }
         
@@ -1141,7 +1141,7 @@ async function showLikers(extraitId) {
         
     } catch (err) {
         console.error('Erreur chargement likers:', err);
-        listContainer.innerHTML = '<div class="likers-empty">Erreur de chargement</div>';
+        listContainer.innerHTML = `<div class="likers-empty">${typeof t === 'function' ? t('loading_error') : 'Loading error'}</div>`;
     }
 }
 
