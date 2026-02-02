@@ -911,7 +911,7 @@ async function openSearchResult(idx, tab) {
     if (!result) return;
     
     closeSearchResults();
-    toast('Chargement...');
+    toast(typeof t === 'function' ? t('loading') : 'Loading...');
 
     if (tab === 'texts' || result._kind === 'texts') {
         if (typeof openSocialFeed === 'function') {
