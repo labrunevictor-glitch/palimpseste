@@ -25,7 +25,7 @@ function closeTrendingFeed() {
 
 async function loadTrendingFeed() {
     const container = document.getElementById('trendingFeed');
-    container.innerHTML = '<div class="trending-loading">🔥 Chargement des tendances...</div>';
+    container.innerHTML = `<div class="trending-loading">${typeof t === 'function' ? t('loading_trends') : '🔥 Loading trends...'}</div>`;
     
     if (!supabaseClient) {
         container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">🔌</div><p>Connexion requise pour voir les tendances</p></div>';
@@ -167,7 +167,7 @@ async function loadTrendingFeed() {
         
     } catch (err) {
         console.error('Erreur chargement tendances:', err);
-        container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">⚠️</div><p>Erreur de chargement</p></div>';
+        container.innerHTML = `<div class="trending-empty"><div class="trending-empty-icon">⚠️</div><p>${typeof t === 'function' ? t('loading_error') : 'Loading error'}</p></div>`;
     }
 }
 
