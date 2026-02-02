@@ -559,7 +559,8 @@ async function init() {
     window.addEventListener('scroll', throttle(() => {
         document.getElementById('progress').style.width =
             (scrollY / (document.body.scrollHeight - innerHeight) * 100) + '%';
-        if (innerHeight + scrollY >= document.body.scrollHeight - 800 && !state.loading) loadMore();
+        // Déclencher le chargement plus tôt (1500px du bas au lieu de 800)
+        if (innerHeight + scrollY >= document.body.scrollHeight - 1500 && !state.loading) loadMore();
 
         // Afficher/masquer le bouton scroll to top
         updateScrollTopButton();
