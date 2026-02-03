@@ -1116,7 +1116,6 @@ async function loadNewTextsOnTop() {
     feed.insertBefore(loadingIndicator, feed.firstChild);
     
     try {
-    let loaded = 0, attempts = 0;
     const newCards = [];
     
     // Charger le pool si nécessaire
@@ -1124,7 +1123,11 @@ async function loadNewTextsOnTop() {
         await fillPool();
     }
     
-    while (loaded < 3 && attempts < 10) {
+    // ⚡ OPTIMISATION: Collecter les items à charger et les traiter en parallèle
+    const itemsToLoad = [];
+    let attempts = 0;
+    
+    while (itemsToLoad.length < 3 && attempts < 10) {
         attempts++;
         if (state.textPool.length === 0) break;
         
@@ -1132,15 +1135,15 @@ async function loadNewTextsOnTop() {
         const itemKey = (item.source ? (item.source + ':') : '') + item.title;
         if (state.shownPages.has(itemKey)) continue;
         
-        // Si c'est un item pré-chargé
+        state.shownPages.add(itemKey);
+        
+        // Si c'est un item pré-chargé, créer la carte directement
         if (item.isPreloaded && item.text) {
-            state.shownPages.add(itemKey);
             const sourceInfo = {
                lang: item.lang,
                url: item.url || 'https://poetrydb.org',
                name: item.source === 'archive' ? 'Archive.org' : (item.source === 'gutenberg' ? 'Gutenberg' : 'PoetryDB')
             };
-
             const cardEl = createCardElement({
                 title: item.title,
                 text: item.text,
@@ -1149,18 +1152,25 @@ async function loadNewTextsOnTop() {
                 url: item.url
             }, item.title, sourceInfo);
             if (cardEl) newCards.push(cardEl);
-            loaded++;
-            continue;
+        } else {
+            // Ajouter à la liste pour chargement parallèle
+            itemsToLoad.push(item);
         }
+    }
+    
+    // ⚡ Charger les textes Wikisource EN PARALLÈLE
+    if (itemsToLoad.length > 0) {
+        const results = await Promise.all(itemsToLoad.map(async (item) => {
+            const ws = item.wikisource || getCurrentWikisource();
+            const result = await fetchText(item.title, 0, ws);
+            return { item, result, ws };
+        }));
         
-        // Sinon, récupérer depuis Wikisource
-        const ws = item.wikisource || getCurrentWikisource();
-        const result = await fetchText(item.title, 0, ws);
-        if (result?.text?.length > 150) {
-            state.shownPages.add(itemKey);
-            const cardEl = createCardElement(result, item.title, ws);
-            if (cardEl) newCards.push(cardEl);
-            loaded++;
+        for (const { item, result, ws } of results) {
+            if (result?.text?.length > 150) {
+                const cardEl = createCardElement(result, item.title, ws);
+                if (cardEl) newCards.push(cardEl);
+            }
         }
     }
     
