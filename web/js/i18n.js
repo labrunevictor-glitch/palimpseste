@@ -60,15 +60,40 @@ const translations = {
         
         // Profil
         'my_profile': 'Mon profil',
-        'followers': 'abonnés',
-        'following': 'abonnements',
+        'followers': 'Abonnés',
+        'following': 'Abonnements',
         'shared': 'partagés',
         'liked': 'likés',
         'follow': 'Suivre',
         'unfollow': 'Ne plus suivre',
         'message': 'Message',
         'extracts': 'Extraits',
+        'extraits': 'extraits',
         'likes': 'Likés',
+        'online': 'En ligne',
+        
+        // Tooltips header
+        'tooltip_home': 'Accueil',
+        'tooltip_random': 'Découvrir un texte au hasard',
+        'tooltip_trending': 'Textes populaires',
+        'tooltip_choose_lang': 'Choisir les langues',
+        'tooltip_my_likes': 'Mes likés',
+        'tooltip_my_collections': 'Mes collections',
+        'tooltip_community': 'Communauté',
+        'tooltip_messages': 'Messages',
+        'tooltip_notifications': 'Notifications',
+        'tooltip_change_theme': 'Changer de thème',
+        'tooltip_menu': 'Menu',
+        'tooltip_sources': 'Sources & Bibliothèques',
+        'tooltip_view_profile': 'Voir mon profil',
+        'tooltip_manage_sources': 'Gérer les sources',
+        'tooltip_clear_filters': 'Effacer les filtres',
+        'tooltip_reroll': 'Relancer',
+        'seen_ago_min': 'Vu il y a {n} min',
+        'seen_ago_hours': 'Vu il y a {n}h',
+        'seen_yesterday': 'Vu hier',
+        'seen_ago_days': 'Vu il y a {n} jours',
+        'seen_on': 'Vu le',
         
         // Feed social
         'social_feed': '🐦 FEED COMMUNAUTAIRE',
@@ -77,6 +102,51 @@ const translations = {
         'subscribers': '💌 Abonnés',
         'discover': '🔎 Découvrir',
         'live': '🟢 En direct',
+        
+        // Activités & Notifications
+        'activity_liked_extract': 'a aimé un extrait de',
+        'activity_commented_extract': 'a commenté un extrait de',
+        'activity_shared_extract': 'a partagé un extrait de',
+        'activity_followed': "s'est abonné à",
+        'notif_liked_your_extract': 'a aimé votre extrait',
+        'notif_liked_your_comment': 'a aimé votre commentaire',
+        'notif_commented_your_extract': 'a commenté votre extrait',
+        'notif_mentioned_you': 'vous a mentionné',
+        'notif_replied_your_comment': 'a répondu à votre commentaire',
+        'notif_follows_you': 'vous suit',
+        'notif_sent_message': 'vous a envoyé un message',
+        'notif_reacted': 'a réagi',
+        'notif_to_your_content': 'à votre contenu',
+        'notif_added_to_collection': 'a ajouté votre extrait à une collection',
+        'notif_shared_your_extract': 'a partagé votre extrait',
+        'someone': 'Quelqu\'un',
+        
+        // Bandeaux et messages vides
+        'new_texts_loading': 'Nouveaux textes...',
+        'users_to_discover': 'Utilisateurs à découvrir',
+        'follow_users_hint': 'Suivez des personnes pour voir leurs extraits dans l\'onglet "Abonnements"',
+        'no_activity': 'Pas d\'activité',
+        'follow_for_activity': 'Suivez des personnes pour voir leur activité ici !',
+        'share_for_interactions': 'Partagez des extraits pour voir qui interagit avec !',
+        'be_first_to_interact': 'Soyez le premier à interagir !',
+        'be_first_to_invite': 'Soyez le premier à inviter des amis !',
+        'share_to_attract': 'Partagez des extraits pour attirer des lecteurs !',
+        'be_first_to_share': 'Soyez le premier à partager un extrait !',
+        'followed': 'Suivi',
+        'follow_btn': 'Suivre',
+        'activity_feed': 'Fil d\'activité',
+        'follow_whats_happening': 'Suivez ce qui se passe dans la communauté',
+        'your_followers': 'Vos abonnés',
+        'followers_see_extracts': 'Ces personnes vous suivent et voient vos extraits',
+        'follows_you_since': 'Vous suit depuis',
+        'filter_all': 'Tout',
+        'filter_following': 'Abonnements',
+        'filter_on_my_extracts': 'Sur mes extraits',
+        'filter_likes': 'Likes',
+        'filter_comments': 'Commentaires',
+        'extract_count': 'extrait',
+        'extract_count_plural': 'extraits',
+        'its_you': 'C\'est vous',
         
         // Drawer mobile
         'sources': 'Sources',
@@ -267,6 +337,20 @@ const translations = {
         'loading_comments': 'Chargement...',
         'modified': 'Modifié',
         'modified_on': 'Modifié le',
+        'no_comments_yet': 'Aucun commentaire. Soyez le premier !',
+        'view_source': '🔗 Voir la source',
+        
+        // Tags littéraires (pour les cartes)
+        'tag_poetry': 'poésie',
+        'tag_novel': 'roman',
+        'tag_theater': 'théâtre',
+        'tag_essay': 'essai',
+        'tag_tale': 'conte',
+        'tag_short_story': 'nouvelle',
+        'tag_fable': 'fable',
+        'tag_letter': 'lettre',
+        'tag_memoir': 'mémoires',
+        'tag_speech': 'discours',
         
         // Boutons suivre
         'followed': '✓ Suivi',
@@ -303,7 +387,60 @@ const translations = {
         'create_collection': 'Créer la collection',
         'save_changes': 'Enregistrer',
         'delete_collection_confirm': 'Supprimer cette collection ?',
-        'connect_to_see_collections': '📝 Connectez-vous pour voir vos collections'
+        'connect_to_see_collections': '📝 Connectez-vous pour voir vos collections',
+        
+        // Modals collection
+        'new_collection_title': '+ Nouvelle collection',
+        'edit_collection_title': 'Modifier la collection',
+        'collection_name_label': 'Nom',
+        'collection_name_placeholder': 'Ex: Poésie romantique',
+        'collection_desc_label': 'Description (optionnel)',
+        'collection_desc_placeholder': 'Une courte description...',
+        'collection_emoji_label': 'Emoji',
+        'collection_color_label': 'Couleur',
+        'collection_public_label': 'Collection publique (visible par tous)',
+        'collection_public_short': 'Collection publique',
+        'enter_collection_name': '❌ Entrez un nom pour la collection',
+        'loading_text': 'Chargement…',
+        'text_unavailable': 'Texte non disponible.',
+        'view_on_wikisource': 'Voir sur Wikisource →',
+        'loading_error': 'Erreur de chargement.',
+        'open_source_link': 'Ouvrir la source',
+        'external_source': 'Source externe.',
+        'open_in_new_tab': 'Ouvrir dans un nouvel onglet',
+        'no_source_available': 'Aucune source disponible',
+        'without_title': 'Sans titre',
+        'unknown_author': 'Auteur inconnu',
+        'show_full_text_aria': 'Afficher le texte complet',
+        
+        // Collection picker
+        'add_to_collection': '+ Ajouter à une collection',
+        'no_collection_create': 'Aucune collection. Créez-en une !',
+        'texts_count': 'texte',
+        'texts_count_plural': 'textes',
+        'to_remove_open_collection': '💡 Pour retirer, ouvrez la collection',
+        'error_creation': '❌ Erreur lors de la création',
+        'error_modification': '❌ Erreur lors de la modification',
+        'error_deletion': '❌ Erreur lors de la suppression',
+        'error_adding': '❌ Erreur lors de l\'ajout',
+        'delete_collection_prompt': 'Supprimer la collection "{name}" ?\nLes textes ne seront pas supprimés de vos favoris.',
+        'connect_to_create_collection': '📝 Connectez-vous pour créer une collection',
+        'collection_name_required': '❌ Le nom de la collection est requis',
+        'collection_created': '✅ Collection "{name}" créée',
+        'collection_updated': '✅ Collection mise à jour',
+        'collection_deleted': 'Collection "{name}" supprimée',
+        'connect_to_organize_collections': '📝 Connectez-vous pour organiser vos collections',
+        'already_in_collection': '📌 Déjà dans cette collection',
+        'added_to_collection': '📌 Ajouté à "{name}"',
+        'removed_from_collection': 'Retiré de la collection',
+        'extrait_not_found': '❌ Extrait introuvable',
+        'extrait_in_no_collection': '📌 Cet extrait n\'est dans aucune collection',
+        'connect_to_use_collections': '📝 Connectez-vous pour utiliser les collections',
+        'collection_not_found': 'Collection introuvable',
+        'error_opening': 'Erreur lors de l\'ouverture',
+        'name_required': '❌ Le nom est requis',
+        'element_not_found': 'Erreur: élément introuvable',
+        'full_text_loaded': 'Texte complet chargé'
     },
     
     en: {
@@ -352,15 +489,40 @@ const translations = {
         
         // Profil
         'my_profile': 'My profile',
-        'followers': 'followers',
-        'following': 'following',
+        'followers': 'Followers',
+        'following': 'Following',
         'shared': 'shared',
         'liked': 'liked',
         'follow': 'Follow',
         'unfollow': 'Unfollow',
         'message': 'Message',
         'extracts': 'Extracts',
+        'extraits': 'extracts',
         'likes': 'Liked',
+        'online': 'Online',
+        
+        // Tooltips header
+        'tooltip_home': 'Home',
+        'tooltip_random': 'Discover a random text',
+        'tooltip_trending': 'Popular texts',
+        'tooltip_choose_lang': 'Choose languages',
+        'tooltip_my_likes': 'My likes',
+        'tooltip_my_collections': 'My collections',
+        'tooltip_community': 'Community',
+        'tooltip_messages': 'Messages',
+        'tooltip_notifications': 'Notifications',
+        'tooltip_change_theme': 'Change theme',
+        'tooltip_menu': 'Menu',
+        'tooltip_sources': 'Sources & Libraries',
+        'tooltip_view_profile': 'View my profile',
+        'tooltip_manage_sources': 'Manage sources',
+        'tooltip_clear_filters': 'Clear filters',
+        'tooltip_reroll': 'Reroll',
+        'seen_ago_min': 'Seen {n} min ago',
+        'seen_ago_hours': 'Seen {n}h ago',
+        'seen_yesterday': 'Seen yesterday',
+        'seen_ago_days': 'Seen {n} days ago',
+        'seen_on': 'Seen on',
         
         // Feed social
         'social_feed': '🐦 COMMUNITY FEED',
@@ -369,6 +531,51 @@ const translations = {
         'subscribers': '💌 Followers',
         'discover': '🔎 Discover',
         'live': '🟢 Live',
+        
+        // Activities & Notifications
+        'activity_liked_extract': 'liked an extract from',
+        'activity_commented_extract': 'commented on an extract from',
+        'activity_shared_extract': 'shared an extract from',
+        'activity_followed': 'followed',
+        'notif_liked_your_extract': 'liked your extract',
+        'notif_liked_your_comment': 'liked your comment',
+        'notif_commented_your_extract': 'commented on your extract',
+        'notif_mentioned_you': 'mentioned you',
+        'notif_replied_your_comment': 'replied to your comment',
+        'notif_follows_you': 'follows you',
+        'notif_sent_message': 'sent you a message',
+        'notif_reacted': 'reacted',
+        'notif_to_your_content': 'to your content',
+        'notif_added_to_collection': 'added your extract to a collection',
+        'notif_shared_your_extract': 'shared your extract',
+        'someone': 'Someone',
+        
+        // Banners and empty messages
+        'new_texts_loading': 'New texts...',
+        'users_to_discover': 'Users to discover',
+        'follow_users_hint': 'Follow people to see their extracts in the "Following" tab',
+        'no_activity': 'No activity',
+        'follow_for_activity': 'Follow people to see their activity here!',
+        'share_for_interactions': 'Share extracts to see who interacts with them!',
+        'be_first_to_interact': 'Be the first to interact!',
+        'be_first_to_invite': 'Be the first to invite friends!',
+        'share_to_attract': 'Share extracts to attract readers!',
+        'be_first_to_share': 'Be the first to share an extract!',
+        'followed': 'Following',
+        'follow_btn': 'Follow',
+        'activity_feed': 'Activity feed',
+        'follow_whats_happening': 'Follow what\'s happening in the community',
+        'your_followers': 'Your followers',
+        'followers_see_extracts': 'These people follow you and see your extracts',
+        'follows_you_since': 'Follows you since',
+        'filter_all': 'All',
+        'filter_following': 'Following',
+        'filter_on_my_extracts': 'On my extracts',
+        'filter_likes': 'Likes',
+        'filter_comments': 'Comments',
+        'extract_count': 'extract',
+        'extract_count_plural': 'extracts',
+        'its_you': 'It\'s you',
         
         // Drawer mobile
         'sources': 'Sources',
@@ -559,6 +766,20 @@ const translations = {
         'loading_comments': 'Loading...',
         'modified': 'Modified',
         'modified_on': 'Modified on',
+        'no_comments_yet': 'No comments yet. Be the first!',
+        'view_source': '🔗 View source',
+        
+        // Literary tags (for cards)
+        'tag_poetry': 'poetry',
+        'tag_novel': 'novel',
+        'tag_theater': 'theater',
+        'tag_essay': 'essay',
+        'tag_tale': 'tale',
+        'tag_short_story': 'short story',
+        'tag_fable': 'fable',
+        'tag_letter': 'letter',
+        'tag_memoir': 'memoirs',
+        'tag_speech': 'speech',
         
         // Follow buttons
         'followed': '✓ Following',
@@ -595,7 +816,60 @@ const translations = {
         'create_collection': 'Create collection',
         'save_changes': 'Save',
         'delete_collection_confirm': 'Delete this collection?',
-        'connect_to_see_collections': '📝 Sign in to see your collections'
+        'connect_to_see_collections': '📝 Sign in to see your collections',
+        
+        // Modals collection
+        'new_collection_title': '+ New collection',
+        'edit_collection_title': 'Edit collection',
+        'collection_name_label': 'Name',
+        'collection_name_placeholder': 'E.g.: Romantic poetry',
+        'collection_desc_label': 'Description (optional)',
+        'collection_desc_placeholder': 'A short description...',
+        'collection_emoji_label': 'Emoji',
+        'collection_color_label': 'Color',
+        'collection_public_label': 'Public collection (visible to everyone)',
+        'collection_public_short': 'Public collection',
+        'enter_collection_name': '❌ Enter a name for the collection',
+        'loading_text': 'Loading…',
+        'text_unavailable': 'Text unavailable.',
+        'view_on_wikisource': 'View on Wikisource →',
+        'loading_error': 'Loading error.',
+        'open_source_link': 'Open source',
+        'external_source': 'External source.',
+        'open_in_new_tab': 'Open in a new tab',
+        'no_source_available': 'No source available',
+        'without_title': 'Untitled',
+        'unknown_author': 'Unknown author',
+        'show_full_text_aria': 'Show full text',
+        
+        // Collection picker
+        'add_to_collection': '+ Add to collection',
+        'no_collection_create': 'No collection. Create one!',
+        'texts_count': 'text',
+        'texts_count_plural': 'texts',
+        'to_remove_open_collection': '💡 To remove, open the collection',
+        'error_creation': '❌ Error during creation',
+        'error_modification': '❌ Error during modification',
+        'error_deletion': '❌ Error during deletion',
+        'error_adding': '❌ Error while adding',
+        'delete_collection_prompt': 'Delete collection "{name}"?\nTexts will not be removed from your favorites.',
+        'connect_to_create_collection': '📝 Sign in to create a collection',
+        'collection_name_required': '❌ Collection name is required',
+        'collection_created': '✅ Collection "{name}" created',
+        'collection_updated': '✅ Collection updated',
+        'collection_deleted': 'Collection "{name}" deleted',
+        'connect_to_organize_collections': '📝 Sign in to organize your collections',
+        'already_in_collection': '📌 Already in this collection',
+        'added_to_collection': '📌 Added to "{name}"',
+        'removed_from_collection': 'Removed from collection',
+        'extrait_not_found': '❌ Excerpt not found',
+        'extrait_in_no_collection': '📌 This excerpt is not in any collection',
+        'connect_to_use_collections': '📝 Sign in to use collections',
+        'collection_not_found': 'Collection not found',
+        'error_opening': 'Error opening',
+        'name_required': '❌ Name is required',
+        'element_not_found': 'Error: element not found',
+        'full_text_loaded': 'Full text loaded'
     },
     
     de: {
@@ -652,7 +926,14 @@ const translations = {
         'unfollow': 'Entfolgen',
         'message': 'Nachricht',
         'extracts': 'Auszüge',
+        'extraits': 'Auszüge',
         'likes': 'Geliked',
+        'online': 'Online',
+        'seen_ago_min': 'Vor {n} Min gesehen',
+        'seen_ago_hours': 'Vor {n}h gesehen',
+        'seen_yesterday': 'Gestern gesehen',
+        'seen_ago_days': 'Vor {n} Tagen gesehen',
+        'seen_on': 'Gesehen am',
         
         // Feed social
         'social_feed': '🐦 COMMUNITY-FEED',
@@ -661,6 +942,51 @@ const translations = {
         'subscribers': '💌 Follower',
         'discover': '🔎 Entdecken',
         'live': '🟢 Live',
+        
+        // Aktivitäten & Benachrichtigungen
+        'activity_liked_extract': 'hat einen Auszug von',
+        'activity_commented_extract': 'hat einen Auszug von',
+        'activity_shared_extract': 'hat einen Auszug von',
+        'activity_followed': 'folgt jetzt',
+        'notif_liked_your_extract': 'hat Ihren Auszug geliked',
+        'notif_liked_your_comment': 'hat Ihren Kommentar geliked',
+        'notif_commented_your_extract': 'hat Ihren Auszug kommentiert',
+        'notif_mentioned_you': 'hat Sie erwähnt',
+        'notif_replied_your_comment': 'hat auf Ihren Kommentar geantwortet',
+        'notif_follows_you': 'folgt Ihnen',
+        'notif_sent_message': 'hat Ihnen eine Nachricht gesendet',
+        'notif_reacted': 'hat reagiert',
+        'notif_to_your_content': 'auf Ihren Inhalt',
+        'notif_added_to_collection': 'hat Ihren Auszug zu einer Sammlung hinzugefügt',
+        'notif_shared_your_extract': 'hat Ihren Auszug geteilt',
+        'someone': 'Jemand',
+        
+        // Banner und leere Nachrichten
+        'new_texts_loading': 'Neue Texte...',
+        'users_to_discover': 'Benutzer entdecken',
+        'follow_users_hint': 'Folgen Sie Personen, um ihre Auszüge im Tab "Abonnements" zu sehen',
+        'no_activity': 'Keine Aktivität',
+        'follow_for_activity': 'Folgen Sie Personen, um ihre Aktivität hier zu sehen!',
+        'share_for_interactions': 'Teilen Sie Auszüge, um zu sehen, wer damit interagiert!',
+        'be_first_to_interact': 'Seien Sie der Erste, der interagiert!',
+        'be_first_to_invite': 'Seien Sie der Erste, der Freunde einlädt!',
+        'share_to_attract': 'Teilen Sie Auszüge, um Leser anzuziehen!',
+        'be_first_to_share': 'Seien Sie der Erste, der einen Auszug teilt!',
+        'followed': 'Gefolgt',
+        'follow_btn': 'Folgen',
+        'activity_feed': 'Aktivitätsfeed',
+        'follow_whats_happening': 'Verfolgen Sie, was in der Community passiert',
+        'your_followers': 'Ihre Follower',
+        'followers_see_extracts': 'Diese Personen folgen Ihnen und sehen Ihre Auszüge',
+        'follows_you_since': 'Folgt Ihnen seit',
+        'filter_all': 'Alle',
+        'filter_following': 'Abonnements',
+        'filter_on_my_extracts': 'Auf meinen Auszügen',
+        'filter_likes': 'Likes',
+        'filter_comments': 'Kommentare',
+        'extract_count': 'Auszug',
+        'extract_count_plural': 'Auszüge',
+        'its_you': 'Das sind Sie',
         
         // Drawer mobile
         'sources': 'Quellen',
@@ -872,7 +1198,14 @@ const translations = {
         'unfollow': 'Dejar de seguir',
         'message': 'Mensaje',
         'extracts': 'Extractos',
+        'extraits': 'extractos',
         'likes': 'Favoritos',
+        'online': 'En línea',
+        'seen_ago_min': 'Visto hace {n} min',
+        'seen_ago_hours': 'Visto hace {n}h',
+        'seen_yesterday': 'Visto ayer',
+        'seen_ago_days': 'Visto hace {n} días',
+        'seen_on': 'Visto el',
         
         // Feed social
         'social_feed': '🐦 FEED COMUNITARIO',
@@ -881,6 +1214,51 @@ const translations = {
         'subscribers': '💌 Seguidores',
         'discover': '🔎 Descubrir',
         'live': '🟢 En directo',
+        
+        // Actividades & Notificaciones
+        'activity_liked_extract': 'le gustó un extracto de',
+        'activity_commented_extract': 'comentó un extracto de',
+        'activity_shared_extract': 'compartió un extracto de',
+        'activity_followed': 'siguió a',
+        'notif_liked_your_extract': 'le gustó tu extracto',
+        'notif_liked_your_comment': 'le gustó tu comentario',
+        'notif_commented_your_extract': 'comentó tu extracto',
+        'notif_mentioned_you': 'te mencionó',
+        'notif_replied_your_comment': 'respondió a tu comentario',
+        'notif_follows_you': 'te sigue',
+        'notif_sent_message': 'te envió un mensaje',
+        'notif_reacted': 'reaccionó',
+        'notif_to_your_content': 'a tu contenido',
+        'notif_added_to_collection': 'añadió tu extracto a una colección',
+        'notif_shared_your_extract': 'compartió tu extracto',
+        'someone': 'Alguien',
+        
+        // Banners y mensajes vacíos
+        'new_texts_loading': 'Nuevos textos...',
+        'users_to_discover': 'Usuarios por descubrir',
+        'follow_users_hint': 'Sigue a personas para ver sus extractos en la pestaña "Siguiendo"',
+        'no_activity': 'Sin actividad',
+        'follow_for_activity': '¡Sigue a personas para ver su actividad aquí!',
+        'share_for_interactions': '¡Comparte extractos para ver quién interactúa!',
+        'be_first_to_interact': '¡Sé el primero en interactuar!',
+        'be_first_to_invite': '¡Sé el primero en invitar amigos!',
+        'share_to_attract': '¡Comparte extractos para atraer lectores!',
+        'be_first_to_share': '¡Sé el primero en compartir un extracto!',
+        'followed': 'Siguiendo',
+        'follow_btn': 'Seguir',
+        'activity_feed': 'Feed de actividad',
+        'follow_whats_happening': 'Sigue lo que pasa en la comunidad',
+        'your_followers': 'Tus seguidores',
+        'followers_see_extracts': 'Estas personas te siguen y ven tus extractos',
+        'follows_you_since': 'Te sigue desde',
+        'filter_all': 'Todo',
+        'filter_following': 'Siguiendo',
+        'filter_on_my_extracts': 'En mis extractos',
+        'filter_likes': 'Me gusta',
+        'filter_comments': 'Comentarios',
+        'extract_count': 'extracto',
+        'extract_count_plural': 'extractos',
+        'its_you': 'Eres tú',
         
         // Drawer mobile
         'sources': 'Fuentes',
@@ -1092,7 +1470,14 @@ const translations = {
         'unfollow': 'Smetti di seguire',
         'message': 'Messaggio',
         'extracts': 'Estratti',
+        'extraits': 'estratti',
         'likes': 'Preferiti',
+        'online': 'Online',
+        'seen_ago_min': 'Visto {n} min fa',
+        'seen_ago_hours': 'Visto {n}h fa',
+        'seen_yesterday': 'Visto ieri',
+        'seen_ago_days': 'Visto {n} giorni fa',
+        'seen_on': 'Visto il',
         
         // Feed social
         'social_feed': '🐦 FEED DELLA COMUNITÀ',
@@ -1101,6 +1486,51 @@ const translations = {
         'subscribers': '💌 Follower',
         'discover': '🔎 Scopri',
         'live': '🟢 In diretta',
+        
+        // Attività & Notifiche
+        'activity_liked_extract': 'ha apprezzato un estratto di',
+        'activity_commented_extract': 'ha commentato un estratto di',
+        'activity_shared_extract': 'ha condiviso un estratto di',
+        'activity_followed': 'ha iniziato a seguire',
+        'notif_liked_your_extract': 'ha apprezzato il tuo estratto',
+        'notif_liked_your_comment': 'ha apprezzato il tuo commento',
+        'notif_commented_your_extract': 'ha commentato il tuo estratto',
+        'notif_mentioned_you': 'ti ha menzionato',
+        'notif_replied_your_comment': 'ha risposto al tuo commento',
+        'notif_follows_you': 'ti segue',
+        'notif_sent_message': 'ti ha inviato un messaggio',
+        'notif_reacted': 'ha reagito',
+        'notif_to_your_content': 'al tuo contenuto',
+        'notif_added_to_collection': 'ha aggiunto il tuo estratto a una collezione',
+        'notif_shared_your_extract': 'ha condiviso il tuo estratto',
+        'someone': 'Qualcuno',
+        
+        // Banner e messaggi vuoti
+        'new_texts_loading': 'Nuovi testi...',
+        'users_to_discover': 'Utenti da scoprire',
+        'follow_users_hint': 'Segui persone per vedere i loro estratti nella scheda "Seguiti"',
+        'no_activity': 'Nessuna attività',
+        'follow_for_activity': 'Segui persone per vedere la loro attività qui!',
+        'share_for_interactions': 'Condividi estratti per vedere chi interagisce!',
+        'be_first_to_interact': 'Sii il primo a interagire!',
+        'be_first_to_invite': 'Sii il primo a invitare amici!',
+        'share_to_attract': 'Condividi estratti per attirare lettori!',
+        'be_first_to_share': 'Sii il primo a condividere un estratto!',
+        'followed': 'Seguito',
+        'follow_btn': 'Segui',
+        'activity_feed': 'Feed attività',
+        'follow_whats_happening': 'Segui cosa succede nella comunità',
+        'your_followers': 'I tuoi follower',
+        'followers_see_extracts': 'Queste persone ti seguono e vedono i tuoi estratti',
+        'follows_you_since': 'Ti segue da',
+        'filter_all': 'Tutto',
+        'filter_following': 'Seguiti',
+        'filter_on_my_extracts': 'Sui miei estratti',
+        'filter_likes': 'Mi piace',
+        'filter_comments': 'Commenti',
+        'extract_count': 'estratto',
+        'extract_count_plural': 'estratti',
+        'its_you': 'Sei tu',
         
         // Drawer mobile
         'sources': 'Fonti',
@@ -1312,7 +1742,14 @@ const translations = {
         'unfollow': 'Deixar de seguir',
         'message': 'Mensagem',
         'extracts': 'Extratos',
+        'extraits': 'extratos',
         'likes': 'Curtidos',
+        'online': 'Online',
+        'seen_ago_min': 'Visto há {n} min',
+        'seen_ago_hours': 'Visto há {n}h',
+        'seen_yesterday': 'Visto ontem',
+        'seen_ago_days': 'Visto há {n} dias',
+        'seen_on': 'Visto em',
         
         // Feed social
         'social_feed': '🐦 FEED DA COMUNIDADE',
@@ -1321,6 +1758,51 @@ const translations = {
         'subscribers': '💌 Seguidores',
         'discover': '🔎 Descobrir',
         'live': '🟢 Ao vivo',
+        
+        // Atividades & Notificações
+        'activity_liked_extract': 'curtiu um trecho de',
+        'activity_commented_extract': 'comentou um trecho de',
+        'activity_shared_extract': 'compartilhou um trecho de',
+        'activity_followed': 'seguiu',
+        'notif_liked_your_extract': 'curtiu seu trecho',
+        'notif_liked_your_comment': 'curtiu seu comentário',
+        'notif_commented_your_extract': 'comentou seu trecho',
+        'notif_mentioned_you': 'mencionou você',
+        'notif_replied_your_comment': 'respondeu ao seu comentário',
+        'notif_follows_you': 'segue você',
+        'notif_sent_message': 'enviou uma mensagem',
+        'notif_reacted': 'reagiu',
+        'notif_to_your_content': 'ao seu conteúdo',
+        'notif_added_to_collection': 'adicionou seu trecho a uma coleção',
+        'notif_shared_your_extract': 'compartilhou seu trecho',
+        'someone': 'Alguém',
+        
+        // Banners e mensagens vazias
+        'new_texts_loading': 'Novos textos...',
+        'users_to_discover': 'Usuários para descobrir',
+        'follow_users_hint': 'Siga pessoas para ver seus trechos na aba "Seguindo"',
+        'no_activity': 'Sem atividade',
+        'follow_for_activity': 'Siga pessoas para ver a atividade delas aqui!',
+        'share_for_interactions': 'Compartilhe trechos para ver quem interage!',
+        'be_first_to_interact': 'Seja o primeiro a interagir!',
+        'be_first_to_invite': 'Seja o primeiro a convidar amigos!',
+        'share_to_attract': 'Compartilhe trechos para atrair leitores!',
+        'be_first_to_share': 'Seja o primeiro a compartilhar um trecho!',
+        'followed': 'Seguindo',
+        'follow_btn': 'Seguir',
+        'activity_feed': 'Feed de atividade',
+        'follow_whats_happening': 'Acompanhe o que acontece na comunidade',
+        'your_followers': 'Seus seguidores',
+        'followers_see_extracts': 'Essas pessoas te seguem e veem seus trechos',
+        'follows_you_since': 'Te segue desde',
+        'filter_all': 'Tudo',
+        'filter_following': 'Seguindo',
+        'filter_on_my_extracts': 'Nos meus trechos',
+        'filter_likes': 'Curtidas',
+        'filter_comments': 'Comentários',
+        'extract_count': 'trecho',
+        'extract_count_plural': 'trechos',
+        'its_you': 'É você',
         
         // Drawer mobile
         'sources': 'Fontes',
@@ -1509,9 +1991,9 @@ function setUILanguage(lang) {
  */
 function t(key, lang = null) {
     const useLang = lang || currentUILang;
-    // Si la langue n'existe pas dans les traductions, utiliser le français
-    const langDict = translations[useLang] || translations['fr'];
-    return langDict[key] || translations['fr'][key] || key;
+    // Si la langue n'existe pas dans les traductions, utiliser l'anglais comme fallback
+    const langDict = translations[useLang] || translations['en'];
+    return langDict[key] || translations['en'][key] || key;
 }
 
 /**
@@ -1520,6 +2002,75 @@ function t(key, lang = null) {
 function applyTranslations() {
     // Mise à jour de l'attribut lang du document
     document.documentElement.lang = currentUILang;
+    
+    // ═══════════════════════════════════════════════════════════
+    // HEADER TOOLTIPS
+    // ═══════════════════════════════════════════════════════════
+    
+    // Mobile nav buttons
+    const mobileNavFeed = document.querySelector('[data-nav="feed"]');
+    if (mobileNavFeed) mobileNavFeed.title = t('tooltip_home');
+    
+    const mobileNavRandom = document.querySelector('[data-nav="random"]');
+    if (mobileNavRandom) mobileNavRandom.title = t('random');
+    
+    const mobileNavMessages = document.querySelector('[data-nav="messages"]');
+    if (mobileNavMessages) mobileNavMessages.title = t('messages');
+    
+    const mobileNavMenu = document.querySelector('[data-nav="menu"]');
+    if (mobileNavMenu) mobileNavMenu.title = t('tooltip_menu');
+    
+    // Desktop header buttons
+    const randomBtnDesktop = document.querySelector('.header-btn[onclick*="pureRandomJump"]');
+    if (randomBtnDesktop) randomBtnDesktop.title = t('tooltip_random');
+    
+    const trendingBtnDesktop = document.querySelector('.header-btn[onclick*="openTrendingFeed"]');
+    if (trendingBtnDesktop) trendingBtnDesktop.title = t('tooltip_trending');
+    
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) langSelect.title = t('tooltip_choose_lang');
+    
+    const favoritesBtn = document.querySelector('.favorites-btn');
+    if (favoritesBtn) favoritesBtn.title = t('tooltip_my_likes');
+    
+    const collectionsBtn = document.querySelector('.collections-btn');
+    if (collectionsBtn) collectionsBtn.title = t('tooltip_my_collections');
+    
+    const socialBtn = document.querySelector('[onclick*="openSocialFeed"]');
+    if (socialBtn && socialBtn.classList.contains('header-btn')) socialBtn.title = t('tooltip_community');
+    
+    const messagesBtn = document.querySelector('.header-btn[onclick*="openMessaging"]');
+    if (messagesBtn) messagesBtn.title = t('tooltip_messages');
+    
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) themeToggle.title = t('tooltip_change_theme');
+    
+    const notifBtn = document.querySelector('.header-btn[onclick*="toggleNotifications"]');
+    if (notifBtn) notifBtn.title = t('tooltip_notifications');
+    
+    const mobileNotifBtn = document.querySelector('.mobile-notif-btn');
+    if (mobileNotifBtn) mobileNotifBtn.title = t('tooltip_notifications');
+    
+    // Drawer tooltips
+    const sourcesDrawerBtn = document.querySelector('.drawer-icon-btn[onclick*="openSourceSettingsModal"]');
+    if (sourcesDrawerBtn) sourcesDrawerBtn.title = t('tooltip_sources');
+    
+    const profileHeaderCard = document.querySelector('.profile-header-card');
+    if (profileHeaderCard) profileHeaderCard.title = t('tooltip_view_profile');
+    
+    const sourcesBtn = document.querySelector('.sources-btn');
+    if (sourcesBtn) sourcesBtn.title = t('tooltip_manage_sources');
+    
+    // Filter summary tooltips
+    const clearFiltersBtn = document.querySelector('.filter-summary-clear');
+    if (clearFiltersBtn) clearFiltersBtn.title = t('tooltip_clear_filters');
+    
+    const rerollBtn = document.querySelector('.filter-summary-random');
+    if (rerollBtn) rerollBtn.title = t('tooltip_reroll');
+    
+    // ═══════════════════════════════════════════════════════════
+    // HEADER BUTTON TEXT
+    // ═══════════════════════════════════════════════════════════
     
     // Header - Boutons
     const randomBtns = document.querySelectorAll('[onclick*="pureRandomJump"]');
@@ -1620,10 +2171,13 @@ function applyTranslations() {
     const sidebarLogout = document.querySelector('.drawer-logout-btn');
     if (sidebarLogout) sidebarLogout.innerHTML = '⎋ ' + t('logout');
     
-    // Sources button
-    const sourcesBtn = document.querySelector('.sources-btn');
-    if (sourcesBtn) {
-        sourcesBtn.innerHTML = sourcesBtn.innerHTML.replace(/Sources/g, t('sources'));
+    // Sources button (update content - title already set earlier)
+    const sourcesBtnContent = document.querySelector('.sources-btn');
+    if (sourcesBtnContent) {
+        // Reconstruire entièrement le contenu du bouton pour éviter les bugs de langue
+        sourcesBtnContent.innerHTML = '<i data-lucide="settings" style="width: 16px; height: 16px; margin-right: 6px;"></i> ' + t('sources');
+        // Réinitialiser l'icône Lucide
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
     
     // Stats sections
@@ -1718,6 +2272,16 @@ function applyTranslations() {
     const followBtn = document.getElementById('profileFollowBtn');
     if (followBtn && followBtn.textContent === 'Suivre') {
         followBtn.textContent = t('follow');
+    }
+    
+    // Profile stats labels in modal
+    const profileStats = document.querySelectorAll('.profile-stats .profile-stat');
+    if (profileStats.length >= 4) {
+        // Preserve the <strong> values but update labels
+        profileStats[0].innerHTML = profileStats[0].querySelector('strong')?.outerHTML + ' ' + t('followers');
+        profileStats[1].innerHTML = profileStats[1].querySelector('strong')?.outerHTML + ' ' + t('following');
+        profileStats[2].innerHTML = profileStats[2].querySelector('strong')?.outerHTML + ' ' + t('extraits');
+        profileStats[3].innerHTML = profileStats[3].querySelector('strong')?.outerHTML + ' ' + t('collections');
     }
     
     // Profile tabs
@@ -2033,7 +2597,8 @@ function changeUILanguage(lang) {
     
     setUILanguage(lang);
     applyTranslations();
-    syncLanguageSelectors(lang);
+    // Ne PAS synchroniser les sélecteurs ici - ils contrôlent la langue du CONTENU
+    // et peuvent avoir une valeur différente de la langue de l'UI (ex: "all", "ru", etc.)
     toast(t('interface_changed'));
 }
 
@@ -2059,17 +2624,43 @@ function syncLanguageSelectors(lang) {
 function initI18n() {
     currentUILang = getUILanguage();
     applyTranslations();
-    
-    // Synchroniser les sélecteurs avec la langue sauvegardée des contenus
-    const savedContentLang = localStorage.getItem('palimpseste_lang') || 'all';
-    syncLanguageSelectors(savedContentLang);
+    // Les sélecteurs sont synchronisés par app.js avec la langue du CONTENU
+    // Ne pas interférer ici avec la langue de l'UI
 }
 
 // ═══════════════════════════════════════════════════════════
 // 🌐 EXPORTS GLOBAUX
 // ═══════════════════════════════════════════════════════════
 
+/**
+ * Traduit un tag littéraire (poésie, roman, etc.) selon la langue de l'UI
+ * @param {string} tag - Le tag à traduire
+ * @returns {string} Tag traduit
+ */
+function translateTag(tag) {
+    if (!tag) return tag;
+    const tagLower = tag.toLowerCase();
+    
+    // Mapping des tags vers les clés de traduction
+    const tagKeyMap = {
+        'poésie': 'tag_poetry', 'poetry': 'tag_poetry', 'poesie': 'tag_poetry',
+        'roman': 'tag_novel', 'novel': 'tag_novel', 'romanzo': 'tag_novel',
+        'théâtre': 'tag_theater', 'theater': 'tag_theater', 'theatre': 'tag_theater', 'teatro': 'tag_theater',
+        'essai': 'tag_essay', 'essay': 'tag_essay', 'saggio': 'tag_essay',
+        'conte': 'tag_tale', 'tale': 'tag_tale', 'racconto': 'tag_tale',
+        'nouvelle': 'tag_short_story', 'short story': 'tag_short_story', 'novella': 'tag_short_story',
+        'fable': 'tag_fable', 'favola': 'tag_fable',
+        'lettre': 'tag_letter', 'letter': 'tag_letter', 'lettera': 'tag_letter',
+        'mémoires': 'tag_memoir', 'memoirs': 'tag_memoir', 'memoir': 'tag_memoir',
+        'discours': 'tag_speech', 'speech': 'tag_speech', 'discorso': 'tag_speech'
+    };
+    
+    const key = tagKeyMap[tagLower];
+    return key ? t(key) : tag;
+}
+
 window.t = t;
+window.translateTag = translateTag;
 window.getUILanguage = getUILanguage;
 window.setUILanguage = setUILanguage;
 window.changeUILanguage = changeUILanguage;

@@ -134,12 +134,12 @@ async function loadCollectionItems(collectionId) {
  */
 async function createCollection(name, emoji = '❧', color = '#5a7a8a', description = '', isPublic = false) {
     if (!currentUser || !supabaseClient) {
-        toast('📝 Connectez-vous pour créer une collection');
+        toast(t('connect_to_create_collection'));
         return null;
     }
     
     if (!name || name.trim().length === 0) {
-        toast('❌ Le nom de la collection est requis');
+        toast(t('collection_name_required'));
         return null;
     }
     
@@ -166,7 +166,7 @@ async function createCollection(name, emoji = '❧', color = '#5a7a8a', descript
         if (error) throw error;
         
         userCollections.push(data);
-        toast(`✅ Collection "${name}" créée`);
+        toast(t('collection_created').replace('{name}', name));
         
         // Rafraîchir l'UI
         if (typeof renderCollectionsList === 'function') {
@@ -176,7 +176,7 @@ async function createCollection(name, emoji = '❧', color = '#5a7a8a', descript
         return data;
     } catch (err) {
         console.error('Erreur création collection:', err);
-        toast('❌ Erreur lors de la création');
+        toast(t('error_creation'));
         return null;
     }
 }
@@ -207,11 +207,11 @@ async function updateCollection(collectionId, updates) {
             userCollections[idx] = { ...userCollections[idx], ...data };
         }
         
-        toast('✅ Collection mise à jour');
+        toast(t('collection_updated'));
         return data;
     } catch (err) {
         console.error('Erreur modification collection:', err);
-        toast('❌ Erreur lors de la modification');
+        toast(t('error_modification'));
         return null;
     }
 }
@@ -225,7 +225,7 @@ async function deleteCollection(collectionId) {
     const collection = userCollections.find(c => c.id === collectionId);
     if (!collection) return false;
     
-    if (!confirm(`Supprimer la collection "${collection.name}" ?\nLes textes ne seront pas supprimés de vos favoris.`)) {
+    if (!confirm(t('delete_collection_prompt').replace('{name}', collection.name))) {
         return false;
     }
     
@@ -241,7 +241,7 @@ async function deleteCollection(collectionId) {
         // Retirer du cache local
         userCollections = userCollections.filter(c => c.id !== collectionId);
         
-        toast(`Collection "${collection.name}" supprimée`);
+        toast(t('collection_deleted').replace('{name}', collection.name));
         
         // Rafraîchir l'UI
         if (typeof renderCollectionsList === 'function') {
@@ -251,7 +251,7 @@ async function deleteCollection(collectionId) {
         return true;
     } catch (err) {
         console.error('Erreur suppression collection:', err);
-        toast('❌ Erreur lors de la suppression');
+        toast(t('error_deletion'));
         return false;
     }
 }
@@ -267,7 +267,7 @@ async function deleteCollection(collectionId) {
  */
 async function addToCollection(collectionId, item) {
     if (!currentUser || !supabaseClient) {
-        toast('📝 Connectez-vous pour organiser vos collections');
+        toast(t('connect_to_organize_collections'));
         return false;
     }
     
@@ -305,7 +305,7 @@ async function addToCollection(collectionId, item) {
         
         if (error) {
             if (error.code === '23505') { // Duplicate
-                toast('📌 Déjà dans cette collection');
+                toast(t('already_in_collection'));
                 return false;
             }
             throw error;
@@ -321,7 +321,7 @@ async function addToCollection(collectionId, item) {
         }
         
         const collection = userCollections.find(c => c.id === collectionId);
-        toast(`📌 Ajouté à "${collection?.name || 'collection'}"`);
+        toast(t('added_to_collection').replace('{name}', collection?.name || 'collection'));
 
         if (item.extrait_id) {
             const cached = extraitCollectionsCache.get(item.extrait_id);
@@ -356,7 +356,7 @@ async function addToCollection(collectionId, item) {
         return true;
     } catch (err) {
         console.error('Erreur ajout à collection:', err);
-        toast('❌ Erreur lors de l\'ajout');
+        toast(t('error_adding'));
         return false;
     }
 }
@@ -405,7 +405,7 @@ async function removeFromCollection(collectionId, itemId) {
             updateExtraitCollectionsButtons([extraitIdToUpdate]);
         }
         
-        toast('Retiré de la collection');
+        toast(t('removed_from_collection'));
         return true;
     } catch (err) {
         console.error('Erreur retrait de collection:', err);
@@ -549,18 +549,18 @@ function updateExtraitCollectionsButtons(extraitIds, cardId = null) {
 async function openCollectionPickerForExtrait(extraitId) {
     if (!currentUser) {
         if (typeof openAuthModal === 'function') openAuthModal('login');
-        toast('📝 Connectez-vous pour organiser vos collections');
+        toast(t('connect_to_organize_collections'));
         return;
     }
 
     if (typeof getExtraitData !== 'function') {
-        toast('❌ Extrait introuvable');
+        toast(t('extrait_not_found'));
         return;
     }
 
     const extrait = await getExtraitData(extraitId);
     if (!extrait) {
-        toast('❌ Extrait introuvable');
+        toast(t('extrait_not_found'));
         return;
     }
 
@@ -598,7 +598,7 @@ async function showExtraitCollections(extraitId) {
 
     const collectionIds = await getItemCollections({ extrait_id: extraitId });
     if (!collectionIds || collectionIds.length === 0) {
-        toast('📌 Cet extrait n\'est dans aucune collection');
+        toast(t('extrait_in_no_collection'));
         return;
     }
 
@@ -606,7 +606,7 @@ async function showExtraitCollections(extraitId) {
 
     const collections = userCollections.filter(c => collectionIds.includes(c.id));
     if (collections.length === 0) {
-        toast('📌 Cet extrait n\'est dans aucune collection');
+        toast(t('extrait_in_no_collection'));
         return;
     }
 
@@ -648,7 +648,7 @@ let pendingCollectionItem = null;
  */
 async function openCollectionPicker(item) {
     if (!currentUser) {
-        toast('📝 Connectez-vous pour utiliser les collections');
+        toast(t('connect_to_use_collections'));
         return;
     }
     
@@ -674,49 +674,52 @@ async function openCollectionPicker(item) {
     modal.innerHTML = `
         <div class="collection-picker-content">
             <div class="collection-picker-header">
-                <h3>+ Ajouter à une collection</h3>
+                <h3>${t('add_to_collection')}</h3>
                 <button class="collection-picker-close" onclick="closeCollectionPicker()">✕</button>
             </div>
             
             <div class="collection-picker-item-preview">
-                <div class="picker-preview-title">${escapeHtml(item.title || item.source_title || 'Sans titre')}</div>
-                <div class="picker-preview-author">${escapeHtml(item.author || item.source_author || 'Auteur inconnu')}</div>
+                <div class="picker-preview-title">${escapeHtml(item.title || item.source_title || t('without_title'))}</div>
+                <div class="picker-preview-author">${escapeHtml(item.author || item.source_author || t('unknown_author'))}</div>
             </div>
             
             <div class="collection-picker-list" id="collectionPickerList">
                 ${userCollections.length === 0 
-                    ? '<div class="collection-picker-empty">Aucune collection. Créez-en une !</div>'
-                    : userCollections.map(c => `
+                    ? `<div class="collection-picker-empty">${t('no_collection_create')}</div>`
+                    : userCollections.map(c => {
+                        const count = c.items_count || 0;
+                        const textLabel = count > 1 ? t('texts_count_plural') : t('texts_count');
+                        return `
                         <button class="collection-picker-item ${existingCollections.includes(c.id) ? 'in-collection' : ''}" 
                                 onclick="toggleItemInCollection('${c.id}')"
                                 data-collection-id="${c.id}">
                             <span class="collection-picker-emoji">${c.emoji || '❧'}</span>
                             <div class="collection-picker-info">
                                 <span class="collection-picker-name">${escapeHtml(c.name)}</span>
-                                <span class="collection-picker-count">${c.items_count || 0} texte${(c.items_count || 0) > 1 ? 's' : ''}</span>
+                                <span class="collection-picker-count">${count} ${textLabel}</span>
                             </div>
                             <span class="collection-picker-check">${existingCollections.includes(c.id) ? '✓' : '+'}</span>
                         </button>
-                    `).join('')
+                    `;}).join('')
                 }
             </div>
             
             <div class="collection-picker-create">
                 <button class="collection-picker-create-btn" onclick="showNewCollectionForm()">
-                    <span>+</span> Nouvelle collection
+                    <span>+</span> ${t('new_collection')}
                 </button>
             </div>
             
             <div class="collection-picker-new-form" id="newCollectionForm" style="display:none;">
-                <input type="text" id="newCollectionName" class="collection-input" placeholder="Nom de la collection">
+                <input type="text" id="newCollectionName" class="collection-input" placeholder="${t('collection_name')}">
                 <div class="collection-emoji-picker">
                     ${COLLECTION_EMOJIS.slice(0, 16).map(e => `
                         <button class="emoji-btn ${e === '❧' ? 'selected' : ''}" onclick="selectCollectionEmoji('${e}')">${e}</button>
                     `).join('')}
                 </div>
                 <div class="collection-form-actions">
-                    <button class="btn-cancel" onclick="hideNewCollectionForm()">Annuler</button>
-                    <button class="btn-create" onclick="createNewCollectionFromPicker()">Créer</button>
+                    <button class="btn-cancel" onclick="hideNewCollectionForm()">${t('cancel')}</button>
+                    <button class="btn-create" onclick="createNewCollectionFromPicker()">${t('create')}</button>
                 </div>
             </div>
         </div>
@@ -747,7 +750,7 @@ async function toggleItemInCollection(collectionId) {
     
     if (isInCollection) {
         // TODO: Retirer de la collection (nécessite l'ID de l'item)
-        toast('💡 Pour retirer, ouvrez la collection');
+        toast(t('to_remove_open_collection'));
     } else {
         const success = await addToCollection(collectionId, pendingCollectionItem);
         if (success && btn) {
@@ -757,7 +760,9 @@ async function toggleItemInCollection(collectionId) {
             const countEl = btn.querySelector('.collection-picker-count');
             if (countEl) {
                 const currentCount = parseInt(countEl.textContent) || 0;
-                countEl.textContent = `${currentCount + 1} texte${currentCount + 1 > 1 ? 's' : ''}`;
+                const newCount = currentCount + 1;
+                const textLabel = newCount > 1 ? t('texts_count_plural') : t('texts_count');
+                countEl.textContent = `${newCount} ${textLabel}`;
             }
         }
     }
@@ -806,7 +811,7 @@ async function createNewCollectionFromPicker() {
     const name = nameInput?.value?.trim();
     
     if (!name) {
-        toast('❌ Entrez un nom pour la collection');
+        toast(t('enter_collection_name'));
         return;
     }
     
@@ -829,7 +834,7 @@ async function createNewCollectionFromPicker() {
                 <span class="collection-picker-emoji">${collection.emoji || '❧'}</span>
                 <div class="collection-picker-info">
                     <span class="collection-picker-name">${escapeHtml(collection.name)}</span>
-                    <span class="collection-picker-count">1 texte</span>
+                    <span class="collection-picker-count">1 ${t('texts_count')}</span>
                 </div>
                 <span class="collection-picker-check">✓</span>
             `;
@@ -999,14 +1004,14 @@ async function openCollection(collectionId) {
                                    data-preview-truncated="${previewTruncated ? 'true' : 'false'}" data-can-expand="${shouldShowExpand ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
                                   <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}', this, event)">
                                     <div class="collection-item-header">
-                                        <div class="collection-item-title">${escapeHtml(title || 'Sans titre')}</div>
-                                        <div class="collection-item-author">${escapeHtml(author || 'Auteur inconnu')}</div>
+                                        <div class="collection-item-title">${escapeHtml(title || t('without_title'))}</div>
+                                        <div class="collection-item-author">${escapeHtml(author || t('unknown_author'))}</div>
                                     </div>
                                     <div class="collection-item-text-container">
                                         <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                         <div class="collection-item-full" id="full-${itemId}"></div>
                                     </div>
-                                    <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
+                                    <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="${t('show_full_text_aria')}" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
                                     ${item.note ? `<div class="collection-item-note"><span class="note-icon">¶</span> ${escapeHtml(item.note)}</div>` : ''}
                                 </div>
                                 ${extraitId ? `
@@ -1072,7 +1077,7 @@ async function openCollectionById(collectionId) {
 
         if (error) throw error;
         if (!collection) {
-            toast('Collection introuvable');
+            toast(t('collection_not_found'));
             return;
         }
 
@@ -1148,14 +1153,14 @@ async function openCollectionById(collectionId) {
                                       data-preview-truncated="${previewTruncated ? 'true' : 'false'}" data-can-expand="${shouldShowExpand ? 'true' : 'false'}" data-url="${safeUrl}" data-title="${safeTitle}" data-author="${safeAuthor}">
                                     <div class="collection-item-content" onclick="toggleCollectionItemText('${itemId}', this, event)">
                                         <div class="collection-item-header">
-                                            <div class="collection-item-title">${escapeHtml(itemTitle || 'Sans titre')}</div>
-                                            <div class="collection-item-author">${escapeHtml(itemAuthor || 'Auteur inconnu')}</div>
+                                            <div class="collection-item-title">${escapeHtml(itemTitle || t('without_title'))}</div>
+                                            <div class="collection-item-author">${escapeHtml(itemAuthor || t('unknown_author'))}</div>
                                         </div>
                                         <div class="collection-item-text-container">
                                             <div class="collection-item-preview" id="preview-${itemId}">${escapeHtml(previewText)}${previewTruncated ? '...' : ''}</div>
                                             <div class="collection-item-full" id="full-${itemId}"></div>
                                         </div>
-                                        <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="Afficher le texte complet" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
+                                        <button class="collection-item-expand${shouldShowExpand ? '' : ' is-hidden'}" id="expand-btn-${itemId}" type="button" aria-expanded="false" aria-label="${t('show_full_text_aria')}" onmousedown="event.preventDefault()" onclick="event.preventDefault(); event.stopPropagation(); toggleCollectionItemText('${itemId}', this, event)"><span class="expand-icon">▾</span></button>
                                     </div>
                                     ${extraitId ? `
                                         <div class="extrait-actions" onclick="event.stopPropagation()">
@@ -1203,7 +1208,7 @@ async function openCollectionById(collectionId) {
         }
     } catch (err) {
         console.error('Erreur ouverture collection par ID:', err);
-        toast('Erreur lors de l’ouverture');
+        toast(t('error_opening'));
     }
 }
 
@@ -1301,7 +1306,7 @@ async function submitCreateCollection() {
     const isPublic = document.getElementById('createCollectionPublic')?.checked || false;
     
     if (!name) {
-        toast('❌ Entrez un nom pour la collection');
+        toast(t('enter_collection_name'));
         return;
     }
     
@@ -1341,23 +1346,23 @@ async function editCollection(collectionId) {
     modal.innerHTML = `
         <div class="collection-modal-content">
             <div class="collection-modal-header">
-                <h3>Modifier la collection</h3>
+                <h3>${t('edit_collection_title')}</h3>
                 <button class="collection-modal-close" onclick="closeEditCollectionModal()">✕</button>
             </div>
             
             <div class="collection-form">
                 <div class="form-group">
-                    <label>Nom</label>
+                    <label>${t('collection_name_label')}</label>
                     <input type="text" id="editCollectionName" class="collection-input" value="${escapeHtml(collection.name)}">
                 </div>
                 
                 <div class="form-group">
-                    <label>Description</label>
+                    <label>${t('collection_desc_label')}</label>
                     <textarea id="editCollectionDesc" class="collection-textarea">${escapeHtml(collection.description || '')}</textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label>Emoji</label>
+                    <label>${t('collection_emoji_label')}</label>
                     <div class="emoji-grid">
                         ${COLLECTION_EMOJIS.map(e => `
                             <button class="emoji-btn-large ${e === collection.emoji ? 'selected' : ''}" 
@@ -1367,7 +1372,7 @@ async function editCollection(collectionId) {
                 </div>
                 
                 <div class="form-group">
-                    <label>Couleur</label>
+                    <label>${t('collection_color_label')}</label>
                     <div class="color-grid">
                         ${COLLECTION_COLORS.map(c => `
                             <button class="color-btn ${c === collection.color ? 'selected' : ''}" 
@@ -1381,14 +1386,14 @@ async function editCollection(collectionId) {
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="editCollectionPublic" ${collection.is_public ? 'checked' : ''}>
-                        <span>Collection publique</span>
+                        <span>${t('collection_public_short')}</span>
                     </label>
                 </div>
             </div>
             
             <div class="collection-modal-actions">
-                <button class="btn-cancel" onclick="closeEditCollectionModal()">Annuler</button>
-                <button class="btn-primary" onclick="submitEditCollection('${collectionId}')">Enregistrer</button>
+                <button class="btn-cancel" onclick="closeEditCollectionModal()">${t('cancel')}</button>
+                <button class="btn-primary" onclick="submitEditCollection('${collectionId}')">${t('save')}</button>
             </div>
         </div>
     `;
@@ -1422,7 +1427,7 @@ async function submitEditCollection(collectionId) {
     const isPublic = document.getElementById('editCollectionPublic')?.checked || false;
     
     if (!name) {
-        toast('❌ Le nom est requis');
+        toast(t('name_required'));
         return;
     }
     
@@ -1585,7 +1590,7 @@ function toggleCollectionItemText(itemId, triggerEl = null, evt = null) {
 function loadTextFromCollectionById(itemId) {
     const card = document.getElementById(`coll-item-${itemId}`);
     if (!card) {
-        toast('Erreur: élément introuvable');
+        toast(t('element_not_found'));
         return;
     }
 
@@ -1613,7 +1618,7 @@ async function loadTextFromCollection(itemId, title, author, url) {
     const preview = document.getElementById(`preview-${itemId}`);
     
     if (!fullContainer || !card) {
-        toast('Erreur: élément introuvable');
+        toast(t('element_not_found'));
         return;
     }
 
@@ -1626,7 +1631,7 @@ async function loadTextFromCollection(itemId, title, author, url) {
         if (expandBtn) {
             expandBtn.disabled = true;
             expandBtn.setAttribute('aria-busy', 'true');
-            expandBtn.innerHTML = '<span class="expand-icon">⏳</span><span class="expand-label">Chargement…</span>';
+            expandBtn.innerHTML = `<span class="expand-icon">⏳</span><span class="expand-label">${t('loading_text')}</span>`;
         }
     };
 
@@ -1870,24 +1875,24 @@ async function loadTextFromCollection(itemId, title, author, url) {
                         .catch(e => console.warn('Migration lazy échouée:', e));
                 }
                 
-                toast('Texte complet chargé');
+                toast(t('full_text_loaded'));
                 finalizeLoadingState(true);
                 stabilizeCollectionsScroll(scrollEl, scrollTop);
             } else {
                 // Texte non trouvé
-                fullContainer.innerHTML = `<div class="collection-error">Texte non disponible. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
+                fullContainer.innerHTML = `<div class="collection-error">${t('text_unavailable')} <a href="${url}" target="_blank">${t('view_on_wikisource')}</a></div>`;
                 finalizeLoadingState(true);
             }
         } catch (err) {
             console.error('Erreur chargement texte:', err);
-            fullContainer.innerHTML = `<div class="collection-error">Erreur de chargement. <a href="${url}" target="_blank">Ouvrir la source</a></div>`;
+            fullContainer.innerHTML = `<div class="collection-error">${t('loading_error')} <a href="${url}" target="_blank">${t('open_source_link')}</a></div>`;
             finalizeLoadingState(true);
         }
     } else if (url) {
-        fullContainer.innerHTML = `<div class="collection-error">Source externe. <a href="${url}" target="_blank">Ouvrir dans un nouvel onglet</a></div>`;
+        fullContainer.innerHTML = `<div class="collection-error">${t('external_source')} <a href="${url}" target="_blank">${t('open_in_new_tab')}</a></div>`;
         finalizeLoadingState(true);
     } else {
-        fullContainer.innerHTML = '<div class="collection-error">Aucune source disponible</div>';
+        fullContainer.innerHTML = `<div class="collection-error">${t('no_source_available')}</div>`;
         finalizeLoadingState(true);
     }
 }

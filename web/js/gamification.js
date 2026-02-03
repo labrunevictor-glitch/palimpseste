@@ -74,7 +74,8 @@ async function pureRandomJump() {
             toast(`✧ Découverte : ${pageTitle}`);
             
             if (window.exploreAuthor) {
-                await window.exploreAuthor(pageTitle);
+                // setContext = false : le terme aléatoire ne doit pas devenir un filtre persistant
+                await window.exploreAuthor(pageTitle, false);
             }
         } else {
             throw new Error("Pas de résultat aléatoire");
@@ -86,7 +87,8 @@ async function pureRandomJump() {
         const fallbacks = ['Poésie', 'Roman', 'Théâtre', 'Philosophie', 'Histoire'];
         const randomTerm = fallbacks[Math.floor(Math.random() * fallbacks.length)];
         toast('✧ Navigation aléatoire...');
-        if (window.exploreAuthor) await window.exploreAuthor(randomTerm);
+        // setContext = false : le terme aléatoire ne doit pas devenir un filtre persistant
+        if (window.exploreAuthor) await window.exploreAuthor(randomTerm, false);
     }
 
     updateFunStat();

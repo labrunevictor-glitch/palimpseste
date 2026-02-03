@@ -573,7 +573,7 @@ function showInlineComment(cardId) {
         <div class="inline-comments-list"></div>
         <div class="inline-comment-input-wrapper">
             <input type="text" class="inline-comment-input" 
-                   placeholder="Votre commentaire..." maxlength="500"
+                   placeholder="${t('write_comment')}" maxlength="500"
                    onkeydown="if(event.key==='Enter')sendInlineComment('${cardId}',this)">
             <button class="inline-comment-send" onclick="sendInlineComment('${cardId}',this.previousElementSibling)">➤</button>
         </div>
@@ -720,10 +720,10 @@ async function openCardComments(cardId) {
     section.innerHTML = `
         <div class="comments-container open" id="comments-${extraitId}">
             <div class="comments-list" id="commentsList-${extraitId}">
-                <div class="comments-empty">Chargement...</div>
+                <div class="comments-empty">${t('loading_comments')}</div>
             </div>
             <div class="comment-input-area">
-                <textarea class="comment-input" id="commentInput-${extraitId}" placeholder="Écrire un commentaire..." rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${extraitId}'); }"></textarea>
+                <textarea class="comment-input" id="commentInput-${extraitId}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${extraitId}'); }"></textarea>
                 <button class="comment-send" onclick="postComment('${extraitId}')">➤</button>
             </div>
         </div>

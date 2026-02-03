@@ -600,16 +600,16 @@ function renderSearchResults(tab) {
                                 <div class="discover-avatar" onclick="openUserProfile('${u.id}', '${u.username}')">${getAvatarSymbol(u.username || '?')}</div>
                                 <div class="discover-info" onclick="openUserProfile('${u.id}', '${u.username}')">
                                     <div class="discover-name">${escapeHtml(u.username || 'Anonyme')}</div>
-                                    <div class="discover-stats">${u.extraitCount} extrait${u.extraitCount > 1 ? 's' : ''}</div>
+                                    <div class="discover-stats">${u.extraitCount} ${u.extraitCount > 1 ? t('extract_count_plural') : t('extract_count')}</div>
                                 </div>
-                                <span style="color:var(--muted);font-size:0.8rem;">C'est vous</span>
+                                <span style="color:var(--muted);font-size:0.8rem;">${t('its_you')}</span>
                             </div>
                         `;
                     }
                     return renderUserCard(
                         u.id, 
                         u.username, 
-                        `${u.extraitCount} extrait${u.extraitCount > 1 ? 's' : ''}`,
+                        `${u.extraitCount} ${u.extraitCount > 1 ? t('extract_count_plural') : t('extract_count')}`,
                         true,
                         'toggleFollowFromSearch'
                     );

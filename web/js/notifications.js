@@ -79,7 +79,7 @@ function openMobileNotifications() {
                     <button class="mobile-modal-close" onclick="closeMobileNotifications()">✕</button>
                 </div>
                 <div class="mobile-modal-body" id="mobileNotifList">
-                    <div class="notif-empty">Chargement...</div>
+                    <div class="notif-empty">${t('loading')}</div>
                 </div>
             </div>
         `;
@@ -163,7 +163,7 @@ async function loadNotifications(containerId = 'notifList') {
     
     const container = document.getElementById(containerId);
     if (!container) return;
-    container.innerHTML = '<div class="notif-empty">Chargement...</div>';
+    container.innerHTML = `<div class="notif-empty">${t('loading')}</div>`;
     
     try {
         const { data: notifs, error } = await supabaseClient
@@ -198,7 +198,7 @@ async function loadNotifications(containerId = 'notifList') {
         
         container.innerHTML = notifs.map(notif => {
             const fromUser = profileMap.get(notif.from_user_id);
-            const fromName = fromUser?.username || 'Quelqu\'un';
+            const fromName = fromUser?.username || t('someone');
             const avatarSymbol = getAvatarSymbol(fromName);
             const timeAgo = formatTimeAgo(new Date(notif.created_at));
             const isUnread = !notif.read_at;
@@ -208,36 +208,36 @@ async function loadNotifications(containerId = 'notifList') {
             
             if (notif.type === 'like') {
                 icon = '❤️';
-                text = `<strong>${escapeHtml(fromName)}</strong> a aimé votre extrait`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_liked_your_extract')}`;
             } else if (notif.type === 'comment_like') {
                 icon = '💜';
-                text = `<strong>${escapeHtml(fromName)}</strong> a aimé votre commentaire`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_liked_your_comment')}`;
             } else if (notif.type === 'comment') {
                 icon = '💬';
-                text = `<strong>${escapeHtml(fromName)}</strong> a commenté votre extrait`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_commented_your_extract')}`;
             } else if (notif.type === 'mention') {
                 icon = '@';
                 const preview = notif.content ? ` : "${escapeHtml(notif.content.substring(0, 50))}${notif.content.length > 50 ? '…' : ''}"` : '';
-                text = `<strong>${escapeHtml(fromName)}</strong> vous a mentionné${preview}`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_mentioned_you')}${preview}`;
             } else if (notif.type === 'reply') {
                 icon = '↩️';
-                text = `<strong>${escapeHtml(fromName)}</strong> a répondu à votre commentaire`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_replied_your_comment')}`;
             } else if (notif.type === 'follow') {
                 icon = '👤';
-                text = `<strong>${escapeHtml(fromName)}</strong> vous suit`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_follows_you')}`;
             } else if (notif.type === 'message') {
                 icon = '✉️';
                 const preview = notif.content ? ` : "${escapeHtml(notif.content.substring(0, 50))}${notif.content.length > 50 ? '…' : ''}"` : '';
-                text = `<strong>${escapeHtml(fromName)}</strong> vous a envoyé un message${preview}`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_sent_message')}${preview}`;
             } else if (notif.type === 'reaction') {
                 icon = notif.content || '😊';
-                text = `<strong>${escapeHtml(fromName)}</strong> a réagi ${notif.content || ''} à votre contenu`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_reacted')} ${notif.content || ''} ${t('notif_to_your_content')}`;
             } else if (notif.type === 'collection_add') {
                 icon = '📁';
-                text = `<strong>${escapeHtml(fromName)}</strong> a ajouté votre extrait à une collection`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_added_to_collection')}`;
             } else if (notif.type === 'share') {
                 icon = '🔗';
-                text = `<strong>${escapeHtml(fromName)}</strong> a partagé votre extrait`;
+                text = `<strong>${escapeHtml(fromName)}</strong> ${t('notif_shared_your_extract')}`;
             }
             
             return `

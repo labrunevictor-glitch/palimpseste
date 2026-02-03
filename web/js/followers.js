@@ -92,7 +92,7 @@ async function toggleFollowFromProfile() {
     // Rafraîchir l'affichage
     const followBtn = document.getElementById('profileFollowBtn');
     const isNowFollowing = userFollowing.has(currentProfileUserId);
-    followBtn.textContent = isNowFollowing ? 'Ne plus suivre' : 'Suivre';
+    followBtn.textContent = isNowFollowing ? t('unfollow') : t('follow');
     followBtn.classList.toggle('following', isNowFollowing);
     
     // Mettre à jour le compteur followers
@@ -159,8 +159,8 @@ async function loadDiscoverUsers() {
         container.innerHTML = `
             <div class="social-empty">
                 <div class="social-empty-icon">🌱</div>
-                <div class="social-empty-title">Pas encore d'utilisateurs</div>
-                <div class="social-empty-text">Soyez le premier à inviter des amis !</div>
+                <div class="social-empty-title">${t('no_activity')}</div>
+                <div class="social-empty-text">${t('be_first_to_invite')}</div>
             </div>
         `;
         return;
@@ -168,14 +168,14 @@ async function loadDiscoverUsers() {
     
     container.innerHTML = `
         <div class="discover-header">
-            <h3>👥 Utilisateurs à découvrir</h3>
-            <p>Suivez des personnes pour voir leurs extraits dans l'onglet "Abonnements"</p>
+            <h3>👥 ${t('users_to_discover')}</h3>
+            <p>${t('follow_users_hint')}</p>
         </div>
         <div class="discover-grid">
             ${filteredProfiles.map(p => renderUserCard(
                 p.id, 
                 p.username, 
-                `${p.extraitCount} extrait${p.extraitCount > 1 ? 's' : ''}`
+                `${p.extraitCount} ${p.extraitCount > 1 ? t('extract_count_plural') : t('extract_count')}`
             )).join('')}
         </div>
     `;
@@ -197,7 +197,7 @@ function renderUserCard(userId, username, subtitle, showFollowButton = true, tog
             </div>
             ${showFollowButton ? `
                 <button class="btn-follow-small ${isFollowing ? 'following' : ''}" onclick="${toggleFn}('${userId}', event)">
-                    ${isFollowing ? '✓ Suivi' : '+ Suivre'}
+                    ${isFollowing ? '✓ ' + t('followed') : '+ ' + t('follow_btn')}
                 </button>
             ` : ''}
         </div>
@@ -232,10 +232,9 @@ async function loadMyFollowers() {
         container.innerHTML = `
             <div class="social-empty">
                 <div class="social-empty-icon">💌</div>
-                <div class="social-empty-title">Pas encore d'abonnés</div>
+                <div class="social-empty-title">${t('no_activity')}</div>
                 <div class="social-empty-text">
-                    Personne ne vous suit encore.<br>
-                    Partagez des extraits pour attirer des lecteurs !
+                    ${t('share_to_attract')}
                 </div>
             </div>
         `;
@@ -262,15 +261,15 @@ async function loadMyFollowers() {
     
     container.innerHTML = `
         <div class="discover-header">
-            <h3>💌 Vos abonnés (${follows.length})</h3>
-            <p>Ces personnes vous suivent et voient vos extraits</p>
+            <h3>💌 ${t('your_followers')} (${follows.length})</h3>
+            <p>${t('followers_see_extracts')}</p>
         </div>
         <div class="discover-grid">
             ${follows.map(f => {
                 const profile = profileMap.get(f.follower_id);
                 const username = profile?.username || 'Anonyme';
                 const followedAt = formatTimeAgo(new Date(f.created_at));
-                return renderUserCard(f.follower_id, username, `Vous suit depuis ${followedAt}`);
+                return renderUserCard(f.follower_id, username, `${t('follows_you_since')} ${followedAt}`);
             }).join('')}
         </div>
     `;
@@ -446,38 +445,38 @@ async function loadActivityFeed() {
     
     container.innerHTML = `
         <div class="discover-header">
-            <h3>📡 Fil d'activité</h3>
-            <p>Suivez ce qui se passe dans la communauté</p>
+            <h3>📡 ${t('activity_feed')}</h3>
+            <p>${t('follow_whats_happening')}</p>
         </div>
         <div class="activity-filters">
             <div class="activity-filter ${currentActivityFilter === 'all' ? 'active' : ''}" onclick="setActivityFilter('all')">
-                🌐 Tout <span class="filter-count">${counts.all}</span>
+                🌐 ${t('filter_all')} <span class="filter-count">${counts.all}</span>
             </div>
             ${currentUser ? `
                 <div class="activity-filter ${currentActivityFilter === 'following' ? 'active' : ''}" onclick="setActivityFilter('following')">
-                    👥 Abonnements <span class="filter-count">${counts.following}</span>
+                    👥 ${t('filter_following')} <span class="filter-count">${counts.following}</span>
                 </div>
                 <div class="activity-filter ${currentActivityFilter === 'mine' ? 'active' : ''}" onclick="setActivityFilter('mine')">
-                    🔔 Sur mes extraits <span class="filter-count">${counts.mine}</span>
+                    🔔 ${t('filter_on_my_extracts')} <span class="filter-count">${counts.mine}</span>
                 </div>
             ` : ''}
             <div class="activity-filter ${currentActivityFilter === 'likes' ? 'active' : ''}" onclick="setActivityFilter('likes')">
-                ❤️ Likes <span class="filter-count">${counts.likes}</span>
+                ❤️ ${t('filter_likes')} <span class="filter-count">${counts.likes}</span>
             </div>
             <div class="activity-filter ${currentActivityFilter === 'comments' ? 'active' : ''}" onclick="setActivityFilter('comments')">
-                💬 Commentaires <span class="filter-count">${counts.comments}</span>
+                💬 ${t('filter_comments')} <span class="filter-count">${counts.comments}</span>
             </div>
         </div>
         ${filtered.length === 0 ? `
             <div class="social-empty">
                 <div class="social-empty-icon">${currentActivityFilter === 'following' ? '👥' : currentActivityFilter === 'mine' ? '🔔' : '📡'}</div>
-                <div class="social-empty-title">Pas d'activité</div>
+                <div class="social-empty-title">${t('no_activity')}</div>
                 <div class="social-empty-text">${
                     currentActivityFilter === 'following' 
-                        ? 'Suivez des personnes pour voir leur activité ici !' 
+                        ? t('follow_for_activity')
                         : currentActivityFilter === 'mine'
-                            ? 'Partagez des extraits pour voir qui interagit avec !'
-                            : 'Soyez le premier à interagir !'
+                            ? t('share_for_interactions')
+                            : t('be_first_to_interact')
                 }</div>
             </div>
         ` : `
@@ -504,8 +503,8 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
     if (activity.type === 'like') {
         const extrait = extraitMap.get(activity.extrait_id);
         // Utiliser l'auteur de l'oeuvre (source_author) plutôt que l'utilisateur qui a partagé
-        const sourceAuthor = extrait?.source_author || 'Auteur inconnu';
-        const snippet = extrait?.texte?.substring(0, 80) || 'Extrait supprimé';
+        const sourceAuthor = extrait?.source_author || t('unknown_author');
+        const snippet = extrait?.texte?.substring(0, 80) || t('text_unavailable');
         
         return `
             <div class="activity-item ${highlight}" onclick="viewExtraitById('${activity.extrait_id}')">
@@ -513,7 +512,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
-                        a aimé un extrait de <strong>${escapeHtml(sourceAuthor)}</strong>
+                        ${t('activity_liked_extract')} <strong>${escapeHtml(sourceAuthor)}</strong>
                     </div>
                     <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
                     <div class="activity-time">${timeAgo}</div>
@@ -526,7 +525,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
     if (activity.type === 'comment') {
         const extrait = extraitMap.get(activity.extrait_id);
         // Utiliser l'auteur de l'oeuvre
-        const sourceAuthor = extrait?.source_author || 'Auteur inconnu';
+        const sourceAuthor = extrait?.source_author || t('unknown_author');
         const commentPreview = activity.content?.substring(0, 100) || '';
         
         return `
@@ -535,7 +534,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
-                        a commenté un extrait de <strong>${escapeHtml(sourceAuthor)}</strong>
+                        ${t('activity_commented_extract')} <strong>${escapeHtml(sourceAuthor)}</strong>
                     </div>
                     <div class="activity-comment-preview">"${escapeHtml(commentPreview)}${commentPreview.length >= 100 ? '...' : ''}"</div>
                     <div class="activity-time">${timeAgo}</div>
@@ -547,7 +546,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
     
     if (activity.type === 'follow') {
         const target = userMap.get(activity.target_id);
-        const targetName = target?.username || 'Quelqu\'un';
+        const targetName = target?.username || t('someone');
         
         return `
             <div class="activity-item ${highlight}" onclick="openUserProfile('${activity.target_id}', '${escapeHtml(targetName)}')">
@@ -555,7 +554,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
-                        s'est abonné à 
+                        ${t('activity_followed')} 
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.target_id}', '${escapeHtml(targetName)}')">${escapeHtml(targetName)}</strong>
                     </div>
                     <div class="activity-time">${timeAgo}</div>
@@ -567,7 +566,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
     
     if (activity.type === 'share') {
         const snippet = activity.texte?.substring(0, 80) || '';
-        const sourceAuthor = activity.source_author || 'Auteur inconnu';
+        const sourceAuthor = activity.source_author || t('unknown_author');
         
         return `
             <div class="activity-item" onclick="viewExtraitById('${activity.extrait_id}')">
@@ -575,7 +574,7 @@ function renderActivityItem(activity, userMap, extraitMap, authorMap) {
                 <div class="activity-content">
                     <div class="activity-text">
                         <strong onclick="event.stopPropagation(); openUserProfile('${activity.user_id}', '${escapeHtml(actorName)}')">${escapeHtml(actorName)}</strong> 
-                        a partagé un extrait de <strong>${escapeHtml(sourceAuthor)}</strong>
+                        ${t('activity_shared_extract')} <strong>${escapeHtml(sourceAuthor)}</strong>
                     </div>
                     <div class="activity-snippet">"${escapeHtml(snippet)}${snippet.length >= 80 ? '...' : ''}"</div>
                     <div class="activity-time">${timeAgo}</div>
@@ -728,20 +727,20 @@ async function openUserProfile(userId, username, defaultTab = 'extraits') {
         
         if (diffMinutes < 5) {
             // En ligne (actif dans les 5 dernières minutes)
-            lastSeenEl.innerHTML = '<span class="online-dot"></span> En ligne';
+            lastSeenEl.innerHTML = '<span class="online-dot"></span> ' + t('online');
         } else if (diffMinutes < 60) {
-            lastSeenEl.innerHTML = `Vu il y a ${diffMinutes} min`;
+            lastSeenEl.innerHTML = t('seen_ago_min').replace('{n}', diffMinutes);
         } else if (diffMinutes < 1440) {
             const hours = Math.floor(diffMinutes / 60);
-            lastSeenEl.innerHTML = `Vu il y a ${hours}h`;
+            lastSeenEl.innerHTML = t('seen_ago_hours').replace('{n}', hours);
         } else {
             const days = Math.floor(diffMinutes / 1440);
             if (days === 1) {
-                lastSeenEl.innerHTML = 'Vu hier';
+                lastSeenEl.innerHTML = t('seen_yesterday');
             } else if (days < 7) {
-                lastSeenEl.innerHTML = `Vu il y a ${days} jours`;
+                lastSeenEl.innerHTML = t('seen_ago_days').replace('{n}', days);
             } else {
-                lastSeenEl.innerHTML = `Vu le ${lastSeenDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`;
+                lastSeenEl.innerHTML = t('seen_on') + ' ' + lastSeenDate.toLocaleDateString(currentUILang || 'fr', { day: 'numeric', month: 'short' });
             }
         }
     } else if (lastSeenEl) {
@@ -755,7 +754,7 @@ async function openUserProfile(userId, username, defaultTab = 'extraits') {
         followBtn.style.display = 'inline-block';
         messageBtn.style.display = 'inline-block';
         const isFollowing = userFollowing.has(userId);
-        followBtn.textContent = isFollowing ? 'Ne plus suivre' : 'Suivre';
+        followBtn.textContent = isFollowing ? t('unfollow') : t('follow');
         followBtn.classList.toggle('following', isFollowing);
     } else {
         followBtn.style.display = 'none';

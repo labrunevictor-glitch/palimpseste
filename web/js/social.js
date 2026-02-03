@@ -300,11 +300,11 @@ async function loadSocialFeed() {
         container.innerHTML = `
             <div class="social-empty">
                 <div class="social-empty-icon">📭</div>
-                <div class="social-empty-title">Aucun extrait</div>
+                <div class="social-empty-title">${t('no_activity')}</div>
                 <div class="social-empty-text">
                     ${currentSocialTab === 'mine' 
-                        ? "Vous n'avez pas encore partagé d'extraits. Sélectionnez du texte dans une lecture pour partager !"
-                        : "Soyez le premier à partager un extrait !"}
+                        ? t('share_for_interactions')
+                        : t('be_first_to_share')}
                 </div>
             </div>
         `;

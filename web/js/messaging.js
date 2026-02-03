@@ -93,7 +93,7 @@ async function loadConversations() {
     if (!supabaseClient || !currentUser) return;
     
     const container = document.getElementById('conversationsList');
-    container.innerHTML = '<div class="messages-empty">Chargement...</div>';
+    container.innerHTML = `<div class="messages-empty">${t('loading')}</div>`;
     
     try {
         // Récupérer tous les messages où l'utilisateur est impliqué
@@ -249,7 +249,7 @@ async function loadMessages(otherUserId) {
     if (!supabaseClient || !currentUser) return;
     
     const container = document.getElementById('chatMessages');
-    container.innerHTML = '<div class="messages-empty">Chargement...</div>';
+    container.innerHTML = `<div class="messages-empty">${t('loading')}</div>`;
     
     try {
         // Récupérer les messages envoyés et reçus séparément

@@ -655,7 +655,7 @@ function openLikersModalWithMessage(message) {
                     <button class="likers-close" onclick="closeLikersModal()">✕</button>
                 </div>
                 <div class="likers-list" id="likersList">
-                    <div class="likers-loading">Chargement...</div>
+                    <div class="likers-loading">${t('loading')}</div>
                 </div>
             </div>
         `;
@@ -1080,7 +1080,7 @@ async function shuffleFeed() {
     state.shownPages.clear();
     state.cardIdx = 0;
     // hideNewTextsBanner(); // Removed
-    toast('🔄 Nouveaux textes...');
+    toast('🔄 ' + t('new_texts_loading'));
     await fillPool();
     await loadMore();
     // Scroll vers le haut de façon fluide
@@ -1430,13 +1430,14 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
     const card = document.createElement('div');
     card.className = 'card';
     card.id = cardId;
+    const translatedTag = typeof translateTag === 'function' ? translateTag(tag) : tag;
     card.innerHTML = `
         <div class="card-head" onclick="showRelatedAuthors('${cardId}')" style="cursor:pointer;" title="${t('tooltip_discover_authors')}">
             <div>
                 <div class="author">${esc(author)} ${langBadge} <span class="explore-hint">🕸️</span></div>
                 <div class="work">${esc(displayTitle)} <a href="${url}" target="_blank" class="source-link" onclick="event.stopPropagation()" title="${t('tooltip_read_wikisource')}">🔗</a></div>
             </div>
-            <span class="tag ${tag}" onclick="event.stopPropagation(); applyTagFilter('${tag}')" title="${t('tooltip_filter_tag')}">${tag}</span>
+            <span class="tag ${tag}" onclick="event.stopPropagation(); applyTagFilter('${tag}')" title="${t('tooltip_filter_tag')}">${translatedTag}</span>
         </div>
         <div class="card-body" ondblclick="doubleTapLike('${cardId}', event)">
             <span class="like-heart-overlay" id="heart-${cardId}">♥</span>
@@ -1762,13 +1763,14 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource(), allo
     const card = document.createElement('div');
     card.className = 'card';
     card.id = cardId;
+    const translatedTag2 = typeof translateTag === 'function' ? translateTag(tag) : tag;
     card.innerHTML = `
         <div class="card-head" onclick="showRelatedAuthors('${cardId}')" style="cursor:pointer;" title="${t('tooltip_discover_authors')}">
             <div>
                 <div class="author">${esc(author)} ${langBadge} <span class="explore-hint">🕸️</span></div>
                 <div class="work">${esc(displayTitle)} <a href="${url}" target="_blank" class="source-link" onclick="event.stopPropagation()" title="${t('tooltip_read_wikisource')}">🔗</a></div>
             </div>
-            <span class="tag ${tag}" onclick="event.stopPropagation(); applyTagFilter('${tag}')" title="${t('tooltip_filter_tag')}">${tag}</span>
+            <span class="tag ${tag}" onclick="event.stopPropagation(); applyTagFilter('${tag}')" title="${t('tooltip_filter_tag')}">${translatedTag2}</span>
         </div>
         <div class="card-body" ondblclick="doubleTapLike('${cardId}', event)">
             <span class="like-heart-overlay" id="heart-${cardId}">♥</span>
@@ -1836,7 +1838,7 @@ function showMore(cardId) {
     // Fonction pour remplacer le bouton par un lien vers la source
     const replaceWithSourceLink = () => {
         if (sourceUrl) {
-            btnEl.outerHTML = `<a href="${escapeHtml(sourceUrl)}" target="_blank" class="btn-source-link">🔗 Voir la source</a>`;
+            btnEl.outerHTML = `<a href="${escapeHtml(sourceUrl)}" target="_blank" class="btn-source-link">${t('view_source')}</a>`;
         } else {
             btnEl.style.display = 'none';
         }

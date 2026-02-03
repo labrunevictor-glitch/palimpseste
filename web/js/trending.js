@@ -48,8 +48,8 @@ async function loadTrendingFeed() {
             container.innerHTML = `
                 <div class="trending-empty">
                     <div class="trending-empty-icon">📭</div>
-                    <p>Aucun texte populaire pour le moment</p>
-                    <p style="font-size: 0.8rem; margin-top: 0.5rem;">Soyez le premier à partager un extrait !</p>
+                    <p>${t('no_activity')}</p>
+                    <p style="font-size: 0.8rem; margin-top: 0.5rem;">${t('be_first_to_share')}</p>
                 </div>
             `;
             return;

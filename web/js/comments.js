@@ -39,7 +39,7 @@ async function loadComments(extraitId) {
     
     const container = document.getElementById(`commentsList-${extraitId}`);
     if (!container) return;
-    container.innerHTML = '<div class="comments-empty">Chargement...</div>';
+    container.innerHTML = `<div class="comments-empty">${t('loading')}</div>`;
     
     try {
         // Récupérer les commentaires
@@ -60,7 +60,7 @@ async function loadComments(extraitId) {
         }
         
         if (!comments || comments.length === 0) {
-            container.innerHTML = '<div class="comments-empty">Aucun commentaire. Soyez le premier !</div>';
+            container.innerHTML = '<div class="comments-empty">' + t('no_comments_yet') + '</div>';
             // Mettre à jour le compteur à 0 si affiché différemment
             const countEl = document.getElementById(`commentCount-${extraitId}`);
             if (countEl) {
