@@ -379,9 +379,9 @@ async function init() {
         setSelectedLang(savedLang);
     } else {
         // Détecter la langue du navigateur
-        const browserLang = (navigator.language || navigator.userLanguage || 'fr').split('-')[0].toLowerCase();
-        // Si la langue du navigateur est supportée, l'utiliser, sinon français par défaut
-        const langToSet = validLangs.includes(browserLang) ? browserLang : 'fr';
+        const browserLang = (navigator.language || navigator.userLanguage || 'en').split('-')[0].toLowerCase();
+        // Si la langue du navigateur est supportée, l'utiliser, sinon anglais par défaut
+        const langToSet = validLangs.includes(browserLang) ? browserLang : 'en';
         setSelectedLang(langToSet);
         localStorage.setItem('palimpseste_lang', langToSet);
     }
