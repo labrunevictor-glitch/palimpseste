@@ -2,8 +2,9 @@
 // 🐦 SUPABASE - Configuration Social
 // ═══════════════════════════════════════════════════════════
 
-const SUPABASE_URL = 'https://cqoepdrqifilqxnvflyy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxb2VwZHJxaWZpbHF4bnZmbHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxNzQxMTksImV4cCI6MjA4NDc1MDExOX0.e7dJmzUEgzDIix12ca38HvBmF7Cgp_fTZPT6gZ6Xy5s';
+// ⚠️ Constantes centralisées dans config.js (CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY)
+const SUPABASE_URL = CONFIG.SUPABASE_URL;
+const SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY;
 
 // Client Supabase (initialisé si configuré)
 var supabaseClient = null;

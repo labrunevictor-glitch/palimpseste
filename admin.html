@@ -6,6 +6,10 @@
     <title>Palimpseste - Admin Dashboard</title>
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Config centralisée -->
+    <script src="js/config.js"></script>
     <style>
         body {
             background: var(--bg);
@@ -269,9 +273,9 @@
     </div>
 
     <script>
-        // Configuration Supabase (même que dans auth.js)
-        const SUPABASE_URL = 'https://cqoepdrqifilqxnvflyy.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxb2VwZHJxaWZpbHF4bnZmbHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxNzQxMTksImV4cCI6MjA4NDc1MDExOX0.e7dJmzUEgzDIix12ca38HvBmF7Cgp_fTZPT6gZ6Xy5s';
+        // Configuration Supabase centralisée dans config.js
+        const SUPABASE_URL = CONFIG.SUPABASE_URL;
+        const SUPABASE_ANON_KEY = CONFIG.SUPABASE_ANON_KEY;
         
         let supabaseClient = null;
         let currentUser = null;

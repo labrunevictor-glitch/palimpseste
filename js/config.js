@@ -5,9 +5,10 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-// 🔗 Supabase (déjà défini dans app.js, on expose juste la config)
+// 🔗 Supabase - Configuration centralisée (UNIQUE SOURCE DE VÉRITÉ)
 const CONFIG = {
     SUPABASE_URL: 'https://cqoepdrqifilqxnvflyy.supabase.co',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxb2VwZHJxaWZpbHF4bnZmbHl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxNzQxMTksImV4cCI6MjA4NDc1MDExOX0.e7dJmzUEgzDIix12ca38HvBmF7Cgp_fTZPT6gZ6Xy5s',
     
     // 📐 Breakpoints
     BREAKPOINTS: {
