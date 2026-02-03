@@ -52,7 +52,9 @@
     .user-menu,
     .notif-btn,
     .favorites-btn,
-    .header-btn {
+    .header-btn,
+    .header-btn.btn-with-text,
+    .header-btn.btn-with-text.accent {
         display: none !important;
     }
     
