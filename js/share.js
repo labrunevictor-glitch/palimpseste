@@ -395,8 +395,13 @@ async function publishExtrait() {
     const commentary = document.getElementById('shareCommentary').value.trim();
     
     // Stocker le texte COMPLET pour éviter les appels API Wikisource
-    const fullText = pendingShare.text || '';
-    const { textHash, textLength } = buildExtraitKey(fullText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
+    // Limite à 10000 caractères pour ne pas surcharger la base
+    const MAX_TEXT_LENGTH = 10000;
+    const rawText = pendingShare.text || '';
+    const fullText = rawText.length > MAX_TEXT_LENGTH 
+        ? rawText.substring(0, MAX_TEXT_LENGTH) + '…' 
+        : rawText;
+    const { textHash, textLength } = buildExtraitKey(rawText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
     
     // Garder trace des IDs AVANT de fermer le modal (pendingShare sera réinitialisé)
     const originalExtraitId = pendingShare.cardId;

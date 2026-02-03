@@ -1041,12 +1041,17 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
             // ═══════════════════════════════════════════════════════════
             // Migration lazy : mettre à jour la base avec le texte complet
             // Cela "répare" automatiquement les anciens extraits tronqués
+            // Limite à 10000 caractères pour ne pas surcharger la base
             // ═══════════════════════════════════════════════════════════
             if (extraitId && supabaseClient && fullText.length > 500) {
+                const MAX_TEXT_LENGTH = 10000;
+                const textToStore = fullText.length > MAX_TEXT_LENGTH 
+                    ? fullText.substring(0, MAX_TEXT_LENGTH) + '…' 
+                    : fullText;
                 // Mise à jour en arrière-plan (ne pas bloquer l'UI)
                 supabaseClient
                     .from('extraits')
-                    .update({ texte: fullText })
+                    .update({ texte: textToStore })
                     .eq('id', extraitId)
                     .then(({ error }) => {
                         if (!error) {
