@@ -1038,6 +1038,29 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
                 else window.scrollTo(0, scrollTop);
             });
             
+            // ═══════════════════════════════════════════════════════════
+            // Migration lazy : mettre à jour la base avec le texte complet
+            // Cela "répare" automatiquement les anciens extraits tronqués
+            // ═══════════════════════════════════════════════════════════
+            if (extraitId && supabaseClient && fullText.length > 500) {
+                // Mise à jour en arrière-plan (ne pas bloquer l'UI)
+                supabaseClient
+                    .from('extraits')
+                    .update({ texte: fullText })
+                    .eq('id', extraitId)
+                    .then(({ error }) => {
+                        if (!error) {
+                            console.log(`✅ Extrait ${extraitId} migré avec texte complet (${fullText.length} chars)`);
+                            // Mettre à jour le cache aussi
+                            if (typeof extraitDataCache !== 'undefined' && extraitDataCache.has(extraitId)) {
+                                const cached = extraitDataCache.get(extraitId);
+                                cached.texte = fullText;
+                            }
+                        }
+                    })
+                    .catch(e => console.warn('Migration lazy échouée:', e));
+            }
+            
             toast('✨ Texte chargé');
         
     } catch (err) {

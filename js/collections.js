@@ -1846,6 +1846,25 @@ async function loadTextFromCollection(itemId, title, author, url) {
                 fullContainer.innerHTML = `<div class="collection-full-text">${escapeHtml(text)}</div>`;
                 card.dataset.fullText = text;
                 updateCollectionExpandAvailability(card);
+                
+                // ═══════════════════════════════════════════════════════════
+                // Migration lazy : mettre à jour la base avec le texte complet
+                // Cela "répare" automatiquement les anciens extraits tronqués
+                // ═══════════════════════════════════════════════════════════
+                if (extraitId && supabaseClient && text.length > 500) {
+                    // Mise à jour en arrière-plan (ne pas bloquer l'UI)
+                    supabaseClient
+                        .from('extraits')
+                        .update({ texte: text })
+                        .eq('id', extraitId)
+                        .then(({ error }) => {
+                            if (!error) {
+                                console.log(`✅ Extrait ${extraitId} migré avec texte complet (${text.length} chars)`);
+                            }
+                        })
+                        .catch(e => console.warn('Migration lazy échouée:', e));
+                }
+                
                 toast('Texte complet chargé');
                 finalizeLoadingState(true);
                 stabilizeCollectionsScroll(scrollEl, scrollTop);
