@@ -1758,8 +1758,12 @@ async function loadTextFromCollection(itemId, title, author, url) {
                                 origIdx--;
                             }
                             text = text.substring(origIdx).trim();
+                        } else {
+                            // Aucune correspondance - probablement une page de sommaire/index
+                            fullContainer.innerHTML = `<div class="collection-error">Cette page semble être un sommaire. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
+                            finalizeLoadingState(true);
+                            return;
                         }
-                        // Si aucune correspondance, garder le texte complet tel quel
                     }
                 }
                 

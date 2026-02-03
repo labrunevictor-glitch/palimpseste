@@ -3789,14 +3789,14 @@ padding: 1.25rem;
 font-size: 1.05rem;
 line-height: 1.85;
 color: var(--text);
-font-family: 'Playfair Display', serif;
+font-family: inherit;
 white-space: pre-wrap;
 margin-bottom: 1rem;
 }
 .trending-source {
 font-size: 0.8rem;
 color: var(--muted);
-font-style: italic;
+font-style: normal;
 padding-top: 0.75rem;
 border-top: 1px solid var(--border);
 }
@@ -5802,12 +5802,12 @@ border-radius: 10px;
 padding: 1rem;
 }
 .profile-extrait-text {
-font-family: 'Playfair Display', serif;
+font-family: inherit;
 font-size: 0.95rem;
 line-height: 1.6;
 color: var(--text);
 margin-bottom: 0.5rem;
-font-style: italic;
+font-style: normal;
 }
 .profile-voir-plus {
 display: block;
@@ -6803,9 +6803,9 @@ font-size: 0.75rem;
 color: var(--muted);
 }
 .extrait-text {
-font-family: 'Playfair Display', serif;
+font-family: inherit;
 font-size: 1.1rem;
-font-style: italic;
+font-style: normal;
 color: var(--text);
 line-height: 1.7;
 padding: 1rem;

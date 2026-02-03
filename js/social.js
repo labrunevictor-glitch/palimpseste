@@ -909,9 +909,11 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
                             origIdx--;
                         }
                         fullText = fullText.substring(origIdx).trim();
+                    } else {
+                        // Aucune correspondance trouvée - probablement une page de sommaire/index
+                        // Ne pas afficher un contenu incorrect
+                        throw new Error('Page de sommaire détectée - texte non disponible directement');
                     }
-                    // Si aucune correspondance, garder le texte complet tel quel
-                    // (ne pas concaténer pour éviter les doublons)
                 }
             }
 

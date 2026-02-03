@@ -1729,6 +1729,102 @@
     }
     
     /* ══════════════════════════════════════════
+       PROFILE MODAL - Mobile optimizations
+       Clean layout like community feed
+       ══════════════════════════════════════════ */
+    
+    .user-profile-modal {
+        padding: 0 !important;
+        align-items: stretch !important;
+    }
+    
+    .user-profile-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 100% !important;
+        height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+    }
+    
+    .profile-content {
+        padding: 0.75rem !important;
+    }
+    
+    /* Profile extraits - Full width, clean layout */
+    .user-profile-modal .profile-extraits-list,
+    .user-profile-modal .profile-content .profile-extraits-list {
+        gap: 0.75rem !important;
+    }
+    
+    .user-profile-modal .extrait-card,
+    .user-profile-content .extrait-card {
+        padding: 0.85rem !important;
+        margin: 0 !important;
+        border-radius: 10px !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+    }
+    
+    /* Remove italic, make text readable */
+    .user-profile-modal .extrait-text,
+    .user-profile-content .extrait-text,
+    .profile-extrait-text {
+        font-style: normal !important;
+        font-family: inherit !important;
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+        color: var(--text) !important;
+        font-weight: 400 !important;
+    }
+    
+    /* Source info - clean */
+    .user-profile-modal .extrait-source,
+    .user-profile-content .extrait-source {
+        font-style: normal !important;
+        font-size: 0.78rem !important;
+        color: var(--text-secondary) !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
+        border-top: 1px solid var(--border) !important;
+    }
+    
+    /* Commentary - no italic */
+    .user-profile-modal .extrait-commentary,
+    .user-profile-content .extrait-commentary {
+        font-style: normal !important;
+        font-size: 0.85rem !important;
+        color: var(--text-muted) !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Actions row - compact */
+    .user-profile-modal .extrait-actions,
+    .user-profile-content .extrait-actions {
+        margin-top: 0.6rem !important;
+        padding-top: 0.5rem !important;
+        border-top: 1px solid var(--border) !important;
+        gap: 8px !important;
+    }
+    
+    /* Profile empty states */
+    .user-profile-modal .profile-empty,
+    .user-profile-content .profile-empty {
+        padding: 2rem 1rem !important;
+        text-align: center !important;
+    }
+    
+    .user-profile-modal .profile-empty-icon {
+        font-size: 2rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .user-profile-modal .profile-empty-text {
+        font-size: 0.9rem !important;
+        color: var(--text-muted) !important;
+    }
+    
+    /* ══════════════════════════════════════════
        MASQUER SIDEBAR DESKTOP
        ══════════════════════════════════════════ */
     
