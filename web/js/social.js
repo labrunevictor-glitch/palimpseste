@@ -659,7 +659,7 @@ async function hydrateExtraitLikesUI(extraitIds) {
     });
 }
 
-// Charger le texte complet depuis Wikisource (évite de stocker en base)
+// Charger le texte complet - utilise le texte stocké si complet, sinon fallback Wikisource
 // Accepte soit un élément bouton (avec data-attributes), soit les anciens paramètres
 async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam) {
     let extraitId, sourceUrl, sourceTitle, btnEl;
@@ -684,6 +684,45 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
 
     const scrollEl = textEl.closest('.favorites-overlay') || document.scrollingElement;
     const scrollTop = scrollEl ? scrollEl.scrollTop : window.scrollY;
+    
+    // ═══════════════════════════════════════════════════════════
+    // Vérifier si le texte stocké est déjà complet (nouveaux extraits)
+    // Critère : longueur > 500 et ne finit pas par "…"
+    // ═══════════════════════════════════════════════════════════
+    if (!textEl.dataset.fullText && extraitId) {
+        let storedText = null;
+        
+        // 1. Essayer le cache extraitDataCache
+        if (typeof extraitDataCache !== 'undefined' && extraitDataCache.has(extraitId)) {
+            const cached = extraitDataCache.get(extraitId);
+            if (cached && cached.texte) {
+                storedText = cached.texte;
+            }
+        }
+        
+        // 2. Si pas en cache, requêter Supabase
+        if (!storedText && supabaseClient) {
+            try {
+                const { data } = await supabaseClient
+                    .from('extraits')
+                    .select('texte')
+                    .eq('id', extraitId)
+                    .single();
+                if (data && data.texte) {
+                    storedText = data.texte;
+                }
+            } catch (e) {
+                console.warn('Erreur récupération texte stocké:', e);
+            }
+        }
+        
+        // 3. Vérifier si le texte stocké est complet (pas un aperçu tronqué)
+        if (storedText && storedText.length > 500 && !storedText.endsWith('…')) {
+            // Texte complet stocké en base - l'utiliser directement sans appel API
+            textEl.dataset.fullText = storedText;
+            textEl.dataset.previewText = textEl.textContent || '';
+        }
+    }
 
     // Si déjà chargé, basculer sans recharger
     if (textEl.dataset.fullText) {

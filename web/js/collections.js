@@ -1604,7 +1604,7 @@ function loadTextFromCollectionById(itemId) {
 
 /**
  * Charger le texte complet depuis la source et l'afficher dans la vue collection
- * Utilise la même méthode que fetchText (action=parse) pour un résultat fiable
+ * Utilise le texte stocké si complet, sinon fallback sur Wikisource API
  */
 async function loadTextFromCollection(itemId, title, author, url) {
     const fullContainer = document.getElementById(`full-${itemId}`);
@@ -1644,6 +1644,40 @@ async function loadTextFromCollection(itemId, title, author, url) {
         }
     };
 
+    // Sauvegarder l'extrait actuel pour permettre le repli et l'alignement
+    if (!card.dataset.previewText && preview) {
+        card.dataset.previewText = preview.textContent || '';
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // Vérifier si le texte stocké est déjà complet (nouveaux extraits)
+    // Critère : longueur > 500 et ne finit pas par "…"
+    // ═══════════════════════════════════════════════════════════
+    const extraitId = card.dataset.extraitId;
+    if (!card.dataset.fullText && extraitId && supabaseClient) {
+        try {
+            const { data } = await supabaseClient
+                .from('extraits')
+                .select('texte')
+                .eq('id', extraitId)
+                .single();
+            
+            if (data && data.texte && data.texte.length > 500 && !data.texte.endsWith('…')) {
+                // Texte complet stocké en base - l'utiliser directement
+                fullContainer.innerHTML = `<div class="collection-full-text">${escapeHtml(data.texte)}</div>`;
+                card.dataset.fullText = data.texte;
+                updateCollectionExpandAvailability(card);
+                finalizeLoadingState(true);
+                stabilizeCollectionsScroll(scrollEl, scrollTop);
+                return;
+            }
+        } catch (e) {
+            console.warn('Erreur récupération texte stocké:', e);
+        }
+    }
+    
+    // Fallback : charger depuis Wikisource (anciens extraits avec aperçu tronqué)
+
     // Afficher un loader compact
     fullContainer.innerHTML = `
         <div class="collection-loading" aria-live="polite">
@@ -1654,11 +1688,6 @@ async function loadTextFromCollection(itemId, title, author, url) {
         </div>
     `;
     startLoadingState();
-
-    // Sauvegarder l'extrait actuel pour permettre le repli et l'alignement
-    if (!card.dataset.previewText && preview) {
-        card.dataset.previewText = preview.textContent || '';
-    }
     
     if (url && url.includes('wikisource.org')) {
         try {

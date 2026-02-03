@@ -394,9 +394,8 @@ async function publishExtrait() {
     
     const commentary = document.getElementById('shareCommentary').value.trim();
     
-    // Ne stocker qu'un APERÇU (150 chars) + métadonnées pour récupérer depuis Wikisource
+    // Stocker le texte COMPLET pour éviter les appels API Wikisource
     const fullText = pendingShare.text || '';
-    const preview = fullText.substring(0, 150) + (fullText.length > 150 ? '…' : '');
     const { textHash, textLength } = buildExtraitKey(fullText, pendingShare.title, pendingShare.author, pendingShare.sourceUrl);
     
     // Garder trace des IDs AVANT de fermer le modal (pendingShare sera réinitialisé)
@@ -407,7 +406,7 @@ async function publishExtrait() {
     try {
         const { data, error } = await supabaseClient.from('extraits').insert({
             user_id: currentUser.id,
-            texte: preview, // Seulement l'aperçu !
+            texte: fullText, // Texte complet stocké en base
             source_title: pendingShare.title,
             source_author: pendingShare.author,
             source_url: pendingShare.sourceUrl || '',
@@ -456,7 +455,7 @@ async function publishExtrait() {
                         .single();
                     
                     if (originalExtrait && originalExtrait.user_id !== currentUser.id) {
-                        await createNotification(originalExtrait.user_id, 'share', data?.id || originalExtraitId, preview.substring(0, 100));
+                        await createNotification(originalExtrait.user_id, 'share', data?.id || originalExtraitId, fullText.substring(0, 100));
                     }
                 } catch (e) {
                     console.warn('Erreur notif auteur original:', e);
