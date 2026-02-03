@@ -1270,6 +1270,11 @@
         box-shadow: none !important;
     }
     
+    /* IMPORTANT: Cacher le span texte car on utilise ::before sur mobile */
+    .exploration-toggle #toggleFiltersText {
+        display: none !important;
+    }
+    
     .exploration-toggle::before {
         content: "Replier les filtres" !important;
         font-size: 0.65rem !important;

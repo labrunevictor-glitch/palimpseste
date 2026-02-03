@@ -1172,8 +1172,16 @@ async function loadProfileExtraits(userId) {
                 // Échapper pour les attributs HTML (pas onclick)
                 const safeUsername = (username || '').replace(/'/g, "\\'");
 
+                // Troncature du texte à 300 caractères
+                const PREVIEW_LENGTH = 300;
+                const fullTexte = e.texte || '';
+                const textPreview = fullTexte.length > PREVIEW_LENGTH 
+                    ? fullTexte.substring(0, PREVIEW_LENGTH) + '…' 
+                    : fullTexte;
+                const hasFullText = fullTexte.length > PREVIEW_LENGTH;
+
                 return `
-                <div class="extrait-card" data-id="${e.id}">
+                <div class="extrait-card" data-id="${e.id}" data-full-text="${esc(fullTexte)}">
                     <div class="extrait-header">
                         <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">${avatarSymbol}</div>
                         <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">
@@ -1181,8 +1189,9 @@ async function loadProfileExtraits(userId) {
                             <div class="extrait-time">${timeAgo}</div>
                         </div>
                     </div>
-                    <div class="extrait-text" id="extraitText-${e.id}">${esc(e.texte || '')}</div>
-                    ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource(this)" id="voirPlus-${e.id}" data-extrait-id="${e.id}" data-source-url="${esc(e.source_url)}" data-source-title="${esc(e.source_title || '')}">${t('view_full_text')}</button>` : ''}
+                    <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreview)}</div>
+                    ${hasFullText ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more') || 'Voir plus'}</button>` : ''}
+                    ${e.source_url ? `<button class="btn-voir-plus btn-full-text" onclick="loadFullTextFromSource(this)" id="voirPlus-${e.id}" data-extrait-id="${e.id}" data-source-url="${esc(e.source_url)}" data-source-title="${esc(e.source_title || '')}">${t('view_full_text')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -1225,29 +1234,6 @@ async function loadProfileExtraits(userId) {
             `}).join('')}
         </div>
     `;
-}
-
-/**
- * Toggle l'affichage complet d'un texte dans le profil
- */
-function toggleProfileExtraitText(extraitId, fullText) {
-    const textEl = document.getElementById(`profExtraitText-${extraitId}`);
-    const btnEl = document.getElementById(`profVoirPlus-${extraitId}`);
-    if (!textEl || !btnEl) return;
-    
-    const isExpanded = textEl.dataset.expanded === 'true';
-    
-    if (isExpanded) {
-        // Réduire
-        textEl.innerHTML = '"' + esc(fullText.substring(0, 200) + '...') + '"';
-        textEl.dataset.expanded = 'false';
-        btnEl.textContent = '▼ ' + t('read_more');
-    } else {
-        // Étendre
-        textEl.innerHTML = '"' + esc(fullText) + '"';
-        textEl.dataset.expanded = 'true';
-        btnEl.textContent = t('collapse');
-    }
 }
 
 /**
@@ -1344,8 +1330,16 @@ async function loadProfileLikes(userId) {
                 // Échapper pour les attributs HTML (pas onclick)
                 const safeUsername = (username || '').replace(/'/g, "\\'");
 
+                // Troncature du texte à 300 caractères pour les likes
+                const PREVIEW_LENGTH_LIKES = 300;
+                const fullTexteLikes = e.texte || '';
+                const textPreviewLikes = fullTexteLikes.length > PREVIEW_LENGTH_LIKES 
+                    ? fullTexteLikes.substring(0, PREVIEW_LENGTH_LIKES) + '…' 
+                    : fullTexteLikes;
+                const hasFullTextLikes = fullTexteLikes.length > PREVIEW_LENGTH_LIKES;
+
                 return `
-                <div class="extrait-card" data-id="${e.id}">
+                <div class="extrait-card" data-id="${e.id}" data-full-text="${esc(fullTexteLikes)}">
                     <div class="extrait-header">
                         <div class="extrait-avatar" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">${avatarSymbol}</div>
                         <div class="extrait-user-info" onclick="openUserProfile('${e.user_id}', '${safeUsername}')" style="cursor:pointer">
@@ -1353,7 +1347,8 @@ async function loadProfileLikes(userId) {
                             <div class="extrait-time">${timeAgo}</div>
                         </div>
                     </div>
-                    <div class="extrait-text" id="extraitText-${e.id}">${esc(e.texte || '')}</div>
+                    <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreviewLikes)}</div>
+                    ${hasFullTextLikes ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more') || 'Voir plus'}</button>` : ''}
                     ${e.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource(this)" id="voirPlus-${e.id}" data-extrait-id="${e.id}" data-source-url="${esc(e.source_url)}" data-source-title="${esc(e.source_title || '')}">${t('view_full_text')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
@@ -1393,6 +1388,33 @@ async function loadProfileLikes(userId) {
             }).join('')}
         </div>
     `;
+}
+
+/**
+ * Toggle l'affichage complet/tronqué d'un texte dans le profil
+ */
+function toggleProfileExtraitText(btn, extraitId) {
+    const card = btn.closest('.extrait-card');
+    const textEl = document.getElementById(`extraitText-${extraitId}`);
+    if (!card || !textEl) return;
+    
+    const fullText = card.dataset.fullText || '';
+    const PREVIEW_LENGTH = 300;
+    const isExpanded = btn.dataset.expanded === 'true';
+    
+    if (isExpanded) {
+        // Replier
+        textEl.textContent = fullText.length > PREVIEW_LENGTH 
+            ? fullText.substring(0, PREVIEW_LENGTH) + '…' 
+            : fullText;
+        btn.textContent = t('show_more') || 'Voir plus';
+        btn.dataset.expanded = 'false';
+    } else {
+        // Déplier
+        textEl.textContent = fullText;
+        btn.textContent = t('show_less') || 'Voir moins';
+        btn.dataset.expanded = 'true';
+    }
 }
 
 /**
