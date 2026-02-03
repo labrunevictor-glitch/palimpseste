@@ -1578,9 +1578,9 @@ padding: 160px 2rem 4rem 2rem;
 transition: padding-top 0.3s ease;
 }
 
-/* Ajuster le padding quand les filtres sont repli?s */
+/* Ajuster le padding quand les filtres sont repliés */
 body.filters-collapsed main {
-padding-top: 70px;
+padding-top: 60px;
 }
 
 /* Desktop padding adaptatif v2 - 26/01/2026 */
@@ -1589,7 +1589,7 @@ padding-top: 70px;
         padding-top: 160px !important;
     }
     body.filters-collapsed main {
-        padding-top: 70px !important;
+        padding-top: 60px !important;
     }
 }
 
