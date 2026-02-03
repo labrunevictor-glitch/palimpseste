@@ -230,6 +230,8 @@ const translations = {
         // Actions
         'close': 'Fermer',
         'read_more': 'Lire la suite',
+        'show_more': 'Voir plus',
+        'show_less': 'Voir moins',
         'view_full_text': '📖 Voir le texte complet',
         'load_full_text': 'Charger le texte complet',
         'show_full_text': 'Afficher le texte complet',
@@ -520,6 +522,8 @@ const translations = {
         // Actions
         'close': 'Close',
         'read_more': 'Read more',
+        'show_more': 'Show more',
+        'show_less': 'Show less',
         'view_full_text': '📖 View full text',
         'load_full_text': 'Load full text',
         'show_full_text': 'Show full text',
@@ -799,6 +803,8 @@ const translations = {
         // Actions
         'close': 'Schließen',
         'read_more': 'Mehr lesen',
+        'show_more': 'Mehr anzeigen',
+        'show_less': 'Weniger anzeigen',
         
         // Langues
         'modern_languages': 'Moderne Sprachen',
@@ -1017,6 +1023,8 @@ const translations = {
         // Actions
         'close': 'Cerrar',
         'read_more': 'Leer más',
+        'show_more': 'Ver más',
+        'show_less': 'Ver menos',
         
         // Langues
         'modern_languages': 'Idiomas modernos',
@@ -1235,6 +1243,8 @@ const translations = {
         // Actions
         'close': 'Chiudi',
         'read_more': 'Leggi di più',
+        'show_more': 'Mostra di più',
+        'show_less': 'Mostra meno',
         
         // Langues
         'modern_languages': 'Lingue moderne',
@@ -1453,6 +1463,8 @@ const translations = {
         // Actions
         'close': 'Fechar',
         'read_more': 'Ler mais',
+        'show_more': 'Ver mais',
+        'show_less': 'Ver menos',
         
         // Langues
         'modern_languages': 'Línguas modernas',
