@@ -375,6 +375,15 @@ async function renderSocialFeed() {
         const safeUrl = (extrait.source_url || '').replace(/'/g, "\\'");
         const safeTitle = (extrait.source_title || '').replace(/'/g, "\\'");
         const safeUsername = (username || '').replace(/'/g, "\\'");
+        
+        // Créer un aperçu court pour l'affichage (max 300 chars)
+        const PREVIEW_LENGTH = 300;
+        const fullTexte = extrait.texte || '';
+        const textPreview = fullTexte.length > PREVIEW_LENGTH 
+            ? fullTexte.substring(0, PREVIEW_LENGTH) + '…' 
+            : fullTexte;
+        // Stocker si le texte complet est disponible en base
+        const hasFullText = fullTexte.length > PREVIEW_LENGTH;
 
         return `
             <div class="extrait-card" data-id="${extrait.id}">
@@ -390,8 +399,8 @@ async function renderSocialFeed() {
                         </button>
                     ` : ''}
                 </div>
-                <div class="extrait-text" id="extraitText-${extrait.id}">${escapeHtml(extrait.texte)}</div>
-                ${extrait.source_url ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource(this)" id="voirPlus-${extrait.id}" data-extrait-id="${extrait.id}" data-source-url="${escapeHtml(extrait.source_url)}" data-source-title="${escapeHtml(extrait.source_title || '')}">${t('view_full_text')}</button>` : ''}
+                <div class="extrait-text" id="extraitText-${extrait.id}" data-full-text="${hasFullText ? escapeHtml(fullTexte) : ''}" data-preview-text="${escapeHtml(textPreview)}">${escapeHtml(textPreview)}</div>
+                ${extrait.source_url || hasFullText ? `<button class="btn-voir-plus" onclick="loadFullTextFromSource(this)" id="voirPlus-${extrait.id}" data-extrait-id="${extrait.id}" data-source-url="${escapeHtml(extrait.source_url || '')}" data-source-title="${escapeHtml(extrait.source_title || '')}">${t('view_full_text')}</button>` : ''}
                 <div class="extrait-source">
                     <strong>${escapeHtml(extrait.source_author)}</strong> — ${escapeHtml(extrait.source_title)}
                     ${extrait.source_url ? `<a href="${extrait.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -689,18 +698,29 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
     // Vérifier si le texte stocké est déjà complet (nouveaux extraits)
     // Critère : longueur > 500 et ne finit pas par "…"
     // ═══════════════════════════════════════════════════════════
+    // Vérifier si le texte stocké est déjà complet (nouveaux extraits)
+    // 1. D'abord vérifier le data-attribute (déjà dans le HTML)
+    // 2. Sinon vérifier le cache ou la base
+    // Critère : longueur > 500 et ne finit pas par "…"
+    // ═══════════════════════════════════════════════════════════
     if (!textEl.dataset.fullText && extraitId) {
         let storedText = null;
         
-        // 1. Essayer le cache extraitDataCache
-        if (typeof extraitDataCache !== 'undefined' && extraitDataCache.has(extraitId)) {
+        // 1. Vérifier si le texte complet est déjà dans le data-attribute HTML
+        const htmlFullText = textEl.getAttribute('data-full-text');
+        if (htmlFullText && htmlFullText.length > 300) {
+            storedText = htmlFullText;
+        }
+        
+        // 2. Essayer le cache extraitDataCache
+        if (!storedText && typeof extraitDataCache !== 'undefined' && extraitDataCache.has(extraitId)) {
             const cached = extraitDataCache.get(extraitId);
-            if (cached && cached.texte) {
+            if (cached && cached.texte && cached.texte.length > 500 && !cached.texte.endsWith('…')) {
                 storedText = cached.texte;
             }
         }
         
-        // 2. Si pas en cache, requêter Supabase
+        // 3. Si pas en cache, requêter Supabase
         if (!storedText && supabaseClient) {
             try {
                 const { data } = await supabaseClient
@@ -708,7 +728,7 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
                     .select('texte')
                     .eq('id', extraitId)
                     .single();
-                if (data && data.texte) {
+                if (data && data.texte && data.texte.length > 500 && !data.texte.endsWith('…')) {
                     storedText = data.texte;
                 }
             } catch (e) {
@@ -716,11 +736,13 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
             }
         }
         
-        // 3. Vérifier si le texte stocké est complet (pas un aperçu tronqué)
-        if (storedText && storedText.length > 500 && !storedText.endsWith('…')) {
-            // Texte complet stocké en base - l'utiliser directement sans appel API
+        // 4. Utiliser le texte stocké s'il est complet
+        if (storedText && storedText.length > 300) {
             textEl.dataset.fullText = storedText;
-            textEl.dataset.previewText = textEl.textContent || '';
+            // Garder l'aperçu actuel comme previewText
+            if (!textEl.dataset.previewText) {
+                textEl.dataset.previewText = textEl.textContent || '';
+            }
         }
     }
 

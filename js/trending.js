@@ -122,6 +122,14 @@ async function loadTrendingFeed() {
             const shareCount = shareInfo?.count || 0;
             const collInfo = typeof extraitCollectionsCache !== 'undefined' && extraitCollectionsCache.get(extrait.id);
             const collCount = collInfo?.count || 0;
+            
+            // Créer un aperçu court pour l'affichage (max 300 chars)
+            const PREVIEW_LENGTH = 300;
+            const fullTexte = extrait.texte || '';
+            const textPreview = fullTexte.length > PREVIEW_LENGTH 
+                ? fullTexte.substring(0, PREVIEW_LENGTH) + '…' 
+                : fullTexte;
+            const hasFullText = fullTexte.length > PREVIEW_LENGTH;
 
             return `
                 <div class="trending-card" data-extrait-id="${extrait.id}">
@@ -136,8 +144,8 @@ async function loadTrendingFeed() {
                         <div class="trending-rank">${rankEmoji}</div>
                     </div>
                     <div class="trending-card-body">
-                        <div class="trending-text" id="extraitText-${extrait.id}">${escapeHtml(extrait.texte)}</div>
-                        ${extrait.source_url ? `<button class="btn-voir-plus" onclick="event.stopPropagation(); loadFullTextFromSource(this)" id="voirPlus-${extrait.id}" data-extrait-id="${extrait.id}" data-source-url="${escapeHtml(extrait.source_url)}" data-source-title="${escapeHtml(extrait.source_title || '')}">${t('view_full_text')}</button>` : ''}
+                        <div class="trending-text" id="extraitText-${extrait.id}" data-full-text="${hasFullText ? escapeHtml(fullTexte) : ''}" data-preview-text="${escapeHtml(textPreview)}">${escapeHtml(textPreview)}</div>
+                        ${extrait.source_url || hasFullText ? `<button class="btn-voir-plus" onclick="event.stopPropagation(); loadFullTextFromSource(this)" id="voirPlus-${extrait.id}" data-extrait-id="${extrait.id}" data-source-url="${escapeHtml(extrait.source_url || '')}" data-source-title="${escapeHtml(extrait.source_title || '')}">${t('view_full_text')}</button>` : ''}
                         ${extrait.source_author || extrait.source_title ? `
                             <div class="trending-source">
                                 <strong>${escapeHtml(extrait.source_author || '')}</strong>
