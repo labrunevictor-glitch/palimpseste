@@ -527,11 +527,26 @@ async function init() {
     const header = document.querySelector('header');
     const explorationContainer = document.getElementById('explorationContainer');
     
+    // IntersectionObserver pour infinite scroll (plus fiable que scroll event)
+    const scrollSentinel = document.getElementById('scrollSentinel');
+    if (scrollSentinel && 'IntersectionObserver' in window) {
+        const infiniteScrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !state.loading) {
+                    loadMore();
+                }
+            });
+        }, {
+            rootMargin: '1500px 0px' // Déclenche 1500px avant d'être visible
+        });
+        infiniteScrollObserver.observe(scrollSentinel);
+    }
+    
     window.addEventListener('scroll', throttle(() => {
         document.getElementById('progress').style.width =
             (scrollY / (document.body.scrollHeight - innerHeight) * 100) + '%';
-        // Déclencher le chargement plus tôt (1500px du bas au lieu de 800)
-        if (innerHeight + scrollY >= document.body.scrollHeight - 1500 && !state.loading) loadMore();
+        // Fallback: déclencher si IntersectionObserver n'a pas fonctionné
+        if (innerHeight + scrollY >= document.body.scrollHeight - 800 && !state.loading) loadMore();
 
         // Afficher/masquer le bouton scroll to top
         updateScrollTopButton();
