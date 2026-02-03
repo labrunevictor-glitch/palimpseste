@@ -730,46 +730,100 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
         const gutenbergMatch = sourceUrl.match(/https?:\/\/(?:www\.)?gutenberg\.org\/ebooks\/(\d+)/);
         
         if (wikisourceMatch) {
-            // URL Wikisource - utiliser l'API MediaWiki
+            // URL Wikisource - utiliser l'API MediaWiki avec détection de sommaire
             const lang = wikisourceMatch[1];
-            const pageTitle = decodeURIComponent(wikisourceMatch[2]);
-            
-            // Appeler l'API Wikisource
-            const apiUrl = `https://${lang}.wikisource.org/w/api.php?` + new URLSearchParams({
-                action: 'parse',
-                page: pageTitle,
-                prop: 'text',
-                format: 'json',
-                origin: '*'
-            });
+            let pageTitle = decodeURIComponent(wikisourceMatch[2]);
+            const baseUrl = `https://${lang}.wikisource.org`;
             
             // Sauvegarder l'extrait actuel pour permettre le repli
             if (!textEl.dataset.previewText) {
                 textEl.dataset.previewText = textEl.textContent || '';
             }
-
-            const response = await fetch(apiUrl);
-            const data = await response.json();
             
-            if (data.parse?.text?.['*']) {
-                // Parser le HTML et extraire le texte
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(data.parse.text['*']) : '';
+            // Fonction pour charger une page avec détection de sommaire
+            const loadPageWithFallback = async (title, depth = 0) => {
+                if (depth > 3) return null;
                 
-                // Supprimer les éléments indésirables
-                tempDiv.querySelectorAll('table, .mw-editsection, script, style, .noprint, .reference, sup.reference').forEach(el => el.remove());
-                
-                // Récupérer le texte des paragraphes
-                const paragraphs = tempDiv.querySelectorAll('p, .poem, .verse, blockquote, div.text');
-                paragraphs.forEach(p => {
-                    const text = p.textContent.trim();
-                    if (text.length > 20) fullText += text + '\n\n';
+                // Requête enrichie avec liens pour détecter les sommaires
+                const apiUrl = `${baseUrl}/w/api.php?` + new URLSearchParams({
+                    action: 'parse',
+                    page: title,
+                    prop: 'text|links',
+                    pllimit: '100',
+                    format: 'json',
+                    origin: '*',
+                    redirects: 'true'
                 });
                 
-                if (fullText.length < 100) {
-                    fullText = tempDiv.textContent.trim();
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.error || !data.parse?.text?.['*']) return null;
+                
+                const html = data.parse.text['*'];
+                const links = data.parse.links || [];
+                
+                // Parser le HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
+                
+                // Supprimer les éléments indésirables
+                tempDiv.querySelectorAll('table, .mw-editsection, script, style, .noprint, .reference, sup.reference, .navigation, .toc').forEach(el => el.remove());
+                
+                // Extraire le texte des paragraphes
+                let text = '';
+                const paragraphs = tempDiv.querySelectorAll('p, .poem, .verse, blockquote, div.text');
+                paragraphs.forEach(p => {
+                    const t = p.textContent.trim();
+                    if (t.length > 20) text += t + '\n\n';
+                });
+                
+                if (text.length < 100) {
+                    text = tempDiv.textContent
+                        .replace(/\[\d+\]/g, '')
+                        .replace(/\[modifier\]/gi, '')
+                        .replace(/\s+/g, ' ')
+                        .trim();
                 }
-            }
+                
+                // Vérifier si c'est un sommaire (beaucoup de liens vers sous-pages, peu de texte)
+                const basePage = title.split('/')[0];
+                const subPageLinks = links.filter(l => {
+                    const linkTitle = l['*'] || '';
+                    return linkTitle.startsWith(basePage + '/') && l.ns === 0;
+                });
+                
+                const isLikelySommaire = subPageLinks.length >= 3 && text.length < 500;
+                
+                if (isLikelySommaire && subPageLinks.length > 0) {
+                    // C'est un sommaire - chercher une sous-page qui contient l'extrait
+                    const previewText = textEl.dataset.previewText || '';
+                    const normPreview = previewText.replace(/\s+/g, ' ').trim().toLowerCase().substring(0, 50);
+                    
+                    // Essayer les sous-pages une par une pour trouver celle qui contient le texte
+                    for (const subLink of subPageLinks.slice(0, 5)) {
+                        const subResult = await loadPageWithFallback(subLink['*'], depth + 1);
+                        if (subResult && subResult.length > 200) {
+                            const normSub = subResult.replace(/\s+/g, ' ').trim().toLowerCase();
+                            if (normSub.includes(normPreview.substring(0, 30))) {
+                                return subResult;
+                            }
+                        }
+                    }
+                    
+                    // Si aucune correspondance, prendre la première sous-page avec du contenu
+                    for (const subLink of subPageLinks.slice(0, 3)) {
+                        const subResult = await loadPageWithFallback(subLink['*'], depth + 1);
+                        if (subResult && subResult.length > 300) {
+                            return subResult;
+                        }
+                    }
+                }
+                
+                return text.length > 100 ? text : null;
+            };
+            
+            fullText = await loadPageWithFallback(pageTitle) || '';
         } else if (gutenbergMatch) {
             // URL Gutenberg - utiliser l'API Gutendex pour trouver le texte brut
             const bookId = gutenbergMatch[1];
@@ -909,11 +963,8 @@ async function loadFullTextFromSource(btnOrId, sourceUrlParam, sourceTitleParam)
                             origIdx--;
                         }
                         fullText = fullText.substring(origIdx).trim();
-                    } else {
-                        // Aucune correspondance trouvée - probablement une page de sommaire/index
-                        // Ne pas afficher un contenu incorrect
-                        throw new Error('Page de sommaire détectée - texte non disponible directement');
                     }
+                    // Si aucune correspondance, afficher le texte tel quel (la détection de sommaire en amont devrait avoir fonctionné)
                 }
             }
 

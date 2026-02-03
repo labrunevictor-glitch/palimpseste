@@ -1663,22 +1663,37 @@ async function loadTextFromCollection(itemId, title, author, url) {
     if (url && url.includes('wikisource.org')) {
         try {
             // Extraire le titre de la page depuis l'URL
-            const pageTitle = decodeURIComponent(url.split('/wiki/').pop());
+            let pageTitle = decodeURIComponent(url.split('/wiki/').pop());
             
             // Déterminer la langue depuis l'URL
             const langMatch = url.match(/https?:\/\/([a-z]+)\.wikisource/);
             const lang = langMatch ? langMatch[1] : 'fr';
             const baseUrl = `https://${lang}.wikisource.org`;
             
-            // Utiliser action=parse comme fetchText (méthode fiable)
-            const apiUrl = `${baseUrl}/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&prop=text&format=json&origin=*&redirects=true`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            
-            if (data.parse?.text) {
-                const html = data.parse.text['*'];
+            // Fonction pour charger une page avec détection de sommaire
+            const loadPageWithFallback = async (title, depth = 0) => {
+                if (depth > 3) return null;
                 
-                // Extraire le texte du HTML (même méthode que analyzeHtml)
+                // Requête enrichie avec liens pour détecter les sommaires
+                const apiUrl = `${baseUrl}/w/api.php?` + new URLSearchParams({
+                    action: 'parse',
+                    page: title,
+                    prop: 'text|links',
+                    pllimit: '100',
+                    format: 'json',
+                    origin: '*',
+                    redirects: 'true'
+                });
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (data.error || !data.parse?.text?.['*']) return null;
+                
+                const html = data.parse.text['*'];
+                const links = data.parse.links || [];
+                
+                // Parser le HTML
                 const div = document.createElement('div');
                 div.innerHTML = html;
                 
@@ -1698,16 +1713,54 @@ async function loadTextFromCollection(itemId, title, author, url) {
                 // Si pas assez de texte, prendre tout le contenu
                 if (text.length < 200) {
                     text = div.textContent
-                        .replace(/\[\d+\]/g, '')        // Notes [1], [2]
-                        .replace(/\[modifier\]/gi, '')  // Liens d'édition
-                        .replace(/\s+/g, ' ')           // Espaces multiples
+                        .replace(/\[\d+\]/g, '')
+                        .replace(/\[modifier\]/gi, '')
+                        .replace(/\s+/g, ' ')
                         .trim();
                 }
                 
-                text = text
-                    .replace(/\n{3,}/g, '\n\n')
-                    .trim();
-
+                text = text.replace(/\n{3,}/g, '\n\n').trim();
+                
+                // Vérifier si c'est un sommaire (beaucoup de liens vers sous-pages, peu de texte)
+                const basePage = title.split('/')[0];
+                const subPageLinks = links.filter(l => {
+                    const linkTitle = l['*'] || '';
+                    return linkTitle.startsWith(basePage + '/') && l.ns === 0;
+                });
+                
+                const isLikelySommaire = subPageLinks.length >= 3 && text.length < 500;
+                
+                if (isLikelySommaire && subPageLinks.length > 0) {
+                    // C'est un sommaire - chercher une sous-page qui contient l'extrait
+                    const previewText = card.dataset.previewText || '';
+                    const normPreview = previewText.replace(/\s+/g, ' ').trim().toLowerCase().substring(0, 50);
+                    
+                    // Essayer les sous-pages une par une pour trouver celle qui contient le texte
+                    for (const subLink of subPageLinks.slice(0, 5)) {
+                        const subResult = await loadPageWithFallback(subLink['*'], depth + 1);
+                        if (subResult && subResult.length > 200) {
+                            const normSub = subResult.replace(/\s+/g, ' ').trim().toLowerCase();
+                            if (normSub.includes(normPreview.substring(0, 30))) {
+                                return subResult;
+                            }
+                        }
+                    }
+                    
+                    // Si aucune correspondance, prendre la première sous-page avec du contenu
+                    for (const subLink of subPageLinks.slice(0, 3)) {
+                        const subResult = await loadPageWithFallback(subLink['*'], depth + 1);
+                        if (subResult && subResult.length > 300) {
+                            return subResult;
+                        }
+                    }
+                }
+                
+                return text.length > 100 ? text : null;
+            };
+            
+            let text = await loadPageWithFallback(pageTitle);
+            
+            if (text && text.length > 100) {
                 // Aligner le début avec l'extrait déjà affiché
                 const previewText = card.dataset.previewText || (preview ? preview.textContent : '') || '';
                 const normalize = (s) => (s || '').replace(/\s+/g, ' ').trim().toLowerCase();
@@ -1716,14 +1769,13 @@ async function loadTextFromCollection(itemId, title, author, url) {
                 if (normPreview && normPreview.length > 20) {
                     const normFull = normalize(text);
                     
-                    // Chercher une correspondance significative (au moins 50 caractères du début du preview)
+                    // Chercher une correspondance significative
                     const searchLen = Math.min(normPreview.length, 80);
                     const searchSnippet = normPreview.substring(0, searchLen);
                     
                     const matchIdx = normFull.indexOf(searchSnippet);
                     
                     if (matchIdx >= 0) {
-                        // Trouver l'index correspondant dans le texte original
                         let origIdx = 0;
                         let normCount = 0;
                         
@@ -1734,14 +1786,13 @@ async function loadTextFromCollection(itemId, title, author, url) {
                             origIdx++;
                         }
                         
-                        // Reculer jusqu'au début d'un mot/ligne pour une coupe propre
                         while (origIdx > 0 && text[origIdx - 1] !== '\n' && text[origIdx - 1] !== ' ') {
                             origIdx--;
                         }
                         
                         text = text.substring(origIdx).trim();
                     } else {
-                        // Le preview n'est pas dans le texte complet - chercher une correspondance partielle
+                        // Chercher une correspondance partielle
                         const previewWords = normPreview.split(' ').slice(0, 5).join(' ');
                         const partialIdx = normFull.indexOf(previewWords);
                         
@@ -1758,31 +1809,19 @@ async function loadTextFromCollection(itemId, title, author, url) {
                                 origIdx--;
                             }
                             text = text.substring(origIdx).trim();
-                        } else {
-                            // Aucune correspondance - probablement une page de sommaire/index
-                            fullContainer.innerHTML = `<div class="collection-error">Cette page semble être un sommaire. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
-                            finalizeLoadingState(true);
-                            return;
                         }
+                        // Si aucune correspondance, afficher le texte tel quel
                     }
                 }
                 
-                if (text.length > 100) {
-                    fullContainer.innerHTML = `<div class="collection-full-text">${escapeHtml(text)}</div>`;
-                    card.dataset.fullText = text;
-                    updateCollectionExpandAvailability(card);
-                    toast('Texte complet chargé');
-                    finalizeLoadingState(true);
-                    stabilizeCollectionsScroll(scrollEl, scrollTop);
-                } else {
-                    // Texte trop court = probablement une page d'index
-                    fullContainer.innerHTML = `<div class="collection-error">Cette page est un sommaire. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
-                    finalizeLoadingState(true);
-                }
-            } else if (data.error) {
-                fullContainer.innerHTML = `<div class="collection-error">Page introuvable. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
+                fullContainer.innerHTML = `<div class="collection-full-text">${escapeHtml(text)}</div>`;
+                card.dataset.fullText = text;
+                updateCollectionExpandAvailability(card);
+                toast('Texte complet chargé');
                 finalizeLoadingState(true);
+                stabilizeCollectionsScroll(scrollEl, scrollTop);
             } else {
+                // Texte non trouvé
                 fullContainer.innerHTML = `<div class="collection-error">Texte non disponible. <a href="${url}" target="_blank">Voir sur Wikisource →</a></div>`;
                 finalizeLoadingState(true);
             }
