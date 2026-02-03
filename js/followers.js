@@ -1190,7 +1190,7 @@ async function loadProfileExtraits(userId) {
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreview)}</div>
-                    ${hasFullText ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more') || 'Voir plus'}</button>` : ''}
+                    ${hasFullText ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -1347,7 +1347,7 @@ async function loadProfileLikes(userId) {
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreviewLikes)}</div>
-                    ${hasFullTextLikes ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more') || 'Voir plus'}</button>` : ''}
+                    ${hasFullTextLikes ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -1405,12 +1405,12 @@ function toggleProfileExtraitText(btn, extraitId) {
         textEl.textContent = fullText.length > PREVIEW_LENGTH 
             ? fullText.substring(0, PREVIEW_LENGTH) + '…' 
             : fullText;
-        btn.textContent = t('show_more') || 'Voir plus';
+        btn.textContent = t('show_more');
         btn.dataset.expanded = 'false';
     } else {
         // Déplier
         textEl.textContent = fullText;
-        btn.textContent = t('show_less') || 'Voir moins';
+        btn.textContent = t('show_less');
         btn.dataset.expanded = 'true';
     }
 }
