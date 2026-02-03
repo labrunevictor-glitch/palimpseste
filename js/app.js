@@ -23,7 +23,7 @@ let state = {
     // Stats basées sur les textes likés/partagés (vos vrais goûts)
     likedGenreStats: {}, likedAuthorStats: {},
     likedAuthors: new Set(), discoveredConnections: new Set(),
-    achievements: [], readingPath: [],
+    readingPath: [],
     // Statistiques de lecture
     readingStats: {
         totalWordsRead: 0,
@@ -389,23 +389,11 @@ async function init() {
     const langSelect = document.getElementById('langSelect');
     if (langSelect) langSelect.value = getSelectedLang();
     
-    // Charger les likes locaux (et Supabase si déjà connecté) avant le rendu des badges
+    // Charger les likes locaux (et Supabase si déjà connecté)
     if (typeof loadLikedSources === 'function') await loadLikedSources();
     
     updateStats();
     updateConnections();
-    
-    // Vérifier l'intégrité des badges au démarrage
-    if (typeof normalizeAchievementsState === 'function') {
-        normalizeAchievementsState();
-    }
-    
-    renderAchievements();
-    
-    // Vérifier les badges après chargement complet des stats
-    if (typeof checkAchievements === 'function') {
-        setTimeout(() => checkAchievements(), 500);
-    }
     
     renderReadingPath();
     renderFavorites();
@@ -420,23 +408,6 @@ async function init() {
     // Mise à jour périodique du fun stat
     var _funStatInterval = setInterval(updateFunStat, 15000);
     window.addEventListener('beforeunload', function() { clearInterval(_funStatInterval); });
-    
-    // ☁️ SYNCHRONISATION CLOUD PÉRIODIQUE DES BADGES
-    // Sync toutes les 10 minutes si l'utilisateur est connecté (évite surcharge)
-    var _cloudSyncInterval = setInterval(() => {
-        if (window.currentUser && typeof syncProgressWithCloud === 'function') {
-            syncProgressWithCloud();
-        }
-    }, 10 * 60 * 1000);
-    
-    // Sync avant de quitter la page
-    window.addEventListener('beforeunload', function() { 
-        clearInterval(_cloudSyncInterval);
-        // Sync finale (sync rapide, ne bloque pas la fermeture)
-        if (window.currentUser && typeof forceSyncToCloud === 'function') {
-            forceSyncToCloud();
-        }
-    });
     
     // Créer le bouton scroll to top
     createScrollTopButton();
@@ -703,7 +674,6 @@ function loadState() {
         state.likedAuthorStats = d.likedAuthorStats || {};
         state.likedAuthors = new Set(d.likedAuthors || []);
         state.discoveredConnections = new Set(d.discoveredConnections || []);
-        state.achievements = d.achievements || [];
         state.readingPath = d.readingPath || [];
         
         // Charger les stats de lecture
@@ -735,7 +705,6 @@ function saveState() {
         likedAuthorStats: state.likedAuthorStats,
         likedAuthors: [...state.likedAuthors],
         discoveredConnections: [...state.discoveredConnections],
-        achievements: state.achievements || [],
         readingPath: state.readingPath || [],
         favorites: state.favorites || [],
         readingStats: state.readingStats
@@ -2645,7 +2614,6 @@ function openReader(id) {
     
     // Fonctionnalités fun
     addToReadingPath(author, title);
-    checkAchievements();
     updateFunStat();
     updateStats();
 }

@@ -84,20 +84,6 @@ const CONFIG = {
         surrealisme: { name: 'Surréalisme', icon: '👁️', color: '#e67e22' },
         existentialisme: { name: 'Existentialisme', icon: '🚬', color: '#2c3e50' },
         absurde: { name: 'Absurde', icon: '🎪', color: '#f39c12' }
-    },
-    
-    // 🏆 Achievements
-    ACHIEVEMENTS: {
-        premier_pas: { name: 'Premier pas', icon: '👣', description: 'Lire votre premier texte' },
-        explorateur: { name: 'Explorateur', icon: '🧭', description: 'Lire 10 textes' },
-        bibliophile: { name: 'Bibliophile', icon: '📚', description: 'Ajouter 10 favoris' },
-        polyglotte: { name: 'Polyglotte', icon: '🌍', description: 'Lire dans 3 langues différentes' },
-        noctambule: { name: 'Noctambule', icon: '🦉', description: 'Lire entre minuit et 5h' },
-        leve_tot: { name: 'Lève-tôt', icon: '🌅', description: 'Lire entre 5h et 7h' },
-        social: { name: 'Social', icon: '🤝', description: 'Suivre 5 utilisateurs' },
-        critique: { name: 'Critique', icon: '✍️', description: 'Écrire 5 commentaires' },
-        partageur: { name: 'Partageur', icon: '📤', description: 'Partager un extrait' },
-        voyageur: { name: 'Voyageur littéraire', icon: '🚀', description: 'Lire 100 textes' }
     }
 };
 

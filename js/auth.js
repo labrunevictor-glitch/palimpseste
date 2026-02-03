@@ -560,16 +560,15 @@ async function onUserLoggedIn() {
 
     // ═══════════════════════════════════════════════════════════════════
     // 🔄 VÉRIFIER SI C'EST UN CHANGEMENT D'UTILISATEUR
-    // Si oui, réinitialiser le state local pour éviter de mélanger les badges
-    // ═══════════════════════════════════════════════════════════════════
+    // Si oui, réinitialiser le state local pour éviter de mélanger les données
+    // ═════════════════════════════════════════════════════════════════════
     const lastUserId = localStorage.getItem('palimpseste_last_user');
     const isNewUser = lastUserId && lastUserId !== currentUser.id;
     
     if (isNewUser) {
         console.log('👤 Changement d\'utilisateur détecté, réinitialisation du state local...');
-        // Réinitialiser le state local (les badges seront chargés depuis le cloud)
+        // Réinitialiser le state local
         if (typeof state !== 'undefined') {
-            state.achievements = [];
             state.readCount = 0;
             state.authorStats = {};
             state.genreStats = {};
@@ -632,18 +631,8 @@ async function onUserLoggedIn() {
     // Load user stats (défini dans app.js)
     if (typeof loadUserStats === 'function') loadUserStats();
     
-    // Charger et synchroniser les likes locaux/Supabase (impacte les badges)
+    // Charger et synchroniser les likes locaux/Supabase
     if (typeof loadLikedSources === 'function') await loadLikedSources();
-    
-    // ☁️ SYNCHRONISATION DES BADGES ET PROGRESSION
-    // Fusionne les données locales et cloud (prend le maximum de chaque)
-    if (typeof syncProgressWithCloud === 'function') {
-        await syncProgressWithCloud();
-    }
-    
-    // Rafraîchir les badges après connexion/sync
-    if (typeof checkAchievements === 'function') checkAchievements();
-    if (typeof renderAchievements === 'function') renderAchievements();
     
     // Mettre à jour le badge de messages non lus
     if (typeof updateUnreadBadge === 'function') updateUnreadBadge();
@@ -692,7 +681,6 @@ function onUserLoggedOut() {
     
     // Réinitialiser le state en mémoire
     if (typeof state !== 'undefined') {
-        state.achievements = [];
         state.readCount = 0;
         state.authorStats = {};
         state.genreStats = {};
@@ -717,8 +705,7 @@ function onUserLoggedOut() {
     if (typeof resetLikesCache === 'function') resetLikesCache();
     if (typeof updateLikeCount === 'function') updateLikeCount();
     
-    // Mettre à jour l'affichage des badges (maintenant vides) SANS recalculer
-    if (typeof renderAchievements === 'function') renderAchievements();
+    // Mettre à jour les stats
     if (typeof updateStats === 'function') updateStats();
     if (typeof updateFunStat === 'function') updateFunStat();
     
