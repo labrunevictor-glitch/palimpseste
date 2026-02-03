@@ -2759,6 +2759,14 @@ transform: translateX(-50%) translateY(2px);
 box-shadow: 0 2px 10px rgba(230, 57, 70, 0.3), 2px 2px 0 var(--pixel-shadow);
 }
 
+/* Sentinelle invisible en haut du feed pour le scroll infini vers le haut */
+.top-scroll-sentinel {
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+    margin-bottom: 0;
+}
+
 /* Indicateur de chargement en haut du feed */
 .top-loading-indicator {
 text-align: center;

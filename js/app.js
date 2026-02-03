@@ -410,6 +410,15 @@ async function init() {
     document.getElementById('loading').style.display = 'none';
     await loadMore();
     
+    // ✅ Marquer que le chargement initial est terminé (permet le scroll vers le haut)
+    window.initialLoadComplete = true;
+    
+    // ⚡ Précharger immédiatement du contenu vers le HAUT (comme pour le bas)
+    // Cela permet à l'utilisateur de scroller vers le haut dès l'ouverture
+    setTimeout(() => {
+        loadNewTextsOnTop();
+    }, 100);
+    
     // Mise à jour périodique du fun stat
     var _funStatInterval = setInterval(updateFunStat, 15000);
     window.addEventListener('beforeunload', function() { clearInterval(_funStatInterval); });
@@ -504,25 +513,18 @@ async function init() {
     }, { passive: true });
     
     // Scroll vers le haut au sommet = charger nouveaux textes (DESKTOP)
-    let wheelUpCount = 0;
-    let wheelUpTimer = null;
+    // ⚡ OPTIMISÉ: Déclenchement immédiat au premier scroll vers le haut
+    let wheelUpCooldown = false;
     
     window.addEventListener('wheel', async (e) => {
         // Si on est en haut et qu'on scrolle vers le haut (deltaY négatif)
-        if (window.scrollY <= 5 && e.deltaY < 0 && !state.loading) {
-            wheelUpCount++;
-
-            // Charger après 2 scrolls vers le haut (plus réactif)
-            if (wheelUpCount >= 2) {
-                wheelUpCount = 0;
-                await loadNewTextsOnTop();
-            }
-            
-            // Reset le compteur après 600ms d'inactivité
-            clearTimeout(wheelUpTimer);
-            wheelUpTimer = setTimeout(() => {
-                wheelUpCount = 0;
-            }, 600);
+        // loadNewTextsOnTop gère son propre flag loadingTop, indépendant de state.loading
+        if (window.scrollY <= 5 && e.deltaY < 0 && !wheelUpCooldown) {
+            // Déclenchement immédiat au premier scroll vers le haut
+            wheelUpCooldown = true;
+            await loadNewTextsOnTop();
+            // Cooldown de 1 seconde pour éviter les déclenchements multiples
+            setTimeout(() => { wheelUpCooldown = false; }, 1000);
         }
     }, { passive: true });
     
@@ -532,7 +534,7 @@ async function init() {
     const header = document.querySelector('header');
     const explorationContainer = document.getElementById('explorationContainer');
     
-    // IntersectionObserver pour infinite scroll (plus fiable que scroll event)
+    // IntersectionObserver pour infinite scroll vers le BAS (plus fiable que scroll event)
     const scrollSentinel = document.getElementById('scrollSentinel');
     if (scrollSentinel && 'IntersectionObserver' in window) {
         const infiniteScrollObserver = new IntersectionObserver((entries) => {
@@ -545,6 +547,41 @@ async function init() {
             rootMargin: '1500px 0px' // Déclenche 1500px avant d'être visible
         });
         infiniteScrollObserver.observe(scrollSentinel);
+    }
+    
+    // ⚡ IntersectionObserver pour infinite scroll vers le HAUT
+    // Créer et observer une sentinelle en haut du feed
+    const feed = document.getElementById('feed');
+    if (feed && 'IntersectionObserver' in window) {
+        // Créer la sentinelle en haut
+        let topSentinel = document.getElementById('topScrollSentinel');
+        if (!topSentinel) {
+            topSentinel = document.createElement('div');
+            topSentinel.id = 'topScrollSentinel';
+            topSentinel.className = 'top-scroll-sentinel';
+            topSentinel.setAttribute('aria-hidden', 'true');
+            feed.insertBefore(topSentinel, feed.firstChild);
+        }
+        
+        let topScrollCooldown = false;
+        
+        const topScrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Déclencher quand la sentinelle est visible ET qu'on est proche du haut
+                // loadNewTextsOnTop gère son propre flag loadingTop, indépendant de state.loading
+                if (entry.isIntersecting && window.scrollY <= 100 && !topScrollCooldown) {
+                    topScrollCooldown = true;
+                    loadNewTextsOnTop().finally(() => {
+                        // Cooldown pour éviter les déclenchements répétés
+                        setTimeout(() => { topScrollCooldown = false; }, 2000);
+                    });
+                }
+            });
+        }, {
+            rootMargin: '500px 0px 0px 0px', // Marge généreuse pour déclencher tôt (comme le scroll vers le bas)
+            threshold: 0
+        });
+        topScrollObserver.observe(topSentinel);
     }
     
     window.addEventListener('scroll', throttle(() => {
@@ -1052,13 +1089,15 @@ async function shuffleFeed() {
 
 // Charger de nouveaux textes en HAUT du feed (style Twitter "Voir les nouveaux tweets")
 // Ne supprime JAMAIS les cartes existantes - ajoute uniquement en haut
+// Utilise un flag séparé pour ne pas bloquer le chargement initial vers le bas
+let loadingTop = false;
 async function loadNewTextsOnTop() {
-    if (state.loading) return;
-    state.loading = true;
+    if (loadingTop) return;
+    loadingTop = true;
     
     const feed = document.getElementById('feed');
     if (!feed) {
-        state.loading = false;
+        loadingTop = false;
         return;
     }
     
@@ -1149,7 +1188,7 @@ async function loadNewTextsOnTop() {
     
     // hideNewTextsBanner(); // Removed
     } finally {
-        state.loading = false;
+        loadingTop = false;
         // Nettoyer les cartes en bas (on charge en haut, donc les vieilles sont en bas)
         cleanupOldCards(false);
 
