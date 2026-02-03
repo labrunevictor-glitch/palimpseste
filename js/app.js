@@ -1797,9 +1797,8 @@ function showMore(cardId) {
     let remaining = card.dataset.remaining || '';
     
     if (!remaining) {
-        btnEl.innerHTML = '✓ Texte complet';
-        btnEl.classList.add('exhausted');
-        btnEl.onclick = null;
+        // Cacher le bouton si plus de texte à afficher
+        btnEl.style.display = 'none';
         return;
     }
     
@@ -1819,10 +1818,8 @@ function showMore(cardId) {
     // Marquer comme complet
     card.dataset.remaining = '';
     
-    // Mettre à jour le bouton
-    btnEl.innerHTML = '✓ Texte complet';
-    btnEl.classList.add('exhausted');
-    btnEl.onclick = null;
+    // Cacher le bouton
+    btnEl.style.display = 'none';
     
     // NE PAS scroller - garder l'écran stable pour ne pas gêner la lecture
 }
