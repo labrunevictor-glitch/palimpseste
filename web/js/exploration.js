@@ -863,6 +863,12 @@ function toggleExplorationCollapse() {
     const container = document.getElementById('explorationContainer');
     if (!container) return;
     
+    // Sur mobile, utiliser le système de drawer
+    if (window.innerWidth <= 900 && typeof toggleFilterDrawer === 'function') {
+        toggleFilterDrawer();
+        return;
+    }
+    
     userManuallyToggled = true;
     isExplorationCollapsed = !isExplorationCollapsed;
     container.classList.toggle('collapsed', isExplorationCollapsed);

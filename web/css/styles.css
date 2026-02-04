@@ -1833,7 +1833,7 @@ box-shadow: 3px 3px 0 var(--pixel-shadow);
 .tag.conte { border-color: var(--accent-secondary); color: var(--accent-secondary); }
 
 /* -----------------------------------------------------------
-   EXPLORATION - Kal?idoscope (filtres crois?s)
+   EXPLORATION - Kaléidoscope (filtres croisés)
    ----------------------------------------------------------- */
 .exploration-container {
 position: fixed;
@@ -1848,6 +1848,13 @@ padding: 0.5rem 0;
 transition: transform 0.3s ease, opacity 0.3s ease, max-height 0.4s ease;
 max-height: 500px;
 overflow: hidden;
+display: flex;
+flex-direction: column;
+}
+
+/* Le toggle doit être en bas sur desktop */
+.exploration-toggle {
+order: 99;
 }
 
 /* ?tat r?tract? au scroll */

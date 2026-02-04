@@ -33,6 +33,11 @@
         background: var(--bg-card) !important;
         border-bottom: 2px solid var(--border) !important;
         box-shadow: 0 4px 0 var(--pixel-shadow) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    header.header-hidden {
+        transform: translateY(-100%) !important;
     }
     
     .header-inner {
@@ -915,24 +920,13 @@
     
     main {
         margin: 0 !important;
-        padding-top: 56px !important; /* Juste sous le header, le scroll ajustera */
-        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 24px) !important;
+        padding-top: 56px !important;
+        padding-bottom: calc(var(--mobile-nav-height) + var(--mobile-safe-bottom) + 60px) !important;
         padding-left: 12px !important;
         padding-right: 12px !important;
         width: 100% !important;
         max-width: 100% !important;
         min-height: 100vh !important;
-        transition: padding-top 0.3s ease !important;
-    }
-    
-    /* Filtres dépliés sur mobile - plus d'espace en haut */
-    body:not(.filters-collapsed) main {
-        padding-top: 300px !important; /* Espace pour header + filtres dépliés */
-    }
-    
-    /* Filtres repliés sur mobile - espace réduit */
-    body.filters-collapsed main {
-        padding-top: 120px !important; /* Header + bouton afficher filtres */
     }
     
     /* Cards */
@@ -960,25 +954,28 @@
     }
     
     /* ══════════════════════════════════════════
-       EXPLORATION - KALÉIDOSCOPE (filtres croisés)
+       EXPLORATION - BOTTOM SHEET (filtres)
        ══════════════════════════════════════════ */
     
     .exploration-container {
         position: fixed !important;
-        top: var(--mobile-header-height) !important;
+        bottom: var(--mobile-nav-height) !important;
         left: 0 !important;
         right: 0 !important;
-        z-index: 90 !important;
-        margin-top: 0 !important;
+        top: auto !important;
+        z-index: 95 !important;
+        margin: 0 !important;
         background: var(--bg-card) !important;
-        border-bottom: 1px solid var(--border) !important;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important;
-        padding: 0.4rem 0 0.3rem !important;
-        max-height: 42vh !important;
+        border-top: 2px solid var(--accent) !important;
+        border-radius: 16px 16px 0 0 !important;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
+        padding: 0 !important;
+        max-height: 55vh !important;
         overflow-y: auto !important;
         overflow-x: hidden !important;
         -webkit-overflow-scrolling: touch !important;
-        transition: max-height 0.3s ease !important;
+        transform: translateY(0) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     
     /* Conteneur des lignes - disposition en grille propre */
@@ -990,23 +987,17 @@
         border-bottom: none !important;
     }
     
-    /* État rétracté sur mobile - tout caché sauf le bouton */
+    /* État rétracté - drawer fermé, juste le grip visible */
     .exploration-container.collapsed {
-        max-height: 42px !important;
-        overflow-y: hidden !important;
-        padding: 0 !important;
+        transform: translateY(calc(100% - 44px)) !important;
+        overflow: hidden !important;
     }
     
-    .exploration-container.collapsed .filter-row {
-        display: none !important;
-    }
-    
-    .exploration-container.collapsed .filter-subchips {
-        display: none !important;
-    }
-    
+    .exploration-container.collapsed .filter-row,
+    .exploration-container.collapsed .filter-subchips,
     .exploration-container.collapsed .filter-summary {
-        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
     
     .filter-row {
@@ -1155,78 +1146,80 @@
         min-height: 32px !important;
     }
     
-    /* Bouton toggle - barre horizontale cliquable en bas */
+    /* Grip bar en haut du drawer */
     .exploration-toggle {
+        order: -1 !important; /* En haut sur mobile */
         position: relative !important;
-        right: auto !important;
-        top: auto !important;
-        transform: none !important;
-        width: 100% !important;
-        height: 32px !important;
-        margin-top: 0.3rem !important;
-        padding: 0 !important;
-        font-size: 0.65rem !important;
-        background: linear-gradient(to bottom, transparent, rgba(212, 165, 116, 0.08)) !important;
-        border: none !important;
-        border-top: 1px dotted rgba(212, 165, 116, 0.25) !important;
-        border-radius: 0 !important;
-        color: var(--accent) !important;
-        opacity: 0.8 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 0.4rem !important;
-        box-shadow: none !important;
+        width: 100% !important;
+        height: 44px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: linear-gradient(to bottom, rgba(212, 165, 116, 0.12), transparent) !important;
+        border: none !important;
+        border-radius: 16px 16px 0 0 !important;
+        color: var(--accent) !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
     }
     
-    /* IMPORTANT: Cacher le span texte car on utilise ::before sur mobile */
     .exploration-toggle #toggleFiltersText {
         display: none !important;
     }
     
+    /* Grip bar visuel */
     .exploration-toggle::before {
-        content: "Replier les filtres" !important;
-        font-size: 0.65rem !important;
-        text-transform: none !important;
-        letter-spacing: 0.03em !important;
+        content: '' !important;
+        display: block !important;
+        width: 40px !important;
+        height: 4px !important;
+        background: currentColor !important;
+        border-radius: 2px !important;
+        opacity: 0.5 !important;
     }
 
     .exploration-toggle::after {
-        content: "" !important;
-        display: inline-block !important;
-        width: 0 !important;
-        height: 0 !important;
-        border-left: 5px solid transparent !important;
-        border-right: 5px solid transparent !important;
-        border-bottom: 7px solid currentColor !important;
-        transform: translateY(-1px) !important;
+        display: none !important;
     }
     
+    /* État fermé - grip plus visible */
     .exploration-container.collapsed .exploration-toggle {
         background: var(--accent) !important;
         color: white !important;
-        opacity: 1 !important;
-        height: 36px !important;
-        border-top: none !important;
     }
     
     .exploration-container.collapsed .exploration-toggle::before {
-        content: "Afficher les filtres" !important;
-    }
-
-    .exploration-container.collapsed .exploration-toggle::after {
-        border-bottom: 0 !important;
-        border-top: 7px solid currentColor !important;
-        transform: translateY(1px) !important;
+        background: white !important;
+        opacity: 0.8 !important;
     }
     
     .exploration-toggle:active {
-        background: rgba(212, 165, 116, 0.2) !important;
-        opacity: 1 !important;
+        background: rgba(212, 165, 116, 0.25) !important;
     }
     
     .exploration-container.collapsed .exploration-toggle:active {
         background: var(--accent-secondary) !important;
+    }
+    
+    /* Overlay sombre derrière le drawer */
+    .filter-drawer-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 94;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .filter-drawer-overlay.active {
+        display: block;
+        opacity: 1;
     }
     
     /* Bandeau ambiance (quand on clique sur Romantique, Mélancolie, etc.) */
@@ -1334,30 +1327,48 @@
     
     /* ══════════════════════════════════════════
        FEED TABS - Overlay social mobile
+       Style identique aux profile-tabs
        ══════════════════════════════════════════ */
     .feed-tabs {
         display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-        padding: 10px !important;
+        flex-wrap: nowrap !important;
+        border-bottom: 1px solid var(--border) !important;
         background: var(--bg-card) !important;
+        padding: 0 !important;
+        gap: 0 !important;
     }
     
     .feed-tab {
-        flex: 0 0 auto !important;
-        padding: 8px 10px !important;
-        font-size: 0.7rem !important;
-        background: var(--bg-elevated) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: 6px !important;
+        flex: 1 !important;
+        padding: 0.5rem 0.2rem !important;
+        background: none !important;
+        border: none !important;
+        border-bottom: 2px solid transparent !important;
+        border-radius: 0 !important;
         color: var(--text-secondary) !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.15rem !important;
+    }
+    
+    .feed-tab .tab-emoji {
+        font-size: 1.1rem !important;
+        line-height: 1 !important;
+    }
+    
+    .feed-tab .tab-label {
+        font-size: 0.6rem !important;
+        line-height: 1.1 !important;
         white-space: nowrap !important;
     }
     
     .feed-tab.active {
-        background: var(--accent) !important;
-        border-color: var(--accent) !important;
-        color: #fff !important;
+        color: var(--accent) !important;
+        border-bottom-color: var(--accent) !important;
+        background: none !important;
     }
 
     /* ══════════════════════════════════════════
@@ -1745,6 +1756,48 @@
     /* La sidebar n'est visible QUE quand elle a la classe .open */
     .stats-panel:not(.open) {
         transform: translateX(-100%) !important;
+    }
+    
+    /* ══════════════════════════════════════════
+       AUTO-HIDE HEADERS DES MODALES
+       ══════════════════════════════════════════ */
+    
+    /* Feed communautaire - header rétractable */
+    .favorites-header,
+    .feed-tabs {
+        transition: transform 0.3s ease, opacity 0.3s ease !important;
+    }
+    
+    .favorites-view.header-hidden .favorites-header,
+    .favorites-view.header-hidden .feed-tabs {
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+    }
+    
+    /* Profil - header rétractable */
+    .profile-header-section,
+    .profile-tabs {
+        transition: transform 0.3s ease, opacity 0.3s ease !important;
+    }
+    
+    .user-profile-content.header-hidden .profile-header-section,
+    .user-profile-content.header-hidden .profile-tabs {
+        transform: translateY(-100%) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        width: 100% !important;
+    }
+    
+    /* Ajuster le contenu quand header caché */
+    .favorites-view.header-hidden #socialFeed {
+        padding-top: 0.5rem !important;
+    }
+    
+    .user-profile-content.header-hidden .profile-content {
+        padding-top: 0.5rem !important;
     }
 }
 

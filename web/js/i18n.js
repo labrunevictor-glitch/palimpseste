@@ -97,7 +97,11 @@ const translations = {
         
         // Feed social
         'social_feed': '🐦 FEED COMMUNAUTAIRE',
-        'activity': '❤️ Activité',
+        'trending': 'Tendances',
+        'activity': 'Activité',
+        'following': 'Suivis',
+        'followers': 'Abonnés',
+        'users': 'Utilisateurs',
         'subscriptions': '👥 Abonnements',
         'subscribers': '💌 Abonnés',
         'discover': '🔎 Découvrir',
@@ -526,7 +530,11 @@ const translations = {
         
         // Feed social
         'social_feed': '🐦 COMMUNITY FEED',
-        'activity': '❤️ Activity',
+        'trending': 'Trending',
+        'activity': 'Activity',
+        'following': 'Following',
+        'followers': 'Followers',
+        'users': 'Users',
         'subscriptions': '👥 Following',
         'subscribers': '💌 Followers',
         'discover': '🔎 Discover',
@@ -2245,21 +2253,31 @@ function applyTranslations() {
     const socialTitle = document.querySelector('#socialOverlay .favorites-title');
     if (socialTitle) socialTitle.textContent = t('social_feed');
     
-    // Social tabs
+    // Social tabs - mettre à jour seulement les .tab-label si présents
     const tabRecent = document.getElementById('tabRecent');
-    if (tabRecent) tabRecent.innerHTML = '🔥 ' + t('trending');
+    const tabRecentLabel = tabRecent?.querySelector('.tab-label');
+    if (tabRecentLabel) tabRecentLabel.textContent = t('trending');
+    else if (tabRecent) tabRecent.innerHTML = '🔥 ' + t('trending');
     
     const tabActivity = document.getElementById('tabActivity');
-    if (tabActivity) tabActivity.textContent = t('activity');
+    const tabActivityLabel = tabActivity?.querySelector('.tab-label');
+    if (tabActivityLabel) tabActivityLabel.textContent = t('activity');
+    else if (tabActivity) tabActivity.textContent = t('activity');
     
     const tabFriends = document.getElementById('tabFriends');
-    if (tabFriends) tabFriends.textContent = t('subscriptions');
+    const tabFriendsLabel = tabFriends?.querySelector('.tab-label');
+    if (tabFriendsLabel) tabFriendsLabel.textContent = t('following');
+    else if (tabFriends) tabFriends.textContent = t('subscriptions');
     
     const tabFollowers = document.getElementById('tabFollowers');
-    if (tabFollowers) tabFollowers.textContent = t('subscribers');
+    const tabFollowersLabel = tabFollowers?.querySelector('.tab-label');
+    if (tabFollowersLabel) tabFollowersLabel.textContent = t('followers');
+    else if (tabFollowers) tabFollowers.textContent = t('subscribers');
     
     const tabDiscover = document.getElementById('tabDiscover');
-    if (tabDiscover) tabDiscover.textContent = t('discover');
+    const tabDiscoverLabel = tabDiscover?.querySelector('.tab-label');
+    if (tabDiscoverLabel) tabDiscoverLabel.textContent = t('users');
+    else if (tabDiscover) tabDiscover.textContent = t('users');
     
     const liveIndicator = document.getElementById('liveIndicator');
     if (liveIndicator) liveIndicator.textContent = t('live');

@@ -481,10 +481,18 @@
         <button class="cat-close" onclick="closeCategoryMode()">✕ Quitter</button>
     </div>
     
+    <!-- Overlay pour le bottom sheet filtres (mobile) -->
+    <div class="filter-drawer-overlay" id="filterDrawerOverlay"></div>
+    
     <!-- ═══════════════════════════════════════════════════════════════════════
          BARRE D'EXPLORATION - Kaléidoscope (filtres hiérarchiques)
          ═══════════════════════════════════════════════════════════════════════ -->
     <div class="exploration-container" id="explorationContainer">
+        <!-- Grip bar pour le drawer mobile -->
+        <button class="exploration-toggle" onclick="toggleExplorationCollapse()">
+            <span id="toggleFiltersText">Replier les filtres</span>
+        </button>
+        
         <!-- Ligne 1: Forme / Type de texte (hiérarchique) -->
         <div class="filter-row" id="filterRowForme">
             <span class="filter-label">❧ Forme</span>
@@ -664,9 +672,6 @@
             <button class="filter-summary-random" onclick="rollExploration()" title="Relancer">🎲</button>
             <button class="filter-summary-go" onclick="applyFilters()">Lancer →</button>
         </div>
-        
-        <!-- Bouton replier/déplier -->
-        <button class="exploration-toggle" id="explorationToggle" onclick="toggleExplorationCollapse()"><span id="toggleFiltersText">Replier les filtres</span></button>
     </div>
     
     <!-- Intro d'ambiance (conservé pour compatibilité) -->
@@ -732,11 +737,11 @@
                 <button class="reader-close" onclick="closeSocialFeed()">✕</button>
             </div>
             <div class="feed-tabs">
-                <button class="feed-tab active" onclick="switchSocialTab('recent')" id="tabRecent">🔥 Tendances</button>
-                <button class="feed-tab" onclick="switchSocialTab('activity')" id="tabActivity">❤️ Activité</button>
-                <button class="feed-tab" onclick="switchSocialTab('friends')" id="tabFriends">👥 Abonnements</button>
-                <button class="feed-tab" onclick="switchSocialTab('followers')" id="tabFollowers">💌 Abonnés</button>
-                <button class="feed-tab" onclick="switchSocialTab('discover')" id="tabDiscover">🔎 Découvrir</button>
+                <button class="feed-tab active" onclick="switchSocialTab('recent')" id="tabRecent"><span class="tab-emoji">🔥</span><span class="tab-label" data-i18n="trending">Tendances</span></button>
+                <button class="feed-tab" onclick="switchSocialTab('activity')" id="tabActivity"><span class="tab-emoji">❤️</span><span class="tab-label" data-i18n="activity">Activité</span></button>
+                <button class="feed-tab" onclick="switchSocialTab('friends')" id="tabFriends"><span class="tab-emoji">👥</span><span class="tab-label" data-i18n="following">Suivis</span></button>
+                <button class="feed-tab" onclick="switchSocialTab('followers')" id="tabFollowers"><span class="tab-emoji">💌</span><span class="tab-label" data-i18n="followers">Abonnés</span></button>
+                <button class="feed-tab" onclick="switchSocialTab('discover')" id="tabDiscover"><span class="tab-emoji">👤</span><span class="tab-label" data-i18n="users">Utilisateurs</span></button>
             </div>
             <div class="feed-live-indicator" id="liveIndicator">🟢 En direct</div>
             <div id="socialFeed"></div>

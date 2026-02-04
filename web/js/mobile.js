@@ -2,6 +2,63 @@
 // 📱 MOBILE - Drawer et Navigation (style Twitter)
 // ═══════════════════════════════════════════════════════════
 
+// === BOTTOM SHEET FILTRES ===
+function initFilterDrawer() {
+    if (window.innerWidth > 900) return;
+    
+    const drawer = document.getElementById('explorationContainer');
+    const toggle = drawer?.querySelector('.exploration-toggle');
+    const overlay = document.getElementById('filterDrawerOverlay');
+    
+    if (!drawer || !toggle) return;
+    
+    // Tap pour toggle
+    toggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleFilterDrawer();
+    });
+    
+    // Fermer via overlay
+    overlay?.addEventListener('click', closeFilterDrawer);
+    
+    // Démarrer fermé
+    drawer.classList.add('collapsed');
+    document.body.classList.add('filters-collapsed');
+    
+    console.log('📱 Filter drawer initialisé');
+}
+
+function openFilterDrawer() {
+    const drawer = document.getElementById('explorationContainer');
+    const overlay = document.getElementById('filterDrawerOverlay');
+    
+    if (drawer) {
+        drawer.classList.remove('collapsed');
+        document.body.classList.remove('filters-collapsed');
+    }
+    overlay?.classList.add('active');
+}
+
+function closeFilterDrawer() {
+    const drawer = document.getElementById('explorationContainer');
+    const overlay = document.getElementById('filterDrawerOverlay');
+    
+    if (drawer) {
+        drawer.classList.add('collapsed');
+        document.body.classList.add('filters-collapsed');
+    }
+    overlay?.classList.remove('active');
+}
+
+function toggleFilterDrawer() {
+    const drawer = document.getElementById('explorationContainer');
+    if (drawer?.classList.contains('collapsed')) {
+        openFilterDrawer();
+    } else {
+        closeFilterDrawer();
+    }
+}
+
 // === DRAWER MENU (Stats, badges, favoris) ===
 function openMobileDrawer() {
     const drawer = document.querySelector('.stats-panel');
@@ -59,6 +116,9 @@ function openCollectionsFromProfile() {
 
 // Avatar = Ouvrir le profil complet si connecté, sinon panneau connexion
 function handleAvatarClick() {
+    // Cacher le header sur mobile
+    if (window.innerWidth <= 900) hideHeader();
+    
     if (typeof currentUser !== 'undefined' && currentUser) {
         // Utilisateur connecté → ouvrir la modal profil complète
         if (typeof openMyProfile === 'function') {
@@ -77,6 +137,141 @@ function handleAvatarClick() {
 
 // Navigation mobile
 let lastFeedTap = 0;
+
+// === HEADER AUTO-HIDE AU SCROLL ===
+let mobileLastScrollY = 0;
+let headerHidden = false;
+
+function hideHeader() {
+    const header = document.querySelector('header');
+    if (header && !headerHidden) {
+        header.classList.add('header-hidden');
+        headerHidden = true;
+    }
+}
+
+function showHeader() {
+    const header = document.querySelector('header');
+    if (header && headerHidden) {
+        header.classList.remove('header-hidden');
+        headerHidden = false;
+    }
+}
+
+function initHeaderAutoHide() {
+    if (window.innerWidth > 900) return;
+    window.addEventListener('scroll', handleHeaderScroll, { passive: true });
+}
+
+function handleHeaderScroll() {
+    const header = document.querySelector('header');
+    if (!header) return;
+    
+    const currentY = window.scrollY;
+    const delta = currentY - mobileLastScrollY;
+    
+    // Ignorer les petits mouvements
+    if (Math.abs(delta) < 8) return;
+    
+    // Toujours montrer en haut de page
+    if (currentY < 80) {
+        header.classList.remove('header-hidden');
+        headerHidden = false;
+        mobileLastScrollY = currentY;
+        return;
+    }
+    
+    if (delta > 0 && !headerHidden) {
+        // Scroll vers le bas → cacher
+        header.classList.add('header-hidden');
+        headerHidden = true;
+    } else if (delta < 0 && headerHidden) {
+        // Scroll vers le haut → montrer
+        header.classList.remove('header-hidden');
+        headerHidden = false;
+    }
+    
+    mobileLastScrollY = currentY;
+}
+
+// === AUTO-HIDE HEADERS DES MODALES ===
+let socialLastScrollY = 0;
+let profileLastScrollY = 0;
+
+function initModalHeaderAutoHide() {
+    if (window.innerWidth > 900) return;
+    
+    // Feed communautaire - le scroll est sur l'overlay lui-même
+    const socialOverlay = document.getElementById('socialOverlay');
+    if (socialOverlay) {
+        socialOverlay.addEventListener('scroll', function() {
+            const favView = this.querySelector('.favorites-view');
+            if (!favView) return;
+            
+            const currentY = this.scrollTop;
+            const delta = currentY - socialLastScrollY;
+            
+            if (Math.abs(delta) < 10) return;
+            
+            if (currentY < 50) {
+                favView.classList.remove('header-hidden');
+            } else if (delta > 0) {
+                favView.classList.add('header-hidden');
+            } else if (delta < -5) {
+                favView.classList.remove('header-hidden');
+            }
+            
+            socialLastScrollY = currentY;
+        }, { passive: true });
+    }
+    
+    // Modal profil - attacher directement sur .profile-content
+    const profileModal = document.getElementById('userProfileModal');
+    if (profileModal) {
+        // Observer pour détecter quand profile-content est créé/visible
+        const attachProfileScrollListener = () => {
+            const profileContent = profileModal.querySelector('.profile-content');
+            const userContent = profileModal.querySelector('.user-profile-content');
+            
+            if (profileContent && userContent && !profileContent.hasAttribute('data-scroll-listener')) {
+                profileContent.setAttribute('data-scroll-listener', 'true');
+                
+                profileContent.addEventListener('scroll', function() {
+                    const currentY = this.scrollTop;
+                    const delta = currentY - profileLastScrollY;
+                    
+                    if (Math.abs(delta) < 10) return;
+                    
+                    if (currentY < 50) {
+                        userContent.classList.remove('header-hidden');
+                    } else if (delta > 0) {
+                        userContent.classList.add('header-hidden');
+                    } else if (delta < -5) {
+                        userContent.classList.remove('header-hidden');
+                    }
+                    
+                    profileLastScrollY = currentY;
+                }, { passive: true });
+            }
+        };
+        
+        // Observer les changements dans le modal
+        const observer = new MutationObserver(attachProfileScrollListener);
+        observer.observe(profileModal, { childList: true, subtree: true });
+        
+        // Essayer d'attacher immédiatement aussi
+        attachProfileScrollListener();
+    }
+}
+
+// Initialiser au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth <= 900) {
+        initFilterDrawer();
+        initHeaderAutoHide();
+        initModalHeaderAutoHide();
+    }
+});
 
 function mobileNavTo(section) {
     // Mettre à jour l'état actif
@@ -105,6 +300,7 @@ function mobileNavTo(section) {
             document.getElementById('searchInput')?.focus();
             break;
         case 'social':
+            hideHeader();
             if (typeof openSocialFeed === 'function') openSocialFeed();
             break;
         case 'notifs':
