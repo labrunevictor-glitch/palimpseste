@@ -1598,7 +1598,7 @@ async function resolveExtraitIdForCard(card, createIfMissing = false) {
     const sourceUrl = card.dataset.url || '';
     const text = card.dataset.text || '';
     const lang = card.dataset.lang || 'fr';
-    const textToStore = text.substring(0, 500);
+    const textToStore = text.substring(0, 10000);
     const { textHash, textLength } = buildExtraitKey(textToStore, title, author, sourceUrl);
 
     let query = supabaseClient
