@@ -5218,6 +5218,10 @@ color: var(--text-secondary);
 font-size: 0.75rem;
 cursor: pointer;
 transition: all 0.2s ease;
+pointer-events: auto;
+position: relative;
+z-index: 10;
+touch-action: manipulation;
 }
 .btn-voir-plus:hover {
 border-color: var(--accent);
@@ -7891,6 +7895,10 @@ transition: all 0.2s;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+    touch-action: manipulation;
 }
 
 .btn-voir-plus:hover {

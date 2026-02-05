@@ -1377,10 +1377,21 @@
     .extrait-card {
         padding: 1rem !important;
         border-radius: 8px !important;
+        touch-action: pan-y !important;
     }
     .extrait-text {
         font-size: 0.95rem !important;
         line-height: 1.7 !important;
+        touch-action: pan-y !important;
+    }
+    .btn-voir-plus {
+        display: inline-block !important;
+        padding: 0.5rem 1rem !important;
+        margin: 0.5rem 0 !important;
+        min-height: 44px !important;
+        touch-action: manipulation !important;
+        pointer-events: auto !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
     }
     .extrait-source {
         font-size: 0.75rem !important;
@@ -1670,16 +1681,27 @@
         height: 100% !important;
         border-radius: 0 !important;
         border: none !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
     
     .profile-content {
         padding: 0.75rem !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
+        flex: 1 !important;
+        min-height: 0 !important;
     }
     
     /* Profile extraits - Full width, clean layout */
     .user-profile-modal .profile-extraits-list,
     .user-profile-modal .profile-content .profile-extraits-list {
         gap: 0.75rem !important;
+        touch-action: pan-y !important;
     }
     
     .user-profile-modal .extrait-card,

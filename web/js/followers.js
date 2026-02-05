@@ -1239,7 +1239,7 @@ async function loadProfileExtraits(userId) {
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreview)}</div>
-                    ${hasFullText ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
+                    ${hasFullText ? `<button class="btn-voir-plus" onclick="event.stopPropagation(); toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -1396,7 +1396,7 @@ async function loadProfileLikes(userId) {
                         </div>
                     </div>
                     <div class="extrait-text" id="extraitText-${e.id}">${esc(textPreviewLikes)}</div>
-                    ${hasFullTextLikes ? `<button class="btn-voir-plus" onclick="toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
+                    ${hasFullTextLikes ? `<button class="btn-voir-plus" onclick="event.stopPropagation(); toggleProfileExtraitText(this, '${e.id}')">${t('show_more')}</button>` : ''}
                     <div class="extrait-source">
                         <strong>${esc(e.source_author || '')}</strong> — ${esc(e.source_title || '')}
                         ${e.source_url ? `<a href="${e.source_url}" target="_blank" class="source-link">🔗</a>` : ''}
@@ -1441,26 +1441,50 @@ async function loadProfileLikes(userId) {
  * Toggle l'affichage complet/tronqué d'un texte dans le profil
  */
 function toggleProfileExtraitText(btn, extraitId) {
-    const card = btn.closest('.extrait-card');
-    const textEl = document.getElementById(`extraitText-${extraitId}`);
-    if (!card || !textEl) return;
+    // Empêcher la propagation de l'événement
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
     
-    const fullText = card.dataset.fullText || '';
-    const PREVIEW_LENGTH = 300;
-    const isExpanded = btn.dataset.expanded === 'true';
-    
-    if (isExpanded) {
-        // Replier
-        textEl.textContent = fullText.length > PREVIEW_LENGTH 
-            ? fullText.substring(0, PREVIEW_LENGTH) + '…' 
-            : fullText;
-        btn.textContent = t('show_more');
-        btn.dataset.expanded = 'false';
-    } else {
-        // Déplier
-        textEl.textContent = fullText;
-        btn.textContent = t('show_less');
-        btn.dataset.expanded = 'true';
+    try {
+        const card = btn.closest('.extrait-card');
+        if (!card) {
+            console.warn('toggleProfileExtraitText: card not found');
+            return;
+        }
+        
+        // Utiliser querySelector dans la card pour éviter les conflits d'IDs avec d'autres modales
+        const textEl = card.querySelector('.extrait-text');
+        if (!textEl) {
+            console.warn('toggleProfileExtraitText: textEl not found');
+            return;
+        }
+        
+        const fullText = card.dataset.fullText || '';
+        if (!fullText) {
+            console.warn('toggleProfileExtraitText: no fullText in data attribute');
+            return;
+        }
+        
+        const PREVIEW_LENGTH = 300;
+        const isExpanded = btn.dataset.expanded === 'true';
+        
+        if (isExpanded) {
+            // Replier
+            textEl.textContent = fullText.length > PREVIEW_LENGTH 
+                ? fullText.substring(0, PREVIEW_LENGTH) + '…' 
+                : fullText;
+            btn.textContent = typeof t === 'function' ? t('show_more') : 'Voir plus';
+            btn.dataset.expanded = 'false';
+        } else {
+            // Déplier
+            textEl.textContent = fullText;
+            btn.textContent = typeof t === 'function' ? t('show_less') : 'Voir moins';
+            btn.dataset.expanded = 'true';
+        }
+    } catch (err) {
+        console.error('toggleProfileExtraitText error:', err);
     }
 }
 
