@@ -4043,6 +4043,39 @@ font-style: italic;
 transition: opacity 0.3s;
 }
 
+/* GitHub link section */
+.github-link-section {
+    margin-top: auto;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.github-link:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.08);
+    border-color: var(--accent);
+}
+.github-link svg {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.github-link:hover svg {
+    opacity: 1;
+}
+
 /* Reading path */
 .reading-path {
 display: flex;
