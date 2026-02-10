@@ -1265,7 +1265,7 @@ async function loadProfileExtraits(userId) {
                         </button>
                     </div>
                     <div class="comments-section">
-                        <button class="comments-toggle" onclick="toggleComments('${e.id}')">
+                        <button class="comments-toggle" onclick="toggleComments('${e.id}', event)">
                             💬 <span id="commentCount-${e.id}">${commentsCount}</span> ${commentsCount !== 1 ? t('comment_plural') : t('comment_singular')}
                         </button>
                         <div class="comments-container" id="comments-${e.id}">
@@ -1273,8 +1273,8 @@ async function loadProfileExtraits(userId) {
                                 <div class="comments-empty">${t('loading_comments')}</div>
                             </div>
                             <div class="comment-input-area">
-                                <textarea class="comment-input" id="commentInput-${e.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${e.id}'); }"></textarea>
-                                <button class="comment-send" onclick="postComment('${e.id}')">➤</button>
+                                <textarea class="comment-input" id="commentInput-${e.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${e.id}', event); }"></textarea>
+                                <button class="comment-send" onclick="postComment('${e.id}', event)">➤</button>
                             </div>
                         </div>
                     </div>
@@ -1417,7 +1417,7 @@ async function loadProfileLikes(userId) {
                         </button>
                     </div>
                     <div class="comments-section">
-                        ${(() => { const cc = typeof getRealCommentsCount === 'function' && getRealCommentsCount(e.id) !== null ? getRealCommentsCount(e.id) : (e.comments_count || 0); return `<button class="comments-toggle" onclick="toggleComments('${e.id}')">
+                        ${(() => { const cc = typeof getRealCommentsCount === 'function' && getRealCommentsCount(e.id) !== null ? getRealCommentsCount(e.id) : (e.comments_count || 0); return `<button class="comments-toggle" onclick="toggleComments('${e.id}', event)">
                             💬 <span id="commentCount-${e.id}">${cc}</span> ${cc !== 1 ? t('comment_plural') : t('comment_singular')}
                         </button>`; })()}
                         <div class="comments-container" id="comments-${e.id}">
@@ -1425,8 +1425,8 @@ async function loadProfileLikes(userId) {
                                 <div class="comments-empty">${t('loading_comments')}</div>
                             </div>
                             <div class="comment-input-area">
-                                <textarea class="comment-input" id="commentInput-${e.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${e.id}'); }"></textarea>
-                                <button class="comment-send" onclick="postComment('${e.id}')">➤</button>
+                                <textarea class="comment-input" id="commentInput-${e.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${e.id}', event); }"></textarea>
+                                <button class="comment-send" onclick="postComment('${e.id}', event)">➤</button>
                             </div>
                         </div>
                     </div>

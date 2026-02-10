@@ -426,7 +426,7 @@ async function renderSocialFeed() {
                     </button>
                 </div>
                 <div class="comments-section">
-                    <button class="comments-toggle" onclick="toggleComments('${extrait.id}')">
+                    <button class="comments-toggle" onclick="toggleComments('${extrait.id}', event)">
                         💬 <span id="commentCount-${extrait.id}">${commentsCount}</span> ${commentsCount !== 1 ? t('comment_plural') : t('comment_singular')}
                     </button>
                     <div class="comments-container" id="comments-${extrait.id}">
@@ -434,8 +434,8 @@ async function renderSocialFeed() {
                             <div class="comments-empty">${t('loading_comments')}</div>
                         </div>
                         <div class="comment-input-area">
-                            <textarea class="comment-input" id="commentInput-${extrait.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${extrait.id}'); }"></textarea>
-                            <button class="comment-send" onclick="postComment('${extrait.id}')">➤</button>
+                            <textarea class="comment-input" id="commentInput-${extrait.id}" placeholder="${t('write_comment')}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${extrait.id}', event); }"></textarea>
+                            <button class="comment-send" onclick="postComment('${extrait.id}', event)">➤</button>
                         </div>
                     </div>
                 </div>

@@ -418,12 +418,28 @@ async function publishExtrait() {
             source_url: pendingShare.sourceUrl || '',
             text_hash: textHash || null,
             text_length: textLength || null,
-            commentary: commentary || null,
             likes_count: 0,
             created_at: new Date().toISOString()
         }).select().single();
         
         if (error) throw error;
+        
+        // ═══════════════════════════════════════════════════════════
+        // AJOUTER LE COMMENTAIRE DE PARTAGE COMME PREMIER COMMENTAIRE
+        // ═══════════════════════════════════════════════════════════
+        if (commentary && data?.id) {
+            try {
+                await supabaseClient.from('comments').insert({
+                    extrait_id: data.id,
+                    user_id: currentUser.id,
+                    content: commentary,
+                    created_at: new Date().toISOString()
+                });
+            } catch (commentErr) {
+                console.warn('Erreur ajout commentaire de partage:', commentErr);
+                // Ne pas bloquer le partage si le commentaire échoue
+            }
+        }
         
         // ═══════════════════════════════════════════════════════════
         // MISE À JOUR OPTIMISTE DU COMPTEUR DE PARTAGES (IMMÉDIATE)
@@ -452,7 +468,7 @@ async function publishExtrait() {
         
         // 📊 Tracking analytics
         if (typeof trackShare === 'function') {
-            trackShare(newExtrait?.id || originalExtraitId, 'share');
+            trackShare(data?.id || originalExtraitId, 'share');
         }
         
         // Notifier l'auteur de l'extrait original (si c'est un repartage) - en arrière-plan

@@ -16,9 +16,33 @@ const COMMENT_REACTION_EMOJIS = ['❤️', '👍', '😂', '😮', '😢', '🙏
 /**
  * Afficher/masquer les commentaires d'un extrait
  * @param {string} extraitId - ID de l'extrait
+ * @param {Event|HTMLElement} [eventOrElement] - Événement click ou élément pour contextualiser la recherche
  */
-async function toggleComments(extraitId) {
-    const container = document.getElementById(`comments-${extraitId}`);
+async function toggleComments(extraitId, eventOrElement) {
+    let container = null;
+    
+    // Si un événement ou élément est fourni, trouver le container dans la même carte
+    if (eventOrElement) {
+        const target = eventOrElement.target || eventOrElement;
+        const card = target.closest('.extrait-card');
+        if (card) {
+            container = card.querySelector(`#comments-${extraitId}`) || card.querySelector('.comments-container');
+        }
+    }
+    
+    // Fallback: chercher dans l'overlay social en premier s'il est ouvert, puis dans le DOM général
+    if (!container) {
+        const socialOverlay = document.getElementById('socialOverlay');
+        if (socialOverlay && socialOverlay.classList.contains('open')) {
+            container = socialOverlay.querySelector(`#comments-${extraitId}`);
+        }
+    }
+    
+    // Dernier recours: getElementById classique
+    if (!container) {
+        container = document.getElementById(`comments-${extraitId}`);
+    }
+    
     if (!container) return;
     const isOpen = container.classList.contains('open');
     
@@ -26,18 +50,35 @@ async function toggleComments(extraitId) {
         container.classList.remove('open');
     } else {
         container.classList.add('open');
-        await loadComments(extraitId);
+        await loadComments(extraitId, container);
     }
 }
 
 /**
  * Charger les commentaires d'un extrait
  * @param {string} extraitId - ID de l'extrait
+ * @param {HTMLElement} [parentContainer] - Conteneur parent optionnel pour contextualiser la recherche
  */
-async function loadComments(extraitId) {
+async function loadComments(extraitId, parentContainer) {
     if (!supabaseClient) return;
     
-    const container = document.getElementById(`commentsList-${extraitId}`);
+    // Si un conteneur parent est fourni, chercher la liste dedans
+    let container;
+    if (parentContainer) {
+        container = parentContainer.querySelector(`#commentsList-${extraitId}`) || parentContainer.querySelector('.comments-list');
+    }
+    // Sinon, chercher d'abord dans l'overlay social s'il est ouvert
+    if (!container) {
+        const socialOverlay = document.getElementById('socialOverlay');
+        if (socialOverlay && socialOverlay.classList.contains('open')) {
+            container = socialOverlay.querySelector(`#commentsList-${extraitId}`);
+        }
+    }
+    // Dernier recours: getElementById
+    if (!container) {
+        container = document.getElementById(`commentsList-${extraitId}`);
+    }
+    
     if (!container) return;
     container.innerHTML = `<div class="comments-empty">${t('loading')}</div>`;
     
@@ -460,8 +501,9 @@ async function setCommentReaction(commentId, emoji) {
 /**
  * Poster un nouveau commentaire
  * @param {string} extraitId - ID de l'extrait
+ * @param {Event|HTMLElement} [eventOrElement] - Événement ou élément pour contextualiser la recherche
  */
-async function postComment(extraitId) {
+async function postComment(extraitId, eventOrElement) {
     if (!currentUser) {
         openAuthModal('login');
         toast('📝 Connectez-vous pour commenter');
@@ -470,8 +512,26 @@ async function postComment(extraitId) {
     
     if (!supabaseClient) return;
     
-    const input = document.getElementById(`commentInput-${extraitId}`);
-    const content = input.value.trim();
+    // Trouver le champ input dans le bon contexte (overlay ou feed principal)
+    let input = null;
+    if (eventOrElement) {
+        const target = eventOrElement.target || eventOrElement;
+        const card = target.closest('.extrait-card');
+        if (card) {
+            input = card.querySelector(`#commentInput-${extraitId}`) || card.querySelector('.comment-input');
+        }
+    }
+    if (!input) {
+        const socialOverlay = document.getElementById('socialOverlay');
+        if (socialOverlay && socialOverlay.classList.contains('open')) {
+            input = socialOverlay.querySelector(`#commentInput-${extraitId}`);
+        }
+    }
+    if (!input) {
+        input = document.getElementById(`commentInput-${extraitId}`);
+    }
+    
+    const content = input?.value?.trim();
     
     if (!content) return;
     
