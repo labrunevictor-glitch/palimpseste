@@ -117,6 +117,16 @@ function closeAllDrawers() {
     closeProfilePanel();
 }
 
+// Fermer le panneau profil avec délai (évite l'effet de "flash")
+function closeProfilePanelDeferred(delay = 150) {
+    setTimeout(() => closeProfilePanel(), delay);
+}
+
+// Fermer le drawer mobile avec délai
+function closeMobileDrawerDeferred(delay = 150) {
+    setTimeout(() => closeMobileDrawer(), delay);
+}
+
 function openCollectionsFromProfile() {
     closeAllDrawers();
     if (typeof openCollectionsView === 'function') {
@@ -126,9 +136,6 @@ function openCollectionsFromProfile() {
 
 // Avatar = Ouvrir le profil complet si connecté, sinon panneau connexion
 function handleAvatarClick() {
-    // Cacher le header sur mobile
-    if (window.innerWidth <= 900) hideHeader();
-    
     if (typeof currentUser !== 'undefined' && currentUser) {
         // Utilisateur connecté → ouvrir la modal profil complète
         if (typeof openMyProfile === 'function') {
@@ -512,8 +519,10 @@ if (document.readyState === 'loading') {
 // Rendre les fonctions accessibles globalement
 window.openMobileDrawer = openMobileDrawer;
 window.closeMobileDrawer = closeMobileDrawer;
+window.closeMobileDrawerDeferred = closeMobileDrawerDeferred;
 window.openProfilePanel = openProfilePanel;
 window.closeProfilePanel = closeProfilePanel;
+window.closeProfilePanelDeferred = closeProfilePanelDeferred;
 window.closeAllDrawers = closeAllDrawers;
 window.openCollectionsFromProfile = openCollectionsFromProfile;
 window.handleAvatarClick = handleAvatarClick;

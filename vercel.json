@@ -43,7 +43,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wikimedia.org https://*.wikipedia.org https://*.wikisource.org https://*.gutenberg.org https://gutendex.com https://poetrydb.org https://corsproxy.io https://archive.org https://*.archive.org https://unpkg.com https://cdn.jsdelivr.net https://*.jsdelivr.net https://r.jina.ai https://gallica.bnf.fr https://*.bnf.fr https://sacred-texts.com https://www.sacred-texts.com https://perseus.tufts.edu https://www.perseus.tufts.edu https://openlibrary.org https://*.openlibrary.org https://api.allorigins.win; font-src 'self' https:; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https://*.wikimedia.org https://upload.wikimedia.org; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.wikimedia.org https://*.wikipedia.org https://*.wikisource.org https://*.gutenberg.org https://gutendex.com https://poetrydb.org https://corsproxy.io https://archive.org https://*.archive.org https://unpkg.com https://cdn.jsdelivr.net https://*.jsdelivr.net https://r.jina.ai https://gallica.bnf.fr https://*.bnf.fr https://sacred-texts.com https://www.sacred-texts.com https://perseus.tufts.edu https://www.perseus.tufts.edu https://openlibrary.org https://*.openlibrary.org https://api.allorigins.win; font-src 'self' https:; frame-ancestors 'none';"
         }
       ]
     }

@@ -128,10 +128,10 @@
             <div class="mobile-profile-avatar-big">👤</div>
             <div class="mobile-profile-title">Bienvenue</div>
             <div class="mobile-profile-subtitle">Connectez-vous pour participer</div>
-            <button class="mobile-profile-btn-primary" onclick="openAuthModal('login'); closeProfilePanel();">
+            <button class="mobile-profile-btn-primary" onclick="openAuthModal('login'); closeProfilePanelDeferred();">
                 Se connecter
             </button>
-            <button class="mobile-profile-btn-secondary" onclick="openAuthModal('register'); closeProfilePanel();">
+            <button class="mobile-profile-btn-secondary" onclick="openAuthModal('register'); closeProfilePanelDeferred();">
                 Créer un compte
             </button>
         </div>
@@ -141,19 +141,19 @@
             <div class="mobile-profile-avatar-big" id="mobileProfileAvatar">👤</div>
             <div class="mobile-profile-name" id="mobileProfileName">Utilisateur</div>
             <div class="mobile-profile-stats">
-                <div class="mobile-profile-stat" onclick="showMyExtraits(); closeProfilePanel();">
+                <div class="mobile-profile-stat" onclick="showMyExtraits(); closeProfilePanelDeferred();">
                     <span class="mobile-profile-stat-num" id="mobileProfileExtraits">0</span>
                     <span class="mobile-profile-stat-label">partagés</span>
                 </div>
-                <div class="mobile-profile-stat" onclick="openFavoritesView(); closeProfilePanel();">
+                <div class="mobile-profile-stat" onclick="openFavoritesView(); closeProfilePanelDeferred();">
                     <span class="mobile-profile-stat-num" id="mobileProfileLikes">0</span>
                     <span class="mobile-profile-stat-label">likés</span>
                 </div>
-                <div class="mobile-profile-stat" onclick="showMyFollowers(); closeProfilePanel();">
+                <div class="mobile-profile-stat" onclick="showMyFollowers(); closeProfilePanelDeferred();">
                     <span class="mobile-profile-stat-num" id="mobileProfileFollowers">0</span>
                     <span class="mobile-profile-stat-label">abonnés</span>
                 </div>
-                <div class="mobile-profile-stat" onclick="showMyFollowing(); closeProfilePanel();">
+                <div class="mobile-profile-stat" onclick="showMyFollowing(); closeProfilePanelDeferred();">
                     <span class="mobile-profile-stat-num" id="mobileProfileFollowing">0</span>
                     <span class="mobile-profile-stat-label">abonnements</span>
                 </div>
@@ -161,12 +161,12 @@
             
             <!-- Boutons en évidence -->
             <div class="mobile-profile-actions">
-                <button class="mobile-profile-action-btn" onclick="openSocialFeed(); closeProfilePanel();">
+                <button class="mobile-profile-action-btn" onclick="openSocialFeed(); closeProfilePanelDeferred();">
                     <i data-lucide="users"></i> Communauté
                 </button>
             </div>
             
-            <button class="mobile-profile-btn-logout" onclick="logout(); closeProfilePanel();">
+            <button class="mobile-profile-btn-logout" onclick="logout(); closeProfilePanelDeferred();">
                 ⎋ Déconnexion
             </button>
         </div>
@@ -204,23 +204,23 @@
         
         <!-- Actions rapides (visible surtout sur mobile) -->
         <div class="drawer-quick-actions">
-            <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawer();">
+            <button class="drawer-action-btn" onclick="openTrendingFeed(); closeMobileDrawerDeferred();">
                 <i data-lucide="flame" class="drawer-icon"></i>
                 <span>Tendances</span>
             </button>
-            <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawer();" id="drawerFavBtn">
+            <button class="drawer-action-btn" onclick="openFavoritesView(); closeMobileDrawerDeferred();" id="drawerFavBtn">
                 <i data-lucide="heart" class="drawer-icon"></i>
                 <span>Mes likés</span>
             </button>
-            <button class="drawer-action-btn" onclick="openCollectionsView(); closeMobileDrawer();" id="drawerCollectionsBtn">
+            <button class="drawer-action-btn" onclick="openCollectionsView(); closeMobileDrawerDeferred();" id="drawerCollectionsBtn">
                 <i data-lucide="folder-heart" class="drawer-icon"></i>
                 <span>Collections</span>
             </button>
-            <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawer();">
+            <button class="drawer-action-btn" onclick="openSocialFeed(); closeMobileDrawerDeferred();">
                 <i data-lucide="users" class="drawer-icon"></i>
                 <span>Social</span>
             </button>
-            <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawer();">
+            <button class="drawer-action-btn" onclick="openMessaging(); closeMobileDrawerDeferred();">
                 <i data-lucide="mail" class="drawer-icon"></i>
                 <span>Messages</span>
             </button>
@@ -228,13 +228,13 @@
                 <i data-lucide="sun" class="drawer-icon" id="drawerThemeIcon"></i> <span id="drawerThemeText">Mode clair</span>
             </button>
             <!-- Bouton déconnexion (visible seulement si connecté) -->
-            <button class="drawer-action-btn drawer-logout-mobile" id="drawerLogoutBtn" onclick="logout(); closeMobileDrawer();" style="display: none;">
+            <button class="drawer-action-btn drawer-logout-mobile" id="drawerLogoutBtn" onclick="logout(); closeMobileDrawerDeferred();" style="display: none;">
                 <i data-lucide="log-out" class="drawer-icon"></i> Déconnexion
             </button>
             <div class="drawer-preferences-row">
                  <div class="drawer-lang-selector" style="flex: 1;">
                     <i data-lucide="globe" class="drawer-icon"></i>
-                    <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawer();">
+                    <select id="drawerLangSelect" onchange="changeLanguage(this.value); closeMobileDrawerDeferred();">
                         <option value="all">Langue: Toutes</option>
                         <optgroup label="Modernes">
                             <option value="fr">Français</option>
@@ -258,7 +258,7 @@
                         </optgroup>
                     </select>
                 </div>
-                <button class="drawer-icon-btn" onclick="openSourceSettingsModal(); closeMobileDrawer();" title="Sources & Bibliothèques">
+                <button class="drawer-icon-btn" onclick="openSourceSettingsModal(); closeMobileDrawerDeferred();" title="Sources & Bibliothèques">
                     <i data-lucide="settings"></i>
                 </button>
             </div>
@@ -269,33 +269,33 @@
             <div id="profileLoggedOut" class="login-prompt">
                 <div class="login-prompt-icon">👤</div>
                 <div class="login-prompt-text">Connectez-vous pour partager</div>
-                <button class="login-prompt-btn" onclick="openAuthModal('login'); closeMobileDrawer();">Se connecter</button>
-                <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawer();">Créer un compte</button>
+                <button class="login-prompt-btn" onclick="openAuthModal('login'); closeMobileDrawerDeferred();">Se connecter</button>
+                <button class="login-prompt-btn secondary" onclick="openAuthModal('register'); closeMobileDrawerDeferred();">Créer un compte</button>
             </div>
             <div id="profileLoggedIn" style="display:none;">
-                <div class="profile-header-card" onclick="openMyProfile(); closeMobileDrawer();" style="cursor:pointer;" title="Voir mon profil">
+                <div class="profile-header-card" onclick="openMyProfile(); closeMobileDrawerDeferred();" style="cursor:pointer;" title="Voir mon profil">
                     <div class="profile-avatar-large" id="sidebarAvatar">👤</div>
                     <div class="profile-name-large" id="sidebarUsername">Utilisateur</div>
                 </div>
                 <div class="profile-stats-row">
-                    <button class="profile-stat-btn" onclick="showMyExtraits(); closeMobileDrawer();">
+                    <button class="profile-stat-btn" onclick="showMyExtraits(); closeMobileDrawerDeferred();">
                         <span class="stat-number" id="myExtraitsCount">0</span>
                         <span class="stat-label">partagés</span>
                     </button>
-                    <button class="profile-stat-btn" onclick="openFavoritesView(); closeMobileDrawer();">
+                    <button class="profile-stat-btn" onclick="openFavoritesView(); closeMobileDrawerDeferred();">
                         <span class="stat-number" id="myLikesCount">0</span>
                         <span class="stat-label">likés</span>
                     </button>
-                    <button class="profile-stat-btn" onclick="showMyFollowers(); closeMobileDrawer();">
+                    <button class="profile-stat-btn" onclick="showMyFollowers(); closeMobileDrawerDeferred();">
                         <span class="stat-number" id="myFollowersCount">0</span>
                         <span class="stat-label">abonnés</span>
                     </button>
-                    <button class="profile-stat-btn" onclick="showMyFollowing(); closeMobileDrawer();">
+                    <button class="profile-stat-btn" onclick="showMyFollowing(); closeMobileDrawerDeferred();">
                         <span class="stat-number" id="myFollowingCount">0</span>
                         <span class="stat-label">abonnements</span>
                     </button>
                 </div>
-                <button class="drawer-logout-btn" onclick="logout(); closeMobileDrawer();">⎋ Déconnexion</button>
+                <button class="drawer-logout-btn" onclick="logout(); closeMobileDrawerDeferred();">⎋ Déconnexion</button>
             </div>
         </div>
 
