@@ -262,6 +262,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Résultats pour',
+        'results_for_label': 'Résultats pour',
         
         // Messages
         'write_message': 'Écrire un message...',
@@ -698,6 +699,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Results for',
+        'results_for_label': 'Results for',
         
         // Messages
         'write_message': 'Write a message...',
@@ -1112,6 +1114,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Ergebnisse für',
+        'results_for_label': 'Ergebnisse für',
         
         // Messages
         'write_message': 'Nachricht schreiben...',
@@ -1385,6 +1388,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Resultados para',
+        'results_for_label': 'Resultados para',
         
         // Messages
         'write_message': 'Escribe un mensaje...',
@@ -1658,6 +1662,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Risultati per',
+        'results_for_label': 'Risultati per',
         
         // Messages
         'write_message': 'Scrivi un messaggio...',
@@ -1931,6 +1936,7 @@ const translations = {
         
         // Recherche
         'results_for': '🔍 Resultados para',
+        'results_for_label': 'Resultados para',
         
         // Messages
         'write_message': 'Escreva uma mensagem...',
@@ -2352,12 +2358,10 @@ function applyTranslations() {
     const likersTitle = document.querySelector('.likers-header h3');
     if (likersTitle) likersTitle.textContent = t('liked_by');
     
-    // Search results
-    const searchResultsTitle = document.querySelector('.search-results-title');
-    if (searchResultsTitle) {
-        const querySpan = searchResultsTitle.querySelector('.search-results-query');
-        const queryText = querySpan ? querySpan.textContent : '';
-        searchResultsTitle.innerHTML = t('results_for') + ' "<span class="search-results-query" id="searchQueryDisplay">' + queryText + '</span>"';
+    // Search results - Traduire le label
+    const searchLabel = document.querySelector('.search-results-title [data-i18n="results_for_label"]');
+    if (searchLabel) {
+        searchLabel.textContent = t('results_for_label');
     }
     
     // Source settings modal

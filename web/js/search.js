@@ -28,6 +28,33 @@ let currentSearchQuery = '';
 let searchRequestId = 0;
 
 // ═══════════════════════════════════════════════════════════
+// 🔐 SANITIZATION POUR POSTGREST (protection injection de filtres)
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Échappe les caractères spéciaux PostgREST pour éviter les injections de filtres
+ * @param {string} input - Entrée utilisateur
+ * @returns {string} - Chaîne sécurisée pour utilisation dans les filtres .or() et .ilike()
+ */
+function sanitizePostgrestFilter(input) {
+    if (!input) return '';
+    return String(input)
+        .replace(/\\/g, '\\\\')     // Échapper les backslashes d'abord
+        .replace(/,/g, ' ')          // Virgules = séparateur .or(), remplacer par espace
+        .replace(/\./g, ' ')         // Points = séparateur opérateur PostgREST
+        .replace(/\(/g, ' ')         // Parenthèses = groupement PostgREST
+        .replace(/\)/g, ' ')
+        .replace(/"/g, '\\"')        // Échapper les guillemets
+        .replace(/'/g, "''")         // Échapper les apostrophes (SQL style)
+        .replace(/%/g, '\\%')        // Échapper % (wildcard LIKE)
+        .replace(/_/g, '\\_')        // Échapper _ (wildcard LIKE single char)
+        .replace(/\*/g, ' ')         // Astérisques
+        .replace(/[\x00-\x1f]/g, '') // Supprimer caractères de contrôle
+        .trim()
+        .substring(0, 200);          // Limiter la longueur
+}
+
+// ═══════════════════════════════════════════════════════════
 // 🎯 INITIALISATION
 // ═══════════════════════════════════════════════════════════
 
@@ -97,7 +124,7 @@ async function performSearch() {
     const grid = document.getElementById('searchResultsGrid');
     const tabs = document.getElementById('searchResultsTabs');
     
-    document.getElementById('searchQueryDisplay').textContent = query;
+    document.getElementById('searchQueryInput').value = query;
     overlay.classList.add('open');
     
     grid.innerHTML = '<div class="search-loading"><div class="spinner"></div><p>Recherche en cours...</p></div>';
@@ -163,11 +190,14 @@ function getExternalSourceResults() {
 async function searchUsers(query) {
     if (!supabaseClient) return;
     
+    const safeQuery = sanitizePostgrestFilter(query);
+    if (!safeQuery) return;
+    
     try {
         const { data: users } = await supabaseClient
             .from('profiles')
             .select('id, username, created_at')
-            .ilike('username', `%${query}%`)
+            .ilike('username', `%${safeQuery}%`)
             .limit(20);
         
         if (users && users.length > 0) {
@@ -222,8 +252,8 @@ async function searchUsers(query) {
 async function searchPalimpsesteTexts(query, requestId) {
     if (!supabaseClient) return;
 
-    // Supabase .or() utilise des virgules comme séparateurs
-    const safeQuery = String(query || '').replace(/,/g, ' ').trim();
+    // Sanitization contre les injections de filtres PostgREST
+    const safeQuery = sanitizePostgrestFilter(query);
     if (!safeQuery) return;
 
     try {
@@ -268,7 +298,8 @@ async function searchPalimpsesteTexts(query, requestId) {
 async function searchCollections(query, requestId) {
     if (!supabaseClient) return;
 
-    const safeQuery = String(query || '').replace(/,/g, ' ').trim();
+    // Sanitization contre les injections de filtres PostgREST
+    const safeQuery = sanitizePostgrestFilter(query);
     if (!safeQuery) return;
 
     try {
@@ -1005,4 +1036,26 @@ async function openSearchResult(idx, tab) {
  */
 function closeSearchResults() {
     document.getElementById('searchResultsOverlay').classList.remove('open');
+}
+
+/**
+ * Relance la recherche depuis l'input éditable des résultats
+ */
+function rerunSearchFromResults() {
+    const input = document.getElementById('searchQueryInput');
+    const query = (input?.value || '').trim();
+    
+    if (!query || query.length < 2) {
+        toast('⚠️ Entrez au moins 2 caractères');
+        return;
+    }
+    
+    // Met à jour les champs de recherche principaux
+    const mainInput = document.getElementById('mainSearchInput');
+    const headerInput = document.getElementById('searchInput');
+    if (mainInput) mainInput.value = query;
+    if (headerInput) headerInput.value = query;
+    
+    // Relance la recherche
+    performSearch();
 }

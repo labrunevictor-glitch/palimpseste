@@ -941,7 +941,9 @@
         <div class="search-results-container">
             <div class="search-results-header">
                 <div class="search-results-title">
-                    🔍 Résultats pour "<span class="search-results-query" id="searchQueryDisplay"></span>"
+                    🔍 <span data-i18n="results_for_label">Résultats pour</span> "
+                    <input type="text" class="search-results-query-input" id="searchQueryInput" value="" onkeydown="if(event.key==='Enter'){rerunSearchFromResults();event.preventDefault();}" />
+                    "<button class="rerun-search-btn" onclick="rerunSearchFromResults()" title="Relancer la recherche">🔍</button>
                 </div>
                 <button class="search-results-close" onclick="closeSearchResults()">✕</button>
             </div>
