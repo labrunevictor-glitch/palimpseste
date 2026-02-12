@@ -369,6 +369,52 @@ async function init() {
     checkPasswordResetToken();
     
     loadState();
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🧭 ROUTER - Initialisation des routes
+    // ═══════════════════════════════════════════════════════════════
+    if (typeof Router !== 'undefined') {
+        Router.on('/', () => {
+            // Page d'accueil — dérive libre (default behavior)
+        });
+        Router.on('trending', () => {
+            if (typeof openTrendingFeed === 'function') openTrendingFeed();
+        });
+        Router.on('social', () => {
+            if (typeof openSocialFeed === 'function') openSocialFeed();
+        });
+        Router.on('profile/:id', (params) => {
+            if (typeof openUserProfile === 'function') openUserProfile(params.id);
+        });
+        Router.on('text/:id', (params) => {
+            if (typeof viewExtraitById === 'function') viewExtraitById(params.id);
+        });
+        Router.on('collection/:id', (params) => {
+            if (typeof openCollectionById === 'function') openCollectionById(params.id);
+        });
+        Router.on('explore/:keyword', (params) => {
+            if (typeof exploreKeyword === 'function') exploreKeyword(decodeURIComponent(params.keyword));
+        });
+        Router.on('author/:name', (params) => {
+            exploreAuthor(decodeURIComponent(params.name));
+        });
+        Router.on('random', () => {
+            if (typeof pureRandomJump === 'function') pureRandomJump();
+        });
+        Router.on('collections', () => {
+            if (typeof openCollectionsView === 'function') openCollectionsView();
+        });
+        Router.on('preview', (params, query) => {
+            // Afficher un aperçu de texte partagé via lien
+            showSharedPreview(query);
+        });
+        // N'initialiser le router qu'après le chargement initial (avoid premature navigation)
+        window._routerReady = true;
+    }
+    
+    // Mettre à jour le lang HTML dynamiquement
+    const interfaceLang = localStorage.getItem('palimpseste_interface_lang') || 'fr';
+    document.documentElement.setAttribute('lang', interfaceLang);
     
     // Restaurer le choix de langue ou détecter automatiquement
     const savedLang = localStorage.getItem('palimpseste_lang');
@@ -412,6 +458,11 @@ async function init() {
     
     // ✅ Marquer que le chargement initial est terminé (permet le scroll vers le haut)
     window.initialLoadComplete = true;
+    
+    // 🧭 Initialiser le router maintenant que tout est chargé
+    if (typeof Router !== 'undefined' && window._routerReady) {
+        Router.init();
+    }
     
     // ⚡ Précharger immédiatement du contenu vers le HAUT (comme pour le bas)
     // Cela permet à l'utilisateur de scroller vers le haut dès l'ouverture
@@ -1471,6 +1522,18 @@ function createCardElement(result, origTitle, wikisource = getCurrentWikisource(
     card.dataset.lang = lang;
     card.dataset.chunkSize = CHUNK_LENGTH;
 
+    // Ajouter le bouton partager le lien (à droite, icône type share iOS)
+    const actionsDiv = card.querySelector('.actions');
+    if (actionsDiv) {
+        const shareLinkBtn = document.createElement('button');
+        shareLinkBtn.className = 'btn btn-share-external';
+        shareLinkBtn.title = typeof t === 'function' ? t('share_link') : 'Partager le lien';
+        shareLinkBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+        shareLinkBtn.style.marginLeft = 'auto';
+        shareLinkBtn.onclick = () => shareCardLink(cardId);
+        actionsDiv.appendChild(shareLinkBtn);
+    }
+
     // Tracker ce texte comme lu
     state.readCount++;
     const teaserWords = teaser.split(/\s+/).filter(w => w.length > 0).length;
@@ -1803,6 +1866,19 @@ function renderCard(result, origTitle, wikisource = getCurrentWikisource(), allo
     card.dataset.tag = tag;
     card.dataset.lang = lang;
     card.dataset.chunkSize = CHUNK_LENGTH;
+
+    // Ajouter le bouton partager le lien (à droite, icône type share iOS)
+    const actionsDiv2 = card.querySelector('.actions');
+    if (actionsDiv2) {
+        const shareLinkBtn2 = document.createElement('button');
+        shareLinkBtn2.className = 'btn btn-share-external';
+        shareLinkBtn2.title = typeof t === 'function' ? t('share_link') : 'Partager le lien';
+        shareLinkBtn2.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+        shareLinkBtn2.style.marginLeft = 'auto';
+        shareLinkBtn2.onclick = () => shareCardLink(cardId);
+        actionsDiv2.appendChild(shareLinkBtn2);
+    }
+
     document.getElementById('feed').appendChild(card);
     setTimeout(() => card.classList.add('show'), 50);
     
@@ -2954,6 +3030,155 @@ function updateSourceSettingsUI() {
 
 
 document.onkeydown = e => { if (e.key === 'Escape') closeReader(); };
+
+// 
+// SHARED PREVIEW (route #/preview?t=...&a=...&s=...)
+// 
+
+function showSharedPreview(query) {
+    const snippet = query?.t || '';
+    const author = query?.a || 'Anonyme';
+    const source = query?.s || '';
+
+    if (!snippet) return;
+
+    const mainContent = document.getElementById('main-content') || document.querySelector('.content');
+    if (!mainContent) return;
+
+    const escapedText = snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapedAuthor = author.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapedSource = source.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    mainContent.innerHTML = `
+        <div class="shared-preview-overlay" style="display:flex;justify-content:center;align-items:center;min-height:60vh;padding:2rem;">
+            <div class="shared-preview-card" style="
+                max-width:600px;width:100%;
+                background:var(--bg-card,#1e1e2e);
+                border:1px solid var(--border,#333);
+                border-radius:16px;
+                padding:2.5rem;
+                text-align:center;
+                box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size:2rem;margin-bottom:1rem;"></div>
+                <blockquote style="
+                    font-size:1.15rem;line-height:1.7;
+                    font-style:italic;color:var(--text,#e0e0e0);
+                    margin:0 0 1.5rem;
+                    border-left:3px solid var(--accent,#d4a574);
+                    padding-left:1rem;
+                    text-align:left;
+                ">&laquo; ${escapedText}&hellip; &raquo;</blockquote>
+                <p style="font-weight:600;color:var(--accent,#d4a574);margin:0 0 0.5rem;">&mdash; ${escapedAuthor}</p>
+                ${escapedSource ? `<p style="font-size:0.85rem;color:var(--text-muted,#888);margin:0 0 1.5rem;">${escapedSource}</p>` : ''}
+                <a href="#/" class="btn" style="
+                    display:inline-block;padding:12px 28px;
+                    background:var(--accent,#d4a574);color:#000;
+                    border-radius:8px;text-decoration:none;font-weight:600;
+                    margin-top:1rem;
+                ">
+                    ${typeof t === 'function' ? t('discover_palimpseste') : 'Decouvrir Palimpseste'} ->
+                </a>
+            </div>
+        </div>
+    `;
+}
+
+window.showSharedPreview = showSharedPreview;
+
+// ═══════════════════════════════════════════════════════════
+// � SHARE CARD LINK
+// ═══════════════════════════════════════════════════════════
+
+async function shareCardLink(cardIdOrEl) {
+    let text = '', author = 'Anonyme', title = '';
+
+    // Si c'est un élément DOM (bouton cliqué), remonter au conteneur le plus proche
+    const el = (typeof cardIdOrEl === 'string') ? document.getElementById(cardIdOrEl) : cardIdOrEl;
+    if (!el) return;
+
+    // Cas 1 : carte du feed principal (a data-text, data-author, data-title)
+    const feedCard = (typeof cardIdOrEl === 'string') ? el : el.closest('.text-card, [data-text]');
+    if (feedCard && feedCard.dataset.text) {
+        text = feedCard.dataset.text;
+        author = feedCard.dataset.author || 'Anonyme';
+        title = feedCard.dataset.title || '';
+    } else {
+        // Cas 2 : carte extrait (social, trending, profil, collections)
+        const card = el.closest('.extrait-card, .trending-card, .collection-item-card');
+        if (card) {
+            // Texte : data-full-text ou premier élément texte visible
+            text = card.dataset.fullText
+                || card.querySelector('.extrait-text, .trending-text, .collection-item-preview')?.textContent
+                || '';
+            // Auteur / titre depuis la source
+            const sourceEl = card.querySelector('.extrait-source, .trending-source');
+            if (sourceEl) {
+                const strong = sourceEl.querySelector('strong');
+                author = strong?.textContent || 'Anonyme';
+                // Le titre est après le tiret
+                const fullSource = sourceEl.textContent || '';
+                const dashIdx = fullSource.indexOf('—');
+                if (dashIdx > -1) title = fullSource.substring(dashIdx + 1).trim();
+            }
+            // Collections : data-author, data-title (encodés)
+            if (card.dataset.author) author = decodeURIComponent(card.dataset.author);
+            if (card.dataset.title) title = decodeURIComponent(card.dataset.title);
+        }
+    }
+
+    // Extrait court (150 chars max) pour l'aperçu
+    const snippet = text.replace(/\s+/g, ' ').trim().substring(0, 150);
+
+    const params = new URLSearchParams();
+    params.set('t', snippet);
+    params.set('a', author);
+    if (title) params.set('s', title);
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/preview?${params}`;
+
+    // Web Share API (mobile) ou copie dans le presse-papier (desktop)
+    const shareData = {
+        title: `${author} — Palimpseste`,
+        text: `« ${snippet}… » — ${author}`,
+        url: shareUrl
+    };
+
+    try {
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return;
+        }
+    } catch (e) {
+        // Fallback to clipboard
+    }
+
+    // Copier dans le presse-papier
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+        if (typeof toast === 'function') toast(typeof t === 'function' ? t('link_copied') : '🔗 Lien copié !');
+    } catch (e) {
+        // Fallback : prompt
+        prompt(typeof t === 'function' ? t('link_copied') : 'Copiez ce lien :', shareUrl);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 📋 GENERATE EMBED CODE
+// ═══════════════════════════════════════════════════════════
+
+function generateEmbedCode(text, author, title) {
+    const params = new URLSearchParams({
+        text: (text || '').substring(0, 500),
+        author: author || '',
+        title: title || '',
+        url: window.location.href
+    });
+    return `<iframe src="https://palimpseste.vercel.app/embed.html?${params}" width="100%" height="300" frameborder="0" style="border-radius:12px;max-width:500px;"></iframe>`;
+}
+
+window.shareCardLink = shareCardLink;
+window.generateEmbedCode = generateEmbedCode;
 
 // Exposer les fonctions et variables nécessaires pour les autres modules
 window.state = state;

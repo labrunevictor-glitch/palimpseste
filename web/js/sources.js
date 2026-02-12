@@ -204,7 +204,7 @@ function changeLanguage(lang) {
     localStorage.setItem('palimpseste_lang', lang);
     
     // Changer aussi la langue de l'interface si supportée
-    const supportedUILanguages = ['fr', 'en', 'de', 'es', 'it', 'pt'];
+    const supportedUILanguages = ['fr', 'en', 'de', 'es', 'it', 'pt', 'ru', 'zh', 'ja', 'ar'];
     if (supportedUILanguages.includes(lang) && typeof changeUILanguage === 'function') {
         changeUILanguage(lang);
     } else {
@@ -661,8 +661,8 @@ async function fetchGutenberg() {
         const books = Array.isArray(data.results) ? data.results : [];
         if (books.length === 0) return [];
 
-        // Prendre 2-3 livres au hasard
-        const shuffled = books.slice(0).sort(() => Math.random() - 0.5).slice(0, 3);
+        // Prendre 2-3 livres au hasard (Fisher-Yates)
+        const shuffled = shuffleArray(books.slice(0)).slice(0, 3);
         const results = [];
 
         for (const book of shuffled) {
@@ -802,7 +802,7 @@ async function fetchPoetryDB() {
             const poems = await fetchJsonWithCorsFallback(`https://poetrydb.org/author/${encodeURIComponent(randomAuthor)}/title,author,lines`);
 
             if (Array.isArray(poems) && poems.length > 0) {
-                const shuffled = poems.slice(0).sort(() => Math.random() - 0.5).slice(0, 5);
+                const shuffled = shuffleArray(poems.slice(0)).slice(0, 5);
                 return shuffled.map(poem => ({
                     title: poem.title,
                     text: Array.isArray(poem.lines) ? poem.lines.join('\n') : poem.lines,
@@ -1160,7 +1160,7 @@ async function fetchOpenLibrary() {
         if (works.length === 0) return [];
         
         const results = [];
-        const shuffled = works.slice(0).sort(() => Math.random() - 0.5).slice(0, 3);
+        const shuffled = shuffleArray(works.slice(0)).slice(0, 3);
         
         for (const work of shuffled) {
             // Vérifier si le livre est disponible sur Archive.org via l'IA (lending)
@@ -1260,7 +1260,7 @@ async function fetchSacredTexts() {
         }
         
         // Sélectionner quelques textes au hasard
-        const shuffled = filteredCatalog.slice(0).sort(() => Math.random() - 0.5).slice(0, 2);
+        const shuffled = shuffleArray(filteredCatalog.slice(0)).slice(0, 2);
         const results = [];
         
         for (const item of shuffled) {
@@ -1601,7 +1601,7 @@ async function fetchPerseus() {
         }
         
         // Sélectionner quelques textes au hasard
-        const shuffled = catalog.slice(0).sort(() => Math.random() - 0.5).slice(0, 2);
+        const shuffled = shuffleArray(catalog.slice(0)).slice(0, 2);
         const results = [];
         
         for (const item of shuffled) {
@@ -1830,7 +1830,7 @@ async function fillPool() {
     }
     
     // Mélanger les sources
-    const shuffledSources = [...activeSources].slice(0).sort(() => Math.random() - 0.5).slice(0, 3);
+    const shuffledSources = shuffleArray([...activeSources]).slice(0, 3);
     
     // ⚡ OPTIMISATION: Charger toutes les Wikisources EN PARALLÈLE
     const wikisourcePromises = shuffledSources.map(async (ws) => {
@@ -2072,8 +2072,8 @@ async function searchByTerm(term, wikisource) {
             source: 'search_exploration'
         }));
         
-        // Mélanger et charger
-        state.textPool = state.textPool.slice(0).sort(() => Math.random() - 0.5);
+        // Mélanger et charger (Fisher-Yates)
+        shuffleArray(state.textPool);
         
         if (state.textPool.length > 0) {
             // IMPORTANT: Remettre loading à false AVANT d'appeler loadMore
@@ -2117,8 +2117,8 @@ async function fetchCategoryData(categoryName, wikisource) {
             }
         }
         
-        // Mélanger et charger
-        state.textPool = state.textPool.slice(0).sort(() => Math.random() - 0.5);
+        // Mélanger et charger (Fisher-Yates)
+        shuffleArray(state.textPool);
         
         if (state.textPool.length > 0) {
             loadMore();

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/robots.txt", "destination": "/web/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "/web/sitemap.xml" },
+    { "source": "/manifest.json", "destination": "/web/manifest.json" },
+    { "source": "/sw.js", "destination": "/web/sw.js" },
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/(.*)", "destination": "/web/$1" }
   ],
@@ -11,6 +15,41 @@
         {
           "key": "Cache-Control",
           "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/web/(css|js|icons)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/web/embed.html",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "ALLOWALL"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors *;"
         }
       ]
     },

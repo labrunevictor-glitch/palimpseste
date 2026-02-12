@@ -1083,6 +1083,9 @@ async function openProfileCollection(collectionId) {
                                             <span class="icon">▦</span>
                                             <span class="collections-count is-zero" id="collectionsCount-${extraitId}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${extraitId}')">0</span>
                                         </button>
+                                        <button class="extrait-action btn-share-external" style="margin-left:auto" onclick="event.stopPropagation(); shareCardLink(this)" title="${t('share_link') || 'Partager le lien'}">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                                        </button>
                                     </div>
                                 ` : ''}
                                 <div class="collection-item-actions" onclick="event.stopPropagation()">
@@ -1263,6 +1266,9 @@ async function loadProfileExtraits(userId) {
                             <span class="icon">▦</span>
                             <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">${collCount}</span>
                         </button>
+                        <button class="extrait-action btn-share-external" style="margin-left:auto" onclick="event.stopPropagation(); shareCardLink(this)" title="${t('share_link') || 'Partager le lien'}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                        </button>
                     </div>
                     <div class="comments-section">
                         <button class="comments-toggle" onclick="toggleComments('${e.id}', event)">
@@ -1414,6 +1420,9 @@ async function loadProfileLikes(userId) {
                         <button class="extrait-action collection-btn" onclick="openCollectionPickerForExtrait('${e.id}')">
                             <span class="icon">▦</span>
                             <span class="collections-count ${collCount === 0 ? 'is-zero' : ''}" id="collectionsCount-${e.id}" onclick="event.stopPropagation(); event.preventDefault(); showExtraitCollections('${e.id}')">${collCount}</span>
+                        </button>
+                        <button class="extrait-action btn-share-external" style="margin-left:auto" onclick="event.stopPropagation(); shareCardLink(this)" title="${t('share_link') || 'Partager le lien'}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                         </button>
                     </div>
                     <div class="comments-section">

@@ -2661,6 +2661,30 @@ position: relative;
 z-index: 5; /* Toujours au-dessus pour être cliquable */
 }
 
+/* Share external link button (iOS-style arrow icon) */
+.btn-share-external {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #999);
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+    min-height: 32px;
+    opacity: 0.7;
+}
+.btn-share-external:hover {
+    color: var(--accent, #d4a574);
+    background: rgba(255,255,255,0.06);
+    opacity: 1;
+}
+.btn-share-external svg {
+    display: block;
+}
+
 /* Like button (desktop/global) - cœur plus grand et aligné avec le compteur */
 .card-foot .actions .btn-like {
     align-items: center;

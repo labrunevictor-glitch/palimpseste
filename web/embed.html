@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palimpseste — Embed</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #0d0d0d;
+            color: #e8e6e3;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .embed-card {
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid #2a2a2d;
+            border-radius: 12px;
+            padding: 24px;
+            background: #161618;
+            position: relative;
+        }
+        .embed-fleuron {
+            text-align: center;
+            color: #d4a574;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .embed-text {
+            font-style: italic;
+            line-height: 1.8;
+            color: #e8e6e3;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .embed-meta {
+            border-top: 1px solid rgba(212, 165, 116, 0.3);
+            padding-top: 12px;
+        }
+        .embed-author {
+            color: #d4a574;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .embed-title {
+            color: #9d9a95;
+            font-style: italic;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .embed-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .embed-logo {
+            color: #5c5a56;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .embed-logo:hover { color: #d4a574; }
+        .embed-cta {
+            background: #e63946;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .embed-cta:hover { background: #ff4757; }
+        .embed-loading {
+            text-align: center;
+            color: #5c5a56;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="embed-card" id="embedCard">
+        <div class="embed-loading" id="embedLoading">Chargement...</div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const text = params.get('text') || '';
+        const author = params.get('author') || 'Anonyme';
+        const title = params.get('title') || '';
+        const url = params.get('url') || 'https://palimpseste.vercel.app';
+        
+        const card = document.getElementById('embedCard');
+        const loading = document.getElementById('embedLoading');
+        
+        if (text) {
+            const maxLen = 500;
+            const displayText = text.length > maxLen ? text.substring(0, maxLen) + '…' : text;
+            
+            card.innerHTML = `
+                <div class="embed-fleuron">❧</div>
+                <div class="embed-text">« ${escapeHtml(displayText)} »</div>
+                <div class="embed-meta">
+                    <div class="embed-author">${escapeHtml(author)}</div>
+                    ${title ? `<div class="embed-title">${escapeHtml(title)}</div>` : ''}
+                </div>
+                <div class="embed-footer">
+                    <a href="https://palimpseste.vercel.app" target="_blank" class="embed-logo">❧ palimpseste</a>
+                    <a href="${escapeHtml(url)}" target="_blank" class="embed-cta">Lire sur Palimpseste</a>
+                </div>
+            `;
+        } else {
+            loading.textContent = 'Aucun extrait spécifié';
+        }
+        
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        // Communiquer la hauteur au parent (pour les iframes)
+        function sendHeight() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({ type: 'palimpseste-embed-height', height }, '*');
+        }
+        window.addEventListener('load', sendHeight);
+        new ResizeObserver(sendHeight).observe(document.body);
+    </script>
+</body>
+</html>
