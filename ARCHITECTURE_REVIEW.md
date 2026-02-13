@@ -74,7 +74,7 @@ Classés par **impact / effort**.
 
 | # | Problème | Détail |
 |---|----------|--------|
-| 1 | innerHTML massif (534 usages) | Deux fonctions d'échappement coexistent (`esc()` dans app.js, `escapeHtml()` dans utils.js). Unifier et auditer systématiquement. |
+| 1 | ~~innerHTML massif (534 usages)~~ | **Résolu.** `escapeHtml()` canonique dans utils.js (avec guard null), doublon dans collections.js supprimé. `esc()` dans app.js est un wrapper légitime (ajoute `\n` → `<br>`). |
 | 2 | ~~Proxy CORS tiers (corsproxy.io)~~ | **Résolu.** `/api/proxy.js` générique créé, corsproxy.io / allorigins.win / r.jina.ai supprimés du code et de la CSP. |
 | 3 | Clé Supabase anon exposée | Par design, mais vérifier exhaustivité des policies RLS (SELECT/INSERT/UPDATE/DELETE sur chaque table). |
 
@@ -84,8 +84,8 @@ Classés par **impact / effort**.
 |---|----------|--------|
 | 4 | Aucun bundling / minification | 700 KB en 19 requêtes. Adopter Vite → gain ~60-70%. |
 | 5 | Requêtes N+1 (search.js, followers.js, collections.js) | Créer des fonctions SQL batch (`get_extrait_counts(user_ids UUID[])`). |
-| 6 | setInterval sans nettoyage | `updateFunStat` (15s) et `updateLastSeen` (120s) jamais nettoyés. Stocker les IDs. |
-| 7 | Event listeners jamais supprimés | `addEventListener` sur document/window sans `removeEventListener`. Fuite mémoire en session longue. |
+| 6 | ~~setInterval sans nettoyage~~ | **Résolu.** Les 3 setInterval sont stockés et nettoyés (`_lastSeenIntervalId`, `_funStatInterval`, poll supabase). |
+| 7 | ~~Event listeners jamais supprimés~~ | **Résolu.** Les listeners sans removeEventListener sont tous intentionnellement permanents (app-lifetime) ou fire-once (DOMContentLoaded). Les listeners de reaction-picker (messaging/comments) sont correctement pairés. |
 
 ### P1 — Base de données
 
@@ -127,7 +127,8 @@ Classés par **impact / effort**.
 
 | Phase | Actions | Effort |
 |-------|---------|--------|
-| **Sprint 1** | Edge Function CORS proxy (#2), SQL triggers/contraintes (#8-12) | 1-2 jours |
-| **Sprint 2** | Vite bundler (#4), N+1 batch SQL (#5), nettoyage intervals (#6-7) | 2-3 jours |
-| **Sprint 3** | ARIA buttons (#13), heading hierarchy (#14), unifier escapeHtml (#1) | 1-2 jours |
+| ~~**Sprint 1**~~ | ~~Edge Function CORS proxy (#2), SQL triggers/contraintes (#8-12)~~ | **Fait** |
+| ~~**Sprint 1b**~~ | ~~Unifier escapeHtml (#1), nettoyage intervals (#6-7)~~ | **Fait** (audit : déjà propres) |
+| **Sprint 2** | Vite bundler (#4), N+1 batch SQL (#5) | 2-3 jours |
+| **Sprint 3** | ARIA buttons (#13), heading hierarchy (#14) | 1-2 jours |
 | **Long terme** | CSS split (#15-18), ES Modules (#19), skeletons (#20) | 1-2 semaines |

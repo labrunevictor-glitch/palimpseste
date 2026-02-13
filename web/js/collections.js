@@ -1732,14 +1732,6 @@ function closeEditCollectionModal() {
     }
 }
 
-// Helper pour échapper le HTML
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
 function normalizeCollectionText(text) {
     return (text || '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
