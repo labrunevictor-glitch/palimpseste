@@ -1,14 +1,18 @@
-name: Bluesky Bot — Post Literary Quote
+name: Bluesky Bot — Post Literary Quotes
 
 on:
   schedule:
-    # 8h00 UTC (9h FR hiver, 10h FR été) et 18h00 UTC (19h/20h FR)
-    - cron: '0 8 * * *'
-    - cron: '0 18 * * *'
-  workflow_dispatch: # Permet de le lancer manuellement
+    # Toutes les heures de 7h à 22h UTC (8h-23h FR hiver, 9h-00h FR été)
+    - cron: '0 7-22 * * *'
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: 'Force language (fr, en, or leave empty for both)'
+        required: false
+        default: ''
 
 jobs:
-  post-quote:
+  post-french:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,8 +23,29 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Post literary quote to Bluesky
+      - name: Post French literary quote
         env:
           BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
-        run: node bot/bluesky-bot.js
+        run: node bot/bluesky-bot.js --lang=fr
+
+  post-english:
+    runs-on: ubuntu-latest
+    needs: post-french
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait 2 minutes to avoid rate limiting
+        run: sleep 120
+
+      - name: Post English literary quote
+        env:
+          BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: node bot/bluesky-bot.js --lang=en

@@ -73,7 +73,11 @@ function httpPost(hostname, path, body, headers = {}) {
 
 // ─── Wikisource Fetching ───
 
-function pickWeightedLang() {
+function pickWeightedLang(forceLang) {
+    if (forceLang) {
+        const ws = WIKISOURCES.find(w => w.lang === forceLang);
+        if (ws) return ws;
+    }
     const pool = [];
     for (const ws of WIKISOURCES) {
         const w = LANG_WEIGHTS[ws.lang] || 1;
@@ -299,10 +303,10 @@ function extractBestQuote(text) {
     return null;
 }
 
-async function fetchQuoteFromWikisource(maxRetries = 8) {
+async function fetchQuoteFromWikisource(maxRetries = 8, forceLang = null) {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-            const ws = pickWeightedLang();
+            const ws = pickWeightedLang(forceLang);
             console.log(`  Tentative ${attempt + 1}: ${ws.lang}.wikisource.org`);
 
             const pages = Math.random() < 0.5
@@ -392,7 +396,7 @@ function buildFacets(text) {
     return facets;
 }
 
-async function postToBluesky(session, text) {
+async function postToBluesky(session, text, lang) {
     const facets = buildFacets(text);
 
     const record = {
@@ -400,7 +404,7 @@ async function postToBluesky(session, text) {
         text,
         facets,
         createdAt: new Date().toISOString(),
-        langs: ['fr', 'en']
+        langs: [lang || 'fr']
     };
 
     return httpPost('bsky.social', '/xrpc/com.atproto.repo.createRecord', {
@@ -412,15 +416,26 @@ async function postToBluesky(session, text) {
     });
 }
 
+// ─── Hashtags par langue ───
+
+const HASHTAGS = {
+    fr: '#littérature #poésie #palimpseste',
+    en: '#literature #poetry #palimpseste',
+    de: '#literatur #poesie #palimpseste',
+    it: '#letteratura #poesia #palimpseste',
+    es: '#literatura #poesía #palimpseste',
+    la: '#literature #poetry #palimpseste',
+};
+
 // ─── Format Post ───
 
 function formatPost(quote) {
-    // Bluesky : 300 graphèmes max (≈ bytes UTF-8)
     const maxGraphemes = 300;
     const encoder = new TextEncoder();
 
+    const lang = quote.lang || 'fr';
     const authorLink = `\nhttps://palimpseste.vercel.app/#/author/${encodeURIComponent(quote.author)}`;
-    const hashtag = '\n#littérature #palimpseste';
+    const hashtag = `\n${HASHTAGS[lang] || HASHTAGS['en']}`;
     const suffix = `\n\n— ${quote.author}${authorLink}${hashtag}`;
     const suffixLen = encoder.encode(suffix).length;
 
@@ -449,6 +464,9 @@ function formatPost(quote) {
 async function main() {
     const identifier = process.env.BLUESKY_IDENTIFIER;
     const appPassword = process.env.BLUESKY_APP_PASSWORD;
+    // Paramètre --lang (fr, en, etc.) passé en CLI
+    const langArg = process.argv.find(a => a.startsWith('--lang='));
+    const forceLang = langArg ? langArg.split('=')[1] : null;
 
     if (!identifier || !appPassword) {
         console.error('❌ Missing Bluesky credentials in environment variables');
@@ -456,8 +474,8 @@ async function main() {
         process.exit(1);
     }
 
-    console.log('🔍 Fetching quote from Wikisource…\n');
-    const quote = await fetchQuoteFromWikisource();
+    console.log(`🔍 Fetching quote from Wikisource${forceLang ? ` (lang: ${forceLang})` : ''}…\n`);
+    const quote = await fetchQuoteFromWikisource(8, forceLang);
 
     if (!quote) {
         console.error('❌ Could not find a suitable quote after multiple attempts');
@@ -467,7 +485,7 @@ async function main() {
     const post = formatPost(quote);
     const encoder = new TextEncoder();
 
-    console.log(`\n📝 Posting to Bluesky (${encoder.encode(post).length} bytes):\n${post}\n`);
+    console.log(`\n📝 Posting to Bluesky (${encoder.encode(post).length} bytes, lang: ${quote.lang}):\n${post}\n`);
     console.log(`📖 Source: ${quote.source}\n`);
 
     try {
@@ -475,7 +493,7 @@ async function main() {
         const session = await blueskyLogin(identifier, appPassword);
         console.log(`   Logged in as ${session.handle}`);
 
-        const result = await postToBluesky(session, post);
+        const result = await postToBluesky(session, post, quote.lang);
         console.log(`✅ Posted to Bluesky!`);
         console.log(`   https://bsky.app/profile/${session.handle}/post/${result.uri.split('/').pop()}`);
     } catch (err) {
