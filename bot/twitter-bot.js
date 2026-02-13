@@ -73,35 +73,63 @@ async function parsePage(ws, title) {
 
 function extractText(html) {
     if (!html) return '';
-    // Supprimer les balises non-contenu
-    let text = html
+
+    // ── Phase 1 : cibler le contenu principal (comme l'app) ──
+    // Extraire .prp-pages-output ou .poem en priorité, sinon .mw-parser-output
+    let content = html;
+    const prpMatch = html.match(/<div[^>]*class="[^"]*prp-pages-output[^"]*"[^>]*>([\s\S]*?)<\/div>\s*(?:<div|$)/i);
+    const poemMatch = html.match(/<div[^>]*class="[^"]*poem[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
+    const mwMatch = html.match(/<div[^>]*class="[^"]*mw-parser-output[^"]*"[^>]*>([\s\S]*)/i);
+    if (prpMatch) content = prpMatch[1];
+    else if (poemMatch) content = poemMatch[1];
+    else if (mwMatch) content = mwMatch[1];
+
+    // ── Phase 2 : supprimer les blocs non-contenu (élargi comme l'app) ──
+    let text = content
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<(sup|sub|span class="reference")[^>]*>[\s\S]*?<\/\1>/gi, '')
-        .replace(/<(table|div class="(ws-noexport|noprint|navbox|infobox|metadata|hatnote|ambox|toc|catlinks|mw-editsection|headertemplate|ws-header)")[\s\S]*?<\/\1>/gi, '')
-        .replace(/<[^>]+>/g, '')         // Toutes les balises HTML
+        // Références, notes de bas de page
+        .replace(/<(sup|sub)[^>]*>[\s\S]*?<\/\1>/gi, '')
+        .replace(/<span[^>]*class="[^"]*reference[^"]*"[^>]*>[\s\S]*?<\/span>/gi, '')
+        // Éléments MediaWiki non-contenu (liste étendue depuis l'app)
+        .replace(/<(div|table|ul|section|nav|aside|span)[^>]*class="[^"]*(?:ws-noexport|noprint|navbox|infobox|metadata|hatnote|ambox|toc|catlinks|mw-editsection|headertemplate|ws-header|header|homonymie|bandeau-homonymie|bandeau-portail|titreoeuvre|auteur-oeuvre|redirectMsg|mw-headline|mw-page-title)[^"]*"[^>]*>[\s\S]*?<\/\1>/gi, '')
+        // Spans MediaWiki parasites (page-title, mw-*, ws-*)
+        .replace(/<span[^>]*class="[^"]*(?:page-title|mw-page-title|mw-[a-z]+|ws-[a-z]+)[^"]*"[^>]*>[\s\S]*?<\/span>/gi, '')
+        // Toutes les balises HTML restantes
+        .replace(/<[^>]+>/g, '')
+        // Entités HTML
         .replace(/&nbsp;/g, ' ')
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
         .replace(/&gt;/g, '>')
         .replace(/&#\d+;/g, '')
         .replace(/&[a-z]+;/g, '')
+        // Résidus MediaWiki
         .replace(/\[modifier[^\]]*\]/g, '')
         .replace(/\[\d+\]/g, '')
         .replace(/modifier le wikicode/gi, '')
+        .replace(/mw-page-title[^\s]*/gi, '')
+        // Titres de recueils parasites
+        .replace(/Poésies \([^)]+\)/g, '')
         .replace(/\n{3,}/g, '\n\n')
         .trim();
 
-    // Supprimer les lignes d'en-tête (métadonnées)
+    // ── Phase 3 : supprimer les en-têtes métadonnées (élargi comme l'app) ──
     const lines = text.split('\n');
     let start = 0;
-    const metaPatterns = /^(sommaire|table des matières|contents|édition|texte établi|navigation|catégorie|category|source|auteur|author|titre|title|index|pages|voir aussi|see also|modifier)/i;
     for (let i = 0; i < Math.min(15, lines.length); i++) {
-        if (metaPatterns.test(lines[i].trim()) || lines[i].trim().length === 0) {
+        const l = lines[i].toLowerCase();
+        const line = lines[i].trim();
+        if (l.includes('sommaire') || l.includes('édition') || l.includes('navigation') ||
+            l.includes('conférence') || l.includes('présenté') || l.includes('siège') ||
+            l.includes('présidée par') || l.includes('professeur') || l.includes('faculté') ||
+            l.includes('table des matières') || l.includes('contents') ||
+            l.includes('texte établi') || l.includes('catégorie') || l.includes('category') ||
+            l.includes('voir aussi') || l.includes('see also') || l.includes('modifier') ||
+            l.includes('mw-page-title') || l.includes('span class') ||
+            line.length < 3 || (line.startsWith('(') && line.endsWith(')'))) {
             start = i + 1;
-        } else {
-            break;
-        }
+        } else if (line.length > 40) break;
     }
     text = lines.slice(start).join('\n').trim();
 
@@ -110,49 +138,152 @@ function extractText(html) {
 
 function detectAuthor(parsed) {
     if (!parsed) return null;
-    // Chercher dans les liens de la page
+
+    // 1. Chercher les liens "Auteur:XXX" / "Author:XXX" / "Autor:XXX" / "Autore:XXX"
     const links = parsed.links || [];
     for (const link of links) {
         const t = link['*'] || '';
-        const match = t.match(/^(?:Auteur:|Author:)(.+)/);
-        if (match) return match[1].trim();
+        const match = t.match(/^(?:Auteur|Author|Autor|Autore):(.+)/);
+        if (match) return match[1].replace(/_/g, ' ').trim();
     }
-    // Chercher dans le titre de la page (souvent "Œuvre/Auteur" ou "Auteur/Œuvre")
+
+    // 2. Chercher les classes CSS d'auteur dans le HTML brut
+    const html = parsed.text?.['*'] || '';
+    const classMatch = html.match(/<[^>]*class="[^"]*(?:ws-author|author|auteur|auteur-oeuvre)[^"]*"[^>]*>([^<]+)</i);
+    if (classMatch) {
+        const authorText = classMatch[1].trim();
+        if (authorText.length > 2 && authorText.length < 50) return authorText;
+    }
+
+    // 3. Chercher les liens href contenant "Auteur:" dans le HTML brut
+    const hrefMatch = html.match(/href="[^"]*(?:Auteur|Author|Autor|Autore):([^"&?#]+)"/i);
+    if (hrefMatch) {
+        return decodeURIComponent(hrefMatch[1]).replace(/_/g, ' ').trim();
+    }
+
+    // 4. Chercher le pattern "par XXX" ou "de XXX" dans le texte initial
+    const rawText = html.replace(/<[^>]+>/g, ' ').substring(0, 500);
+    const parMatch = rawText.match(/(?:^|\n)\s*(?:par|de|by)\s+([A-ZÀ-Ü][a-zà-ü]+(?:\s+(?:de\s+)?[A-ZÀ-Ü][a-zà-ü\-]+){0,3})\s*(?:\n|$)/m);
+    if (parMatch && parMatch[1].length > 3 && parMatch[1].length < 40) {
+        return parMatch[1].trim();
+    }
+
+    // 5. Fallback : titre de la page (souvent "Œuvre/Auteur" ou "Auteur/Œuvre")
     const title = parsed.displaytitle || parsed.title || '';
     const cleanTitle = title.replace(/<[^>]+>/g, '');
     const slashParts = cleanTitle.split('/');
     if (slashParts.length >= 2) return slashParts[0].trim();
+
     return null;
 }
 
 function isGoodTitle(title) {
-    const bad = /^(catégor|category|auteur:|author:|index:|page:|discussion|talk:|aide:|help:|modèle:|template:|portail|portal|wiki)/i;
-    const badEnd = /(sommaire|contents|table des matières|index|œuvres complètes)$/i;
-    return !bad.test(title) && !badEnd.test(title) && title.length > 3 && title.length < 200;
+    if (!title || title.length < 3 || title.length > 200) return false;
+    const t = title.toLowerCase();
+
+    // Namespaces spéciaux (multilingue, étendu comme l'app)
+    if (/^(catégor|category|kategorie|categoria)/i.test(t)) return false;
+    if (/^(help|aide|hilfe|aiuto|ayuda|ajuda|manual|project|projet|image|file|fichier|template|modèle|module|media|special|spécial):/i.test(t)) return false;
+    if (/^(auteur|author|autor|autore):/i.test(t)) return false;
+    if (/^(discussion|talk|diskussion|discussione):/i.test(t)) return false;
+    if (/^(index|page|file|portail|portal|wiki):/i.test(t)) return false;
+
+    // Listes et sommaires
+    if (/^list[ea]?\s+(de|of|di|von)/i.test(t)) return false;
+    if (t.startsWith('index ') || t.endsWith(' index')) return false;
+    if (t.includes('table des matières') || t.includes('table of contents') || t.includes('inhaltsverzeichnis')) return false;
+    if (t.includes('bibliographie') || t.includes('bibliography')) return false;
+
+    // Biographies et études critiques (pas du contenu littéraire)
+    if (t.includes('sa vie et son œuvre') || t.includes('sa vie et son oeuvre')) return false;
+    if (t.includes('his life and work') || t.includes('sein leben')) return false;
+    if (t.includes('étude biographique') || t.includes('étude sur')) return false;
+    if (t.includes('biographical study') || t.includes('biography of')) return false;
+    if (/\bbiograph/i.test(t) && !t.includes('/')) return false;
+
+    // Œuvres complètes sans sous-page = sommaires
+    if ((t.includes('œuvres complètes') || t.includes('complete works') ||
+        t.includes('gesammelte werke') || t.includes('opere complete')) && !t.includes('/')) return false;
+
+    // Fins de titre parasites
+    if (/(sommaire|contents|table des matières)$/i.test(t)) return false;
+
+    return true;
+}
+
+// ── Analyse qualité (porté depuis l'app: analyzeContentQuality) ──
+function isContentGoodQuality(text, parsed) {
+    if (!text || text.length < 100) return false;
+
+    // Trop court pour un vrai texte littéraire
+    if (text.length < 200) return false;
+
+    // Détecter les redirections
+    const html = parsed?.text?.['*'] || '';
+    if (html.includes('redirectMsg') || html.includes('propose plusieurs éditions') ||
+        html.includes('Cette page répertorie')) return false;
+
+    // Densité de liens : si >25% c'est un sommaire/hub
+    const links = parsed?.links || [];
+    const linkCharsEstimate = links.length * 30;
+    if (text.length > 0 && linkCharsEstimate / text.length > 0.25) return false;
+
+    // Structure paragraphe vs liste
+    const lines = text.split('\n').filter(l => l.trim().length > 0);
+    if (lines.length < 2) return false;
+    const avgLineLength = text.length / lines.length;
+
+    if (avgLineLength < 60) {
+        // Exception poésie : lignes courtes mais ponctuation finale
+        const withPunct = lines.filter(l => /[.!?…:;]$/.test(l.trim())).length;
+        const punctRatio = withPunct / lines.length;
+        // Si < 30% de ponctuation finale → liste brute
+        if (punctRatio < 0.3) return false;
+    }
+
+    return true;
 }
 
 function extractBestQuote(text) {
-    if (!text || text.length < 50) return null;
+    if (!text || text.length < 80) return null;
 
-    // Chercher des strophes de poésie (blocs séparés par des lignes vides)
+    // Chercher des blocs (strophes, paragraphes) séparés par des lignes vides
     const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 20);
     if (paragraphs.length === 0) return null;
 
-    // Chercher un paragraphe de bonne taille (80-500 chars)
-    const good = paragraphs.filter(p => p.trim().length >= 80 && p.trim().length <= 500);
+    // Priorité 1 : paragraphes de taille idéale (100-450 chars) — meilleure qualité tweet
+    const ideal = paragraphs.filter(p => {
+        const len = p.trim().length;
+        return len >= 100 && len <= 450;
+    });
+    if (ideal.length > 0) {
+        return ideal[Math.floor(Math.random() * ideal.length)].trim();
+    }
+
+    // Priorité 2 : paragraphes acceptables (80-500 chars)
+    const good = paragraphs.filter(p => {
+        const len = p.trim().length;
+        return len >= 80 && len <= 500;
+    });
     if (good.length > 0) {
         return good[Math.floor(Math.random() * good.length)].trim();
     }
 
-    // Sinon, prendre le premier paragraphe assez long et couper
+    // Priorité 3 : couper un paragraphe long à une limite de phrase
     for (const p of paragraphs) {
         const trimmed = p.trim();
-        if (trimmed.length >= 50) {
+        if (trimmed.length >= 60) {
             if (trimmed.length <= 500) return trimmed;
-            // Couper à la dernière phrase avant 500 chars
             const cut = trimmed.substring(0, 500);
-            const lastSentence = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('.\n'), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+            const lastSentence = Math.max(
+                cut.lastIndexOf('. '), cut.lastIndexOf('.\n'),
+                cut.lastIndexOf('! '), cut.lastIndexOf('? '),
+                cut.lastIndexOf('…')
+            );
             if (lastSentence > 200) return cut.substring(0, lastSentence + 1);
+            // Couper au dernier espace pour ne pas couper un mot
+            const lastSpace = cut.lastIndexOf(' ');
+            if (lastSpace > 300) return cut.substring(0, lastSpace) + '…';
             return cut + '…';
         }
     }
@@ -185,6 +316,9 @@ async function fetchQuoteFromWikisource(maxRetries = 8) {
 
                 const text = extractText(parsed.text['*']);
                 if (text.length < 100) continue;
+
+                // Analyse qualité (densité liens, structure, redirections)
+                if (!isContentGoodQuality(text, parsed)) continue;
 
                 const quote = extractBestQuote(text);
                 if (!quote) continue;
