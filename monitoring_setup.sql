@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 );
 
 -- Index pour les requêtes fréquentes
-CREATE INDEX idx_analytics_user_id ON analytics_events(user_id);
-CREATE INDEX idx_analytics_event_type ON analytics_events(event_type);
-CREATE INDEX idx_analytics_created_at ON analytics_events(created_at DESC);
-CREATE INDEX idx_analytics_session ON analytics_events(session_id);
-CREATE INDEX idx_analytics_ip ON analytics_events(ip_address) WHERE ip_address IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_analytics_user_id ON analytics_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON analytics_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_session ON analytics_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_ip ON analytics_events(ip_address) WHERE ip_address IS NOT NULL;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 🔒 SÉCURITÉ RLS - TRÈS IMPORTANT
