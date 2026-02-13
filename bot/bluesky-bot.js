@@ -208,6 +208,7 @@ async function fetchTrendingQuote(forceLang) {
                 source: langPick.source_url || `${langPick.source_title}`,
                 lang: forceLang,
                 fromTrending: true,
+                extraitId: langPick.id || null,
             };
         }
 
@@ -217,6 +218,7 @@ async function fetchTrendingQuote(forceLang) {
             source: pick.source_url || `${pick.source_title}`,
             lang,
             fromTrending: true,
+            extraitId: pick.id || null,
         };
 
     } catch (err) {
@@ -815,8 +817,10 @@ function formatPost(quote) {
     const maxGraphemes = 300;
 
     const lang = quote.lang || 'fr';
-    // Lien court vers l'app (sans encoder l'auteur complet pour gagner de la place)
-    const appLink = `\nhttps://palimpseste.vercel.app`;
+    // Lien direct vers l'extrait si disponible (trending), sinon lien général
+    const appLink = quote.extraitId 
+        ? `\nhttps://palimpseste.vercel.app/#text/${quote.extraitId}`
+        : `\nhttps://palimpseste.vercel.app`;
     const hashtag = `\n${HASHTAGS[lang] || HASHTAGS['en']}`;
     const suffix = `\n\n— ${quote.author}${appLink}${hashtag}`;
     const suffixGraphemes = countGraphemes(suffix);
