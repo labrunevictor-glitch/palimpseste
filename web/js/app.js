@@ -2688,10 +2688,10 @@ function showRelatedAuthors(cardId) {
     const allRelated = [...new Set([...connected, ...genreAuthors])].slice(0, 6);
     
     if (allRelated.length === 0) {
-        container.innerHTML = `<div class="no-related">Aucune connexion connue. <button class="btn btn-small" onclick="randomJump()">🎲 Hasard</button></div>`;
+        container.innerHTML = `<div class="no-related">${t('no_connection_known')} <button class="btn btn-small" onclick="randomJump()">🎲 ${t('random') || 'Hasard'}</button></div>`;
     } else {
         container.innerHTML = `
-            <div class="related-title">🕸️ Auteurs proches de ${author.split(' ').pop()}</div>
+            <div class="related-title">${t('related_authors_title')} ${author.split(' ').pop()}</div>
             <div class="related-list">
                 ${allRelated.map(a => `
                     <button class="related-btn" onclick="exploreAuthor('${escapeJsString(a)}')">
@@ -2703,7 +2703,7 @@ function showRelatedAuthors(cardId) {
     }
     
     container.style.display = 'block';
-    toast(`${allRelated.length} auteur(s) à explorer`);
+    toast(`${allRelated.length} ${t('authors_to_explore')}`);
 }
 
 // Trouver des auteurs du même genre (basé sur le tag)
