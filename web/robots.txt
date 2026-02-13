@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://palimpseste.vercel.app/web/sitemap.xml
+Sitemap: https://palimpseste.vercel.app/sitemap.xml

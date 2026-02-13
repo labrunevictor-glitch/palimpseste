@@ -1,6 +1,9 @@
 {
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/author/:name*", "destination": "/api/seo.js" },
+    { "source": "/explore/:theme*", "destination": "/api/seo.js" },
+    { "source": "/trending", "destination": "/api/seo.js" },
     { "source": "/robots.txt", "destination": "/web/robots.txt" },
     { "source": "/sitemap.xml", "destination": "/web/sitemap.xml" },
     { "source": "/manifest.json", "destination": "/web/manifest.json" },

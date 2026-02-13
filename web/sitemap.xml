@@ -1,92 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Accueil -->
     <url>
         <loc>https://palimpseste.vercel.app/</loc>
-        <lastmod>2026-02-12</lastmod>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
+
+    <!-- Tendances -->
     <url>
-        <loc>https://palimpseste.vercel.app/#/trending</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/trending</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>
+
+    <!-- ═══ Thèmes d'exploration ═══ -->
     <url>
-        <loc>https://palimpseste.vercel.app/#/explore/poesie</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/poesie</loc>
+        <lastmod>2026-02-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://palimpseste.vercel.app/explore/philosophie</loc>
+        <lastmod>2026-02-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://palimpseste.vercel.app/explore/theatre</loc>
+        <lastmod>2026-02-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://palimpseste.vercel.app/explore/roman</loc>
+        <lastmod>2026-02-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://palimpseste.vercel.app/explore/nouvelle</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/explore/philosophie</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/conte</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/explore/theatre</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/fable</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/explore/roman</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/essai</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Baudelaire</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/antiquite</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Victor%20Hugo</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/moyen-age</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Shakespeare</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/renaissance</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Rimbaud</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/classicisme</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Verlaine</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/lumieres</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Platon</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/romantisme</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Goethe</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/symbolisme</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://palimpseste.vercel.app/#/author/Dante</loc>
-        <lastmod>2026-02-12</lastmod>
+        <loc>https://palimpseste.vercel.app/explore/realisme</loc>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
+
+    <!-- ═══ Auteurs ═══ -->
+    <url><loc>https://palimpseste.vercel.app/author/baudelaire</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/victor-hugo</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/rimbaud</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/verlaine</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/mallarme</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/apollinaire</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/lamartine</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/musset</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/nerval</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/valery</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/ronsard</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/villon</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/la-fontaine</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/moliere</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/racine</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/corneille</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/shakespeare</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/platon</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/montaigne</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/voltaire</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/rousseau</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/balzac</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/flaubert</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/zola</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/proust</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/stendhal</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/maupassant</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/dumas</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/sand</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/chateaubriand</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/rabelais</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/homere</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/virgile</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/ovide</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/dante</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/goethe</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/kafka</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/dostoievski</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/tolstoi</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/poe</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/cervantes</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/borges</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/neruda</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/pessoa</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/tagore</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/rumi</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+    <url><loc>https://palimpseste.vercel.app/author/omar-khayyam</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+    <!-- Embed -->
     <url>
         <loc>https://palimpseste.vercel.app/web/embed.html</loc>
-        <lastmod>2026-02-12</lastmod>
+        <lastmod>2026-02-13</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.3</priority>
     </url>
