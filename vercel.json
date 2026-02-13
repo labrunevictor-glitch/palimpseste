@@ -14,6 +14,7 @@
     { "source": "/sitemap.xml", "destination": "/web/sitemap.xml" },
     { "source": "/manifest.json", "destination": "/web/manifest.json" },
     { "source": "/sw.js", "destination": "/web/sw.js" },
+    { "source": "/favicon.ico", "destination": "/web/favicon.svg" },
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/(.*)", "destination": "/web/$1" }
   ],
