@@ -159,6 +159,9 @@ module.exports = async (req, res) => {
     const ua = req.headers['user-agent'] || '';
     const path = req.url.split('?')[0].replace(/\/$/, '');
 
+    // Le CDN doit cacher séparément bots et humains
+    res.setHeader('Vary', 'User-Agent');
+
     // Déterminer le type de page
     let match;
 
