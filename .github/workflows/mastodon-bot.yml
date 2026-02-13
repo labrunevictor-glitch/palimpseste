@@ -1,0 +1,51 @@
+name: Mastodon Bot — Post Literary Quotes
+
+on:
+  schedule:
+    # Toutes les heures de 7h à 22h UTC (8h-23h FR hiver, 9h-00h FR été)
+    - cron: '15 7-22 * * *'
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: 'Force language (fr, en, or leave empty for both)'
+        required: false
+        default: ''
+
+jobs:
+  post-french:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Post French literary quote
+        env:
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+        run: node bot/mastodon-bot.js --lang=fr
+
+  post-english:
+    runs-on: ubuntu-latest
+    needs: post-french
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait 2 minutes to avoid rate limiting
+        run: sleep 120
+
+      - name: Post English literary quote
+        env:
+          MASTODON_INSTANCE: ${{ secrets.MASTODON_INSTANCE }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+        run: node bot/mastodon-bot.js --lang=en
