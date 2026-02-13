@@ -123,6 +123,9 @@ function openSocialFeed() {
 
 function closeSocialFeed() {
     document.getElementById('socialOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    // Sur mobile, réafficher le header
+    if (window.innerWidth <= 900 && typeof showHeader === 'function') showHeader();
     // Cleanup subscriptions when closing
     if (feedSubscription && supabaseClient) {
         supabaseClient.removeChannel(feedSubscription);

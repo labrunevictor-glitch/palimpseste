@@ -366,16 +366,43 @@ async function init() {
     initSupabase();
     
     // ═══════════════════════════════════════════════════════════
-    // 🔗 DÉTECTION DES LIENS DE PARTAGE (query params)
+    // 🔗 DÉTECTION DES LIENS DE PARTAGE (query params ou hash)
     // Les liens partagés utilisent ?eid=... (extrait ID) directement
     // pour survivre au partage via WhatsApp, Messenger, etc.
     // ═══════════════════════════════════════════════════════════
     const shareParams = new URLSearchParams(window.location.search);
     const sharedExtraitId = shareParams.get('eid');
+    // Détecter aussi les hash directs : #/text/xxx ou #text/xxx
+    let hashExtraitId = null;
+    const currentHashOnLoad = window.location.hash;
+    if (!sharedExtraitId && currentHashOnLoad) {
+        const hashMatch = currentHashOnLoad.match(/^#\/?text\/(.+)$/);
+        if (hashMatch) hashExtraitId = decodeURIComponent(hashMatch[1]);
+    }
+    const pendingExtraitId = sharedExtraitId || hashExtraitId;
+    
     if (sharedExtraitId) {
         // Nettoyer l'URL sans recharger
         const cleanUrl = window.location.origin + window.location.pathname;
         window.history.replaceState(null, '', cleanUrl + '#/text/' + sharedExtraitId);
+    }
+    
+    // Si on a un extrait à afficher, ouvrir l'overlay IMMÉDIATEMENT
+    // AVANT le chargement du feed (évite l'attente de fillPool/loadMore sur mobile)
+    if (pendingExtraitId) {
+        window._isDeepLink = true;
+        const overlay = document.getElementById('socialOverlay');
+        if (overlay) {
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            // Sur mobile, cacher le header pour ne pas gêner
+            if (window.innerWidth <= 900 && typeof hideHeader === 'function') hideHeader();
+        }
+        // Afficher un loader dans le feed social
+        const socialFeedEl = document.getElementById('socialFeed');
+        if (socialFeedEl) {
+            socialFeedEl.innerHTML = '<div class="feed-loading"><div class="spinner"></div><span>' + (typeof t === 'function' ? t('loading') : 'Chargement...') + '</span></div>';
+        }
     }
     
     // Vérifier si c'est un retour depuis un email de reset password
@@ -402,10 +429,19 @@ async function init() {
             });
         });
         Router.on('text/:id', (params) => {
-            // Ouvrir l'overlay SANS charger le feed complet (évite la race condition)
+            // Ouvrir l'overlay correctement (comme openSocialFeed mais sans charger tout le feed)
             const overlay = document.getElementById('socialOverlay');
-            if (overlay) overlay.classList.add('open');
-            // Attendre que Supabase soit prêt puis afficher l'extrait
+            if (overlay) {
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                if (window.innerWidth <= 900 && typeof hideHeader === 'function') hideHeader();
+            }
+            // Si c'est le deep link initial, l'extrait est déjà en cours de chargement
+            if (window._isDeepLink) {
+                window._isDeepLink = false;
+                return;
+            }
+            // Sinon (navigation interne), charger normalement
             waitForSupabase().then(() => {
                 if (typeof viewExtraitById === 'function') {
                     viewExtraitById(params.id);
@@ -491,6 +527,28 @@ async function init() {
     updateFavCount();
     updateFunStat();
     
+    // ═══════════════════════════════════════════════════════════
+    // 🔗 CHARGEMENT DIRECT DE L'EXTRAIT PARTAGÉ (si deep link)
+    // On charge l'extrait AVANT fillPool/loadMore pour affichage instantané
+    // ═══════════════════════════════════════════════════════════
+    if (pendingExtraitId) {
+        // Charger l'extrait partagé en parallèle avec le feed de fond
+        (async function loadSharedExtrait() {
+            // Attendre que Supabase soit prêt
+            var waitCount = 0;
+            while (!supabaseClient && waitCount < 50) {
+                await new Promise(function(r) { setTimeout(r, 200); });
+                waitCount++;
+            }
+            if (supabaseClient && typeof viewExtraitById === 'function') {
+                await viewExtraitById(pendingExtraitId);
+            } else {
+                var sf = document.getElementById('socialFeed');
+                if (sf) sf.innerHTML = '<div class="social-empty"><div class="social-empty-icon">⚠️</div><div class="social-empty-title">Impossible de charger l\'extrait</div></div>';
+            }
+        })();
+    }
+    
     // ⚡ CHARGEMENT RAPIDE: Afficher le loader et lancer immédiatement fillPool + loadMore
     document.getElementById('loading').style.display = 'block';
     
@@ -505,16 +563,6 @@ async function init() {
     // 🧭 Initialiser le router maintenant que tout est chargé
     if (typeof Router !== 'undefined' && window._routerReady) {
         Router.init();
-    }
-
-    // 🔗 Si on est arrivé via un lien de partage, re-résoudre la route
-    // (au cas où Router.init() a été appelé avant que Supabase soit prêt)
-    var currentHash = window.location.hash;
-    if (currentHash && (currentHash.indexOf('#/text/') === 0 || currentHash.indexOf('#text/') === 0 || currentHash.indexOf('#/preview') === 0)) {
-        // Forcer la re-résolution de la route après un court délai
-        setTimeout(function() {
-            if (typeof Router !== 'undefined') Router.init();
-        }, 500);
     }
     
     // ⚡ Précharger immédiatement du contenu vers le HAUT (comme pour le bas)
@@ -1402,7 +1450,8 @@ function getContextualLoadingMessage() {
 async function loadMore() {
     if (state.loading) return;
     // Ne pas charger plus de cartes si on affiche un aperçu partagé
-    if (window.location.hash && window.location.hash.indexOf('#/preview') === 0) return;
+    var h = window.location.hash || '';
+    if (h.indexOf('#/preview') === 0 || h.indexOf('#preview') === 0) return;
     state.loading = true;
     setMainLoadingMessage(getContextualLoadingMessage());
     document.getElementById('loading').style.display = 'block';
