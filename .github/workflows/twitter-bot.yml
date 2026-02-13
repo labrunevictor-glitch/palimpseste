@@ -1,0 +1,28 @@
+name: Twitter Bot — Post Literary Quote
+
+on:
+  schedule:
+    # 8h00 UTC (9h FR hiver, 10h FR été) et 18h00 UTC (19h/20h FR)
+    - cron: '0 8 * * *'
+    - cron: '0 18 * * *'
+  workflow_dispatch: # Permet de le lancer manuellement
+
+jobs:
+  post-tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Post literary quote to X/Twitter
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: node bot/twitter-bot.js
