@@ -779,45 +779,56 @@ async function postToBluesky(session, text, lang) {
 // ─── Hashtags par langue ───
 
 const HASHTAGS = {
-    fr: '#littérature #poésie #palimpseste',
-    en: '#literature #poetry #palimpseste',
-    de: '#literatur #poesie #palimpseste',
-    it: '#letteratura #poesia #palimpseste',
-    es: '#literatura #poesía #palimpseste',
-    pt: '#literatura #poesia #palimpseste',
-    ru: '#литература #поэзия #palimpseste',
-    zh: '#文学 #诗歌 #palimpseste',
-    ja: '#文学 #詩 #palimpseste',
-    ar: '#أدب #شعر #palimpseste',
-    el: '#λογοτεχνία #ποίηση #palimpseste',
-    la: '#literature #poetry #palimpseste',
-    he: '#ספרות #שירה #palimpseste',
-    sa: '#साहित्य #काव्य #palimpseste',
-    yi: '#ליטעראטור #פּאָעזיע #palimpseste',
+    fr: '#palimpseste #littérature',
+    en: '#palimpseste #literature',
+    de: '#palimpseste #literatur',
+    it: '#palimpseste #letteratura',
+    es: '#palimpseste #literatura',
+    pt: '#palimpseste #literatura',
+    ru: '#palimpseste #литература',
+    zh: '#palimpseste #文学',
+    ja: '#palimpseste #文学',
+    ar: '#palimpseste #أدب',
+    el: '#palimpseste #λογοτεχνία',
+    la: '#palimpseste #literature',
+    he: '#palimpseste #ספרות',
+    sa: '#palimpseste #साहित्य',
+    yi: '#palimpseste #ליטעראטור',
 };
 
 // ─── Format Post ───
 
+/**
+ * Compte les graphemes (caractères Unicode) d'un texte.
+ * Bluesky compte en graphemes, pas en bytes UTF-8.
+ */
+function countGraphemes(str) {
+    // Segmenter si disponible (Node 16+), sinon fallback Array.from
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        const segmenter = new Intl.Segmenter('fr', { granularity: 'grapheme' });
+        return [...segmenter.segment(str)].length;
+    }
+    return [...str].length;
+}
+
 function formatPost(quote) {
     const maxGraphemes = 300;
-    const encoder = new TextEncoder();
 
     const lang = quote.lang || 'fr';
-    const authorLink = `\nhttps://palimpseste.vercel.app/#/author/${encodeURIComponent(quote.author)}`;
+    // Lien court vers l'app (sans encoder l'auteur complet pour gagner de la place)
+    const appLink = `\nhttps://palimpseste.vercel.app`;
     const hashtag = `\n${HASHTAGS[lang] || HASHTAGS['en']}`;
-    const suffix = `\n\n— ${quote.author}${authorLink}${hashtag}`;
-    const suffixLen = encoder.encode(suffix).length;
+    const suffix = `\n\n— ${quote.author}${appLink}${hashtag}`;
+    const suffixGraphemes = countGraphemes(suffix);
 
     let text = quote.text;
-    const available = maxGraphemes - suffixLen - 3;
+    const available = maxGraphemes - suffixGraphemes - 1;
 
-    // Tronquer si besoin (sur les bytes UTF-8)
-    let encoded = encoder.encode(text);
-    if (encoded.length > available) {
-        // Couper au dernier espace avant la limite
-        const decoder = new TextDecoder();
-        text = decoder.decode(encoded.slice(0, available));
-        // Éviter de couper un mot
+    // Tronquer si besoin (sur les graphemes, pas les bytes)
+    let chars = [...text];
+    if (chars.length > available) {
+        // Reconstruire et couper au dernier espace
+        text = chars.slice(0, available).join('');
         const lastSpace = text.lastIndexOf(' ');
         if (lastSpace > text.length * 0.6) {
             text = text.substring(0, lastSpace);
@@ -825,7 +836,7 @@ function formatPost(quote) {
         text += '…';
     }
 
-    return `${text}\n\n— ${quote.author}${authorLink}${hashtag}`;
+    return `${text}\n\n— ${quote.author}${appLink}${hashtag}`;
 }
 
 // ─── Main ───
