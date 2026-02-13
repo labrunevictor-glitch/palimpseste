@@ -506,15 +506,28 @@ async function createUserProfile(userId, username) {
     if (!supabaseClient) return;
     
     try {
-        // Utiliser upsert pour créer ou mettre à jour le profil
-        const { error } = await supabaseClient.from('profiles').upsert({
-            id: userId,
-            username: username,
-            created_at: new Date().toISOString()
-        }, { onConflict: 'id' });
+        // D'abord vérifier si le profil existe déjà
+        const { data: existing } = await supabaseClient
+            .from('profiles')
+            .select('id')
+            .eq('id', userId)
+            .maybeSingle();
         
-        if (error) {
-            console.error('Erreur création profil:', error);
+        if (existing) {
+            // Le profil existe, ne pas écraser created_at
+            // Juste mettre à jour le username si besoin
+            const { error } = await supabaseClient.from('profiles')
+                .update({ username: username })
+                .eq('id', userId);
+            if (error) console.error('Erreur mise à jour profil:', error);
+        } else {
+            // Nouveau profil, créer avec created_at = maintenant
+            const { error } = await supabaseClient.from('profiles').insert({
+                id: userId,
+                username: username,
+                created_at: new Date().toISOString()
+            });
+            if (error) console.error('Erreur création profil:', error);
         }
     } catch (e) {
         console.error('Exception création profil:', e);
