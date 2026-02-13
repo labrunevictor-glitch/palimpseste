@@ -212,9 +212,6 @@ async function loadSocialFeed() {
     const container = document.getElementById('socialFeed');
     if (!container) return;
     
-    // Ne pas écraser si on affiche un extrait partagé via lien
-    if (window._showingSharedExtrait) return;
-    
     // Reset content tracking on each load
     lastFeedLoadTime = Date.now();
     pendingNewContent = false;

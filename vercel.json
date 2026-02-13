@@ -5,7 +5,6 @@
     { "source": "/sitemap.xml", "destination": "/web/sitemap.xml" },
     { "source": "/manifest.json", "destination": "/web/manifest.json" },
     { "source": "/sw.js", "destination": "/web/sw.js" },
-    { "source": "/s/:id", "destination": "/web/index.html" },
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/(.*)", "destination": "/web/$1" }
   ],

@@ -13,13 +13,13 @@
     "categories": ["books", "education", "social"],
     "icons": [
         {
-            "src": "/web/icons/icon-192.svg",
+            "src": "/icons/icon-192.svg",
             "sizes": "192x192",
             "type": "image/svg+xml",
             "purpose": "any maskable"
         },
         {
-            "src": "/web/icons/icon-512.svg",
+            "src": "/icons/icon-512.svg",
             "sizes": "512x512",
             "type": "image/svg+xml",
             "purpose": "any maskable"
@@ -31,13 +31,13 @@
             "name": "Dérive aléatoire",
             "short_name": "Hasard",
             "url": "/#/random",
-            "icons": [{ "src": "/web/icons/icon-192.svg", "sizes": "192x192" }]
+            "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
         },
         {
             "name": "Tendances",
             "short_name": "Tendances",
             "url": "/#/trending",
-            "icons": [{ "src": "/web/icons/icon-192.svg", "sizes": "192x192" }]
+            "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192" }]
         }
     ],
     "related_applications": [],

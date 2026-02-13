@@ -372,19 +372,10 @@ async function init() {
     // ═══════════════════════════════════════════════════════════
     const shareParams = new URLSearchParams(window.location.search);
     const sharedExtraitId = shareParams.get('eid');
-    const sharedPreviewText = shareParams.get('t');
     if (sharedExtraitId) {
-        // Lien de partage avec ID d'extrait → router vers text/:id
+        // Nettoyer l'URL sans recharger
         const cleanUrl = window.location.origin + window.location.pathname;
         window.history.replaceState(null, '', cleanUrl + '#/text/' + sharedExtraitId);
-    } else if (sharedPreviewText) {
-        // Lien de partage avec aperçu texte (fallback sans ID) → router vers preview
-        const cleanUrl = window.location.origin + window.location.pathname;
-        const previewParams = new URLSearchParams();
-        previewParams.set('t', sharedPreviewText);
-        if (shareParams.get('a')) previewParams.set('a', shareParams.get('a'));
-        if (shareParams.get('s')) previewParams.set('s', shareParams.get('s'));
-        window.history.replaceState(null, '', cleanUrl + '#/preview?' + previewParams.toString());
     }
     
     // Vérifier si c'est un retour depuis un email de reset password
@@ -409,8 +400,11 @@ async function init() {
             if (typeof openUserProfile === 'function') openUserProfile(params.id);
         });
         Router.on('text/:id', (params) => {
-            // Ouvrir l'overlay social sur l'onglet Tendances et afficher l'extrait
-            openSharedExtraitView(params.id);
+            // Ouvrir l'overlay social d'abord (comme la recherche), puis charger l'extrait
+            if (typeof openSocialFeed === 'function') openSocialFeed();
+            if (typeof viewExtraitById === 'function') {
+                setTimeout(() => viewExtraitById(params.id), 300);
+            }
         });
         Router.on('collection/:id', (params) => {
             if (typeof openCollectionById === 'function') openCollectionById(params.id);
@@ -428,8 +422,8 @@ async function init() {
             if (typeof openCollectionsView === 'function') openCollectionsView();
         });
         Router.on('preview', (params, query) => {
-            // Afficher un aperçu de texte partagé via lien dans l'overlay social
-            showSharedPreviewInOverlay(query);
+            // Afficher un aperçu de texte partagé via lien
+            showSharedPreview(query);
         });
         // N'initialiser le router qu'après le chargement initial (avoid premature navigation)
         window._routerReady = true;
@@ -471,13 +465,6 @@ async function init() {
     updateFavCount();
     updateFunStat();
     
-    // 🧭 Initialiser le router AVANT le chargement du feed
-    // pour que les liens de partage (?eid=... ou ?t=...) soient résolus immédiatement
-    // sans attendre fillPool/loadMore (qui peuvent être lents)
-    if (typeof Router !== 'undefined' && window._routerReady) {
-        Router.init();
-    }
-    
     // ⚡ CHARGEMENT RAPIDE: Afficher le loader et lancer immédiatement fillPool + loadMore
     document.getElementById('loading').style.display = 'block';
     
@@ -488,6 +475,11 @@ async function init() {
     
     // ✅ Marquer que le chargement initial est terminé (permet le scroll vers le haut)
     window.initialLoadComplete = true;
+    
+    // 🧭 Initialiser le router maintenant que tout est chargé
+    if (typeof Router !== 'undefined' && window._routerReady) {
+        Router.init();
+    }
     
     // ⚡ Précharger immédiatement du contenu vers le HAUT (comme pour le bas)
     // Cela permet à l'utilisateur de scroller vers le haut dès l'ouverture
@@ -3060,217 +3052,55 @@ document.onkeydown = e => { if (e.key === 'Escape') closeReader(); };
 // SHARED PREVIEW (route #/preview?t=...&a=...&s=...)
 // 
 
-/**
- * Ouvrir un extrait partagé via lien (?eid=ID) dans l'overlay social / onglet Tendances
- * Attend que Supabase soit prêt avant de charger
- */
-async function openSharedExtraitView(extraitId) {
-    if (!extraitId) return;
-
-    // Marquer qu'on affiche un extrait partagé (empêche loadSocialFeed d'écraser)
-    window._showingSharedExtrait = true;
-
-    // Ouvrir l'overlay social
-    if (typeof openSocialFeed === 'function') openSocialFeed();
-    
-    // Activer visuellement l'onglet Tendances SANS déclencher loadSocialFeed
-    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-    const tabEl = document.getElementById('tabRecent');
-    if (tabEl) tabEl.classList.add('active');
-
-    const container = document.getElementById('socialFeed');
-    if (container) {
-        container.innerHTML = `<div class="feed-loading"><div class="spinner"></div><span>${typeof t === 'function' ? t('loading') : 'Chargement…'}</span></div>`;
-    }
-
-    // Attendre que supabaseClient soit disponible (max 5s)
-    let waited = 0;
-    while (!supabaseClient && waited < 5000) {
-        await new Promise(r => setTimeout(r, 200));
-        waited += 200;
-    }
-    if (!supabaseClient) {
-        if (container) container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">⚠️</div><p>Connexion impossible</p></div>';
-        return;
-    }
-
-    try {
-        const { data: extrait, error } = await supabaseClient
-            .from('extraits')
-            .select('*')
-            .eq('id', extraitId)
-            .single();
-
-        if (error || !extrait) {
-            if (container) container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">📭</div><p>Extrait introuvable</p></div>';
-            return;
-        }
-
-        // Charger le profil de l'auteur
-        if (typeof loadProfilesMap === 'function') {
-            const profileMap = await loadProfilesMap([extrait.user_id]);
-            extrait.profiles = profileMap.get(extrait.user_id) || null;
-        }
-
-        // Render dans le style trending-card
-        renderSharedExtraitCard(container, extrait);
-
-    } catch (err) {
-        console.error('Erreur chargement extrait partagé:', err);
-        if (container) container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">⚠️</div><p>Erreur de chargement</p></div>';
-    } finally {
-        // Réactiver loadSocialFeed après affichage
-        window._showingSharedExtrait = false;
-    }
-}
-
-/**
- * Afficher un aperçu de texte partagé via lien (?t=&a=&s=) dans l'overlay social
- */
-function showSharedPreviewInOverlay(query) {
+function showSharedPreview(query) {
     const snippet = query?.t || '';
     const author = query?.a || 'Anonyme';
     const source = query?.s || '';
 
     if (!snippet) return;
 
-    // Marquer qu'on affiche un extrait partagé (empêche loadSocialFeed d'écraser)
-    window._showingSharedExtrait = true;
+    const mainContent = document.getElementById('feed') || document.getElementById('main-content') || document.querySelector('.content');
+    if (!mainContent) return;
 
-    // Ouvrir l'overlay social
-    if (typeof openSocialFeed === 'function') openSocialFeed();
-    
-    // Activer visuellement l'onglet Tendances SANS déclencher loadSocialFeed
-    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-    const tabEl = document.getElementById('tabRecent');
-    if (tabEl) tabEl.classList.add('active');
+    const escapedText = snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapedAuthor = author.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escapedSource = source.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    const container = document.getElementById('socialFeed');
-    if (!container) {
-        window._showingSharedExtrait = false;
-        return;
-    }
-
-    const escapedText = (typeof escapeHtml === 'function') ? escapeHtml(snippet) : snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const escapedAuthor = (typeof escapeHtml === 'function') ? escapeHtml(author) : author.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const escapedSource = (typeof escapeHtml === 'function') ? escapeHtml(source) : source.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    container.innerHTML = `
-        <div class="trending-card shared-extrait-card">
-            <div class="trending-card-body">
-                <div class="trending-text" style="font-size:1.1rem;line-height:1.8;font-style:italic;">
-                    « ${escapedText}… »
-                </div>
-                <div class="trending-source">
-                    <strong>${escapedAuthor}</strong>
-                    ${escapedSource ? ` — ${escapedSource}` : ''}
-                </div>
-            </div>
-            <div class="trending-card-footer" style="justify-content:center;padding-top:1rem;">
-                <a href="#/" onclick="if(typeof closeSocialFeed==='function') closeSocialFeed();" class="btn" style="
-                    display:inline-block;padding:10px 24px;
+    mainContent.innerHTML = `
+        <div class="shared-preview-overlay" style="display:flex;justify-content:center;align-items:center;min-height:60vh;padding:2rem;">
+            <div class="shared-preview-card" style="
+                max-width:600px;width:100%;
+                background:var(--bg-card,#1e1e2e);
+                border:1px solid var(--border,#333);
+                border-radius:16px;
+                padding:2.5rem;
+                text-align:center;
+                box-shadow:0 8px 32px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size:2rem;margin-bottom:1rem;"></div>
+                <blockquote style="
+                    font-size:1.15rem;line-height:1.7;
+                    font-style:italic;color:var(--text,#e0e0e0);
+                    margin:0 0 1.5rem;
+                    border-left:3px solid var(--accent,#d4a574);
+                    padding-left:1rem;
+                    text-align:left;
+                ">&laquo; ${escapedText}&hellip; &raquo;</blockquote>
+                <p style="font-weight:600;color:var(--accent,#d4a574);margin:0 0 0.5rem;">&mdash; ${escapedAuthor}</p>
+                ${escapedSource ? `<p style="font-size:0.85rem;color:var(--text-muted,#888);margin:0 0 1.5rem;">${escapedSource}</p>` : ''}
+                <a href="/" class="btn" style="
+                    display:inline-block;padding:12px 28px;
                     background:var(--accent,#d4a574);color:#000;
                     border-radius:8px;text-decoration:none;font-weight:600;
+                    margin-top:1rem;
                 ">
                     ${typeof t === 'function' ? t('discover_palimpseste') : 'Découvrir Palimpseste'} →
                 </a>
             </div>
         </div>
     `;
-    
-    // Réactiver loadSocialFeed après affichage
-    window._showingSharedExtrait = false;
 }
 
-/**
- * Rendre un extrait partagé dans le style trending-card (avec actions)
- */
-function renderSharedExtraitCard(container, extrait) {
-    const username = extrait.profiles?.username || 'Anonyme';
-    const avatarSymbol = (typeof getAvatarSymbol === 'function') ? getAvatarSymbol(username) : '📖';
-    const timeAgo = (typeof formatTimeAgo === 'function') ? formatTimeAgo(new Date(extrait.created_at)) : '';
-    const isLiked = (typeof isExtraitLiked === 'function') ? isExtraitLiked(extrait.id) : false;
-    const likesCount = (typeof getLikeCount === 'function') ? getLikeCount(extrait.id) : (extrait.likes_count || 0);
-    const commentsCount = (typeof getRealCommentsCount === 'function' && getRealCommentsCount(extrait.id) !== null)
-        ? getRealCommentsCount(extrait.id) : (extrait.comments_count || 0);
-
-    const fullTexte = extrait.texte || '';
-    const PREVIEW_LENGTH = 300;
-    const textPreview = fullTexte.length > PREVIEW_LENGTH
-        ? fullTexte.substring(0, PREVIEW_LENGTH) + '…'
-        : fullTexte;
-    const hasFullText = fullTexte.length > PREVIEW_LENGTH;
-    const escHtml = (typeof escapeHtml === 'function') ? escapeHtml : (s => s.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
-    const escAt = (typeof escapeAttr === 'function') ? escapeAttr : (s => s.replace(/"/g,'&quot;'));
-
-    // Mettre en cache si disponible
-    if (typeof extraitDataCache !== 'undefined') extraitDataCache.set(extrait.id, extrait);
-
-    container.innerHTML = `
-        <div class="shared-extrait-header" style="text-align:center;padding:1rem 1rem 0;">
-            <span style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">📤 ${typeof t === 'function' ? t('shared_extrait') || 'Extrait partagé' : 'Extrait partagé'}</span>
-        </div>
-        <div class="trending-card shared-extrait-card" data-extrait-id="${extrait.id}" data-id="${extrait.id}">
-            <div class="trending-card-header">
-                <div class="trending-card-author" onclick="openUserProfile('${extrait.user_id}')" style="cursor:pointer">
-                    <div class="trending-avatar">${avatarSymbol}</div>
-                    <div>
-                        <div class="trending-username">${escHtml(username)}</div>
-                        <div class="trending-time">${timeAgo}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="trending-card-body">
-                <div class="trending-text" id="extraitText-${extrait.id}" data-full-text="${hasFullText ? escAt(fullTexte) : ''}" data-preview-text="${escAt(textPreview)}">${escHtml(textPreview)}</div>
-                ${extrait.source_url || hasFullText ? `<button class="btn-voir-plus" onclick="event.stopPropagation(); loadFullTextFromSource(this)" id="voirPlus-${extrait.id}" data-extrait-id="${extrait.id}" data-source-url="${escAt(extrait.source_url || '')}" data-source-title="${escAt(extrait.source_title || '')}">${typeof t === 'function' ? t('view_full_text') : 'Voir le texte complet'}</button>` : ''}
-                ${extrait.source_author || extrait.source_title ? `
-                    <div class="trending-source">
-                        <strong>${escHtml(extrait.source_author || '')}</strong>
-                        ${extrait.source_title ? ` — ${escHtml(extrait.source_title)}` : ''}
-                    </div>
-                ` : ''}
-            </div>
-            <div class="trending-card-footer">
-                <div class="extrait-actions" onclick="event.stopPropagation()">
-                    <button class="extrait-action like-btn ${isLiked ? 'liked' : ''}" id="likeBtn-${extrait.id}" onclick="event.stopPropagation(); toggleLikeExtrait('${extrait.id}')" data-extrait-id="${extrait.id}">
-                        <span class="like-icon">${isLiked ? '♥' : '♡'}</span>
-                        <span class="like-count ${likesCount === 0 ? 'is-zero' : ''}" id="likeCount-${extrait.id}" onclick="event.stopPropagation(); showLikers('${extrait.id}')">${likesCount}</span>
-                    </button>
-                    <button class="extrait-action share-btn" onclick="event.stopPropagation(); shareExtraitFromCard('${extrait.id}')">
-                        <span class="icon">⤴</span>
-                    </button>
-                    <button class="extrait-action collection-btn" onclick="event.stopPropagation(); openCollectionPickerForExtrait('${extrait.id}')">
-                        <span class="icon">▦</span>
-                    </button>
-                    <button class="extrait-action btn-share-external" style="margin-left:auto" onclick="event.stopPropagation(); shareCardLink(this)" title="${typeof t === 'function' ? t('share_link') : 'Partager le lien'}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                    </button>
-                </div>
-            </div>
-            <div class="comments-section">
-                <button class="comments-toggle" onclick="toggleComments('${extrait.id}', event)">
-                    💬 <span id="commentCount-${extrait.id}">${commentsCount}</span> ${commentsCount !== 1 ? (typeof t === 'function' ? t('comment_plural') : 'commentaires') : (typeof t === 'function' ? t('comment_singular') : 'commentaire')}
-                </button>
-                <div class="comments-container" id="comments-${extrait.id}">
-                    <div class="comments-list" id="commentsList-${extrait.id}">
-                        <div class="comments-empty">${typeof t === 'function' ? t('loading_comments') : 'Chargement…'}</div>
-                    </div>
-                    <div class="comment-input-area">
-                        <textarea class="comment-input" id="commentInput-${extrait.id}" placeholder="${typeof t === 'function' ? t('write_comment') : 'Écrire un commentaire…'}" rows="1" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); postComment('${extrait.id}', event); }"></textarea>
-                        <button class="comment-send" onclick="postComment('${extrait.id}', event)">➤</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-window.openSharedExtraitView = openSharedExtraitView;
-window.showSharedPreviewInOverlay = showSharedPreviewInOverlay;
-window.renderSharedExtraitCard = renderSharedExtraitCard;
-
-// Legacy: garder showSharedPreview comme alias pour compatibilité
-function showSharedPreview(query) { showSharedPreviewInOverlay(query); }
 window.showSharedPreview = showSharedPreview;
 
 // ═══════════════════════════════════════════════════════════
@@ -3324,20 +3154,19 @@ async function shareCardLink(cardIdOrEl) {
     // Extrait court (150 chars max) pour l'aperçu dans le texte de partage
     const snippet = text.replace(/\s+/g, ' ').trim().substring(0, 150);
 
-    // Construire l'URL de partage courte et propre
-    // Utilise /s/<base62> pour les extraits avec ID (URLs courtes, survivent au partage)
+    // Construire l'URL de partage avec l'ID de l'extrait
+    // Utilise des query params (pas de hash) pour survivre au partage
+    // via WhatsApp, Messenger, SMS etc. qui suppriment souvent le fragment #
     let shareUrl;
     if (extraitId) {
-        shareUrl = (typeof buildShareUrl === 'function') 
-            ? buildShareUrl(extraitId)
-            : `${window.location.origin}/s/${encodeURIComponent(extraitId)}`;
+        shareUrl = `${window.location.origin}${window.location.pathname}?eid=${encodeURIComponent(extraitId)}`;
     } else {
-        // Fallback si pas d'ID : query params (texte + auteur)
+        // Fallback si pas d'ID : utiliser le hash (fonctionne en navigation directe)
         const params = new URLSearchParams();
         params.set('t', snippet);
         params.set('a', author);
         if (title) params.set('s', title);
-        shareUrl = `${window.location.origin}/?${params.toString()}`;
+        shareUrl = `${window.location.origin}${window.location.pathname}#/preview?${params.toString()}`;
     }
 
     // Web Share API (mobile) ou copie dans le presse-papier (desktop)
