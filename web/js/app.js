@@ -3169,7 +3169,23 @@ async function shareCardLink(cardIdOrEl) {
         shareUrl = `${window.location.origin}${window.location.pathname}#/preview?${params.toString()}`;
     }
 
-    // Copier le lien dans le presse-papier (comportement unifié desktop/mobile)
+    // Web Share API (mobile) ou copie dans le presse-papier (desktop)
+    const shareData = {
+        title: `${author} — Palimpseste`,
+        text: `« ${snippet}… » — ${author}`,
+        url: shareUrl
+    };
+
+    try {
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+            await navigator.share(shareData);
+            return;
+        }
+    } catch (e) {
+        // Fallback to clipboard
+    }
+
+    // Copier dans le presse-papier
     try {
         await navigator.clipboard.writeText(shareUrl);
         if (typeof toast === 'function') toast(typeof t === 'function' ? t('link_copied') : '🔗 Lien copié !');
