@@ -3067,9 +3067,16 @@ document.onkeydown = e => { if (e.key === 'Escape') closeReader(); };
 async function openSharedExtraitView(extraitId) {
     if (!extraitId) return;
 
-    // Ouvrir l'overlay social sur l'onglet Tendances
+    // Marquer qu'on affiche un extrait partagé (empêche loadSocialFeed d'écraser)
+    window._showingSharedExtrait = true;
+
+    // Ouvrir l'overlay social
     if (typeof openSocialFeed === 'function') openSocialFeed();
-    if (typeof switchSocialTab === 'function') switchSocialTab('recent');
+    
+    // Activer visuellement l'onglet Tendances SANS déclencher loadSocialFeed
+    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+    const tabEl = document.getElementById('tabRecent');
+    if (tabEl) tabEl.classList.add('active');
 
     const container = document.getElementById('socialFeed');
     if (container) {
@@ -3111,6 +3118,9 @@ async function openSharedExtraitView(extraitId) {
     } catch (err) {
         console.error('Erreur chargement extrait partagé:', err);
         if (container) container.innerHTML = '<div class="trending-empty"><div class="trending-empty-icon">⚠️</div><p>Erreur de chargement</p></div>';
+    } finally {
+        // Réactiver loadSocialFeed après affichage
+        window._showingSharedExtrait = false;
     }
 }
 
@@ -3124,12 +3134,22 @@ function showSharedPreviewInOverlay(query) {
 
     if (!snippet) return;
 
+    // Marquer qu'on affiche un extrait partagé (empêche loadSocialFeed d'écraser)
+    window._showingSharedExtrait = true;
+
     // Ouvrir l'overlay social
     if (typeof openSocialFeed === 'function') openSocialFeed();
-    if (typeof switchSocialTab === 'function') switchSocialTab('recent');
+    
+    // Activer visuellement l'onglet Tendances SANS déclencher loadSocialFeed
+    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+    const tabEl = document.getElementById('tabRecent');
+    if (tabEl) tabEl.classList.add('active');
 
     const container = document.getElementById('socialFeed');
-    if (!container) return;
+    if (!container) {
+        window._showingSharedExtrait = false;
+        return;
+    }
 
     const escapedText = (typeof escapeHtml === 'function') ? escapeHtml(snippet) : snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const escapedAuthor = (typeof escapeHtml === 'function') ? escapeHtml(author) : author.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -3157,6 +3177,9 @@ function showSharedPreviewInOverlay(query) {
             </div>
         </div>
     `;
+    
+    // Réactiver loadSocialFeed après affichage
+    window._showingSharedExtrait = false;
 }
 
 /**
