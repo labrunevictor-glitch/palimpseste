@@ -952,12 +952,15 @@ async function postToBluesky(session, text, lang, embedUri) {
     // Embed externe : le lien apparaît comme une carte cliquable sous le post
     // au lieu d'occuper ~45 caractères dans le texte
     if (embedUri) {
+        const embedDesc = lang === 'en'
+            ? 'Social network for public domain literature'
+            : 'Réseau social pour la littérature libre de droit';
         record.embed = {
             $type: 'app.bsky.embed.external',
             external: {
                 uri: embedUri,
                 title: 'Palimpseste',
-                description: 'Explorez la littérature mondiale — textes libres de droit depuis Wikisource',
+                description: embedDesc,
             }
         };
     }
