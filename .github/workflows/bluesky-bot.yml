@@ -2,8 +2,8 @@ name: Bluesky Bot — Post Literary Quotes
 
 on:
   schedule:
-    # Toutes les heures, 24h/24 (audience internationale)
-    - cron: '0 * * * *'
+    # Toutes les heures, minute décalée pour éviter les pics GitHub Actions
+    - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
       lang:

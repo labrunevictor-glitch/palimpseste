@@ -797,7 +797,7 @@ async function fetchTextFromPage(ws, title, depth = 0) {
     };
 }
 
-async function fetchQuoteFromWikisource(maxRetries = 8, forceLang = null, excludeUrls = new Set()) {
+async function fetchQuoteFromWikisource(maxRetries = 15, forceLang = null, excludeUrls = new Set()) {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             const ws = pickWeightedLang(forceLang);
