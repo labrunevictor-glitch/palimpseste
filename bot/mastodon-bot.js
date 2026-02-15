@@ -600,6 +600,12 @@ function isGoodTitle(title) {
     if (t.includes('table des matières') || t.includes('table of contents') || t.includes('inhaltsverzeichnis')) return false;
     if (t.includes('bibliographie') || t.includes('bibliography')) return false;
 
+    // Rejeter dictionnaires, encyclopédies, annales, recueils de lois, etc.
+    if (/dictionnaire|dictionary|wörterbuch|dizionario|diccionario/i.test(t)) return false;
+    if (/encyclop[aæ]edi|encyclopédie/i.test(t)) return false;
+    if (/^annales\b|^grand dictionnaire|^recueil des/i.test(t)) return false;
+    if (/inventaire raisonné|répertoire|lexique|glossaire|lexicon|glossary/i.test(t)) return false;
+
     if (t.includes('sa vie et son œuvre') || t.includes('sa vie et son oeuvre')) return false;
     if (t.includes('his life and work') || t.includes('sein leben')) return false;
     if (t.includes('étude biographique') || t.includes('étude sur')) return false;
