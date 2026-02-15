@@ -1310,7 +1310,9 @@ async function fetchSacredTexts() {
         console.error('Sacred Texts error:', e);
         return [];
     }
-}\n\n// Helper pour fetch avec proxy CORS (utilise nos propres proxies Vercel)
+}
+
+// Helper pour fetch avec proxy CORS (utilise nos propres proxies Vercel)
 async function fetchWithCorsProxy(url, timeoutMs = ARCHIVE_TIMEOUT_MS) {
     // Essayer le proxy spécialisé d'abord (Archive)
     const specializedProxy = `/api/archive-proxy?url=${encodeURIComponent(url)}`;
