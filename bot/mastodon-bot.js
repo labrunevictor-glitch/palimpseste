@@ -911,10 +911,20 @@ const CONTENT_TAGS = {
 };
 
 /**
- * Hashtags communautaires Mastodon (fixes, toujours inclus).
- * #BooksOfMastodon et #LiteratureFedi sont les plus actifs sur le Fediverse.
+ * Hashtags communautaires Mastodon (fixes, adaptés à la langue).
+ * #Bookstodon — communauté anglophone la plus active sur le Fediverse
+ * #MastoLivre — communauté francophone livres
+ * #books #literature — universels, très suivis
  */
-const PLATFORM_TAGS = ['#BooksOfMastodon', '#LitFedi'];
+const PLATFORM_TAGS_BY_LANG = {
+    fr: ['#Bookstodon', '#MastoLivre', '#litterature'],
+    en: ['#Bookstodon', '#books', '#literature'],
+    de: ['#Bookstodon', '#books', '#literatur'],
+    it: ['#Bookstodon', '#books', '#letteratura'],
+    es: ['#Bookstodon', '#books', '#literatura'],
+    pt: ['#Bookstodon', '#books', '#literatura'],
+};
+const PLATFORM_TAGS_DEFAULT = ['#Bookstodon', '#books', '#literature'];
 
 /**
  * Analyse le texte et retourne les meilleurs hashtags dynamiques.
@@ -930,7 +940,10 @@ function buildDynamicHashtags(text, lang, max = 3) {
     for (const [cat, { keywords }] of Object.entries(CONTENT_TAGS)) {
         let score = 0;
         for (const kw of keywords) {
-            if (lower.includes(kw.toLowerCase())) score++;
+            // Utiliser des limites de mots pour éviter les faux positifs
+            // (ex: "wit" ne doit pas matcher dans "with")
+            const regex = new RegExp(`\\b${kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            if (regex.test(lower)) score++;
         }
         if (score > 0) scores[cat] = score;
     }
@@ -941,11 +954,11 @@ function buildDynamicHashtags(text, lang, max = 3) {
         .map(([cat]) => `#${CONTENT_TAGS[cat].hashtag}`);
 
     if (top.length === 0) {
-        const fallback = { fr: '#litterature', en: '#literature', de: '#literatur', it: '#letteratura', es: '#literatura', pt: '#literatura' };
-        top.push(fallback[lang] || '#literature');
+        top.push('#lit');
     }
 
-    return [...top, ...PLATFORM_TAGS].join(' ');
+    const platformTags = PLATFORM_TAGS_BY_LANG[lang] || PLATFORM_TAGS_DEFAULT;
+    return [...top, ...platformTags].join(' ');
 }
 
 // ─── Format Post ───

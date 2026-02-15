@@ -987,28 +987,40 @@ async function postToBluesky(session, text, lang, embedUri) {
  *   #gothic #epic #dream — niches actives
  */
 const CONTENT_TAGS = {
-    // Formes (hashtags courts)
-    poetry:  { tag: 'poetry',  keywords: ['poésie', 'poème', 'vers', 'rime', 'strophe', 'sonnet', 'ode', 'élégie', 'ballade', 'hymne', 'poem', 'verse', 'rhyme', 'lyric'] },
-    novel:   { tag: 'novel',   keywords: ['roman', 'chapitre', 'novel', 'chapter', 'fiction', 'récit', 'histoire', 'narration'] },
+    // Formes — tags populaires sur Bluesky (popularité indiquée)
+    poetry:  { tag: 'poetry',  keywords: ['poésie', 'poème', 'vers', 'rime', 'strophe', 'sonnet', 'ode', 'élégie', 'ballade', 'hymne', 'poem', 'verse', 'rhyme', 'lyric'] },  // 1348
+    haiku:   { tag: 'haiku',   keywords: ['haïku', 'haiku', 'tanka', 'senryū', 'kigo'] },  // 1203
+    novel:   { tag: 'fiction', keywords: ['roman', 'chapitre', 'novel', 'chapter', 'fiction', 'récit', 'histoire', 'narration'] },  // 1426
     theatre: { tag: 'theatre', keywords: ['théâtre', 'scène', 'acte', 'tragédie', 'comédie', 'drame', 'theater', 'play', 'scene', 'act', 'tragedy', 'comedy'] },
     philo:   { tag: 'philo',   keywords: ['philosophie', 'pensée', 'réflexion', 'sagesse', 'raison', 'vérité', 'philosophy', 'wisdom', 'truth', 'reason'] },
     fable:   { tag: 'fable',   keywords: ['fable', 'conte', 'morale', 'il était une fois', 'tale', 'once upon', 'fairy'] },
-    // Tons (hashtags courts)
+    // Tons — tags populaires sur Bluesky
     love:    { tag: 'love',    keywords: ['amour', 'cœur', 'âme', 'passion', 'désir', 'baiser', 'love', 'heart', 'soul', 'desire', 'kiss', 'beloved'] },
     spleen:  { tag: 'spleen',  keywords: ['spleen', 'mélancolie', 'tristesse', 'solitude', 'nostalgie', 'regret', 'melancholy', 'sorrow', 'loneliness'] },
-    nature:  { tag: 'nature',  keywords: ['nature', 'fleur', 'arbre', 'mer', 'ciel', 'soleil', 'lune', 'étoile', 'flower', 'tree', 'sea', 'sky', 'sun', 'moon', 'star', 'forest', 'river'] },
-    gothic:  { tag: 'gothic',  keywords: ['fantôme', 'spectre', 'ténèbres', 'terreur', 'nuit', 'mort', 'ombre', 'ghost', 'shadow', 'darkness', 'terror', 'death'] },
-    epic:    { tag: 'epic',    keywords: ['héros', 'bataille', 'gloire', 'honneur', 'guerre', 'conquête', 'hero', 'battle', 'glory', 'honor', 'war', 'sword'] },
+    nature:  { tag: 'nature',  keywords: ['nature', 'fleur', 'arbre', 'mer', 'ciel', 'soleil', 'lune', 'étoile', 'flower', 'tree', 'sea', 'sky', 'sun', 'moon', 'star', 'forest', 'river'] },  // 454
+    gothic:  { tag: 'horror',  keywords: ['fantôme', 'spectre', 'ténèbres', 'terreur', 'nuit', 'mort', 'ombre', 'ghost', 'shadow', 'darkness', 'terror', 'death'] },  // 921
+    epic:    { tag: 'history', keywords: ['héros', 'bataille', 'gloire', 'honneur', 'guerre', 'conquête', 'hero', 'battle', 'glory', 'honor', 'war', 'sword'] },  // 1740
     mystic:  { tag: 'mystic',  keywords: ['divin', 'extase', 'sacré', 'éternel', 'lumière', 'prière', 'divine', 'sacred', 'eternal', 'prayer', 'spirit'] },
     dream:   { tag: 'dream',   keywords: ['rêve', 'songe', 'vision', 'sommeil', 'chimère', 'illusion', 'dream', 'vision', 'sleep', 'reverie'] },
-    humor:   { tag: 'humor',   keywords: ['rire', 'comique', 'ironie', 'satire', 'moquerie', 'ridicule', 'laugh', 'irony', 'satire', 'wit', 'comedy'] },
+    humor:   { tag: 'humor',   keywords: ['rire', 'comique', 'ironie', 'satire', 'moquerie', 'ridicule', 'laugh', 'irony', 'satire', 'wit', 'comedy'] },  // 145
+    fantasy: { tag: 'fantasy', keywords: ['dragon', 'magie', 'sorcier', 'enchantement', 'fée', 'elfe', 'dragon', 'magic', 'wizard', 'fairy', 'elf', 'enchant'] },  // 1175
 };
 
 /**
- * Hashtag communautaire Bluesky (fixe, toujours inclus).
- * #BookSky est la communauté littéraire la plus active sur Bluesky.
+ * Hashtags communautaires Bluesky (fixes, adaptés à la langue).
+ * Basé sur les hashtags littéraires les plus populaires sur Bluesky :
+ *   #writingcommunity (2994), #books (976), #amreading (243)
+ *   #poetry (1348) déjà couvert par les tags dynamiques
  */
-const PLATFORM_TAG = '#BookSky';
+const PLATFORM_TAGS_BY_LANG = {
+    fr: ['#books', '#LectureFR'],           // #LectureFR (99) = communauté FR Bluesky
+    en: ['#books', '#amreading'],           // #amreading (243) = communauté lecture
+    de: ['#books', '#GermanBookSky'],       // #GermanBookSky (103)
+    it: ['#books', '#reading'],
+    es: ['#books', '#reading'],
+    pt: ['#books', '#reading'],
+};
+const PLATFORM_TAGS_DEFAULT = ['#books', '#reading'];
 
 /**
  * Analyse le texte et retourne les hashtags dynamiques courts.
@@ -1024,7 +1036,10 @@ function buildDynamicHashtags(text, lang, max = 2) {
     for (const [cat, { keywords }] of Object.entries(CONTENT_TAGS)) {
         let score = 0;
         for (const kw of keywords) {
-            if (lower.includes(kw.toLowerCase())) score++;
+            // Utiliser des limites de mots pour éviter les faux positifs
+            // (ex: "wit" ne doit pas matcher dans "with")
+            const regex = new RegExp(`\\b${kw.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            if (regex.test(lower)) score++;
         }
         if (score > 0) scores[cat] = score;
     }
@@ -1038,8 +1053,8 @@ function buildDynamicHashtags(text, lang, max = 2) {
         top.push('#lit');
     }
 
-    top.push(PLATFORM_TAG);
-    return top.join(' ');
+    const platformTags = PLATFORM_TAGS_BY_LANG[lang] || PLATFORM_TAGS_DEFAULT;
+    return [...top, ...platformTags].join(' ');
 }
 
 // ─── Format Post ───
