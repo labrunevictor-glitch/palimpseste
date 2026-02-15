@@ -1,0 +1,57 @@
+name: X Bot — Post Literary Quotes
+
+on:
+  schedule:
+    # Toutes les heures à :30, décalé par rapport à Bluesky (:00) et Mastodon (:15)
+    - cron: '30 * * * *'
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: 'Force language (fr, en, or leave empty for both)'
+        required: false
+        default: ''
+
+jobs:
+  post-french:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Post French literary quote
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node bot/x-bot.js --lang=fr
+
+  post-english:
+    runs-on: ubuntu-latest
+    needs: post-french
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait 2 minutes to avoid rate limiting
+        run: sleep 120
+
+      - name: Post English literary quote
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node bot/x-bot.js --lang=en
