@@ -949,7 +949,7 @@ async function fetchPoetryDBQuote() {
                 author: poem.author,
                 title: poem.title || 'Poetry',
                 lang: 'en',
-                source: `https://poetrydb.org/title/${encodeURIComponent(poem.title)}`,
+                source: 'https://poetrydb.org',
                 fromTrending: false,
             };
         }
