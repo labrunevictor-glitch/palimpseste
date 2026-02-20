@@ -245,7 +245,7 @@ RETURNS TABLE (
         p.username
     FROM auth.users u
     LEFT JOIN profiles p ON p.id = u.id
-    WHERE auth.jwt() ->> 'email' = 'VOTRE_EMAIL@example.com'
+    WHERE auth.jwt() ->> 'email' = 'victor_lafourche@outlook.fr'
     ORDER BY u.created_at DESC
     LIMIT COALESCE(limit_count, 20);
 $$ LANGUAGE sql SECURITY DEFINER SET search_path = public, auth;

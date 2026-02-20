@@ -419,6 +419,19 @@
                 }
                 
                 currentUser = session.user;
+
+                // 🔐 Vérifier que l'utilisateur est bien l'admin
+                if (currentUser.email !== CONFIG.ADMIN_EMAIL) {
+                    document.body.innerHTML = `
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1rem;font-family:Georgia,serif;">
+                            <div style="font-size:3rem;">🚫</div>
+                            <h2 style="color:#e74c3c;">Accès refusé</h2>
+                            <p style="color:#aaa;">Vous n'êtes pas autorisé à accéder au dashboard admin.</p>
+                            <a href="index.html" style="color:#5a7a8a;">← Retour à Palimpseste</a>
+                        </div>`;
+                    return;
+                }
+
                 adminSessionId = getAdminSessionId();
                 adminVisitorId = getAdminVisitorId();
                 
