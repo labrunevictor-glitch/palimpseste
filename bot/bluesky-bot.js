@@ -880,8 +880,13 @@ async function fetchTextFromPage(ws, title, depth = 0) {
 }
 
 async function fetchQuoteFromWikisource(maxRetries = 25, forceLang = null, excludeUrls = new Set()) {
+    let backoffMs = 0;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
+            if (backoffMs > 0) {
+                console.log(`    ⏳ Rate-limited, waiting ${(backoffMs / 1000).toFixed(1)}s…`);
+                await new Promise(r => setTimeout(r, backoffMs));
+            }
             const ws = pickWeightedLang(forceLang);
             console.log(`  Tentative ${attempt + 1}: ${ws.lang}.wikisource.org`);
 
@@ -890,6 +895,7 @@ async function fetchQuoteFromWikisource(maxRetries = 25, forceLang = null, exclu
                 : await searchWikisource(ws);
 
             if (!pages.length) continue;
+            backoffMs = 0; // Reset on success
 
             const shuffled = pages.sort(() => Math.random() - 0.5);
 
@@ -903,6 +909,9 @@ async function fetchQuoteFromWikisource(maxRetries = 25, forceLang = null, exclu
             }
         } catch (err) {
             console.log(`    ✗ Error: ${err.message}`);
+            if (err.message.includes('429')) {
+                backoffMs = backoffMs ? Math.min(backoffMs * 2, 30000) : 2000;
+            }
         }
     }
     return null;
