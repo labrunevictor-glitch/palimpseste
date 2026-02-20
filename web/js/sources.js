@@ -798,7 +798,7 @@ async function fetchPoetryDB() {
                     text: Array.isArray(poem.lines) ? poem.lines.join('\n') : poem.lines,
                     author: poem.author,
                     source: 'poetrydb',
-                    url: 'https://poetrydb.org',
+                    url: `https://poetrydb.org/title/${encodeURIComponent(poem.title)}`,
                     lang: 'en'
                 }));
             }
