@@ -477,12 +477,12 @@ async function searchPoetryDB(query, requestId) {
                     snippet: p.lines?.slice(0, 3).join(' / ') || '',
                     lines: p.lines,
                     source: 'poetrydb',
-                    url: `https://poetrydb.org/title/${encodeURIComponent(p.title)}`,
+                    url: 'https://poetrydb.org',
                     lang: 'en'
                 }));
             }
         }
-        
+
         // Recherche par titre
         const titleRes = await fetch(`https://poetrydb.org/title/${encodeURIComponent(query)}`);
         let titleData = [];
@@ -495,12 +495,12 @@ async function searchPoetryDB(query, requestId) {
                     snippet: p.lines?.slice(0, 3).join(' / ') || '',
                     lines: p.lines,
                     source: 'poetrydb',
-                    url: `https://poetrydb.org/title/${encodeURIComponent(p.title)}`,
+                    url: 'https://poetrydb.org',
                     lang: 'en'
                 }));
             }
         }
-        
+
         // Combiner et dédupliquer
         const combined = [...authorData, ...titleData];
         const seen = new Set();
@@ -1014,7 +1014,7 @@ async function openSearchResult(idx, tab) {
     }
 
     if (kind === 'poetrydb' || result.source === 'poetrydb') {
-        const poetryUrl = result.url || `https://poetrydb.org/title/${encodeURIComponent(result.title)}`;
+        const poetryUrl = result.url || 'https://poetrydb.org';
         document.getElementById('feed').innerHTML = '';
         state.cardIdx = 0;
         renderCard({

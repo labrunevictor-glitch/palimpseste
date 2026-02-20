@@ -810,7 +810,7 @@ async function fetchTextFromPage(ws, title, depth = 0) {
     };
 }
 
-async function fetchQuoteFromWikisource(maxRetries = 15, forceLang = null, excludeUrls = new Set()) {
+async function fetchQuoteFromWikisource(maxRetries = 25, forceLang = null, excludeUrls = new Set()) {
     for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
             const ws = pickWeightedLang(forceLang);
@@ -1118,7 +1118,7 @@ async function main() {
     // 4) Relaxed mode: re-allow previously posted if nothing else works
     if (!quote) {
         console.log('\n♻️ Relaxed mode: retrying Wikisource without dedup filter…');
-        quote = await fetchQuoteFromWikisource(15, forceLang, new Set());
+        quote = await fetchQuoteFromWikisource(25, forceLang, new Set());
     }
 
     if (!quote) {
