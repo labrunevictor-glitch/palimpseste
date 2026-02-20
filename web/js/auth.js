@@ -762,3 +762,21 @@ document.addEventListener('click', (e) => {
         closeUserDropdown();
     }
 });
+
+// Soumettre les formulaires d'auth en appuyant sur Entrée
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const modal = document.getElementById('authModal');
+    if (!modal || !modal.classList.contains('open')) return;
+    if (!e.target.classList.contains('auth-input')) return;
+
+    if (document.getElementById('loginForm').style.display !== 'none') {
+        loginWithEmail();
+    } else if (document.getElementById('registerForm').style.display !== 'none') {
+        registerWithEmail();
+    } else if (document.getElementById('forgotForm').style.display !== 'none') {
+        sendPasswordReset();
+    } else if (document.getElementById('resetPasswordForm').style.display !== 'none') {
+        updatePassword();
+    }
+});
