@@ -257,6 +257,45 @@
             border-radius: 0 8px 8px 0;
             font-size: 0.9rem;
         }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .refresh-btn {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            th, td {
+                padding: 0.6rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -269,7 +308,6 @@
     </div>
     
     <div id="errorContainer"></div>
-    <div id="adminDebug" style="display:none; background: rgba(26, 188, 156, 0.08); border: 1px dashed #1abc9c; color: var(--text); padding: 0.75rem 1rem; border-radius: 8px; margin: 0 0 1rem 0; font-size: 0.85rem;"></div>
 
     <!-- Formulaire de connexion (affiché si pas de session) -->
     <div id="loginForm" style="display:none; max-width:360px; margin: 4rem auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 2rem;">
@@ -439,28 +477,6 @@
             }
         }
 
-        function setDebugInfo(info) {
-            const debug = document.getElementById('adminDebug');
-            if (!debug) return;
-
-            const adminEmail = (CONFIG.ADMIN_EMAIL || '').trim();
-            const userEmail = (info?.session?.user?.email || '').trim();
-            const hasSession = !!info?.session;
-            const stage = info?.stage || 'init';
-            const errorMsg = info?.error ? String(info.error) : '';
-
-            debug.innerHTML = `
-                <div style="font-weight: 600; margin-bottom: 6px;">Debug admin</div>
-                <div>Stage: <strong>${escapeHtml(stage)}</strong></div>
-                <div>Session: <strong>${hasSession ? 'OK' : 'Aucune'}</strong></div>
-                <div>User email: <strong>${escapeHtml(userEmail || 'n/a')}</strong></div>
-                <div>Admin email: <strong>${escapeHtml(adminEmail || 'n/a')}</strong></div>
-                <div>Host: <strong>${escapeHtml(window.location.host)}</strong></div>
-                <div>UA: <strong>${escapeHtml(navigator.userAgent)}</strong></div>
-                ${errorMsg ? `<div style="margin-top: 6px; color: #e74c3c;">Error: ${escapeHtml(errorMsg)}</div>` : ''}
-            `;
-            debug.style.display = 'block';
-        }
 
         function showLoginForm(message) {
             setDashboardVisible(false);
@@ -497,11 +513,9 @@
                     session = data.session;
                 } catch(e) {
                     console.warn('getSession failed:', e);
-                    setDebugInfo({ stage: 'getSession', session: null, error: e?.message || e });
                 }
 
                 if (!session) {
-                    setDebugInfo({ stage: 'no-session', session: null });
                     showLoginForm();
                     return;
                 }
@@ -512,7 +526,6 @@
                 console.error('Init error:', e);
                 showError('Erreur d\'initialisation: ' + e.message);
                 showLoginForm('Erreur d\'initialisation. Réessayez.');
-                setDebugInfo({ stage: 'init-error', session: null, error: e?.message || e });
             }
         }
 
@@ -546,7 +559,6 @@
 
         async function proceedWithSession(session) {
             currentUser = session.user;
-            setDebugInfo({ stage: 'session', session });
 
             // 🔐 Vérifier que l'utilisateur est bien l'admin (comparaison insensible à la casse)
             const adminEmail = (CONFIG.ADMIN_EMAIL || '').trim().toLowerCase();
