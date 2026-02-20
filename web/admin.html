@@ -520,8 +520,10 @@
         async function proceedWithSession(session) {
             currentUser = session.user;
 
-            // 🔐 Vérifier que l'utilisateur est bien l'admin
-            if (currentUser.email !== CONFIG.ADMIN_EMAIL) {
+            // 🔐 Vérifier que l'utilisateur est bien l'admin (comparaison insensible à la casse)
+            const adminEmail = (CONFIG.ADMIN_EMAIL || '').trim().toLowerCase();
+            const userEmail = (currentUser?.email || '').trim().toLowerCase();
+            if (!adminEmail || !userEmail || userEmail !== adminEmail) {
                 showError('Accès refusé. Connectez-vous avec le compte admin.');
                 try {
                     await supabaseClient.auth.signOut();
